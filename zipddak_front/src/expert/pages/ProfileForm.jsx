@@ -1,7 +1,7 @@
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
 import { useRef, useState } from "react";
-import "./css/expertProfile.css";
+import "../css/expertProfile.css";
 
 export default function ProfileForm() {
   const [step, setStep] = useState({ 1: true, 2: false, 3: false, 4: false });

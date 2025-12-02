@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
-import "./css/mypage.css";
+import "../css/mypage.css";
 
 export default function Mypage() {
   const navigate = useNavigate();
