@@ -103,42 +103,42 @@ export function ToolL() {
 
 export function MyToolCard() {
     return (
-        
-            <a href="#" className="myTool">
-                <div className="row-cm myTool-card">
-                    <div className="myTool-image"></div>
-                    <div className="col-cm">
-                        <div className="row-cm myTool-rabel">
-                            <span className="myTool-name">{ }열풍기</span>
-                            <span className="myTool-category">{ }전동공구</span>
+
+        <a href="#" className="myTool">
+            <div className="row-cm myTool-card">
+                <div className="myTool-image"></div>
+                <div className="col-cm myTool-box">
+                    <div className="row-cm myTool-rabel">
+                        <span className="myTool-name">{ }열풍기</span>
+                        <span className="myTool-category">{ }전동공구</span>
+                    </div>
+                    <div className="myTool-price">{ }10,000</div>
+                    <div className="row-cm myTool-bottom">
+                        <div className="row-cm">
+                            <div className="row-cm">
+                                <Calendar />
+                                <div className="col-cm myTool-status">
+                                    <div className="myTool-rental-status">대여상태</div>
+                                    <div className="myTool-rental-type">{ }대여중</div>
+                                </div>
+                            </div>
+                            <div className="row-cm">
+                                <Calendar />
+                                <div className="col-cm myTool-status">
+                                    <div className="myTool-rental-status">거래방식</div>
+                                    <div className="myTool-rental-type">{ }직거래</div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="myTool-price">{}10,000</div>
-                        <div className="row-cm myTool-bottom">
-                            <div className="row-cm">
-                            <div className="row-cm">
-                            <Calendar />
-                            <div className="col-cm myTool-status">
-                                <div className="myTool-rental-status">대여상태</div>
-                                <div className="myTool-rental-type">{}대여중</div>
-                            </div>
-                            </div>
-                             <div className="row-cm">
-                            <Calendar />
-                            <div className="col-cm myTool-status">
-                                <div className="myTool-rental-status">거래방식</div>
-                                <div className="myTool-rental-type">{}직거래</div>
-                            </div>
-                            </div>
-                            </div>
-                            <div className="myTool-button">
-                                <Button>대여중지</Button>
-                                <Button>수정</Button>
-                                <Button>삭제</Button>
-                            </div>
+                        <div className="myTool-button">
+                            <Button>대여중지</Button>
+                            <Button>수정</Button>
+                            <Button>삭제</Button>
                         </div>
                     </div>
                 </div>
-            </a>
-       
+            </div>
+        </a>
+
     )
 }

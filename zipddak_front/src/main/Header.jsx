@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import '../css/Header.css'
+import './css/Header.css'
 import '../css/common.css'
 
 import { ChevronDown, Rocket, CircleUserRound, MessageCircleMore, Bell, ShoppingCart, Archive } from 'lucide-react'

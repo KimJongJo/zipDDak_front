@@ -1,12 +1,12 @@
 import '../css/common.css'
-import '../css/Main.css'
-import { Header1 } from "../component/Header";
+import './css/Main.css'
+import { Header1 } from "./component/Header";
 import { Button } from 'reactstrap';
 import { Search ,CirclePlus, MapPin, ArrowRight} from 'lucide-react'
-import Expertmain from '../component/Expert';
-import { Toolmain } from '../component/Tool';
-import { Product } from '../component/Product';
-import { Community } from '../component/Community';
+import Expertmain from './component/Expert';
+import { Toolmain } from './component/Tool';
+import { Product } from './component/Product';
+import { Community } from './component/Community';
 
 export default function Main() {
     return (
