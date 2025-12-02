@@ -1,0 +1,297 @@
+.detail-container {
+    width: 1200px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.d-info {
+    display: flex;
+    flex-direction: column;
+    margin: 40px 0;
+}
+
+.d-top {
+    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.d-user {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.profileImage {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #F1F3F7;
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.nick {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.loca {
+    font-size: 13px;
+    font-weight: 500;
+    color: #8E8E93;
+}
+
+.top-icons {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.d-info-box {
+    display: flex;
+    justify-content: space-between;
+}
+
+.d-tool-image {
+    width: 645px;
+    height: 470px;
+    background-color: #F1F3F7;
+    border-radius: 8px;
+}
+
+.infomation {
+    width: 500px;
+}
+
+.d-infos {
+     width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.d-point {
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 15px;
+    border-bottom: #F1F3F7 1px solid;
+}
+
+.d-points {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.points {
+    background-color: #F1F3F7;
+    font-size: 13px;
+    font-weight: 600;
+
+    padding: 8px 12px;
+    border-radius: 3px;
+}
+
+.createdate {
+    color: #8E8E93;
+}
+
+.d-option {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.ca {
+    font-size: 15px;
+    font-weight: 500;
+    color: #8E8E93;
+}
+
+.na {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.d-price, 
+.d-ectInfo,
+.ic,
+.rentalBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.od {
+    font-size: 20px;
+    font-weight: 500;
+    color: #FF5833;
+}
+
+.tp {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.dt {
+    font-size: 18px;
+    font-weight: 500;
+    color: #8E8E93;
+}
+
+.d-ectInfo {
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.ic {
+    gap: 5px;
+    font-size: 15px;
+}
+
+.short-info {
+    margin: 15px 0;
+    border-top: #F1F3F7 1px solid;
+    padding: 10px;
+}
+
+.rentalBtn{
+    justify-content: center;
+    gap: 10px;
+}
+
+/* 네이게이션 */
+.d-tab-nav {
+    width: 100%;
+    border-bottom: #F1F3F7 1px solid;
+
+    display: flex;
+    align-items: center;
+}
+
+.d-nav {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 15px 30px;
+    color: #8E8E93;
+    cursor: pointer;
+}
+
+.d-nav.active,
+.d-nav:active {
+    color: #303441;
+    border-bottom: 2px solid;
+}
+
+/* 탭1 */
+.d-tab {
+    display: flex;
+    flex-direction: column;
+}
+
+.de-label {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 40px 0;
+}
+
+.detailImage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.dimgs {
+    width: 900px;
+    height: 470px;
+    background-color: #F1F3F7;
+    border-radius: 8px;
+    position: relative;
+}
+
+.imgNav {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dots {
+    display: flex;
+}
+
+.fbBtn {
+    border: #F1F3F7 1px solid;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.de-two,
+.de-three {
+    width: 100%;
+    display: flex;
+    margin-bottom: 40px;
+}
+
+.de-three {
+    flex-direction: column;
+}
+
+.de-favlocation {
+    width: 435px;
+    height: 410px;
+    border: #F1F3F7 1px solid;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
+    
+}
+
+.de-map {
+    width: 435px;
+    height: 285px;
+    background-color: #F1F3F7;
+    border-radius: 8px 8px 0 0;
+}
+
+.mapinfo {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+}
+
+.map-label {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.moreTool {
+    display: flex;
+    flex-direction: column;
+}
+
+.morecards {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

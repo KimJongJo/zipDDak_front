@@ -1,0 +1,327 @@
+.tool-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 검색 */
+.filters {
+    width: 1200px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 40px 0;
+}
+
+.tool-filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.t-filter {
+    height: 43px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.search-box {
+    width: 560px;
+    height: 43px;
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid #eff1f5;
+    border-radius: 8px;
+}
+
+.f-label {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.keyword {
+    border: none;
+    outline: none;
+    width: 450px;
+}
+
+.location-box {
+    width: 235px;
+    height: 43px;
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border: 1px solid #eff1f5;
+    border-radius: 8px;
+}
+
+.location {
+    border: none;
+    outline: none;
+    width: 150px; 
+}
+
+.mapBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.trade {
+  position: relative;
+  width: 165px;
+}
+
+.trade-select {
+  width: 100%;
+  height: 43px;
+  padding: 0 16px;
+  border: 1px solid #eff1f5;
+  border-radius: 8px;
+  outline: none;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.trade-arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.f-category {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-weight: 500;
+}
+
+/* 지도에서 찾기 */
+.findByMap {
+    width: 1200px;
+    padding: 0 16px;
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+
+    border-bottom: #eff1f5 1px solid;
+}
+
+.title-main {
+    display: flex;
+    font-size: 20px;
+    font-weight: 600;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 32px;
+}
+
+.map-show {
+    cursor: pointer;
+}
+
+.maplist {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.map {
+    width: 825px;
+    height: 480px;
+    background-color: #eff1f5;
+    border-radius: 8px;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.list-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tool-h {
+    width: 330px;
+    height: 130px;
+    border: #eff1f5 1px solid;
+    border-radius: 8px; 
+    display: flex;
+    padding: 15px;
+    gap: 12px;
+    position: relative;
+
+    text-decoration-line: none;
+    color: unset; /* 부모 색상을 강제로 초기화 */
+}
+
+.tool-image-h {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    background-color: #eff1f5;
+}
+
+.tool-image-h img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.favorite-iconh {
+    position: absolute; /* 절대 위치 */
+    top: 6px;
+    right: 12px;
+    font-size: 24px;
+    color: #ff5833;
+    cursor: pointer;
+}
+
+.tool-info-h {
+    /* width: 100%; */
+    margin-top: 5px;
+}
+
+.tool-address-h {
+    font-size: 12px;
+}
+
+.tool-name-h {
+    font-size: 15px;
+    font-weight: 500;
+}
+.oneday-h {
+    font-size: 15px;
+    color: #ff5833;
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.rental-price-h {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.c-btn {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: flex-end;
+}
+
+.m-btn {
+    width: 40px;
+    height: 40px;
+    border: #eff1f5 1px solid;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.m-btn:active {
+    background-color: #eff1f5;
+}
+
+/* 정렬기준 */
+.listBy {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.by {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bbtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 34px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #F2F2F7;
+    border-radius: 16px;
+}
+
+.bbtn.active,
+.bbtn:active {
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #ff5833;
+}
+
+.regibtn,
+.btn-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 600;
+}
+
+.hiddenTool {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    font-weight: 500;
+}
+
+/* 카드 리스트 */
+.cards {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 40px 0;
+}
+
+.moreBtn {
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    margin-bottom: 20px;
+
+    color: #757575;
+    font-size: 14px;
+    font-weight: 600;
+    border: #F2F2F7 1px solid;
+    border-radius: 16px;
+
+    cursor: pointer;
+}
+
+.moreBtn:active {
+    background-color: #eff1f5;
+}
