@@ -1,0 +1,38 @@
+.mainBody {
+    width: 100%;
+}
+.profileSummary {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    margin: 0 auto 20px;
+    gap: 15px;
+    flex-shrink: 0;
+    border: 1px solid var(--outerLine);
+    border-radius: 8px;
+}
+
+.imgPart {
+    flex: 0 0 30%;
+}
+
+.imgPart img {
+    width: 100%;
+    object-fit: cover;
+}
+
+.infoPart {
+    flex: 1; /* gap 제외한 나머지 전부 차지 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.compInfo p {
+    margin-bottom: 18px;
+}
+.accountPart {
+    display: flex;
+    align-items: center;
+}

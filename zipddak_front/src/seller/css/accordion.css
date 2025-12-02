@@ -1,0 +1,52 @@
+.claimHistory {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.accordionToggleBox {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* align-self: stretch; */
+    width: inherit;
+    gap: 5px;
+}
+
+.accordion_header.opened {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    width: inherit;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: rgba(255, 87, 51, 0.5);
+    box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
+}
+
+.accordion_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    width: inherit;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 87, 51, 0.5);
+    box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
+}
+
+.accordion_body {
+    width: inherit;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    border: 1px solid var(--outerLine);
+    box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
+    border-radius: 8px;
+    gap: 30px;
+}

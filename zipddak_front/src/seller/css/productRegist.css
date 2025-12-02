@@ -1,0 +1,66 @@
+/* .cate_list {
+    display: flex;
+} */
+
+.deli_frame,
+.addr_frame,
+.opt_frame {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-content: flex-end;
+    gap: 12px;
+    padding: 15px 10px;
+    border: 1px solid var(--outerLine);
+    border-radius: 5px;
+}
+.addr_column,
+.option_column {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    height: auto;
+}
+.option_column:not(:first-child) {
+    border-top: 1px solid var(--innerLine);
+    padding-top: 10px;
+}
+.optionHeader {
+    width: 30%;
+}
+.optionBody {
+    width: 70%;
+    display: flex;
+    /* align-items: flex-end; */
+}
+
+.opt_subFrame {
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+.optionBodyColumn {
+    display: flex;
+    /* align-items: flex-end; */
+    gap: 5px;
+}
+
+.optionContent {
+    display: flex;
+    gap: 5px;
+}
+.add_btn {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.small-category {
+    border-top: 1px solid var(--innerLine);
+    margin-top: 5px;
+    padding-top: 8px;
+}

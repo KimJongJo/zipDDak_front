@@ -1,0 +1,76 @@
+.contentFrame {
+    width: 100%;
+    padding: 20px 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+table.settleDetailTable {
+    border-top: 1px solid #d3d3d3;
+    width: 100%;
+    text-align: center;
+}
+
+table.settleDetailTable tbody tr {
+    height: 45px;
+}
+
+table.settleDetailTable tbody tr th {
+    background-color: #eaecf0;
+}
+
+table.settleDetailTable th,
+table.settleDetailTable td {
+    padding: 8px 10px;
+    text-align: center;
+
+    /* 가로 구분선 */
+    border-bottom: 1px solid #d3d3d3;
+
+    box-sizing: border-box;
+    line-height: 20px;
+    width: 25%;
+}
+
+.managerComment {
+    font-size: 18px;
+    color: #6f6964;
+    width: 20% !important;
+    border: none;
+    border-radius: 0;
+    /* border-bottom: solid #aaaaaa 1px; */
+    border-bottom: solid #dee2e6 1px;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    margin-bottom: 10px;
+    position: relative;
+    background: none;
+    z-index: 5;
+}
+
+table.settleDetailTable thead th {
+    color: #667085;
+    background: #eaecf0;
+    line-height: 18px;
+}
+table.settleDetailTable tbody tr {
+    height: 45px;
+}
+
+table.settleDetailTable tbody td.date_cell {
+    font-weight: 500;
+}
+
+table.settleDetailTable tfoot td:first-child {
+    font-weight: 600;
+}
+
+table.settleDetailTable tfoot td:last-child {
+    color: red;
+}
+
+table.settleDetailTable tbody tr:hover td:not(:has(img)) {
+    background-color: transparent;
+    cursor: default;
+}
