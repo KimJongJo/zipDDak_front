@@ -115,7 +115,7 @@ function App() {
         <Route path="signUp/store3" element={<SignStore3 />} />
 
         {/* 일반사용자 메인 */}
-        <Route path="mainm" element={<Main />} />
+        <Route path="main" element={<Main />} />
         <Route path="search" element={<MainSearch />} />
         <Route path="best" element={<Best />} />
         <Route path="market/return/:orderId" element={<MarketReturnForm />} />
