@@ -1,6 +1,7 @@
 //css
 import table from "../css/table.module.css";
 import detail from "../css/detail.module.css";
+import acco from "../css/accordion.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 
@@ -25,45 +26,45 @@ export default function OrderList() {
                     </div>
 
                     <div className="bodyFrame">
-                        <div className="base_info">
+                        <div className={detail.base_info}>
                             {/* 주문 정보 */}
                             <div className="position-relative mb-4">
                                 <Label for="examplePassword" className="input_title">
                                     주문 정보
                                 </Label>
 
-                                <div className="detailFrame">
-                                    <div className="info_column ">
-                                        <div className="info_cell ">
+                                <div className={detail.detailFrame}>
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문 번호 </span>
                                             <Input className="" readOnly />
                                         </div>
-                                        <div className="info_cell ">
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문 일자 </span>
                                             <Input className="" readOnly />
                                         </div>
                                     </div>
-                                    <div className="info_column">
-                                        <div className="info_cell ">
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문 상태 </span>
                                         </div>
-                                        <div className="info_cell ">
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">결제 수단 </span>
                                             <Input className="" readOnly />
                                         </div>
                                     </div>
-                                    {/* <div className="info_column">
+                                    {/* <div className={detail.info_column}>
                                     <div className="info_cell ">
                                         <span className="sub_title">총 금액 </span>
                                         <Input className="" readOnly />
                                     </div>
                                 </div> */}
-                                    <div className="info_column">
-                                        <div className="info_cell ">
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">최종 결제 금액 </span>
                                             <Input className="" readOnly style={{ color: "red" }} />
                                         </div>
-                                        <div className="info_cell "></div>
+                                        <div className={detail.info_cell}></div>
                                     </div>
                                 </div>
                             </div>
@@ -73,23 +74,23 @@ export default function OrderList() {
                                 <Label for="examplePassword" className="input_title">
                                     고객 정보
                                 </Label>
-                                <div className="detailFrame">
-                                    <div className="info_column ">
-                                        <div className="info_cell ">
+                                <div className={detail.detailFrame}>
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문자 아이디 </span>
                                             <Input className="" readOnly />
                                         </div>
-                                        <div className="info_cell ">
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문자명 </span>
                                             <Input className="" readOnly />
                                         </div>
                                     </div>
-                                    <div className="info_column">
-                                        <div className="info_cell ">
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
                                             <Input className="" readOnly />
                                         </div>
-                                        <div className="info_cell ">
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">주문 횟수</span>
                                             <Input className="" readOnly />
                                         </div>
@@ -102,19 +103,19 @@ export default function OrderList() {
                                 <Label for="examplePassword" className="input_title">
                                     배송지 정보
                                 </Label>
-                                <div className="detailFrame">
-                                    <div className="info_column ">
-                                        <div className="info_cell ">
+                                <div className={detail.detailFrame}>
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">수령인 </span>
                                             <Input className="" readOnly />
                                         </div>
-                                        <div className="info_cell ">
+                                        <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
                                             <Input className="" readOnly />
                                         </div>
                                     </div>
-                                    <div className="info_column">
-                                        <div className="info_line ">
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_line}>
                                             <span className="sub_title">배송지 </span>
                                             <div style={{ width: "100%" }}>
                                                 <div className="addr_column mb-2">
@@ -127,8 +128,8 @@ export default function OrderList() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="info_column">
-                                        <div className="info_line">
+                                    <div className={detail.info_column}>
+                                        <div className={detail.info_line}>
                                             <span className="sub_title">배송 메모</span>
                                             <Input readOnly />
                                         </div>
@@ -137,13 +138,13 @@ export default function OrderList() {
                             </div>
                         </div>
 
-                        <div className="pd_list_table">
+                        <div className={detail.pd_list_table}>
                             <Label for="examplePassword" className="input_title">
                                 주문 상품 리스트
                             </Label>
-                            <div className="product_list">
+                            <div className={detail.product_list}>
                                 <div className={table.tableBody}>
-                                    <table className={table.claim_table}>
+                                    <table className={table.detail_view_Table}>
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "5%" }}>
@@ -286,12 +287,10 @@ export default function OrderList() {
                         </div>
 
                         <div className="position-relative mt-4">
-                            <Label for="examplePassword" className="input_title">
-                                클레임 내역
-                            </Label>
-                            <div className="claimHistory">
-                                <div className="accordionToggleBox">
-                                    <div className="accordion_header pointer">
+                            <Label className="input_title">클레임 내역</Label>
+                            <div className={detail.claimHistory}>
+                                <div className={acco.accordionToggleBox}>
+                                    <div className={[acco.accordion_header, "pointer"].join(" ")}>
                                         <p>
                                             요청 일자 : <span>2025-11-10 12:25:30</span>
                                             <span>[교환]</span>
@@ -302,24 +301,24 @@ export default function OrderList() {
                                     </div>
                                 </div>
 
-                                <div className="accordionToggleBox ">
-                                    <div className="accordion_header opened pointer">
+                                <div className={acco.accordionToggleBox}>
+                                    <div className={[acco.accordion_header, acco.accordion_opened, "pointer"].join(" ")}>
                                         <p>
                                             요청 일자 : <span>2025-11-10 12:25:30</span>
                                             <span>[반품]</span>
                                         </p>
                                         <span className="accordion_toggle_icon">
-                                            <i class="bi bi-chevron-down"></i>
+                                            <i class="bi bi-chevron-up"></i>
                                         </span>
                                     </div>
 
-                                    <div className="accordion_body">
-                                        <div className="content_section">
-                                            <div className="pd_list_table">
+                                    <div className={acco.accordion_body}>
+                                        <div className={detail.content_section}>
+                                            <div className={detail.pd_list_table}>
                                                 <Label className="sub_title">반품 상품</Label>
-                                                <div className="product_list">
-                                                    <div className="tableBody detailPdTable">
-                                                        <table className="detailListTable">
+                                                <div className={detail.product_list}>
+                                                    <div className={[table.tableBody, table.table_border].join(" ")}>
+                                                        <table className={table.claim_table}>
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>#</th>
@@ -339,7 +338,7 @@ export default function OrderList() {
                                                                         <img src="/no_img.svg" style={{ width: "40px" }} />
                                                                     </td>
                                                                     <td>P123456</td>
-                                                                    <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                                     <td>색상 : 브라운</td>
                                                                     <td>1 / 1</td>
                                                                     <td>[반품완료]</td>
@@ -351,9 +350,9 @@ export default function OrderList() {
                                                 </div>
                                             </div>
 
-                                            <div className="info_list_section">
-                                                <div className="info_column">
-                                                    <div className="info_line ">
+                                            <div className={detail.info_list_section}>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
                                                         <Label for="" className="sub_title">
                                                             요청사항
                                                         </Label>
@@ -361,10 +360,10 @@ export default function OrderList() {
                                                     </div>
                                                 </div>
 
-                                                <div className="info_column">
-                                                    <div className="info_line ">
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
                                                         <Label className="sub_title">수거 송장번호 </Label>
-                                                        <div className="flexParts" style={{ width: "50%" }}>
+                                                        <div className={detail.flexParts} style={{ width: "50%" }}>
                                                             <Input className="" style={{ width: "30%" }} placeholder="택배사" readOnly />
                                                             <Input style={{ width: "50%" }} placeholder="송장번호" readOnly />
                                                             <button type="button" className="sub-button" style={{ width: "20%", padding: "8px" }}>
@@ -374,8 +373,8 @@ export default function OrderList() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="info_column">
-                                                    <div className="info_line ">
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
                                                         <Label className="sub_title">클레임 종료일</Label>
                                                         <Input className="" style={{ width: "50%" }} placeholder="2025-11-12" readOnly />
                                                     </div>

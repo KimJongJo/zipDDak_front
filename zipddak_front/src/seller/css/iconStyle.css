@@ -1,0 +1,11 @@
+.bi-cash-coin {
+    font-size: 44px;
+    color: var(--subfont);
+}
+
+.header .nav_menu .large_menu .bi-house-door,
+.header .nav_menu .large_menu .bi-chevron-down,
+.header .user_info .bi-chevron-down {
+    margin: 0 5px;
+    color: var(--fontColor);
+}
