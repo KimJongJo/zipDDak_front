@@ -1,4 +1,4 @@
-import "../../css/user-expert/ExpertOrder.css";
+import "../css/ExpertOrder.css";
 
 export default function ExpertOrder() {
     return (

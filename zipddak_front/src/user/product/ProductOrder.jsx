@@ -1,4 +1,4 @@
-import "../../css/user-product/ProductOrder.css";
+import "../css/ProductOrder.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";

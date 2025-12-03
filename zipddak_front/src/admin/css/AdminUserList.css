@@ -403,13 +403,27 @@
     border-radius: 4px;
 }
 
-.admin-userList-switchId-modal-table {
+.admin-userList-settlement-endBtn {
+    border: none;
+    background-color: #303441;
+    color: #ffffff;
+    border-radius: 4px;
+    width: 47px;
+}
+
+.admin-userList-switchId-modal-table,
+.admin-userList-settlement-modal-table {
     width: 100%;
 }
 
-.admin-userList-switchId-modal-table td {
+.admin-userList-switchId-modal-table td,
+.admin-userList-settlement-modal-table td {
     height: 50px;
     border-bottom: 1px solid #e6e6e6;
+}
+
+.admin-userList-settlement-modal-table td {
+    text-align: center;
 }
 
 .request-state-code-1,
@@ -463,6 +477,19 @@
 
 .admin-filter-line-div-rental {
     height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 10px;
+
+    border-bottom: 1px solid #eaecf0;
+
+    padding-right: 24px;
+}
+
+.admin-filter-line-div-settlement {
+    height: 60px;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -702,4 +729,16 @@
     color: #364254;
     background-color: #f2f4f7;
     width: 73px;
+}
+
+.admin-settlement-select,
+.admin-settlement-default {
+    border: none;
+    background-color: transparent;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.admin-settlement-select {
+    color: #ff5733;
 }

@@ -1,4 +1,4 @@
-import "../../css/user-expert/ExpertReviewCard.css";
+import "../css/ExpertReviewCard.css";
 
 export default function ExpertReviewCard({ expertReview }) {
     // const expertReview = {
