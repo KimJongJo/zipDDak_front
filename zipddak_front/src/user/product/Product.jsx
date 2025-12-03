@@ -1,6 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import "../../css/user-product/Product.css";
+import "../css/Product.css";
 
 export default function Product({ product }) {
     // const product = {

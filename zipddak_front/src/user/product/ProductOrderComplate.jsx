@@ -1,4 +1,4 @@
-import "../../css/user-product/ProductOrderComplate.css";
+import "../css/ProductOrderComplate.css";
 import { useState } from "react";
 
 export default function ProductOrderComplate() {
