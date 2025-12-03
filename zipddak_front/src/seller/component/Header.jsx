@@ -41,7 +41,7 @@ const Header = () => {
                 <nav className="nav_menu" ref={menuRef}>
                     <ul className="large_menu">
                         <li className="large_menu1">
-                            <a href="/">
+                            <a href="/seller/mainhome">
                                 <i className="bi bi-house-door"></i>Home
                             </a>
                         </li>
