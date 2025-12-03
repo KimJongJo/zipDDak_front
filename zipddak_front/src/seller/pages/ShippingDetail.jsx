@@ -16,7 +16,7 @@ export default function OrderList() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i class="bi bi-newspaper"></i>

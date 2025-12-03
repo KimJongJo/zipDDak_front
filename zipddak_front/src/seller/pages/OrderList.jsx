@@ -3,7 +3,7 @@ import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 
-import { FormGroup, Input, Label } from "reactstrap";
+import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 import { useState, useEffect, useRef } from "react";
@@ -16,7 +16,7 @@ export default function OrderList() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-basket3"></i>

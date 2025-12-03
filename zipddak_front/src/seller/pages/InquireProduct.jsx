@@ -61,7 +61,7 @@ export default function InquireProduct() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-chat-square-dots"></i>

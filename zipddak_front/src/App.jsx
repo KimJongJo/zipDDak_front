@@ -81,7 +81,7 @@ import Best from "./main/pages/Best.jsx";
 import SellerLayout from "./seller/pages/SellerLayout";
 import SellerHome from "./seller/pages/MainHome";
 import ProductRegist from "./seller/pages/ProductRegist";
-import ProductList from "./seller/pages/ProductList";
+import SellerPdList from "./seller/pages/ProductList";
 import OrderList from "./seller/pages/OrderList";
 import ShippingList from "./seller/pages/ShippingList";
 import ReturnList from "./seller/pages/ReturnList";
