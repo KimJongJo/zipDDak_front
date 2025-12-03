@@ -39,7 +39,6 @@ import SignStore3 from "./user/login/SignStore3";
 import Main from "./Main/pages/Main";
 import MainSearch from "./Main/pages/Main";
 import MyTool from "./user/myPage/MyTool";
-import ToolBorrow from "./user/myPage/ToolBorrow";
 import ToolBorrowDetail from "./user/myPage/ToolBorrowDetail";
 import ToolLent from "./user/myPage/ToolLent";
 import ToolLentDetail from "./user/myPage/ToolLentDetail";
@@ -141,8 +140,7 @@ function App() {
             element={<MarketExchangeForm />}
           />
           <Route path="tool" element={<MyTool />} />
-          <Route path="tool/borrow" element={<ToolBorrow />} />
-          <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
+          <Route path="tool/lent/:rentalId" element={<ToolBorrowDetail />} />
           <Route path="tool/lent" element={<ToolLent />} />
           <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
         </Route>
