@@ -208,8 +208,8 @@ export default function InquireProduct() {
                                     </div>
                                 </div>
 
-                                <div className="pagination">
-                                    <Pagination className="my-pagination">
+                                <div className="pagination_part">
+                                    <Pagination className={table.pagination}>
                                         <PaginationItem active>
                                             <PaginationLink>1</PaginationLink>
                                         </PaginationItem>

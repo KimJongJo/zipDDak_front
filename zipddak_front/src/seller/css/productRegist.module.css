@@ -3,7 +3,7 @@
 } */
 
 .deli_frame,
-.addr_frame,
+.pickup_frame,
 .opt_frame {
     width: 100%;
     display: flex;
@@ -15,7 +15,7 @@
     border: 1px solid var(--outerLine);
     border-radius: 5px;
 }
-.addr_column,
+
 .option_column {
     width: 100%;
     display: flex;

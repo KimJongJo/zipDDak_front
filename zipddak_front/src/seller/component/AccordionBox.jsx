@@ -1,4 +1,4 @@
-import "../css/accordionBox.css";
+import "../css/accordionBox.module.css";
 import { FormGroup, Input, Label } from "reactstrap";
 
 export default function AccordionBox() {

@@ -3,6 +3,13 @@ html,
 body {
     font-family: "Pretendard Variable", sans-serif;
     color: #303441;
+    cursor: default;
+    color-scheme: light dark;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility; /*글자를 화면에 더 선명하고 자연스럽게 보이도록 함*/
+    -webkit-font-smoothing: antialiased; /*글자 외곽선을 부드럽게 렌더링*/
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 14px !important;
 }
 
 /* 버튼 기본 스타일 */

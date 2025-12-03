@@ -78,11 +78,11 @@ export default function OrderList() {
                             </div>
                         </div>
 
-                        <div className="pd_list_table">
+                        <div className={detail.pd_list_table}>
                             <Label for="examplePassword" className="input_title">
                                 배송 상품 리스트
                             </Label>
-                            <div className="product_list">
+                            <div className={detail.product_list}>
                                 <div className={table.tableBody}>
                                     <table className={table.detail_table}>
                                         <thead>
