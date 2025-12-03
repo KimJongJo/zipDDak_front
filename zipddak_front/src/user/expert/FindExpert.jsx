@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "reactstrap";
-import "../../css/user-expert/FindExpert.css";
+import "../css/FindExpert.css";
 
 export default function FindExpert() {
     const chatEndRef = useRef(null);

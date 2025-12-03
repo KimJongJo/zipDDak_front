@@ -1,4 +1,4 @@
-import "../../css/user-expert/Expert.css";
+import "../css/Expert.css";
 
 export default function Expert({ expert }) {
     // const expert = {

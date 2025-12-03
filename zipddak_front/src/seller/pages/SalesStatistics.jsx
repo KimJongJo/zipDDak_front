@@ -1,5 +1,7 @@
-import "../css/frame.css";
-import "../css/salesStatistics.css";
+//css
+import table from "../css/table.module.css";
+import sales from "../css/salesStatistics.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
@@ -29,7 +31,7 @@ export default function SalesStatistics() {
                             </button>
                         </div>
 
-                        <div className="body_column2">
+                        <div className={sales.body_column}>
                             <div className="salesCard">
                                 <div className="cardImage">
                                     {/* <img src="/no_img.svg" /> */}
@@ -80,8 +82,8 @@ export default function SalesStatistics() {
                             </div>
                         </div>
 
-                        <div className="body_column3">
-                            <div className="periodCriteria">
+                        <div className={[sales.body_column, sales.change_period].join(" ")}>
+                            <div className={sales.periodCriteria}>
                                 <FormGroup check inline>
                                     <Label check>
                                         <Input type="radio" name="radio2" />
@@ -102,7 +104,7 @@ export default function SalesStatistics() {
                                 </FormGroup>
                             </div>
                             <div className="tableBody">
-                                <table className="salesTable">
+                                <table className={table.salesTable}>
                                     <thead>
                                         <tr>
                                             <th style={{ width: "10%" }}>날짜</th>

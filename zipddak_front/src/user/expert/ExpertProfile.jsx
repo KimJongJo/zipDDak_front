@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import "../../css/user-expert/ExpertProfile.css";
+import "../css/ExpertProfile.css";
 import ExpertReviewCard from "./ExpertReviewCard";
 import ExpertQuestion from "./ExpertQuestion";
 

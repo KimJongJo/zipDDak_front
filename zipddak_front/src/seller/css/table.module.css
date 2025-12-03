@@ -1,12 +1,13 @@
+/* 테이블 전체 프레임 (헤더 + 테이블 + 페이지네이션) */
 .tableFrame {
     width: 100%;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     gap: 15px;
-    /* border: 1px solid red; */
 }
 
+/* 필터영역 */
 .filterArea {
     width: 15%;
     display: flex;
@@ -19,10 +20,7 @@
     border: 1px solid var(--outerLine);
     /* border-radius: 3px; */
 }
-
-.filterColumn1,
-.filterColumn2,
-.filterColumn3 {
+.filterColumn {
     width: 100%;
 }
 .filterTitle {
@@ -32,7 +30,6 @@
     line-height: 18px; /* 150% */
     margin-bottom: 5px;
 }
-
 .filterBody {
     width: 100%;
     padding: 10px;
@@ -43,6 +40,7 @@
     flex-direction: column;
 }
 
+/* 테이블 */
 .tableArea {
     width: 80%;
     /* display: flex;
@@ -75,7 +73,7 @@
     width: 100%;
     overflow-x: auto; /* 내용 길어질 시 자동으로 가로스크롤 */
 }
-table {
+table.list_table {
     width: max-content; /* 내용 크기만큼 자연 확장 */
     min-width: 100%; /* 화면보다 좁아지지 않게 */
     table-layout: fixed;
@@ -88,7 +86,7 @@ table {
     white-space: nowrap; /* 열 줄바꿈 방지 */
 }
 
-table thead {
+table.list_table thead {
     border-bottom: 1px solid rgba(0, 0, 0, 0.8);
 }
 
@@ -109,7 +107,7 @@ table td {
 } */
 
 /* 행에 마우스 hover시 색변환 */
-table.listTable tbody tr:hover td:not(:has(img)) {
+table.list_table tbody tr:hover td:not(:has(img)) {
     background-color: #eee;
     cursor: pointer;
 }
@@ -126,7 +124,9 @@ table.listTable tbody tr:hover td:not(:has(img)) {
     text-align: right;
 }
 
-/* 페이지네이션 */
+/* ****************************************
+    페이지네이션 
+***************************************** */
 .my-pagination {
     display: flex;
     justify-content: center;

@@ -1,4 +1,4 @@
-import "../../css/admin/AdminNav.css";
+import "../css/AdminNav.css";
 
 export default function AdminNav() {
     return (

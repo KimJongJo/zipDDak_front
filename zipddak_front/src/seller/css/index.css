@@ -7,7 +7,7 @@ body {
     text-rendering: optimizeLegibility; /*글자를 화면에 더 선명하고 자연스럽게 보이도록 함*/
     -webkit-font-smoothing: antialiased; /*글자 외곽선을 부드럽게 렌더링*/
     -moz-osx-font-smoothing: grayscale;
-    font-size: 14px;
+    font-size: 14px !important;
 }
 :root {
     --fontColor: #303441; /* 기본 글자색 */
@@ -23,35 +23,6 @@ body {
     --clicked: #e24c2b;
     --innerLine: #e3e3e3;
     --outerLine: #e1e4ed;
-}
-
-a {
-    text-decoration: none !important;
-    color: var(--fontColor) !important;
-}
-
-/* 쳌박, 라디오 + 라벨 일자정렬 */
-.form-check-label {
-    display: flex;
-    /* align-items: center; */
-    align-items: flex-end;
-    gap: 8px;
-}
-/* 첵박, 라디오 스타일 */
-.form-check-input {
-    border-color: var(--fontColor);
-    /* border-color: #dee2e6; */
-}
-.form-check-input:checked {
-    background-color: var(--mainColor) !important;
-    border-color: #ff583398 !important;
-}
-.form-check-input:focus,
-.form-control:focus,
-.form-select:focus {
-    border-color: #ff583398 !important;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem var(--shadowColor) !important;
 }
 
 input[type="text"] {
@@ -89,6 +60,10 @@ textarea {
     font-size: 16px;
     font-weight: 600;
     margin-right: 5px;
+}
+.sub_title {
+    min-width: 90px;
+    font-weight: 500;
 }
 main {
     padding: 20px 120px;

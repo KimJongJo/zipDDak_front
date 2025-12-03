@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/settings.css";
+//css
+import "../css/settings.module.css";
+//js
 import imageUploadFunc from "../js/imgUpload_func.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../css/admin/AdminUserList.css";
+import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table, Modal, ModalBody } from "reactstrap";
 

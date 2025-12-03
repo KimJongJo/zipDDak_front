@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../css/user-expert/Experts.css";
+import "../css/Experts.css";
 import { Input } from "reactstrap";
 import Expert from "./Expert";
 

@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/table.css";
+//css
+import table from "../css/table.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
@@ -23,20 +24,20 @@ export default function AskToManager() {
                     </div>
 
                     <div className="bodyFrame">
-                        <div className="tableFrame">
+                        <div className={table.tableFrame}>
                             {/* 필터영역 */}
-                            <div className="filterArea">
-                                <div className="filterColumn1">
-                                    <div className="filterTitle">문의 등록일</div>
+                            <div className={table.filterArea}>
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>문의 등록일</div>
                                     <div>
                                         <FormGroup>
                                             <Input id="exampleDate" name="date" placeholder="date placeholder" type="date" />
                                         </FormGroup>
                                     </div>
                                 </div>
-                                <div className="filterColumn2">
-                                    <div className="filterTitle">답변 상태</div>
-                                    <div className="filterBody">
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>답변 상태</div>
+                                    <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
                                                 <Input type="checkbox" />
@@ -60,15 +61,15 @@ export default function AskToManager() {
                             </div>
 
                             {/* 테이블 영역 */}
-                            <div className="tableArea">
+                            <div className={table.tableArea}>
                                 <div style={{ padding: "10px" }}>
                                     <span style={{ fontSize: "18px", fontWeight: "500", lineHeight: "28px", marginBottom: "10px" }}>관리자 문의 리스트</span>
                                     <p style={{ fontWeight: "400", lineHeight: "20px", color: "#667085" }}>사이트 관리자에게 문의한 내역이 표시됩니다</p>
                                 </div>
                                 <div>
-                                    <div className="tableHeader">
-                                        <div className="totalSearchBox">
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className="searchInput" />
+                                    <div className={table.tableHeader}>
+                                        <div className={table.totalSearchBox}>
+                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
                                             <button type="button" className="small-button">
                                                 검색
                                             </button>
@@ -79,7 +80,7 @@ export default function AskToManager() {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="tableBody"></div>
+                                    <div className={table.tableBody}></div>
                                 </div>
                                 <div className="pagination"></div>
                             </div>

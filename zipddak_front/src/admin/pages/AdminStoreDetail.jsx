@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../../css/admin/AdminDetail.css";
+import "../css/AdminDetail.css";
 import AdminSidebar from "./AdminNav";
 
 export default function AdminExpertDetail() {

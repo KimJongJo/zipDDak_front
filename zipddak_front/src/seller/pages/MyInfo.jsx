@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/settings.css";
+//css
+import settings from "../css/settings.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
