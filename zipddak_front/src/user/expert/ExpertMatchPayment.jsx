@@ -1,6 +1,6 @@
 import "../css/ExpertOrder.css";
 
-export default function ExpertOrder() {
+export default function ExpertMatchPayment() {
     return (
         <div className="body-div">
             <div className="expertOrder-main-div">

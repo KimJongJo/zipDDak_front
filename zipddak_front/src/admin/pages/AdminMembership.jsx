@@ -3,7 +3,7 @@ import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
 
-export default function Membership() {
+export default function AdminMembership() {
     // 전문 서비스
     const [defaultMajor, setDefaultMajor] = useState(1);
 

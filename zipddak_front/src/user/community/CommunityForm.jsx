@@ -1,13 +1,13 @@
-import { Button, Input } from 'reactstrap'
-import '../css/CommunityDetail.css'
-import {ChevronDown, Plus} from 'lucide-react'
-import { Header1 } from '../../Main/pages/Header'
+import { Button, Input } from "reactstrap";
+import "../css/CommunityDetail.css";
+import { ChevronDown, Plus } from "lucide-react";
+import Header from "../../Main/pages/Header";
 
 export default function ComForm() {
     return (
         <>
             <div className="CommunityForm-container">
-                <Header1/>
+                <Header />
 
                 <div className="col-cm comForm-body">
                     <div className="trade">
@@ -22,21 +22,20 @@ export default function ComForm() {
                         </select>
                         <ChevronDown className="trade-arrow" />
                     </div>
-                    <Input type='text' placeholder='제목을 입력해주세요' name='title' />
-                    <Input type='textarea' placeholder='내용을 입력해주세요' name='content'
-                        className='community-input-content' />
-                    <div className='row-cm com-write-images'>
-                        <div className='img-preview'></div>
-                        <div className='row-cm img-add-box'>
-                            <Plus color='#ffffff' size={30}/>
+                    <Input type="text" placeholder="제목을 입력해주세요" name="title" />
+                    <Input type="textarea" placeholder="내용을 입력해주세요" name="content" className="community-input-content" />
+                    <div className="row-cm com-write-images">
+                        <div className="img-preview"></div>
+                        <div className="row-cm img-add-box">
+                            <Plus color="#ffffff" size={30} />
                         </div>
                     </div>
-                    <div className='row-cm com-write-buttons'>
+                    <div className="row-cm com-write-buttons">
                         <Button>작성완료</Button>
                         <Button>작성취소</Button>
                     </div>
                 </div>
             </div>
         </>
-    )
+    );
 }
