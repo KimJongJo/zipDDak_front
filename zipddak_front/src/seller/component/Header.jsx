@@ -1,4 +1,3 @@
-import "../css/layout.css";
 import { menu_data, NAV_MENUS } from "../js/menu_data.jsx";
 import { useState, useRef, useEffect } from "react";
 

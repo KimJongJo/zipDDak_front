@@ -99,7 +99,19 @@ export default function SettleList() {
                                         </table>
                                     </div>
                                 </div>
-                                <div className="pagination"></div>
+                                <div className="pagination_part">
+                                    <Pagination className={table.pagination}>
+                                        <PaginationItem active>
+                                            <PaginationLink>1</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink>2</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink>3</PaginationLink>
+                                        </PaginationItem>
+                                    </Pagination>
+                                </div>
                             </div>
                         </div>
                     </div>

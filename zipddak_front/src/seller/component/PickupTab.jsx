@@ -1,13 +1,16 @@
+// css
+import product from "../css/productRegist.module.css";
+
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 const PickupTab = ({ register, errors }) => {
     return (
-        <div className="addr_frame ps-3">
+        <div className={[product.pickup_frame, "ps-3"].join(" ")}>
             <FormGroup className=" position-relative">
                 <Label className="input_title">픽업 주소지</Label>
 
-                <div className="addr_column mb-2">
+                <div className="addr_column, mb-3">
                     <Tippy content="주소 검색" theme="custom">
                         <button type="button" className="small-button">
                             <i className="bi bi-search"></i>
