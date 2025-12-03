@@ -105,7 +105,6 @@ function App() {
                 <Route path="market/detail/:orderId" element={<MarketOrderDetail />} />
                 <Route path="market/exchange/:orderId" element={<MarketExchangeForm />} />
                 <Route path="tool" element={<MyTool />} />
-                <Route path="tool/borrow" element={<ToolBorrow />} />
                 <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
                 <Route path="tool/lent" element={<ToolLent />} />
                 <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
