@@ -6,7 +6,7 @@ import usePageTitle from "../js/usePageTitle.jsx";
 
 import SettleDetail from "./SettleDetail";
 
-import { FormGroup, Input, Label } from "reactstrap";
+import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 import { useState, useEffect, useRef } from "react";
@@ -19,7 +19,7 @@ export default function SettleList() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-piggy-bank"></i>

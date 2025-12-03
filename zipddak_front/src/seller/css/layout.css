@@ -1,8 +1,3 @@
-i {
-    margin: 0 5px;
-    color: var(--fontColor);
-}
-
 .header {
     display: flex;
     width: 100%;

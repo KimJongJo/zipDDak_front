@@ -3,7 +3,6 @@
     --fontColor: #303441; /* 기본 글자색 */
     --base: #ffffff; /* 메뉴 폰트 색상 : 흰색 */
     --subfont: #6d758f; /* 서브메뉴 폰트 색상 : 검은색 */
-    --hoversubfont: #0c8ce9; /* hover 서브메뉴 폰트 색상 : 파란색 */
     --footer: #999; /* 푸터 폰트 색상 : 진한 회색 */
     --mainColor: #ff5733;
     --subcolor: #f4f9fd;
@@ -55,8 +54,8 @@ textarea {
     min-width: 90px;
     font-weight: 500;
 }
-main {
-    padding: 20px 120px;
+.main {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;

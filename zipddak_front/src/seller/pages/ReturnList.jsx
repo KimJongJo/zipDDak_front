@@ -3,7 +3,7 @@ import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 
-import { FormGroup, Input, Label } from "reactstrap";
+import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 import { useState, useEffect, useRef } from "react";
