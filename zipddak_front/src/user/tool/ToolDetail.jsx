@@ -1,8 +1,8 @@
 import './css/ToolDetail.css'
 import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from 'reactstrap'
-import { Header1 } from '../../main/Header'
-import { Tool } from '../../main/component/Tool'
+import { Header1 } from '../../Main/pages/Header'
+import { Tool } from '../../Main/component/Tool'
 
 export default function ToolDetail() {
     const rentalTool = {

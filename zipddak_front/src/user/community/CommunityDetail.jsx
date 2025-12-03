@@ -1,7 +1,7 @@
 import { Button, Input } from "reactstrap";
 import './css/CommunityDetail.css';
 import {Eye,Dot,Heart} from 'lucide-react'
-import { Header1 } from "../../main/Header";
+import { Header1 } from "../../Main/pages/Header";
 
 export default function Comdetail() {
 

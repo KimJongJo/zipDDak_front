@@ -1,7 +1,7 @@
 import { SquarePlus, ChevronDown, MapPinned, Plus } from 'lucide-react'
 import './css/RegistTool.css'
 import { Input, FormGroup, Label, Button } from "reactstrap";
-import { Header1 } from '../../main/Header';
+import { Header1 } from '../../Main/pages/Header';
 
 export default function RegistTool() {
     return (

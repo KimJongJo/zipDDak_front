@@ -1,7 +1,7 @@
 import { Button } from 'reactstrap'
 import { ArrowRight } from 'lucide-react'
-import { Product } from './component/Product'
-import { Header1 } from './Header'
+import { Product } from '.../component/Product'
+import { Header1 } from '../Header'
 
 export default function Best() {
     return (

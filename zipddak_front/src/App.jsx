@@ -23,12 +23,45 @@ import ProfileForm from "./expert/ProfileForm";
 import PublicRequest from "./expert/PublicRequest";
 import { MyWorks as ExpertMyWorks } from "./expert/MyWorks";
 import Requests from "./expert/Requests";
+import ToolMain from "./user/tool/ToolMain";
+import ToolDetail from "./user/tool/ToolDetail";
+import RegistTool from "./user/tool/RegistTool";
+import ApplyTool from "./user/tool/ApplyTool";
+import CommunityList from "./user/community/CommunityList";
+import ComForm from "./user/community/CommunityForm";
+import Comdetail from "./user/community/CommunityDetail";
+import Login from "./user/login/Login";
+import SignUser from "./user/login/SignUser";
+import SignExpert from "./user/login/SignExpert";
+import SignStore1 from "./user/login/SignStore1";
+import SignStore2 from "./user/login/SignStore2";
+import SignStore3 from "./user/login/SignStore3";
+import Main from "./Main/pages/Main";
+import MainSearch from "./Main/pages/Main";
+import MyTool from "./user/myPage/MyTool";
+import ToolBorrow from "./user/myPage/ToolBorrow";
+import ToolBorrowDetail from "./user/myPage/ToolBorrowDetail";
+import ToolLent from "./user/myPage/ToolLent";
+import ToolLentDetail from "./user/myPage/ToolLentDetail";
 
 function App() {
   return (
     <Routes>
+      {/* 일반사용자 로그인 */}
+      <Route path="login" element={<Login/>}/>
+      <Route path="signUp/user" element={<SignUser/>}/>
+      <Route path="signUp/expert" element={<SignExpert/>}/>
+      <Route path="signUp/store1" element={<SignStore1/>}/>
+      <Route path="signUp/store2" element={<SignStore2/>}/>
+      <Route path="signUp/store3" element={<SignStore3/>}/>
+
+
       {/* 일반사용자 */}
+      <Route path="/" element={<Main/>}/>
+      <Route path="/search" element={<MainSearch/>}/>
       <Route path="market/return/:orderId" element={<MarketReturnForm />} />
+
+      
 
       {/* 일반사용자 마이페이지 */}
       <Route path="/user/mypage/*" element={<Mypage />}>
@@ -46,7 +79,23 @@ function App() {
           path="market/exchange/:orderId"
           element={<MarketExchangeForm />}
         />
+        <Route path="tool" element={<MyTool/>}/>
+        <Route path="tool/borrow" element={<ToolBorrow/>}/>
+        <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail/>}/>
+        <Route path="tool/lent" element={<ToolLent/>}/>
+        <Route path="tool/lent/:rentalId" element={<ToolLentDetail/>}/>
       </Route>
+
+      {/* 일반사용자 공구대여 */}
+      <Route path="tool" element={<ToolMain/>}/>
+      <Route path="tool/:toolId" element={<ToolDetail/>}/>
+      <Route path="tool/regist" element={<RegistTool/>}/>
+      <Route path="tool/apply" element={<ApplyTool/>}/>
+
+      {/* 일반사용자 커뮤니티 */}
+      <Route path="community" element={<CommunityList/>}/>
+      <Route path="community/write" element={<ComForm/>}/>
+      <Route path="community/:communityId" element={<Comdetail/>}/>
 
       {/* 전문가 */}
       <Route path="/expert/profile/edit" element={<ProfileForm />} />
