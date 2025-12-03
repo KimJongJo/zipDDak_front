@@ -1,17 +1,12 @@
-.body_column1,
-.body_column2,
-.body_column3 {
+.body_column {
     width: 100%;
 }
 
-.body_column1 {
-    background-color: aqua;
-}
-
-.body_column2 {
+.change_period {
     display: flex;
     gap: 25px;
 }
+
 .salesCard {
     display: flex;
     align-items: center;

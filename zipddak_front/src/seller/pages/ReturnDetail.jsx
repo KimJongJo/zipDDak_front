@@ -1,6 +1,7 @@
-import "../css/frame.css";
-import "../css/table.css";
-
+//css
+import table from "../css/table.module.css";
+import detail from "../css/detail.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import AccordionBox from "../component/AccordionBox.jsx";
@@ -26,11 +27,11 @@ export default function OrderList() {
                     </div>
 
                     <div className="bodyFrame">
-                        <div className="base_info">
+                        <div className={detail.base_info}>
                             {/* 주문 정보 */}
                             <div className="position-relative mb-4">
-                                <div className="info_cell ">
-                                    <div className="info_cell ">
+                                <div className={detail.info_cell}>
+                                    <div className={detail.info_cell}>
                                         <span className="input_title">주문 번호 </span>
                                         <Input readOnly />
                                     </div>
@@ -62,8 +63,8 @@ export default function OrderList() {
                                                     반품 요청 상품
                                                 </Label>
                                                 <div className="product_list">
-                                                    <div className="tableBody">
-                                                        <table className="detailListTable">
+                                                    <div className={table.tableBody}>
+                                                        <table>
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>
@@ -80,7 +81,7 @@ export default function OrderList() {
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr className="shipping_bundle_deli">
+                                                                <tr>
                                                                     <td>
                                                                         <Input type="checkbox" />
                                                                     </td>
@@ -89,7 +90,7 @@ export default function OrderList() {
                                                                         <img src="/no_img.svg" style={{ width: "40px" }} />
                                                                     </td>
                                                                     <td>P123456</td>
-                                                                    <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                                     <td>색상 : 브라운</td>
                                                                     <td>1 / 1</td>
                                                                     <td>12,300</td>
@@ -134,7 +135,7 @@ export default function OrderList() {
                                                                 <Input className="" style={{ width: "30%" }} placeholder="우편번호" readOnly />
                                                                 <Input style={{ width: "70%" }} placeholder="도로명주소" readOnly />
                                                             </div>
-                                                            <div className="addr_column2 ">
+                                                            <div className="addr_column">
                                                                 <Input type="text" placeholder="상세주소" readOnly />
                                                             </div>
                                                         </div>
@@ -199,8 +200,8 @@ export default function OrderList() {
                                             <div className="pd_list_table">
                                                 <Label className="sub_title">수거 상품</Label>
                                                 <div className="product_list">
-                                                    <div className="tableBody detailPdTable">
-                                                        <table className="detailListTable">
+                                                    <div className={[table.tableBody, table.detailPdTable].join(" ")}>
+                                                        <table>
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>
@@ -226,7 +227,7 @@ export default function OrderList() {
                                                                         <img src="/no_img.svg" style={{ width: "40px" }} />
                                                                     </td>
                                                                     <td>P123456</td>
-                                                                    <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                                     <td>색상 : 브라운</td>
                                                                     <td>1</td>
                                                                     <td>123456789</td>
@@ -298,8 +299,8 @@ export default function OrderList() {
                                                 <div className="pd_list_table">
                                                     <Label className="sub_title">반품 완료 상품</Label>
                                                     <div className="product_list">
-                                                        <div className="tableBody detailPdTable">
-                                                            <table className="detailListTable">
+                                                        <div className={[table.tableBody, table.detailPdTable].join(" ")}>
+                                                            <table>
                                                                 <thead>
                                                                     <tr>
                                                                         <th style={{ width: "5%" }}>#</th>
@@ -319,7 +320,7 @@ export default function OrderList() {
                                                                             <img src="/no_img.svg" style={{ width: "40px" }} />
                                                                         </td>
                                                                         <td>P123456</td>
-                                                                        <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                                        <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                                         <td>색상 : 브라운</td>
                                                                         <td>1 / 1</td>
                                                                         <td>[반품완료]</td>
@@ -371,8 +372,8 @@ export default function OrderList() {
                                                 <div className="pd_list_table">
                                                     <Label className="sub_title">반품 처리 제외</Label>
                                                     <div className="product_list">
-                                                        <div className="tableBody detailPdTable">
-                                                            <table className="detailListTable">
+                                                        <div className={[table.tableBody, table.detailPdTable].join(" ")}>
+                                                            <table>
                                                                 <thead>
                                                                     <tr>
                                                                         <th style={{ width: "5%" }}>#</th>

@@ -1,6 +1,7 @@
-import "../css/frame.css";
-import "../css/table.css";
-import "../css/detail.css";
+//css
+import table from "../css/table.module.css";
+import detail from "../css/detail.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
@@ -141,8 +142,8 @@ export default function OrderList() {
                                 주문 상품 리스트
                             </Label>
                             <div className="product_list">
-                                <div className="tableBody">
-                                    <table className="listTable">
+                                <div className={table.tableBody}>
+                                    <table className={table.claim_table}>
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "5%" }}>
@@ -164,7 +165,7 @@ export default function OrderList() {
                                             {/* {bundleList.map((item, idx) => (
                                             <tr className={`bundle_deli ${idx === bundleList.length - 1 ? "bundle_last" : ""}`}></tr>
                                         ))} */}
-                                            <tr className="bundle_deli">
+                                            <tr className={table.bundle_deli}>
                                                 <td>
                                                     <Input type="checkbox" />
                                                 </td>
@@ -172,12 +173,12 @@ export default function OrderList() {
                                                 <td style={{ padding: "0" }}>
                                                     <img src="/no_img.svg" style={{ width: "60px" }} />
                                                 </td>
-                                                <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                 <td>색상 : 브라운</td>
                                                 <td>1</td>
                                                 <td>12,300</td>
                                                 <td>[상품준비중]</td>
-                                                <td className="shipCharge_cell" rowSpan={2}>
+                                                <td className={table.shipCharge_cell} rowSpan={2}>
                                                     <span>3,000원</span>
                                                     <br />
                                                     <span style={{ fontSize: "10px" }}>15만원 이상 무료</span>
@@ -188,7 +189,7 @@ export default function OrderList() {
                                                 </td>
                                             </tr>
 
-                                            <tr className="bundle_deli">
+                                            <tr className={table.bundle_deli}>
                                                 <td>
                                                     <Input type="checkbox" />
                                                 </td>
@@ -196,7 +197,7 @@ export default function OrderList() {
                                                 <td style={{ padding: "0" }}>
                                                     <img src="/no_img.svg" style={{ width: "60px" }} />
                                                 </td>
-                                                <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                 <td>색상 : 브라운</td>
                                                 <td>1</td>
                                                 <td>12,300</td>
@@ -211,7 +212,7 @@ export default function OrderList() {
                                                     <i class="bi bi-three-dots-vertical pointer"></i>
                                                 </td>
                                             </tr>
-                                            <tr className="single_deli">
+                                            <tr className={table.single_deli}>
                                                 <td>
                                                     <Input type="checkbox" />
                                                 </td>
@@ -219,7 +220,7 @@ export default function OrderList() {
                                                 <td style={{ padding: "0" }}>
                                                     <img src="/no_img.svg" style={{ width: "60px" }} />
                                                 </td>
-                                                <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                 <td>색상 : 브라운</td>
                                                 <td>1</td>
                                                 <td>12,300</td>
@@ -235,7 +236,7 @@ export default function OrderList() {
                                                 </td>
                                             </tr>
 
-                                            <tr className="single_deli">
+                                            <tr className={table.single_deli}>
                                                 <td>
                                                     <Input type="checkbox" />
                                                 </td>
@@ -243,7 +244,7 @@ export default function OrderList() {
                                                 <td style={{ padding: "0" }}>
                                                     <img src="/no_img.svg" style={{ width: "60px" }} />
                                                 </td>
-                                                <td className="title_cell">시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
                                                 <td>색상 : 브라운</td>
                                                 <td>1</td>
                                                 <td>12,300</td>

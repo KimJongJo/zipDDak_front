@@ -1,13 +1,12 @@
 // css
-import "../css/frame.css";
-import "../css/productRegist.css";
+import "../css/productRegist.module.css";
 // js
 import imageUploadFunc from "../js/imgUpload_func.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 import usePriceCalc from "../js/usePriceCalc.jsx";
 import usePdOptionSetting from "../js/usePdOptionSetting.jsx";
 import { useDeliveryPolicy } from "../js/useDeliveryPolicy.jsx";
-
+// component
 import DeliveryTab from "../component/DeliveryTab";
 import PickupTab from "../component/PickupTab";
 

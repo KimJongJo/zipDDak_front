@@ -1,4 +1,9 @@
-import "../css/mainHome.css";
+//css
+import "../css/index.css";
+import "../css/layout.css";
+import "../css/frame.css";
+import home from "../css/mainHome.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";

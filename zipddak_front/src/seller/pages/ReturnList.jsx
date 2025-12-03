@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/table.css";
+//css
+import table from "../css/table.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
@@ -15,7 +16,7 @@ export default function ReturnList() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-reply"></i>
@@ -23,28 +24,28 @@ export default function ReturnList() {
                     </div>
 
                     <div className="bodyFrame">
-                        <div className="tableFrame">
+                        <div className={table.tableFrame}>
                             {/* 필터영역 */}
-                            <div className="filterArea">
-                                <div className="filterColumn1">
-                                    <div className="filterTitle">주문일자</div>
+                            <div className={table.filterArea}>
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>주문일자</div>
                                     <div>
                                         <FormGroup>
                                             <Input id="" name="date" placeholder="date placeholder" type="date" />
                                         </FormGroup>
                                     </div>
                                 </div>
-                                <div className="filterColumn2">
-                                    <div className="filterTitle">반품요청일</div>
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>반품요청일</div>
                                     <div>
                                         <FormGroup>
                                             <Input id="" name="date" placeholder="date placeholder" type="date" />
                                         </FormGroup>
                                     </div>
                                 </div>
-                                <div className="filterColumn3">
-                                    <div className="filterTitle">처리상태</div>
-                                    <div className="filterBody">
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>처리상태</div>
+                                    <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
                                                 <Input type="checkbox" />
@@ -80,18 +81,18 @@ export default function ReturnList() {
                             </div>
 
                             {/* 테이블 영역 */}
-                            <div className="tableArea">
+                            <div className={table.tableArea}>
                                 <div>
-                                    <div className="tableHeader">
-                                        <div className="totalSearchBox">
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className="searchInput" />
+                                    <div className={table.tableHeader}>
+                                        <div className={table.totalSearchBox}>
+                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
                                             <button type="button" className="small-button">
                                                 검색
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="tableBody">
-                                        <table className="listTable">
+                                    <div className={table.tableBody}>
+                                        <table className={table.list_table}>
                                             <thead>
                                                 <tr>
                                                     <th style={{ width: "10%" }}>주문일자</th>
@@ -108,7 +109,7 @@ export default function ReturnList() {
                                                 <tr>
                                                     <td>2025-11-07</td>
                                                     <td>251107-12345</td>
-                                                    <td className="title_cell">시트지[예림 인테리어 필름] 우드HW...외 3건</td>
+                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW...외 3건</td>
                                                     <td>lmh1231@naver.com</td>
                                                     <td>12345678901234</td>
                                                     <td>대한통운</td>

@@ -33,10 +33,6 @@
     display: flex;
     align-items: center;
 }
-.sub_title {
-    min-width: 90px;
-    font-weight: 500;
-}
 
 .pd_list_table {
     width: 100%;
@@ -48,6 +44,9 @@
     gap: 20px;
 }
 
+table.detailViewTable thead {
+    border-top: 1px solid var(--innerLine);
+}
 /* tr.bundle_deli.bundle_last td {
     border-bottom: 1px solid #303441;
 } */
@@ -55,7 +54,7 @@ tr.bundle_deli:not(:has(+ tr.bundle_deli)) td {
     border-bottom: 1px solid #303441;
 }
 
-tr.each_deli:not(:has(+ tr.each_deli)) td {
+tr.single_deli:not(:has(+ tr.single_deli)) td {
     border-bottom: 1px solid #303441;
 }
 .shipCharge_cell {
