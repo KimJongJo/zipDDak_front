@@ -75,11 +75,12 @@ import InquiryReturn from "./admin/pages/InquiryReturn";
 import Dashboard from "./admin/pages/Dashboard";
 import UserLayout from "./main/pages/UserLayout";
 import ExpertLayout from "./expert/pages/ExpertLayout";
+import Best from "./Main/pages/Best";
 
 function App() {
   return (
     <Routes>
-      <Route path="/user/*" element={<UserLayout />}>
+      <Route path="/zipddak/*" element={<UserLayout />}>
         {/* 일반사용자 로그인 */}
         <Route path="login" element={<Login />} />
         <Route path="signUp/user" element={<SignUser />} />
@@ -91,6 +92,7 @@ function App() {
         {/* 일반사용자 메인 */}
         <Route path="main" element={<Main />} />
         <Route path="search" element={<MainSearch />} />
+        <Route path="best" element={<Best/>} />
         <Route path="market/return/:orderId" element={<MarketReturnForm />} />
 
         {/* 일반사용자 공구대여 */}
@@ -140,7 +142,7 @@ function App() {
             element={<MarketExchangeForm />}
           />
           <Route path="tool" element={<MyTool />} />
-          <Route path="tool/lent/:rentalId" element={<ToolBorrowDetail />} />
+          <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
           <Route path="tool/lent" element={<ToolLent />} />
           <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
         </Route>

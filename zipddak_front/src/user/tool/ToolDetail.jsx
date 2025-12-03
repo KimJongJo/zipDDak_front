@@ -1,7 +1,6 @@
 import "../css/ToolDetail.css";
 import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "reactstrap";
-import Header from "../../Main/pages/Header";
 import { Tool } from "../../Main/component/Tool";
 
 export default function ToolDetail() {
@@ -25,7 +24,6 @@ export default function ToolDetail() {
     return (
         <>
             <div className="detail-container">
-                <Header1 />
                 <div className="d-info">
                     <div className="d-top">
                         <div className="d-user">

@@ -1,4 +1,3 @@
-import Header from "../../Main/pages/Header";
 import { SquarePlus, ChevronDown, MapPinned, Plus, Minus } from "lucide-react";
 import "../css/ProductOrder.css";
 import "../css/RegistTool.css";
@@ -9,7 +8,6 @@ export default function ApplyTool() {
     return (
         <>
             <div className="regTool-container">
-                <Header />
 
                 <div className="regTool">
                     <div className="col-cm appTool-userbox">

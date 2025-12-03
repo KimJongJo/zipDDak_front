@@ -18,7 +18,7 @@ export default function Header() {
   return (
     <>
       <div className="Userheader">
-        <a href="/user/main">
+        <a href="/zipddak/main">
           <div className="logo"></div>
         </a>
         <div className="userBox">
@@ -47,7 +47,7 @@ export default function Header() {
                 <Rocket size={20} />
               </a>
 
-              <a href="" className="icon">
+              <a href="/zipddak/cart" className="icon">
                 <ShoppingCart size={20} />
               </a>
             </>
@@ -61,12 +61,12 @@ export default function Header() {
             <Bell size={20} />
           </a>
 
-          <a href="" className="loginSign">
+          <a href="login" className="loginSign">
             <CircleUserRound size={20} />
             <span className="te">로그인/회원가입</span>
           </a>
 
-          <a href="" className="profile">
+          <a href="mypage/*" className="profile">
             <div className="profile-img"></div>
             <ChevronDown size={20} />
           </a>
@@ -74,25 +74,25 @@ export default function Header() {
       </div>
 
       <div className="navigation">
-        <a href="/" className="navitem active">
+        <a href="/zipddak/main" className="navitem active">
           홈
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak" className="navitem">
           견적요청
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak/experts" className="navitem">
           전문가찾기
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak/tool" className="navitem">
           공구대여
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak/productList" className="navitem">
           자재마켓
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak/best" className="navitem">
           자재 100
         </a>
-        <a href="" className="navitem">
+        <a href="/zipddak/community" className="navitem">
           커뮤니티
         </a>
       </div>

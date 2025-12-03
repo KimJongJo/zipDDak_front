@@ -1,13 +1,11 @@
 import { SquarePlus, ChevronDown, MapPinned, Plus } from "lucide-react";
 import "../css/RegistTool.css";
 import { Input, FormGroup, Label, Button } from "reactstrap";
-import Header from "../../Main/pages/Header";
 
 export default function RegistTool() {
     return (
         <>
             <div className="regTool-container">
-                <Header />
 
                 <div className="regTool">
                     <div className="r-title">
