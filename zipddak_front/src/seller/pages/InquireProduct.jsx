@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/table.css";
+//css
+import table from "../css/table.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
@@ -68,20 +69,20 @@ export default function InquireProduct() {
                     </div>
 
                     <div className="bodyFrame">
-                        <div className="tableFrame">
+                        <div className={table.tableFrame}>
                             {/* 필터영역 */}
-                            <div className="filterArea">
-                                <div className="filterColumn1">
-                                    <div className="filterTitle">문의등록일</div>
+                            <div className={table.filterArea}>
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>문의등록일</div>
                                     <div>
                                         <FormGroup>
                                             <Input id="exampleDate" name="date" placeholder="date placeholder" type="date" />
                                         </FormGroup>
                                     </div>
                                 </div>
-                                <div className="filterColumn2">
-                                    <div className="filterTitle">답변 상태</div>
-                                    <div className="filterBody">
+                                <div className={table.filterColumn}>
+                                    <div className={table.filterTitle}>답변 상태</div>
+                                    <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
                                                 <Input type="checkbox" />
@@ -105,18 +106,18 @@ export default function InquireProduct() {
                             </div>
 
                             {/* 테이블 영역 */}
-                            <div className="tableArea">
+                            <div className={table.tableArea}>
                                 <div>
-                                    <div className="tableHeader">
-                                        <div className="totalSearchBox">
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className="searchInput" />
+                                    <div className={table.tableHeader}>
+                                        <div className={table.totalSearchBox}>
+                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
                                             <button type="button" className="small-button">
                                                 <i className="bi bi-search"></i>
                                             </button>
                                         </div>
                                     </div>
-                                    <div className="tableBody">
-                                        <table className="mypage-table">
+                                    <div className={table.tableBody}>
+                                        <table className={table.inquire_table}>
                                             <thead>
                                                 <tr>
                                                     <td>문의유형</td>

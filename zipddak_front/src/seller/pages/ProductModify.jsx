@@ -1,5 +1,6 @@
-import "../css/frame.css";
-import "../css/productRegist.css";
+//css
+import product from "../css/productRegist.module.css";
+//js
 import imageUploadFunc from "../js/imgUpload_func.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 

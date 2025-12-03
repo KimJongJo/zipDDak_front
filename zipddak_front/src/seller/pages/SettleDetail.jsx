@@ -1,6 +1,8 @@
-import "../css/frame.css";
-import "../css/accordion.css";
-import "../css/settle.css";
+//css
+import table from "../css/table.module.css";
+import accordian from "../css/accordion.module.css";
+import settle from "../css/settle.module.css";
+//js
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
@@ -32,7 +34,7 @@ export default function SettleDetail() {
                         <div className="contentFrame">
                             <div>
                                 <Input bsSize="lg" placeholder="2025년 10월" style={{ width: "20%", marginBottom: "10px" }} />
-                                <div className="tableBody ">
+                                <div className={table.tableBody}>
                                     <table className="settleDetailTable">
                                         <tbody>
                                             <tr>
@@ -94,8 +96,8 @@ export default function SettleDetail() {
                                         <div className="pd_list_table">
                                             <Label className="input_title">날짜별 매출 상세</Label>
                                             <div className="product_list">
-                                                <div className="tableBody ">
-                                                    <table className="listTable settleDetailTable">
+                                                <div className={table.tableBody}>
+                                                    <table className={[table.list_table, table.settleDetailTable].join(" ")}>
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "10%" }}>날짜</th>
@@ -115,7 +117,7 @@ export default function SettleDetail() {
                                                         </thead>
                                                         <tbody>
                                                             <tr>
-                                                                <td className="date_cell">2025-11-30</td>
+                                                                <td className={table.date_cell}>2025-11-30</td>
                                                                 <td>1,234,000</td>
                                                                 <td>1,234,000</td>
                                                                 <td>1,234,000</td>
@@ -171,7 +173,7 @@ export default function SettleDetail() {
                                             <Label className="input_title">주문건별 매출 상세</Label>
                                             <div className="product_list">
                                                 <div className="tableBody ">
-                                                    <table className="listTable settleDetailTable">
+                                                    <table className={[table.list_table, table.settleDetailTable].join(" ")}>
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "15%" }}>주문번호</th>
