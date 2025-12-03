@@ -1,19 +1,8 @@
 /* 전역 폰트 설정 */
-html,
-body {
-    cursor: default;
-    color-scheme: light dark;
-    font-synthesis: none;
-    text-rendering: optimizeLegibility; /*글자를 화면에 더 선명하고 자연스럽게 보이도록 함*/
-    -webkit-font-smoothing: antialiased; /*글자 외곽선을 부드럽게 렌더링*/
-    -moz-osx-font-smoothing: grayscale;
-    font-size: 14px !important;
-}
 :root {
     --fontColor: #303441; /* 기본 글자색 */
     --base: #ffffff; /* 메뉴 폰트 색상 : 흰색 */
     --subfont: #6d758f; /* 서브메뉴 폰트 색상 : 검은색 */
-    --hoversubfont: #0c8ce9; /* hover 서브메뉴 폰트 색상 : 파란색 */
     --footer: #999; /* 푸터 폰트 색상 : 진한 회색 */
     --mainColor: #ff5733;
     --subcolor: #f4f9fd;
@@ -43,7 +32,7 @@ input[type="date"] {
 
 textarea {
     width: 100%;
-    resize: none;
+    resize: none !important;
 }
 /* option {
     border-color: #ff583398 !important;
@@ -65,8 +54,8 @@ textarea {
     min-width: 90px;
     font-weight: 500;
 }
-main {
-    padding: 20px 120px;
+.main {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -231,4 +220,16 @@ main {
 
 .blankSpace {
     color: transparent;
+}
+
+.addr_column {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    height: auto;
+}
+
+hr.section_divider {
+    align-self: stretch;
 }

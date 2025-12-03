@@ -3,7 +3,7 @@ import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 
-import { FormGroup, Input, Label } from "reactstrap";
+import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 import { useState, useEffect, useRef } from "react";
@@ -120,7 +120,19 @@ export default function ReturnList() {
                                         </table>
                                     </div>
                                 </div>
-                                <div className="pagination"></div>
+                                <div className="pagination_part">
+                                    <Pagination className={table.pagination}>
+                                        <PaginationItem active>
+                                            <PaginationLink>1</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink>2</PaginationLink>
+                                        </PaginationItem>
+                                        <PaginationItem>
+                                            <PaginationLink>3</PaginationLink>
+                                        </PaginationItem>
+                                    </Pagination>
+                                </div>
                             </div>
                         </div>
                     </div>

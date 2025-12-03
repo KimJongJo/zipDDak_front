@@ -1,5 +1,3 @@
-import "../css/layout.css";
-
 export default function Footer() {
     return (
         <>

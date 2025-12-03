@@ -1,5 +1,5 @@
 // css
-import "../css/productRegist.module.css";
+import product from "../css/productRegist.module.css";
 // js
 import imageUploadFunc from "../js/imgUpload_func.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
@@ -111,7 +111,7 @@ export default function ProductRegist() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame regiFrame">
                     <div className="headerFrame">
                         <i className="bi bi-plus-square" />
@@ -138,11 +138,11 @@ export default function ProductRegist() {
                                 썸네일<span className="required">*</span>
                             </Label>
                             <Tippy content="상품 이미지 첨부하기" theme="custom">
-                                <img src="/Paperclip.svg" className="fileAttachIcon pointer" onClick={() => thumbRef.current.click()} />
+                                <img src="/Paperclip.svg" className="pointer" onClick={() => thumbRef.current.click()} />
                             </Tippy>
                             <Input type="file" accept="image/*" innerRef={thumbRef} onChange={handleThumbChange} hidden />
                             {thumbPreview && (
-                                <div id="thumbPreview" className="img_previewBox thumb_preview">
+                                <div id="thumbPreview" className="img_previewBox">
                                     <div className="preview-wrap">
                                         <img src={thumbPreview} className="preview-img" />
                                         <button className="delete-btn" onClick={deleteThumb}>
@@ -159,11 +159,11 @@ export default function ProductRegist() {
                                 추가이미지 (최대 5장까지)<span className="required">*</span>
                             </Label>
                             <Tippy content="상품의 추가이미지 첨부하기" theme="custom">
-                                <img src="/Paperclip.svg" className="fileAttachIcon pointer" onClick={() => addRef.current.click()} />
+                                <img src="/Paperclip.svg" className="pointer" onClick={() => addRef.current.click()} />
                             </Tippy>
                             <Input type="file" accept="image/*" innerRef={addRef} onChange={handleAddChange} multiple hidden />
                             {addPreviewList.length > 0 && (
-                                <div className="img_previewBox add_preview">
+                                <div className="img_previewBox">
                                     {addPreviewList.map((img, idx) => (
                                         <div key={idx} className="preview-wrap">
                                             <img src={img} className="preview-img" />
@@ -182,11 +182,11 @@ export default function ProductRegist() {
                                 상세이미지 (최대 2장)<span className="required">*</span>
                             </Label>
                             <Tippy content="본문 상세 이미지 첨부하기" theme="custom">
-                                <img src="/Paperclip.svg" className="fileAttachIcon pointer" onClick={() => detailRef.current.click()} />
+                                <img src="/Paperclip.svg" className="pointer" onClick={() => detailRef.current.click()} />
                             </Tippy>
                             <Input type="file" accept="image/*" multiple hidden innerRef={detailRef} onChange={handleDetailChange} />
                             {detailPreviewList.length > 0 && (
-                                <div className="img_previewBox detail_preview">
+                                <div className="img_previewBox">
                                     {detailPreviewList.map((img, idx) => (
                                         <div key={idx} className="preview-wrap">
                                             <img src={img} className="preview-img" />
@@ -303,10 +303,10 @@ export default function ProductRegist() {
 
                             {/* 옵션이 하나도 없으면 opt_frame 숨김 */}
                             {options.length > 0 && (
-                                <div className="opt_frame mb-2 ps-3">
+                                <div className={[product.opt_frame, "mb-2", "ps-3"].join(" ")}>
                                     {options.map((opt, optionIdx) => (
-                                        <div className="option_column" key={optionIdx}>
-                                            <div className="optionHeader">
+                                        <div className={product.option_column} key={optionIdx}>
+                                            <div className={product.optionHeader}>
                                                 <Label className="sub_title">
                                                     옵션명<span className="required">*</span>
                                                 </Label>
@@ -323,11 +323,11 @@ export default function ProductRegist() {
                                                 />
                                             </div>
 
-                                            <div className="optionBody">
-                                                <div className="opt_subFrame">
+                                            <div className={product.optionBody}>
+                                                <div className={product.opt_subFrame}>
                                                     {opt.values.map((val, valueIdx) => (
-                                                        <div className="optionBodyColumn" key={valueIdx}>
-                                                            <div className="optionContent">
+                                                        <div className={product.optionBodyColumn} key={valueIdx}>
+                                                            <div className={product.optionContent}>
                                                                 <div className="optionValue">
                                                                     <Label className="sub_title">
                                                                         선택값<span className="required">*</span>
@@ -359,7 +359,7 @@ export default function ProductRegist() {
                                                                 </div>
                                                             </div>
 
-                                                            <div className="add_btn">
+                                                            <div className={product.add_btn}>
                                                                 <Label>
                                                                     <span className="blankSpace">~</span>
                                                                 </Label>
@@ -373,7 +373,7 @@ export default function ProductRegist() {
                                                     ))}
                                                 </div>
 
-                                                <div className="add_btn">
+                                                <div className={product.add_btn}>
                                                     <Label>
                                                         <span className="blankSpace">~</span>
                                                     </Label>

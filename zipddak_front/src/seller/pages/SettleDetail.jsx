@@ -1,6 +1,7 @@
 //css
 import table from "../css/table.module.css";
-import accordian from "../css/accordion.module.css";
+import detail from "../css/detail.module.css";
+import acco from "../css/accordion.module.css";
 import settle from "../css/settle.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
@@ -18,7 +19,7 @@ export default function SettleDetail() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i class="bi bi-newspaper"></i>
@@ -31,11 +32,11 @@ export default function SettleDetail() {
                                 ※ 수수료 계산 기준
                             </span>
                         </div>
-                        <div className="contentFrame">
-                            <div>
-                                <Input bsSize="lg" placeholder="2025년 10월" style={{ width: "20%", marginBottom: "10px" }} />
+                        <div className={settle.settle_detailFrame}>
+                            <div className="content_column">
+                                <Input bsSize="lg" className={settle.settle_detail_title} placeholder="2025년 10월" />
                                 <div className={table.tableBody}>
-                                    <table className="settleDetailTable">
+                                    <table className={table.detail_info_table}>
                                         <tbody>
                                             <tr>
                                                 <th style={{}}>정산기간</th>
@@ -76,28 +77,30 @@ export default function SettleDetail() {
                                 </div>
                             </div>
 
-                            <div>
-                                <Input bsSize="lg" className="managerComment" placeholder="관리자 코멘트" />
+                            {/* 관리자 코멘트 */}
+                            <div className="content_column">
+                                <Input bsSize="lg" className={settle.settle_detail_title} placeholder="관리자 코멘트" />
                                 <Input type="textarea" />
                             </div>
 
-                            <div className="accordionToggleBox mt-4">
-                                <div className="accordion_header">
-                                    <p className="input_title">
-                                        <span>2025년 10월 </span> 매출 내역 한번에 보기
-                                    </p>
-                                    <span className="accordion_toggle_icon">
-                                        <i class="bi bi-chevron-down pointer"></i>
-                                    </span>
-                                </div>
+                            {/* 매출 내역 한번에 보기 */}
+                            <div className="content_column">
+                                <Input bsSize="lg" className={settle.settle_detail_title} placeholder="2025년 10월 매출 내역 한번에 보기" />
+                                <div className={["position-relative", acco.accordion_container].join(" ")}>
+                                    <div className={acco.accordionToggleBox}>
+                                        <div className={acco.accordion_header}>
+                                            <p className="input_title">
+                                                <span>날짜별 매출 상세 </span>
+                                            </p>
+                                            <span className="accordion_toggle_icon">
+                                                <i class="bi bi-chevron-down pointer"></i>
+                                            </span>
+                                        </div>
 
-                                <div className="accordion_body">
-                                    <div className="content_section">
-                                        <div className="pd_list_table">
-                                            <Label className="input_title">날짜별 매출 상세</Label>
-                                            <div className="product_list">
+                                        <div className={acco.accordion_body}>
+                                            <div className={detail.product_list}>
                                                 <div className={table.tableBody}>
-                                                    <table className={[table.list_table, table.settleDetailTable].join(" ")}>
+                                                    <table className={table.settle_table}>
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "10%" }}>날짜</th>
@@ -118,21 +121,6 @@ export default function SettleDetail() {
                                                         <tbody>
                                                             <tr>
                                                                 <td className={table.date_cell}>2025-11-30</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>1,234,000</td>
-                                                                <td>122,340,000</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>2025-11-30</td>
                                                                 <td>1,234,000</td>
                                                                 <td>1,234,000</td>
                                                                 <td>1,234,000</td>
@@ -168,12 +156,20 @@ export default function SettleDetail() {
                                         </div>
                                     </div>
 
-                                    <div className="content_section">
-                                        <div className="pd_list_table">
-                                            <Label className="input_title">주문건별 매출 상세</Label>
-                                            <div className="product_list">
-                                                <div className="tableBody ">
-                                                    <table className={[table.list_table, table.settleDetailTable].join(" ")}>
+                                    <div className={acco.accordionToggleBox}>
+                                        <div className={acco.accordion_header}>
+                                            <p className="input_title">
+                                                <span>주문건별 매출 상세</span>
+                                            </p>
+                                            <span className="accordion_toggle_icon">
+                                                <i class="bi bi-chevron-down pointer"></i>
+                                            </span>
+                                        </div>
+
+                                        <div className={acco.accordion_body}>
+                                            <div className={detail.product_list}>
+                                                <div className={table.tableBody}>
+                                                    <table className={table.settle_table}>
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "15%" }}>주문번호</th>

@@ -4,42 +4,42 @@ export const NAV_MENUS = [
         key: "product",
         label: "상품관리",
         items: [
-            { label: "상품 등록", icon: "bi bi-plus-square", href: "/productRegist" },
-            { label: "상품 조회", icon: "bi bi-box2", href: "/productList" },
+            { label: "상품 등록", icon: "bi bi-plus-square", href: "/seller/productRegist" },
+            { label: "상품 조회", icon: "bi bi-box2", href: "/seller/productList" },
         ],
     },
     {
         key: "order",
         label: "주문관리",
         items: [
-            { label: "주문 내역", icon: "bi bi-basket3", href: "/orderList" },
-            { label: "배송 관리", icon: "bi bi-truck", href: "/shippingList" },
-            { label: "반품 관리", icon: "bi bi-reply", href: "/returnList" },
-            { label: "교환 관리", icon: "bi bi-repeat", href: "/exchangeList" },
+            { label: "주문 내역", icon: "bi bi-basket3", href: "/seller/orderList" },
+            { label: "배송 관리", icon: "bi bi-truck", href: "/seller/shippingList" },
+            { label: "반품 관리", icon: "bi bi-reply", href: "/seller/returnList" },
+            { label: "교환 관리", icon: "bi bi-repeat", href: "/seller/exchangeList" },
         ],
     },
     {
         key: "settle",
         label: "정산관리",
         items: [
-            { label: "매출 통계", icon: "bi bi-graph-up-arrow", href: "/salesStatistics" },
-            { label: "정산 내역", icon: "bi bi-piggy-bank", href: "/settleList" },
+            { label: "매출 통계", icon: "bi bi-graph-up-arrow", href: "/seller/salesStatistics" },
+            { label: "정산 내역", icon: "bi bi-piggy-bank", href: "/seller/settleList" },
         ],
     },
     {
         key: "consumer",
         label: "고객관리",
         items: [
-            { label: "상품 문의", icon: "bi bi-chat-square-dots", href: "/pdInquireList" },
-            { label: "일반 문의", icon: "bi bi-envelope-open", href: "/gnrInquireList" },
+            { label: "상품 문의", icon: "bi bi-chat-square-dots", href: "/seller/pdInquireList" },
+            { label: "일반 문의", icon: "bi bi-envelope-open", href: "/seller/gnrInquireList" },
         ],
     },
     {
         key: "setting",
         label: "설정",
         items: [
-            { label: "프로필 관리", icon: "bi bi-person-circle", href: "/myProfile" },
-            { label: "내 정보 관리", icon: "bi bi-gear", href: "/myInfo" },
+            { label: "프로필 관리", icon: "bi bi-person-circle", href: "/seller/myProfile" },
+            { label: "내 정보 관리", icon: "bi bi-gear", href: "/seller/myInfo" },
         ],
     },
 
@@ -48,13 +48,11 @@ export const NAV_MENUS = [
         key: "temp",
         label: "임시메뉴",
         items: [
-            { label: "주문내역상세", icon: "bi bi-newspaper", href: "/orderDetail" },
-            { label: "배송내역상세", icon: "bi bi-newspaper", href: "/shippingDetail" },
-            { label: "반품내역상세", icon: "bi bi-newspaper", href: "/returnDetail" },
-            { label: "교환내역상세", icon: "bi bi-newspaper", href: "/exchangeDetail" },
-            { label: "정산내역상세", icon: "bi bi-newspaper", href: "/settleDetail" },
-            { label: "1", icon: "bi bi-newspaper", href: "/inquires" },
-            { label: "2", icon: "bi bi-newspaper", href: "/inquiryForm" },
+            { label: "주문내역상세", icon: "bi bi-newspaper", href: "/seller/orderDetail" },
+            { label: "배송내역상세", icon: "bi bi-newspaper", href: "/seller/shippingDetail" },
+            { label: "반품내역상세", icon: "bi bi-newspaper", href: "/seller/returnDetail" },
+            { label: "교환내역상세", icon: "bi bi-newspaper", href: "/seller/exchangeDetail" },
+            { label: "정산내역상세", icon: "bi bi-newspaper", href: "/seller/settleDetail" },
         ],
     },
 ];
