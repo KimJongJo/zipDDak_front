@@ -1,7 +1,7 @@
 import { Header1 } from "../../component/Header";
 import { SquarePlus, ChevronDown, MapPinned, Plus, Minus } from 'lucide-react'
 import '../css/ProductOrder.css'
-import '../css/RegistTool.css'
+import './css/RegistTool.css'
 import '../css/common.css'
 import { Input, FormGroup, Label, Button } from "reactstrap";
 

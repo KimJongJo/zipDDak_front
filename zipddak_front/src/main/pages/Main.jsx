@@ -1,14 +1,14 @@
 import '../css/common.css'
-import '../css/Main.css'
-import { Header1 } from "../component/Header";
+import './css/Main.css'
+import { Header1 } from "./component/Header";
 import { Button } from 'reactstrap';
 import { Search ,CirclePlus, MapPin, ArrowRight} from 'lucide-react'
 import Expertmain from '../component/Expert';
-import { Tool, Toolmain } from '../component/Tool';
-import { Product, Products } from '../component/Product';
+import { Toolmain } from '../component/Tool';
+import { Product } from '../component/Product';
 import { Community } from '../component/Community';
 
-export default function MainSearch() {
+export default function Main() {
     return (
         <>
         <div className='Main-container'>
@@ -26,19 +26,16 @@ export default function MainSearch() {
             </form>
         </div>
 
-        <div className='search-result'>
-            <span className='reuslt'>"트리"</span>
-            <span>에 대한 검색결과</span>
+        <div className='main-banner'>
+            <div className='banner1'></div>
+            <div className='banner2'></div>
         </div>
         
 
         <div className='card-box'>
             <div className='top'>
                 <div className='title-box'>
-                    <div className='title-main'>
-                        <span>추천 전문가</span>
-                        <span className='s-count'>22,369</span>
-                        </div>
+                    <div className='title-main'>추천 전문가</div>
                     <div className='more'>
                         <span>전체보기</span>
                         <CirclePlus size={14}/>
@@ -69,7 +66,7 @@ export default function MainSearch() {
                     <div className='title-main'>
                         <MapPin size={24} color='#FF5833'/>
                         <span>인천 남동구 공구대여</span>
-                        <span className='s-count'>22,369</span>
+                        {/* <MapPin size={24} color='#FF5833'/> */}
                     </div>
                     <div className='more'>
                         <span>전체보기</span>
@@ -86,12 +83,11 @@ export default function MainSearch() {
             </div>
             
             <div className='cards'>
-               <Tool/>
-               <Tool/>
-               <Tool/>
-               <Tool/>
-               <Tool/>
-               <Tool/>
+                <Toolmain/>
+                <Toolmain/>
+                <Toolmain/>
+                <Toolmain/>
+                <Toolmain/>
             </div>
         </div>
 
@@ -102,7 +98,6 @@ export default function MainSearch() {
                 <div className='title-box'>
                     <div className='title-main'>
                         <span>자재 마켓</span>
-                        <span className='s-count'>22,369</span>
                     </div>
                     <div className='more'>
                         <span>전체보기</span>
@@ -126,12 +121,10 @@ export default function MainSearch() {
             </div>
             
             <div className='cards'>
-                <Products/>
-                <Products/>
-                <Products/>
-                <Products/>
-                <Products/>
-                <Products/>
+                <Product/>
+                <Product/>
+                <Product/>
+                <Product/>
             </div>
         </div>
 
@@ -140,7 +133,6 @@ export default function MainSearch() {
                 <div className='title-box'>
                     <div className='title-main'>
                         <span>커뮤니티</span>
-                        <span className='s-count'>22,369</span>
                     </div>
                     <div className='more'>
                         <span>전체보기</span>

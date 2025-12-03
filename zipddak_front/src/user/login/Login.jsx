@@ -1,5 +1,5 @@
 import { Form, FormGroup, Label, Input, Col, Button } from 'reactstrap'
-import '../css/Signup.css'
+import './css/Signup.css'
 
 export default function Login() {
     return (

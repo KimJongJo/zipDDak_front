@@ -1,4 +1,5 @@
 import { Button, Input, FormGroup, Label } from 'reactstrap'
+import './css/Signup.css'
 
 export default function SignStore2() {
     return (

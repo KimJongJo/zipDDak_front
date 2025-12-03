@@ -1,13 +1,13 @@
 import { Button, Input } from 'reactstrap'
 import '../css/CommunityDetail.css'
-import { Header1 } from '../../component/Header'
 import {ChevronDown, Plus} from 'lucide-react'
+import { Header1 } from '../../Main/pages/Header'
 
 export default function ComForm() {
     return (
         <>
             <div className="CommunityForm-container">
-                <Header1 />
+                <Header1/>
 
                 <div className="col-cm comForm-body">
                     <div className="trade">

@@ -1,7 +1,7 @@
 import { Button } from 'reactstrap'
-import { Header1 } from '../../component/Header'
 import '../css/CommunityDetail.css'
-import { Community } from '../../component/Community'
+import { Community } from '../../Main/component/Community'
+import { Header1 } from '../../Main/pages/Header'
 
 export default function CommunityList() {
     return (

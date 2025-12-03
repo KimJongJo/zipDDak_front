@@ -1,8 +1,8 @@
-import { Header1 } from "../../component/Header";
 import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle } from 'lucide-react';
 import { Button, FormGroup, Input, Label } from 'reactstrap'
 import '../css/ToolMain.css'
-import { ToolL } from "../../component/Tool";
+import { Header1 } from '../../Main/pages/Header';
+import { ToolL } from '../../Main/component/Tool';
 
 export default function ToolMain() {
     const Tool = {
@@ -13,7 +13,7 @@ export default function ToolMain() {
 
     return (
         <>
-            <Header1 />
+            <Header1/>
 
             <div className="tool-container">
                 <div className="filters">

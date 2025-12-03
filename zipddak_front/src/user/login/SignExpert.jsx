@@ -1,5 +1,5 @@
 import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, AccordionHeader, AccordionBody, AccordionItem } from 'reactstrap'
-import '../css/Signup.css'
+import './css/Signup.css'
 
 export default function SignExpert() {
     return (

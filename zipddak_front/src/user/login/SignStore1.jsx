@@ -1,5 +1,5 @@
 import {Button} from 'reactstrap'
-import '../css/Signup.css'
+import './css/Signup.css'
 
 export default function SignStore1() {
     return(
