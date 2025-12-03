@@ -1,14 +1,11 @@
 import { Button } from 'reactstrap'
 import { ArrowRight } from 'lucide-react'
-import { Product } from '.../component/Product'
-import { Header1 } from '../Header'
+import { Product } from '../component/Product'
 
 export default function Best() {
     return (
         <>
             <div className='Main-container'>
-                <Header1/>
-
                 <div className='card-box'>
                     <div className='top'>
                         <div className='title-box'>
@@ -29,7 +26,7 @@ export default function Best() {
                     </div>
 
                     <div className='Best-cards'>
-                        <Product />
+                        <Product/>
                         <Product />
                         <Product />
                     </div>

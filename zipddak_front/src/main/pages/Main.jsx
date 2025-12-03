@@ -35,13 +35,13 @@ export default function Main() {
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">추천 전문가</div>
+              <div className="title-main-main">추천 전문가</div>
               <div className="more">
                 <span>전체보기</span>
                 <CirclePlus size={14} />
               </div>
             </div>
-            <div className="category">
+            <div className="main-category">
               <div className="category-item active">전체</div>
               <div className="category-item">시공/견적 컨설팅</div>
               <div className="category-item">수리</div>
@@ -63,7 +63,7 @@ export default function Main() {
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
                 <MapPin size={24} color="#FF5833" />
                 <span>인천 남동구 공구대여</span>
                 {/* <MapPin size={24} color='#FF5833'/> */}
@@ -73,7 +73,7 @@ export default function Main() {
                 <CirclePlus size={14} />
               </div>
             </div>
-            <div className="category">
+            <div className="main-category">
               <div className="category-item active">전동공구</div>
               <div className="category-item">일반공구</div>
               <div className="category-item">생활용품</div>
@@ -96,7 +96,7 @@ export default function Main() {
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
                 <span>자재 마켓</span>
               </div>
               <div className="more">
@@ -104,7 +104,7 @@ export default function Main() {
                 <CirclePlus size={14} />
               </div>
             </div>
-            <div className="category">
+            <div className="main-category">
               <div className="category-item active">주방</div>
               <div className="category-item">욕실</div>
               <div className="category-item">빌트인/수납</div>
@@ -131,7 +131,7 @@ export default function Main() {
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
                 <span>커뮤니티</span>
               </div>
               <div className="more">
@@ -139,7 +139,7 @@ export default function Main() {
                 <CirclePlus size={14} />
               </div>
             </div>
-            <div className="category">
+            <div className="main-category">
               <div className="category-item active">전문가에게 묻다</div>
               <div className="category-item">우리집 자랑</div>
               <div className="category-item">자재 토론회</div>
@@ -150,11 +150,11 @@ export default function Main() {
           </div>
 
           <div className="community-cards">
-            <div className="cards">
+            <div className="row-cm">
               <Community />
               <Community />
             </div>
-            <div className="cards">
+            <div className="row-cm">
               <Community />
               <Community />
             </div>

@@ -1,13 +1,11 @@
 import { Button } from "reactstrap";
 import "../css/CommunityDetail.css";
 import { Community } from "../../Main/component/Community";
-import Header from "../../Main/pages/Header";
 
 export default function CommunityList() {
     return (
         <>
             <div className="comList-container">
-                <Header />
                 <div className="row-cm commList-top">
                     <span className="comLabel">커뮤니티</span>
                     <Button>글쓰기</Button>
