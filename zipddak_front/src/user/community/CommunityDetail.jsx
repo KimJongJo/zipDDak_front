@@ -1,7 +1,7 @@
 import { Button, Input } from "reactstrap";
 import "../css/CommunityDetail.css";
 import { Eye, Dot, Heart } from "lucide-react";
-import Header from "../../Main/pages/Header";
+import Header from "../../main/pages/Header";
 
 export default function Comdetail() {
     const ComContent = {
@@ -18,7 +18,7 @@ export default function Comdetail() {
     return (
         <>
             <div className="ComDetail-container">
-                <Header />
+                <Header/>
                 <div className="col-cm">
                     <div className="col-cm comTop">
                         <div className="category">{ComContent.category}</div>
