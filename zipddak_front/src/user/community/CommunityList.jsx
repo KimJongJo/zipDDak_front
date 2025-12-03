@@ -1,6 +1,6 @@
 import { Button } from "reactstrap";
 import "../css/CommunityDetail.css";
-import { Community } from "../../Main/component/Community";
+import { Community } from "../../main/component/Community";
 
 export default function CommunityList() {
     return (

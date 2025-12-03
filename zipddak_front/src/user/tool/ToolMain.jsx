@@ -1,7 +1,7 @@
 import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle } from "lucide-react";
 import { Button, FormGroup, Input, Label } from "reactstrap";
 import "../css/ToolMain.css";
-import { ToolL } from "../../Main/component/Tool";
+import { ToolL } from "../../main/component/Tool";
 
 export default function ToolMain() {
     const Tool = {
