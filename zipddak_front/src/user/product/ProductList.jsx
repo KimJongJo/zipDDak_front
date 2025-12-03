@@ -1,7 +1,9 @@
 import { Input } from "reactstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "../css/ProductList.css";
 import Product from "./Product";
+import { baseUrl } from "../../config/config";
 
 export default function ProductList() {
     const [pCateNo, setpCateNo] = useState(1);
@@ -45,6 +47,12 @@ export default function ProductList() {
     // 불러올 상품 개수 -> 나중에 수정
     const total = 16;
 
+    useEffect(() => {
+        axios.get(`${baseUrl}/productList/`).then((res) => {
+            console.log(res);
+        });
+    });
+
     return (
         <div className="body-div">
             <div className="productList-main-div">
@@ -65,7 +73,7 @@ export default function ProductList() {
                             setMiddleCateNo(1);
                         }}
                     >
-                        <img className="p-cate-img" src="/images/주방.jpg" />
+                        <img className="p-cate-img" src="/productCateImg/주방.jpg" />
                         <span className="p-cate-span">주방</span>
                     </button>
 
@@ -75,12 +83,12 @@ export default function ProductList() {
                             setpCateNo(2), setMiddleCateNo(1);
                         }}
                     >
-                        <img className="p-cate-img" src="/images/욕실.jpg" />
+                        <img className="p-cate-img" src="/productCateImg/욕실.jpg" />
                         <span className="p-cate-span">욕실</span>
                     </button>
 
                     <button className="p-cate-btn" onClick={() => setpCateNo(3)}>
-                        <img className="p-cate-img" src="/images/이미지테스트.png" />
+                        <img className="p-cate-img" src="/productCateImg/중문도어.jpg" />
                         <span className="p-cate-span">중문/도어</span>
                     </button>
 
@@ -156,15 +164,15 @@ export default function ProductList() {
                         boxSizing: "border-box",
                     }}
                 >
-                    {[...Array(total)].map((_, idx) => (
+                    {productList.map((product) => (
                         <div
-                            key={idx}
+                            key={product.productId}
                             style={{
                                 flex: "0 0 265px", // 고정 너비
                                 boxSizing: "border-box",
                             }}
                         >
-                            <Product />
+                            <Product product={product} />
                         </div>
                     ))}
                 </div>
