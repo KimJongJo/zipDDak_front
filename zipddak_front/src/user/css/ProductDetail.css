@@ -378,7 +378,7 @@
 .detail-bottom-reivew {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 20px;
 }
 
 .detail-bottom-review-box {
@@ -487,11 +487,19 @@
     font-size: 14px;
 }
 
+.detail-bottom-ask-Q-td,
+.detail-bottom-ask-A-td {
+    width: 5px;
+}
+
 .detail-bottom-ask-Q,
 .detail-bottom-ask-A {
     font-size: 14px;
     font-weight: 600;
     color: #ff5833;
+}
+.detail-bottom-ask-left-padding-0 {
+    padding-left: 0;
 }
 
 .detail-bottom-ask-storeName {
@@ -511,7 +519,7 @@
 .detail-bottom-ask {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 20px;
 }
 
 .detail-product-bottom {
@@ -650,4 +658,9 @@
 .test {
     accent-color: #ff5833;
     zoom: 1.3;
+}
+
+.productDetail-inquiry-table td {
+    border: none;
+    text-align: left;
 }

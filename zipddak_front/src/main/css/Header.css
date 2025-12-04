@@ -1,8 +1,8 @@
-/* body{
-    font-weight: 500;
-} */
+body {
+    min-width: 1300px;
+}
 
-.Userheader ,
+.Userheader,
 .navigation {
     max-width: 1440px !important;
     padding: 0 136px;
@@ -55,7 +55,7 @@
     font-size: 16px;
     font-weight: 600;
     gap: 32px;
-    
+
     width: 100%;
     height: 52px;
     padding: 0 16px;
@@ -71,22 +71,21 @@
 }
 
 .navitem:hover {
-    color: #FF5833;
+    color: #ff5833;
 }
 
 .navitem:active,
 .navitem.active {
-    color: #FF5833;
-    border-bottom: 2px solid #FF5833;
+    color: #ff5833;
+    border-bottom: 2px solid #ff5833;
     font-weight: 600;
 }
 
-
 .estimate,
- .membership,
- .icon,
- .loginSign,
- .profile {
+.membership,
+.icon,
+.loginSign,
+.profile {
     cursor: pointer;
 }
 

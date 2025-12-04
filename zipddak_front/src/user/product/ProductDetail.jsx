@@ -239,63 +239,6 @@ export default function ProductDetail() {
                                             상품에 대한 리뷰 작성 글 예시입니다.
                                         </div>
                                     </div>
-
-                                    <div className="detail-bottom-review-box">
-                                        <div>
-                                            {/* 사용자 닉네임 */}
-                                            <span className="detail-bottom-review-nickname">닉네임</span>
-                                        </div>
-                                        <div>
-                                            <div className="detail-bottom-review-start-list-div">
-                                                <div className="detail-star-list">
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                </div>
-                                                {/* 리뷰 작성일 */}
-                                                <span className="detail-bottom-review-created">2025년 11월 09일 12시 12분</span>
-                                            </div>
-                                        </div>
-                                        <img className="detail-bottom-review-img" src="/images/이미지테스트.png" />
-                                        <div className="detail-bottom-review-content">
-                                            상품에 대한 리뷰 작성 글 예시 입니다. <br />
-                                            상품에 대한 리뷰
-                                            <br />
-                                            작성 글 예시 입니다.
-                                            <br />
-                                            상품에 대한 리뷰 작성 글 예시입니다.
-                                        </div>
-                                    </div>
-                                    <div className="detail-bottom-review-box">
-                                        <div>
-                                            {/* 사용자 닉네임 */}
-                                            <span className="detail-bottom-review-nickname">닉네임</span>
-                                        </div>
-                                        <div>
-                                            <div className="detail-bottom-review-start-list-div">
-                                                <div className="detail-star-list">
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                </div>
-                                                {/* 리뷰 작성일 */}
-                                                <span className="detail-bottom-review-created">2025년 11월 09일 12시 12분</span>
-                                            </div>
-                                        </div>
-                                        <img className="detail-bottom-review-img" src="/images/이미지테스트.png" />
-                                        <div className="detail-bottom-review-content">
-                                            상품에 대한 리뷰 작성 글 예시 입니다. <br />
-                                            상품에 대한 리뷰
-                                            <br />
-                                            작성 글 예시 입니다.
-                                            <br />
-                                            상품에 대한 리뷰 작성 글 예시입니다.
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
@@ -321,22 +264,22 @@ export default function ProductDetail() {
                                             {/* 문의 날짜 */}
                                             <span className="detail-bottom-ask-created">2025년 11월 09일 12시 12분</span>
                                         </div>
-                                        <table>
+                                        <table className="productDetail-inquiry-table">
                                             <tbody className="detail-bottom-ask-table">
                                                 <tr>
-                                                    <td>
+                                                    <td className="detail-bottom-ask-Q-td">
                                                         <span className="detail-bottom-ask-Q">Q</span>
                                                     </td>
-                                                    <td>
+                                                    <td className="detail-bottom-ask-left-padding-0">
                                                         {/* 문의 내용 */}
                                                         <span className="detail-bottom-ask-content">언제쯤 출고될지 대강 알 수 있을까요?</span>
                                                     </td>
                                                 </tr>
                                                 <tr>
-                                                    <td>
+                                                    <td className="detail-bottom-ask-A-td">
                                                         <span className="detail-bottom-ask-A">A</span>
                                                     </td>
-                                                    <td>
+                                                    <td className="detail-bottom-ask-left-padding-0">
                                                         {/* 자재업체 이름 */}
                                                         <span className="detail-bottom-ask-storeName">자재업체이름</span>
                                                         {/* 답변 날짜 */}
@@ -345,99 +288,7 @@ export default function ProductDetail() {
                                                 </tr>
                                                 <tr>
                                                     <td></td>
-                                                    <td>
-                                                        <div className="detail-bottom-ask-return">
-                                                            안녕하세요 고객님 <br />
-                                                            우선 이용에 불편드려서 죄송합니다. <br />
-                                                            현재 출고는 완료되었으나, <br />
-                                                            택배사 물량과다로 스캔 작업 지연되고 있습니다. <br />
-                                                            금일 저녁~익일 새벽에 배송조회 가능 할 것 같습니다. <br />
-                                                            시간 양해 부탁드립니다. <br />
-                                                            불편드려서 죄송합니다.
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div className="detail-bottom-ask-box">
-                                        <div>
-                                            {/* 문의 사용자 닉네임 */}
-                                            <span className="detail-bottom-ask-nickname">닉네임</span>
-                                            {/* 문의 날짜 */}
-                                            <span className="detail-bottom-ask-created">2025년 11월 09일 12시 12분</span>
-                                        </div>
-                                        <table>
-                                            <tbody className="detail-bottom-ask-table">
-                                                <tr>
-                                                    <td>
-                                                        <span className="detail-bottom-ask-Q">Q</span>
-                                                    </td>
-                                                    <td>
-                                                        {/* 문의 내용 */}
-                                                        <span className="detail-bottom-ask-content">언제쯤 출고될지 대강 알 수 있을까요?</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <span className="detail-bottom-ask-A">A</span>
-                                                    </td>
-                                                    <td>
-                                                        {/* 자재업체 이름 */}
-                                                        <span className="detail-bottom-ask-storeName">자재업체이름</span>
-                                                        {/* 답변 날짜 */}
-                                                        <span className="detail-bottom-ask-return-created">2025년 11월 09일 12시 12분</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td>
-                                                        <div className="detail-bottom-ask-return">
-                                                            안녕하세요 고객님 <br />
-                                                            우선 이용에 불편드려서 죄송합니다. <br />
-                                                            현재 출고는 완료되었으나, <br />
-                                                            택배사 물량과다로 스캔 작업 지연되고 있습니다. <br />
-                                                            금일 저녁~익일 새벽에 배송조회 가능 할 것 같습니다. <br />
-                                                            시간 양해 부탁드립니다. <br />
-                                                            불편드려서 죄송합니다.
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div className="detail-bottom-ask-box">
-                                        <div>
-                                            {/* 문의 사용자 닉네임 */}
-                                            <span className="detail-bottom-ask-nickname">닉네임</span>
-                                            {/* 문의 날짜 */}
-                                            <span className="detail-bottom-ask-created">2025년 11월 09일 12시 12분</span>
-                                        </div>
-                                        <table>
-                                            <tbody className="detail-bottom-ask-table">
-                                                <tr>
-                                                    <td>
-                                                        <span className="detail-bottom-ask-Q">Q</span>
-                                                    </td>
-                                                    <td>
-                                                        {/* 문의 내용 */}
-                                                        <span className="detail-bottom-ask-content">언제쯤 출고될지 대강 알 수 있을까요?</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <span className="detail-bottom-ask-A">A</span>
-                                                    </td>
-                                                    <td>
-                                                        {/* 자재업체 이름 */}
-                                                        <span className="detail-bottom-ask-storeName">자재업체이름</span>
-                                                        {/* 답변 날짜 */}
-                                                        <span className="detail-bottom-ask-return-created">2025년 11월 09일 12시 12분</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td>
+                                                    <td className="detail-bottom-ask-left-padding-0">
                                                         <div className="detail-bottom-ask-return">
                                                             안녕하세요 고객님 <br />
                                                             우선 이용에 불편드려서 죄송합니다. <br />
