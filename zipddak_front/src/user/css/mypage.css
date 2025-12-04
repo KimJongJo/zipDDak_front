@@ -1,5 +1,6 @@
 /* 레이아웃 */
 .mypage-layout {
+  font-family: "Pretendard Variable", sans-serif !important;
   display: flex;
   flex-direction: column;
   gap: 44px;
@@ -206,7 +207,7 @@
 }
 .mypage-table thead {
   border-top: 2px solid #6d758f;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
   color: #303441;
   font-size: 14px;
   font-style: normal;
@@ -231,12 +232,13 @@
 }
 
 /* 페이지네이션 */
-.my-pagination {
+.my-pagination ul {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
 }
 .my-pagination .page-link {
+  border-radius: 8px !important;
   background: transparent;
   border: none;
   color: #a4aec1;
