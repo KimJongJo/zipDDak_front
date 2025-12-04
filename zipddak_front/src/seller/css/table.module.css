@@ -186,9 +186,6 @@ table.list_table tbody tr:hover td:not(:has(img)) {
     cursor: pointer;
 }
 
-table.detail_view_Table thead {
-    border-top: 1px solid var(--innerLine);
-}
 /* tr.bundle_deli.bundle_last td {
     border-bottom: 1px solid #303441;
 } */

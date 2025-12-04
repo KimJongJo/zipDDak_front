@@ -24,7 +24,7 @@ export default function MainHome() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main className="main">
+            <main className={[home.main, "main"].join(" ")}>
                 <div className={home.main_column1}>
                     <StatCard />
                     <StatCard />
