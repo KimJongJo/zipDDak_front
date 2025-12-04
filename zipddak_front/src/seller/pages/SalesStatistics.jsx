@@ -4,7 +4,7 @@ import sales from "../css/salesStatistics.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 
-import { FormGroup, Input, Label } from "reactstrap";
+import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
 import { useState, useEffect, useRef } from "react";
@@ -17,7 +17,7 @@ export default function SalesStatistics() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-graph-up-arrow"></i>
@@ -32,116 +32,118 @@ export default function SalesStatistics() {
                         </div>
 
                         <div className={sales.body_column}>
-                            <div className="salesCard">
+                            <div className={sales.salesCard}>
                                 <div className="cardImage">
                                     {/* <img src="/no_img.svg" /> */}
-                                    <i class="bi bi-cash-coin"></i>
+                                    <i className="bi bi-cash-coin"></i>
                                 </div>
                                 <div className="cardBody">
-                                    <div className="cardAmount">
+                                    <div className={sales.cardAmount}>
                                         351,000 <span>원</span>
                                     </div>
-                                    <div className="cardTitle">당일 매출액</div>
+                                    <div className={sales.cardTitle}>당일 매출액</div>
                                 </div>
                             </div>
-                            <div className="salesCard">
+                            <div className={sales.salesCard}>
                                 <div className="cardImage">
                                     {/* <img src="/no_img.svg" /> */}
                                     <i class="bi bi-cash-coin"></i>
                                 </div>
                                 <div className="cardBody">
-                                    <div className="cardAmount">
+                                    <div className={sales.cardAmount}>
                                         51,000,000 원 <span>원</span>
                                     </div>
-                                    <div className="cardTitle">당일 예상 순매출액</div>
+                                    <div className={sales.cardTitle}>당일 예상 순매출액</div>
                                 </div>
                             </div>
-                            <div className="salesCard">
+                            <div className={sales.salesCard}>
                                 <div className="cardImage">
                                     {/* <img src="/no_img.svg" /> */}
                                     <i class="bi bi-cash-coin"></i>
                                 </div>
                                 <div className="cardBody">
-                                    <div className="cardAmount">
+                                    <div className={sales.cardAmount}>
                                         34,000 <span>원</span>
                                     </div>
-                                    <div className="cardTitle">당일 평균주문금액(객단가)</div>
+                                    <div className={sales.cardTitle}>당일 평균주문금액(객단가)</div>
                                 </div>
                             </div>
-                            <div className="salesCard">
+                            <div className={sales.salesCard}>
                                 <div className="cardImage">
                                     {/* <img src="/no_img.svg" /> */}
                                     <i class="bi bi-cash-coin"></i>
                                 </div>
                                 <div className="cardBody">
-                                    <div className="cardAmount">
+                                    <div className={sales.cardAmount}>
                                         200 <span>%</span>
                                     </div>
-                                    <div className="cardTitle">전일 대비 매출 증감률</div>
+                                    <div className={sales.cardTitle}>전일 대비 매출 증감률</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className={[sales.body_column, sales.change_period].join(" ")}>
-                            <div className={sales.periodCriteria}>
-                                <FormGroup check inline>
-                                    <Label check>
-                                        <Input type="radio" name="radio2" />
-                                        일자별
-                                    </Label>
-                                </FormGroup>
-                                <FormGroup check inline>
-                                    <Label check>
-                                        <Input type="radio" name="radio2" />
-                                        월간별
-                                    </Label>
-                                </FormGroup>
-                                <FormGroup check inline>
-                                    <Label check>
-                                        <Input type="radio" name="radio2" />
-                                        년도별
-                                    </Label>
-                                </FormGroup>
+                        <div className={sales.body_column}>
+                            <div className={sales.change_period}>
+                                <div className={sales.periodCriteria}>
+                                    <FormGroup check inline>
+                                        <Label check>
+                                            <Input type="radio" name="radio2" />
+                                            일자별
+                                        </Label>
+                                    </FormGroup>
+                                    <FormGroup check inline>
+                                        <Label check>
+                                            <Input type="radio" name="radio2" />
+                                            월간별
+                                        </Label>
+                                    </FormGroup>
+                                    <FormGroup check inline>
+                                        <Label check>
+                                            <Input type="radio" name="radio2" />
+                                            년도별
+                                        </Label>
+                                    </FormGroup>
+                                </div>
+                                <div className="tableBody">
+                                    <table className={table.salesTable}>
+                                        <thead>
+                                            <tr>
+                                                <th style={{ width: "10%" }}>날짜</th>
+                                                <th style={{ width: "auto" }}>카테고리1</th>
+                                                <th style={{ width: "auto" }}>카테고리2</th>
+                                                <th style={{ width: "auto" }}>카테고리3</th>
+                                                <th style={{ width: "auto" }}>카테고리4</th>
+                                                <th style={{ width: "auto" }}>카테고리5</th>
+                                                <th style={{ width: "auto" }}>카테고리6</th>
+                                                <th style={{ width: "auto" }}>카테고리7</th>
+                                                <th style={{ width: "auto" }}>카테고리8</th>
+                                                <th style={{ width: "auto" }}>카테고리9</th>
+                                                <th style={{ width: "auto" }}>카테고리10</th>
+                                                <th style={{ width: "auto" }}>카테고리11</th>
+                                                <th style={{ width: "10%" }}>합계</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style={{ fontWeight: "600" }}>2025-10-28</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500</td>
+                                                <td>1,234,500,000,000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div className="pagination"></div>
                             </div>
-                            <div className="tableBody">
-                                <table className={table.salesTable}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{ width: "10%" }}>날짜</th>
-                                            <th style={{ width: "auto" }}>카테고리1</th>
-                                            <th style={{ width: "auto" }}>카테고리2</th>
-                                            <th style={{ width: "auto" }}>카테고리3</th>
-                                            <th style={{ width: "auto" }}>카테고리4</th>
-                                            <th style={{ width: "auto" }}>카테고리5</th>
-                                            <th style={{ width: "auto" }}>카테고리6</th>
-                                            <th style={{ width: "auto" }}>카테고리7</th>
-                                            <th style={{ width: "auto" }}>카테고리8</th>
-                                            <th style={{ width: "auto" }}>카테고리9</th>
-                                            <th style={{ width: "auto" }}>카테고리10</th>
-                                            <th style={{ width: "auto" }}>카테고리11</th>
-                                            <th style={{ width: "10%" }}>합계</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td style={{ fontWeight: "600" }}>2025-10-28</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500</td>
-                                            <td>1,234,500,000,000</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div className="pagination"></div>
                         </div>
                     </div>
                 </div>

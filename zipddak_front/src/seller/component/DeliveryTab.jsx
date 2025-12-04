@@ -1,8 +1,11 @@
+// css
+import product from "../css/productRegist.module.css";
+
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
 
 const DeliveryTab = ({ register, errors }) => {
     return (
-        <div className="deli_frame mb-2 ps-3">
+        <div className={[product.deli_frame, "mb-2", "ps-3"].join(" ")}>
             {/* 무료 배송 */}
             {/* <div className="deli_column1 position-relative">
                 <FormGroup check inline>
@@ -14,7 +17,7 @@ const DeliveryTab = ({ register, errors }) => {
             </div> */}
 
             {/* 묶음/개별 배송 */}
-            <div className="deli_column2 border_top position-relative">
+            <div className="position-relative">
                 <FormGroup check inline>
                     <Label check>
                         <Input type="radio" value="bundle" {...register("delivery.shippingType")} />
@@ -30,7 +33,7 @@ const DeliveryTab = ({ register, errors }) => {
             </div>
 
             {/* 배송비 */}
-            <div className="deli_column3 border_top position-relative">
+            <div className="position-relative">
                 <FormGroup style={{ display: "flex", alignItems: "flex-end" }}>
                     <Label className=" ms-2">
                         배송비<span className="required">*</span>

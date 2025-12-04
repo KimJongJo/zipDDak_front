@@ -1,9 +1,27 @@
-.claimHistory {
-    width: 100%;
+.accordionFrame {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 15px;
+    /* align-self: stretch; */
+    width: inherit;
+
+    border: 1px solid var(--outerLine);
+    border-radius: 8px;
+
+    box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
+    margin-bottom: 30px;
+}
+
+.acco_header {
+    display: flex;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--outerLine);
+    width: inherit;
+    padding: 20px;
+    gap: 10px;
+    font-size: 12px;
+    border-radius: 8px 8px 0 0;
+    background-color: rgba(255, 87, 51, 0.5);
 }
 
 .accordionToggleBox {
@@ -15,7 +33,7 @@
     gap: 5px;
 }
 
-.accordion_header.opened {
+.accordion_opened {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -25,6 +43,13 @@
     border-radius: 8px;
     background-color: rgba(255, 87, 51, 0.5);
     box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
+}
+
+.accordion_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 .accordion_header {
@@ -49,4 +74,13 @@
     box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
     border-radius: 8px;
     gap: 30px;
+}
+
+.claim_detail_body {
+    width: inherit;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    gap: 15px;
 }

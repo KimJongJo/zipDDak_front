@@ -14,7 +14,7 @@ export default function MyInfo() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame regiFrame">
                     <div className="headerFrame">
                         <i className="bi bi-gear" />
@@ -26,13 +26,13 @@ export default function MyInfo() {
                             <span className="required">*</span> : 필수 입력
                         </div>
 
-                        <div className="mainBody">
-                            <div className="profileSummary">
-                                <div className="imgPart">
+                        <div className={settings.mainBody}>
+                            <div className={settings.profileSummary}>
+                                <div className={settings.settings_imgPart}>
                                     <img src="/no-image.svg" />
                                 </div>
-                                <div className="infoPart">
-                                    <div className="compInfo">
+                                <div className={settings.settings_infoPart}>
+                                    <div className={settings.compInfo}>
                                         <p>업체명 :</p>
                                         <p>사업자번호 : </p>
                                         <p>대표자명 : </p>
@@ -140,8 +140,8 @@ export default function MyInfo() {
                                 <Label for="examplePassword" className="input_title">
                                     정산 계좌<span className="required">*</span>
                                 </Label>
-                                <div className="accountPart" style={{ width: "100%" }}>
-                                    <div className="accountPart me-2" style={{ width: "100%" }}>
+                                <div className={settings.accountPart} style={{ width: "100%" }}>
+                                    <div className={[settings.accountPart, "me-2"].join(" ")} style={{ width: "100%" }}>
                                         <Input type="select" className="me-2" style={{ width: "30%" }}>
                                             <option>은행 선택</option>
                                             <option>신한</option>

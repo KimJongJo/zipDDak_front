@@ -37,7 +37,7 @@ export default function ProductRegist() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
+            <main className="main">
                 <div className="mainFrame regiFrame">
                     <div className="headerFrame">
                         <i class="bi bi-pencil-square" />

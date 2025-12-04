@@ -2,6 +2,7 @@
 import "../css/index.css";
 import "../css/layout.css";
 import "../css/frame.css";
+import "../css/iconStyle.css";
 import home from "../css/mainHome.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
@@ -23,27 +24,27 @@ export default function MainHome() {
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
 
-            <main>
-                <div className="main_column1">
+            <main className="main">
+                <div className={home.main_column1}>
                     <StatCard />
                     <StatCard />
                     <StatCard />
                     <StatCard />
                 </div>
 
-                <div className="main_column2">
+                <div className={home.main_column2}>
                     <StatCard2 />
                 </div>
 
-                <div className="main_column3">
-                    <div className="more_stats">
+                <div className={home.main_column3}>
+                    <div className={home.more_stats}>
                         <span className="pointer"> 통계 더보기 →</span>
                     </div>
-                    <div className="graph_body">
-                        <div className="cumulative_statistics">
+                    <div className={home.graph_body}>
+                        <div className={home.cumulative_statistics}>
                             <div>
-                                <p className="graph_title">올해 카테고리별 누적 판매 통계</p>
-                                <div className="graph_change ">
+                                <p className={home.graph_title}>올해 카테고리별 누적 판매 통계</p>
+                                <div className={home.graph_change}>
                                     <FormGroup check inline>
                                         <Label check style={{ display: "flex", alignItems: "flex-start" }}>
                                             <Input type="radio" name="radio2" />
@@ -64,8 +65,8 @@ export default function MainHome() {
                             </div>
                         </div>
 
-                        <div className="etc_statistics">
-                            <p className="graph_title">카테고리별 매출 비중</p>
+                        <div className={home.etc_statistics}>
+                            <p className={home.graph_title}>카테고리별 매출 비중</p>
                             <div className="graph">
                                 <DonutChart />
                             </div>
