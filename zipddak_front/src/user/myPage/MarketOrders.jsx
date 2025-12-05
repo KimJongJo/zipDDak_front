@@ -15,7 +15,12 @@ import {
 export default function MarketOrders() {
   const [orders, setOrders] = useState([]);
   const [pageBtn, setPageBtn] = useState([]);
-  const [pageInfo, setPageInfo] = useState({});
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
   const [selectDate, setSelectDate] = useState({
     startDate: null,
     endDate: null,
@@ -31,11 +36,11 @@ export default function MarketOrders() {
   const navigate = useNavigate();
 
   // 주문 목록 조회
-  const getOrders = (page) => {
+  const getOrders = (page, startDate, endDate) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/market/orderList?username=test@kosta.com&page=${page}&startDate=${selectDate.startDate}&endDate=${selectDate.endDate}`
+          `/market/orderList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
       )
       .then((res) => {
         console.log(res);
@@ -60,7 +65,7 @@ export default function MarketOrders() {
   };
 
   useEffect(() => {
-    getOrders(1);
+    getOrders(1, selectDate.startDate, selectDate.endDate);
   }, []);
 
   // 후기작성 시 이미지 업로드
@@ -115,6 +120,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, startDate: e.target.value });
+              getOrders(pageInfo.curPage, e.target.value, selectDate.endDate);
             }}
           ></Input>{" "}
           -{" "}
@@ -124,6 +130,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, endDate: e.target.value });
+              getOrders(pageInfo.curPage, selectDate.startDate, e.target.value);
             }}
           ></Input>
         </div>
@@ -474,7 +481,13 @@ export default function MarketOrders() {
         </PaginationItem> */}
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
-            <PaginationLink onClick={() => getOrders(b)}>{b}</PaginationLink>
+            <PaginationLink
+              onClick={() =>
+                getOrders(b, selectDate.startDate, selectDate.endDate)
+              }
+            >
+              {b}
+            </PaginationLink>
           </PaginationItem>
         ))}
         {/* <PaginationItem disabled={pageInfo.curPage > pageInfo.endPage - 1}>
