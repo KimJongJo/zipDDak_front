@@ -2,12 +2,22 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/ProductDetail.css";
 import { useState, useRef, useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import axios from "axios";
+import { baseUrl } from "../../config";
+import { useParams } from "react-router";
 
 export default function ProductDetail() {
     const [bottomSelect, setBottomSelect] = useState(1);
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
-    const [unmountOnClose, setUnmountOnClose] = useState(true);
+
+    const [inquiries, setInquiries] = useState([]);
+    const [avgScore, setAvgScore] = useState(0);
+    const [reviewCount, setReviewCount] = useState(0);
+    const [product, setProduct] = useState({});
+
+    // 자재 상품 id
+    const { productId } = useParams();
 
     // --- 섹션 refs ---
     const infoRef = useRef(null);
@@ -60,6 +70,17 @@ export default function ProductDetail() {
         };
     }, []);
 
+    useEffect(() => {
+        axios.get(`${baseUrl}/product?productId=${productId}`).then((res) => {
+            const data = res.data;
+            console.log(data);
+            setAvgScore(data.avgScore);
+            setReviewCount(data.reviewCount);
+            setInquiries(data.productInquiries);
+            setProduct(data.productDetailDto);
+        });
+    }, []);
+
     return (
         <div className="body-div">
             <div className="ProductDetail-main-div">
@@ -79,14 +100,14 @@ export default function ProductDetail() {
                     <div className="detail-top-right">
                         <div className="detail-product-info">
                             {/* 카테고리 */}
-                            <span className="product-category">카테고리</span>
+                            <span className="product-category">{product.category}</span>
 
                             {/* 업체명 */}
-                            <span className="product-store-name">자재판매업체</span>
+                            <span className="product-store-name">{product.subCategory}</span>
 
                             <div className="detail-product-name-div">
                                 {/* 상품 이름 */}
-                                <div className="detail-product-name">발트 라운드 수납 선반 다용도 주방 거실장</div>
+                                <div className="detail-product-name">{product.name}</div>
                                 <i className="bi bi-heart product-like"></i>
                             </div>
                             <div className="detail-product-div-under">
@@ -94,26 +115,62 @@ export default function ProductDetail() {
                                     <div>
                                         <div className="detail-sale-div">
                                             {/* 세일 퍼센트 */}
-                                            <span className="detail-sale-percent">5%</span>
+                                            <span className="detail-sale-percent">{product.discount}%</span>
                                             {/* 정가 */}
-                                            <del className="detail-default-price">10,000원</del>
+                                            <del className="detail-default-price">{product?.price?.toLocaleString()}원</del>
                                         </div>
                                         <div>
                                             {/* 판매 가격 */}
-                                            <span className="detail-sale-price">10,000</span>
+                                            <span className="detail-sale-price">{product?.salePrice?.toLocaleString()}</span>
                                             <span className="won">원</span>
                                         </div>
                                     </div>
-                                    <div className="detail-review">
-                                        <div className="detail-star-list">
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
+                                    <div className="detail-review" style={{ display: "flex", alignItems: "center" }}>
+                                        <div style={{ display: "flex", gap: "2px", lineHeight: "20px" }}>
+                                            {[1, 2, 3, 4, 5].map((i) => {
+                                                const score = avgScore; // 예: 3.7
+                                                let fillPercent = 0;
+
+                                                if (score >= i) {
+                                                    fillPercent = 100; // 완전 채움
+                                                } else if (score + 1 > i) {
+                                                    fillPercent = (score - (i - 1)) * 100; // 남은 부분만 채우기
+                                                }
+
+                                                return (
+                                                    <div key={i} style={{ position: "relative", width: "15px", height: "20px" }}>
+                                                        {/* 빈 별 */}
+                                                        <i
+                                                            className="bi bi-star"
+                                                            style={{
+                                                                position: "absolute",
+                                                                top: 0,
+                                                                left: 0,
+                                                                fontSize: "15px",
+                                                                color: "#ddd",
+                                                            }}
+                                                        ></i>
+
+                                                        {/* 채워진 별 (width로 부분만 보이게) */}
+                                                        <i
+                                                            className="bi bi-star-fill"
+                                                            style={{
+                                                                position: "absolute",
+                                                                top: 0,
+                                                                left: 0,
+                                                                width: `${fillPercent}%`,
+                                                                overflow: "hidden",
+                                                                whiteSpace: "nowrap",
+                                                                fontSize: "15px",
+                                                                color: "#FFD700", // 노란색(원하면 변경)
+                                                            }}
+                                                        ></i>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                         {/* 리뷰 수 */}
-                                        <span className="detail-review-count">1,001 개 리뷰</span>
+                                        <span className="detail-review-count">{reviewCount}개 리뷰</span>
                                     </div>
                                 </div>
                                 <hr className="hr" />
@@ -218,12 +275,48 @@ export default function ProductDetail() {
                                         </div>
                                         <div>
                                             <div className="detail-bottom-review-start-list-div">
-                                                <div className="detail-star-list">
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
+                                                <div style={{ display: "flex", gap: "2px" }}>
+                                                    {[1, 2, 3, 4, 5].map((i) => {
+                                                        const score = 3.7; // 예: 3.7
+                                                        let fillPercent = 0;
+
+                                                        if (score >= i) {
+                                                            fillPercent = 100; // 완전 채움
+                                                        } else if (score + 1 > i) {
+                                                            fillPercent = (score - (i - 1)) * 100; // 남은 부분만 채우기
+                                                        }
+
+                                                        return (
+                                                            <div key={i} style={{ position: "relative", width: "15px", height: "20px" }}>
+                                                                {/* 빈 별 */}
+                                                                <i
+                                                                    className="bi bi-star"
+                                                                    style={{
+                                                                        position: "absolute",
+                                                                        top: 0,
+                                                                        left: 0,
+                                                                        fontSize: "15px",
+                                                                        color: "#ddd",
+                                                                    }}
+                                                                ></i>
+
+                                                                {/* 채워진 별 (width로 부분만 보이게) */}
+                                                                <i
+                                                                    className="bi bi-star-fill"
+                                                                    style={{
+                                                                        position: "absolute",
+                                                                        top: 0,
+                                                                        left: 0,
+                                                                        width: `${fillPercent}%`,
+                                                                        overflow: "hidden",
+                                                                        whiteSpace: "nowrap",
+                                                                        fontSize: "15px",
+                                                                        color: "#FFD700", // 노란색(원하면 변경)
+                                                                    }}
+                                                                ></i>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                                 {/* 리뷰 작성일 */}
                                                 <span className="detail-bottom-review-created">2025년 11월 09일 12시 12분</span>
@@ -257,52 +350,46 @@ export default function ProductDetail() {
                                 </div>
 
                                 <div className="detail-bottom-ask-box-div">
-                                    <div className="detail-bottom-ask-box">
-                                        <div>
-                                            {/* 문의 사용자 닉네임 */}
-                                            <span className="detail-bottom-ask-nickname">닉네임</span>
-                                            {/* 문의 날짜 */}
-                                            <span className="detail-bottom-ask-created">2025년 11월 09일 12시 12분</span>
+                                    {inquiries.map((inquiry) => (
+                                        <div className="detail-bottom-ask-box" key={inquiry.inquiryIdx}>
+                                            <div>
+                                                {/* 문의 사용자 닉네임 */}
+                                                <span className="detail-bottom-ask-nickname">{inquiry.writerNickname}</span>
+                                                {/* 문의 날짜 */}
+                                                <span className="detail-bottom-ask-created">{inquiry.writeAt}</span>
+                                            </div>
+                                            <table className="productDetail-inquiry-table">
+                                                <tbody className="detail-bottom-ask-table">
+                                                    <tr>
+                                                        <td className="detail-bottom-ask-Q-td">
+                                                            <span className="detail-bottom-ask-Q">Q</span>
+                                                        </td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            {/* 문의 내용 */}
+                                                            <span className="detail-bottom-ask-content">{inquiry.content}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="detail-bottom-ask-A-td">
+                                                            <span className="detail-bottom-ask-A">A</span>
+                                                        </td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            {/* 자재업체 이름 */}
+                                                            <span className="detail-bottom-ask-storeName">{inquiry.brandName}</span>
+                                                            {/* 답변 날짜 */}
+                                                            <span className="detail-bottom-ask-return-created">{inquiry.answerAt}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            <div className="detail-bottom-ask-return">{inquiry.answer}</div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        <table className="productDetail-inquiry-table">
-                                            <tbody className="detail-bottom-ask-table">
-                                                <tr>
-                                                    <td className="detail-bottom-ask-Q-td">
-                                                        <span className="detail-bottom-ask-Q">Q</span>
-                                                    </td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        {/* 문의 내용 */}
-                                                        <span className="detail-bottom-ask-content">언제쯤 출고될지 대강 알 수 있을까요?</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="detail-bottom-ask-A-td">
-                                                        <span className="detail-bottom-ask-A">A</span>
-                                                    </td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        {/* 자재업체 이름 */}
-                                                        <span className="detail-bottom-ask-storeName">자재업체이름</span>
-                                                        {/* 답변 날짜 */}
-                                                        <span className="detail-bottom-ask-return-created">2025년 11월 09일 12시 12분</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        <div className="detail-bottom-ask-return">
-                                                            안녕하세요 고객님 <br />
-                                                            우선 이용에 불편드려서 죄송합니다. <br />
-                                                            현재 출고는 완료되었으나, <br />
-                                                            택배사 물량과다로 스캔 작업 지연되고 있습니다. <br />
-                                                            금일 저녁~익일 새벽에 배송조회 가능 할 것 같습니다. <br />
-                                                            시간 양해 부탁드립니다. <br />
-                                                            불편드려서 죄송합니다.
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    ))}
                                 </div>
                                 {/* 문의하기 모달 */}
                                 <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
@@ -311,12 +398,7 @@ export default function ProductDetail() {
                                     </ModalHeader>
                                     <div className="ask-modal-body">
                                         <Input style={{ fontSize: "14px" }} className="ask-modal-body-input" type="textarea" placeholder="문의하실 내용을 입력해주세요" rows={5} />
-                                        <div className="ask-modal-body-checkbox">
-                                            <input type="checkbox" className="test" id="askPrivate" />
-                                            <label htmlFor="askPrivate" className="ask-modal-private-span">
-                                                비밀글로 작성
-                                            </label>
-                                        </div>
+
                                         <div className="ask-modal-body-button-div">
                                             <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
                                                 취소
