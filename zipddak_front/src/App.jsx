@@ -81,7 +81,7 @@ import Best from "./main/pages/Best.jsx";
 import SellerLayout from "./seller/pages/SellerLayout";
 import SellerHome from "./seller/pages/MainHome";
 import ProductRegist from "./seller/pages/ProductRegist";
-import SellerPdList from "./seller/pages/ProductList";
+import SellerPdList from "./seller/pages/ProductListSeller";
 import OrderList from "./seller/pages/OrderList";
 import ShippingList from "./seller/pages/ShippingList";
 import ReturnList from "./seller/pages/ReturnList";
@@ -188,7 +188,7 @@ function App() {
             <Route path="seller/*" element={<SellerLayout />}>
                 <Route path="mainhome" element={<SellerHome />} />
                 <Route path="productRegist" element={<ProductRegist />} />
-                <Route path="productList" element={<ProductList />} />
+                <Route path="productList" element={<SellerPdList />} />
                 <Route path="orderList" element={<OrderList />} />
                 <Route path="shippingList" element={<ShippingList />} />
                 <Route path="returnList" element={<ReturnList />} />

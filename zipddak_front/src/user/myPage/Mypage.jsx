@@ -59,7 +59,7 @@ export default function Mypage() {
           }}
           onClick={() => {
             window.scrollTo(0, 0);
-            navigate("/user/mypage");
+            navigate("/zipddak/mypage");
           }}
         >
           마이페이지
@@ -91,7 +91,7 @@ export default function Mypage() {
             <p style={navTitleStyle}>공구 대여</p>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/tools/my"
+              to="/zipddak/mypage/tools/my"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -103,7 +103,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/tools/rentals"
+              to="/zipddak/mypage/tools/rentals"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -119,7 +119,7 @@ export default function Mypage() {
             <p style={navTitleStyle}>전문가 찾기</p>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/expert/works"
+              to="/zipddak/mypage/expert/works"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -131,7 +131,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/expert/requests/active"
+              to="/zipddak/mypage/expert/requests/active"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -143,7 +143,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/expert/requests/history"
+              to="/zipddak/mypage/expert/requests/history"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -159,7 +159,7 @@ export default function Mypage() {
             <p style={navTitleStyle}>마켓</p>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/market/orders"
+              to="/zipddak/mypage/market/orders"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -171,7 +171,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/market/returns"
+              to="/zipddak/mypage/market/returns"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -187,7 +187,7 @@ export default function Mypage() {
             <p style={navTitleStyle}>내 활동</p>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/likes"
+              to="/zipddak/mypage/likes"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -199,7 +199,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/reviews"
+              to="/zipddak/mypage/reviews"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -211,7 +211,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/community"
+              to="/zipddak/mypage/community"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -223,7 +223,7 @@ export default function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/inquiries"
+              to="/zipddak/mypage/inquiries"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
@@ -239,7 +239,7 @@ export default function Mypage() {
             <p style={navTitleStyle}>내 정보</p>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/user/mypage/account"
+              to="/zipddak/mypage/account"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive
