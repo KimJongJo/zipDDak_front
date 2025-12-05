@@ -5,9 +5,7 @@ export default function UploadImages({ addRef, addPreviewList, handleAddChange, 
     return (
         <>
             <FormGroup className="position-relative">
-                <Label className="input_title">
-                    추가이미지 (최대 5장까지)<span className="required">*</span>
-                </Label>
+                <Label className="input_title">추가이미지 (최대 5장까지)</Label>
                 <Tippy content="상품의 추가이미지 첨부하기" theme="custom">
                     <img src="/Paperclip.svg" className="pointer" onClick={() => addRef.current.click()} />
                 </Tippy>

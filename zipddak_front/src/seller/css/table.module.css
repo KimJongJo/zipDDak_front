@@ -164,8 +164,12 @@ table.list_table thead {
     border-bottom: 1px solid rgba(0, 0, 0, 0.8);
 }
 
-table th,
-table td {
+table.list_table th,
+table.list_table td,
+table.detail_table th,
+table.detail_table td,
+table.inquire_table th,
+table.inquire_table td {
     padding: 8px 10px;
     text-align: center;
 

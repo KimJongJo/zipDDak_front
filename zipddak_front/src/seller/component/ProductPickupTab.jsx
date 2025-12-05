@@ -8,7 +8,7 @@ const PickupTab = ({ register, errors }) => {
         <div className={[product.pickup_frame, "ps-3"].join(" ")}>
             <div style={{ width: "100%" }}>
                 <Label for="examplePassword" className="input_title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    픽업지 주소
+                    픽업지 주소 확인
                     {/* <button type="button" className="small-button">
                         <i className="bi bi-search"></i>
                     </button> */}

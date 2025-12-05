@@ -16,7 +16,7 @@ import OptionSection from "../component/ProductOptionSection";
 import DeliveryPolicySection from "../component/ProductDeliveryPolicy";
 import VisibleSetting from "../component//ProductVisibleSetting";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
 
@@ -48,12 +48,35 @@ export default function ProductRegist() {
     });
 
     //카테고리 선택
+    const [categories, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
-    // 카테별 소카테 리스트 (데이터 기반)
-    const subCategories = {
-        카테1: ["소카테1-1", "소카테1-2"],
-        카테2: ["소카테2-1", "소카테2-2"],
-    };
+    const [selectedSubCategory, setSelectedSubCategory] = useState("");
+
+    // DB에서 카테고리 전체 조회
+    useEffect(() => {
+        fetch("/seller/product/categories")
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("카테고리:", data);
+                setCategories(data);
+            })
+            .catch((err) => {
+                console.error("카테고리 로드 실패", err);
+            });
+    }, []);
+
+    // 라디오로 카테고리 선택 시 subCategory 세팅
+    useEffect(() => {
+        if (!selectedCategory) {
+            setSubCategories([]);
+            return;
+        }
+
+        const category = categories.find((c) => String(c.categoryIdx) === String(selectedCategory));
+        setSubCategories(category?.subCategories || []);
+        setSelectedSubCategory(""); // 상위카테 바뀌면 소카테 초기화
+    }, [selectedCategory, categories]);
 
     //가격 계산
     const {
@@ -78,8 +101,7 @@ export default function ProductRegist() {
         removeValueLine,
     } = usePdOptionSetting();
 
-    //배송정책
-    //체크박스 상태
+    //배송정책 + 체크박스 상태
     const {
         register,
         watch,
@@ -134,7 +156,7 @@ export default function ProductRegist() {
                         <DetailImagesUpload detailRef={detailRef} detailPreviewList={detailPreviewList} handleDetailChange={handleDetailChange} deleteDetailImage={deleteDetailImage} />
 
                         {/* 카테고리 */}
-                        <CategorySelector selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} subCategories={subCategories} />
+                        <CategorySelector categories={categories} selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} subCategories={subCategories} selectedSubCategory={selectedSubCategory} setSelectedSubCategory={setSelectedSubCategory} />
 
                         {/* 가격 */}
                         <PriceSection price={price} salePrice={salePrice} discountRate={discountRate} handlePrice={handlePrice} handleSalePrice={handleSalePrice} handleDiscountRate={handleDiscountRate} />
