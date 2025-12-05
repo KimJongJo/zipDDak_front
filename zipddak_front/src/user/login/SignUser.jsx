@@ -1,7 +1,187 @@
-import { Form, FormGroup, Label, Input, Button, Col } from "reactstrap";
+import { Form, FormGroup, Label, Input, Button, Col, FormFeedback, Modal, ModalHeader, ModalBody } from "reactstrap";
 import "../css/Signup.css";
+import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import DaumPostcode from 'react-daum-postcode';
+import { Modal as AddrModal } from 'antd'
+import { myAxios } from "../../config";
 
 export default function SignUser() {
+
+    const [user, setUser] = useState({
+        username: '', nickname: '', password: '', checkPassword: '', name: '', phone: '',
+        auth_num: '', zonecode: '', addr1: '', addr2: '', settleBank: '', settleAccount: '', settleHost: '',
+        provider: '', providerId: '', fcmToken: '', role: 'USER', expert: false, createdate: '', profileImg: ''
+    })
+
+    const [modal, setModal] = useState(false);
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+
+    const changeInput = (e) => {
+        setUser({ ...user, [e.target.name]: e.target.value })
+    }
+
+    //중복 아이디 체크
+    const [idValid, setIdValid] = useState(null);
+
+    useEffect(()=> {
+        if (!user.username){
+            setIdValid(null);
+            return;
+        }
+        const timer = setTimeout(()=> {
+        myAxios.post('/checkDoubleId', {username:user.username})
+        .then (res => {
+            if(res.data=== true) {
+                setIdValid(false);
+                setMessage("이미 사용중인 이메일(아이디)입니다");
+            }else {
+                setIdValid(true);
+                setMessage("사용가능한 이메일(아이디)입니다");
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+    }, 500); //0.5초
+
+    return () => clearTimeout(timer);
+
+    }, [user.username])
+
+
+    //비밀번호 생성
+    const [pwRuleValid, setPwRuleValid] = useState(false);
+
+    useEffect(() => {
+        //영문, 숫자, 특수기호를 포함한 8-16자
+        const rule = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/])[A-Za-z\d!@#$%^&*()_+=\-{}\[\]:;"'<>,.?/]{8,16}$/
+            ;
+        if (user.password === '') {
+            setPwRuleValid(null);
+        } else {
+            setPwRuleValid(rule.test(user.password));
+        }
+    }, [user.password]);
+
+    //비밀번호 확인
+    const [pwValid, setPwValid] = useState(null);
+
+    useEffect(() => {
+        if (user.checkPassword === '') {
+            setPwValid(null);
+        } else if (user.password === user.checkPassword) {
+            setPwValid(true); //일치
+        } else {
+            setPwValid(false); //불일치
+        }
+    }, [user.password, user.checkPassword]);
+
+    //닉네임
+    const [nickValid, setNickValid] = useState(null);
+    useEffect(() => {
+        const nicknameRule = /^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{2,20}$/;
+
+        if (user.nickname === '') {
+            setNickValid(null);
+        } else {
+            setNickValid(nicknameRule.test(user.nickname));
+        }
+    }, [user.nickname]);
+
+    //문자 인증
+    const [phoneValid, setPhoneValid] = useState(null);
+    const checkPhoneAuth = (e) => {
+
+    }
+
+    //주소
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const complateHandler = (data) => {
+        setUser({
+            ...user,
+            zonecode: data.zonecode,
+            addr1: data.roadAddress || data.address
+        });
+    }
+
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    }
+
+    //약관동의
+    const [agree, setAgree] = useState({
+        all:false,
+        necessary1: false,
+        necessary2: false,
+        service1: false,
+        service2: false
+    })
+
+    const handleAllCheck = (e) => {
+        const checked = e.target.checked;
+
+        setAgree({
+        all:checked,
+        necessary1: checked,
+        necessary2: checked,
+        service1: checked,
+        service2: checked
+        });
+
+    }
+
+    const handleSingleCheck = (e) => {
+        const {name, checked} = e.target;
+
+        const newAgree = {
+            ...agree,
+            [name]:checked,
+        };
+
+        const allChecked = 
+        newAgree.service1 &&
+        newAgree.service2&&
+        newAgree.necessary1&&
+        newAgree.necessary2
+
+        setAgree({
+            ...newAgree,
+            all: allChecked,
+        })
+    }
+
+
+
+    //회원가입
+    const submit = (e) => {
+        e.preventDefault();
+
+        if (!user.username?.trim()){
+            alert("아이디를 입력해주세요.");
+            return;
+        }else if (!user.password?.trim()){
+            alert("비밀번호를 입력해주세요")
+            return;
+        }else if (!user.checkPassword?.trim()){
+            alert("비밀번호 확인을 입력해주세요")
+            return;
+        }else if (!user.name?.trim()){
+            alert("이름을 입력해주세요")
+            return;
+        }else if (!user.phone?.trim()){
+            alert("전화번호를 입력해주세요")
+            return;
+        }
+
+        const { checkPassword, ...sendUser } = user; //checkPassword 제거
+
+        myAxios().post('/joinUser', sendUser)
+
+
+    }
+
     return (
         <>
             <div className="signUser">
@@ -23,57 +203,174 @@ export default function SignUser() {
 
                 <Form>
                     <div className="input_form">
+
                         <div className="input_parts">
-                            <div className="input_label">이름</div>
-                            <Input name="name" placeholder="이름(실명)을 입력해주세요" type="text" />
+                            <div className="row-cm">
+                                <div className="input_label">아이디(이메일)</div>
+                                <span className="necc">*</span>
+                            </div>
+                            <Input id="username"
+                                name="username"
+                                placeholder="아이디로 사용할 이메일을 입력해주세요."
+                                type="email"
+                                value={user.username}
+                                onChange={changeInput} 
+                                valid = {idValid === true? true : undefined}
+                                invalid={idValid === false? true : undefined}
+                                />
+                                {
+                                    idValid === true &&
+                                    <FormFeedback valid>사용가능한 이메일입니다</FormFeedback>
+                                }
+                                {
+                                    idValid === false &&
+                                    <FormFeedback invalid>이미 가입된 이메일입니다</FormFeedback>
+                                }
                         </div>
 
                         <div className="input_parts">
-                            <div className="input_label">이메일</div>
-                            <Input id="email" name="email" placeholder="아이디로 사용할 이메일을 입력해주세요." type="email" />
+                            <div className="row-cm">
+                                <div className="input_label">비밀번호</div>
+                                <span className="necc">*</span>
+                            </div>
+                            <div className="input_detail">영문, 숫자, 특수문자를 포함한 8~16자</div>
+
+                            <Input id="password"
+                                name="password"
+                                value={user.password}
+                                placeholder="비밀번호를 입력해주세요."
+                                type="password"
+                                onChange={changeInput}
+                                valid={pwRuleValid === true}
+                                invalid={pwRuleValid === false}
+                            />
+
+                            {
+                                pwRuleValid === true &&
+                                <FormFeedback valid></FormFeedback>
+                            }
+
+                            {
+                                pwRuleValid === false &&
+                                <FormFeedback invalid>비밀번호 조건을 충족해주세요</FormFeedback>
+                            }
+
                         </div>
 
                         <div className="input_parts">
-                            <div className="input_label">비밀번호</div>
-                            <div className="input_detail">영문, 숫자를 포함한 8자 이상의 비밀번호를 설정해주세요</div>
+                            <div className="row-cm">
+                                <div className="input_label">비밀번호 확인</div>
+                                <span className="necc">*</span>
+                            </div>
+                            <Input id="checkPassword"
+                                name="checkPassword"
+                                value={user.checkPassword}
+                                placeholder="비밀번호를 입력해주세요."
+                                type="password"
+                                onChange={changeInput}
+                                valid={pwValid === true}
+                                invalid={pwValid === false}
+                            />
 
-                            <Input id="password" name="password" placeholder="비밀번호를 입력해주세요." type="password" />
-                        </div>
+                            {
+                                pwValid === true &&
+                                <FormFeedback valid>비밀번호가 일치합니다</FormFeedback>
+                            }
 
-                        <div className="input_parts">
-                            <div className="input_label">비밀번호 확인</div>
-                            <Input id="cPassword" name="cPassword" placeholder="비밀번호를 입력해주세요." type="password" />
+                            {
+                                pwValid === false &&
+                                <FormFeedback invalid>비밀번호가 일치하지 않습니다</FormFeedback>
+                            }
+
                         </div>
 
                         <div className="input_parts">
                             <div className="input_label">닉네임</div>
-                            <Input id="nickname" name="nickname" placeholder="닉네임(2~20자)" type="text" />
+                            <div className="input_detail">한글, 영문, 숫자로 2~20자</div>
+                            <Input id="nickname"
+                                name="nickname"
+                                placeholder="닉네임(2~20자)"
+                                type="text"
+                                onChange={changeInput}
+                                valid={nickValid === true}
+                                invalid={nickValid === false}
+                            />
+                            {nickValid === true &&
+                                <FormFeedback valid></FormFeedback>
+                            }
+                            {nickValid === false &&
+                                <FormFeedback invalid></FormFeedback>
+                            }
                         </div>
 
                         <div className="input_parts">
-                            <div className="input_label">휴대폰 인증</div>
-                            <Input id="tel" name="tel" placeholder="'-'없이 숫자만 입력" type="text">
-                                <Button>전송</Button>
-                            </Input>
+                            <div className="row-cm">
+                                <div className="input_label">이름</div>
+                                <span className="necc">*</span>
+                            </div>
+                            <Input id="name" name="name" placeholder="이름(실명)을 입력해주세요" type="text" />
+                        </div>
+
+                        <div className="input_parts">
+                            <div className="row-cm">
+                                <div className="input_label">휴대폰 인증</div>
+                                <span className="necc">*</span>
+                            </div>
+                            <div className="row-cm phone-auth">
+                                <Input id="phone"
+                                    name="phone"
+                                    placeholder="'-'없이 숫자만 입력"
+                                    type="text"
+                                />
+                                <Button className="tertiary-button">인증번호 전송</Button>
+                            </div>
+                            <Input id="phone_auth"
+                                name="phone_auth"
+                                placeholder="인증번호 입력"
+                                type="text"
+                            />
                         </div>
 
                         <div className="input_parts">
                             <div className="input_label">주소</div>
                             <div className="input_post">
-                                <Input name="zone" placeholder="우편번호" type="text" />
-                                <Button>주소찾기</Button>
+                                <Input 
+                                name="zonecode" 
+                                placeholder="우편번호" 
+                                type="text" 
+                                value={user.zonecode} readOnly/>
+                                <Button className="primary-button"
+                                 onClick={()=>setIsAddOpen(!isAddOpen)}>주소찾기
+                                 </Button>
                             </div>
-                            <Input name="address" placeholder="도로명/지번 주소" type="text" />
-                            <Input name="detailAddress" placeholder="상세주소" type="text" />
+                            
+                            <Input 
+                            name="addr1" 
+                            placeholder="도로명/지번 주소" 
+                            type="text" 
+                            value={user.addr1} readOnly/>
+                            
+                            <Input 
+                            name="addr2" 
+                            placeholder="상세주소" 
+                            type="text" 
+                            onChange={changeInput}
+                            />
                         </div>
 
                         <div className="input_parts">
-                            <div className="input_label">약관동의</div>
+                            <div className="row-cm">
+                                <div className="input_label">약관동의</div>
+                                <span className="necc">*</span>
+                            </div>
                             <div className="input_detail">회원가입 및 회원 관리등의 목적으로 이메일, 비밀번호, 휴대폰 번호 등의 정보를 수집 및 이용 하고 있습니다.</div>
                             <div className="condition_box">
                                 <div className="conditionAll">
                                     <FormGroup check>
-                                        <Input type="checkbox" />{" "}
+                                        <Input type="checkbox" 
+                                        name="all"
+                                        checked={agree.all}
+                                        onChange={handleAllCheck}/>
                                         <Label check className="check_All">
                                             전체동의
                                         </Label>
@@ -81,38 +378,76 @@ export default function SignUser() {
                                 </div>
                                 <div className="line"></div>
                                 <div className="conditionOption">
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>이용약관(필수)</Label>
+                                    <FormGroup check className="condition-check">
+                                        <Input type="checkbox" 
+                                        name="necessary1"
+                                        checked={agree.necessary1}
+                                        onChange={handleSingleCheck}
+                                        /> 
+                                        <Label check className="condition-label">이용약관<span className="necct">(필수)</span></Label>
                                     </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>만 14세 이상입니다(필수)</Label>
+                                    <FormGroup check className="condition-check">
+                                        <Input type="checkbox" 
+                                        name="necessary2"
+                                        checked={agree.necessary2}
+                                        onChange={handleSingleCheck}
+                                        /> 
+                                        <Label check className="condition-label">만 14세 이상입니다<span className="necct">(필수)</span></Label>
                                     </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>개인정보 수집 및 이용동의(선택)</Label>
+                                    <FormGroup check className="condition-check">
+                                        <Input type="checkbox" 
+                                        name="service1"
+                                        checked={agree.service1}
+                                        onChange={handleSingleCheck}
+                                        />  
+                                        <Label check className="condition-label">개인정보 수집 및 이용동의(선택)</Label>
                                     </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>개인정보 마케팅 활용동의(선택)</Label>
+                                    <FormGroup check className="condition-check">
+                                        <Input type="checkbox" 
+                                        name="service2"
+                                        checked={agree.service2}
+                                        onChange={handleSingleCheck}
+                                        /> 
+                                        <Label check className="condition-label">개인정보 마케팅 활용동의(선택)</Label>
                                     </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>이벤트, 쿠폰, 특가알림 메일 및 sms수신 (선택)</Label>
-                                    </FormGroup>
+                                    
                                 </div>
                             </div>
                         </div>
 
                         <div className="mainButton">
-                            <Button>회원가입하기</Button>
+                            <Button
+                            className="primary-button"
+                                disabled={!pwValid}
+                            >
+                                회원가입하기</Button>
                         </div>
                     </div>
                 </Form>
+                <Modal isOpen={modal}>
+                    <ModalHeader>회원가입</ModalHeader>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                     <Button color="primary" onClick={()=>setModal(false)} >확인</Button>
+                </Modal>
 
                 <div className="loginFooter">
                     <div className="input_detail">이미 아이디가 있으신가요?</div>
-                    <a>
+                    <a href="/zipddak/login">
                         <div className="input_detail2">로그인</div>
                     </a>
                 </div>
+                
             </div>
+
+            {
+                isAddOpen&&
+                <AddrModal title='주소찾기' 
+                open={isAddOpen} footer={null} onCancel={()=>setIsAddOpen(false)}>
+                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler}/>
+                </AddrModal>
+            }
         </>
     );
 }
