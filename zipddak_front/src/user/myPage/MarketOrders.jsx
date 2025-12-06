@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
+import { useSetAtom, useAtom } from "jotai";
+import { deliveryGroupsAtom, selectedDeliveryGroupsAtom } from "./orderAtoms";
 import { useNavigate } from "react-router-dom";
 import DeliveryButton from "./DeliveryButton";
 import {
@@ -37,6 +39,11 @@ export default function MarketOrders() {
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
+
+  const setDeliveryGroups = useSetAtom(deliveryGroupsAtom);
+  const [selectedDeliveryGroups, setSelectedDeliveryGroups] = useAtom(
+    selectedDeliveryGroupsAtom
+  );
 
   const imgRef = useRef(null);
   const navigate = useNavigate();
@@ -95,11 +102,6 @@ export default function MarketOrders() {
       });
   };
 
-  useEffect(() => {
-    getOrders(1, selectDate.startDate, selectDate.endDate);
-    getOrderStatusSummary();
-  }, []);
-
   // 후기작성 시 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -108,6 +110,17 @@ export default function MarketOrders() {
     setImages((prev) => [...prev, URL.createObjectURL(file)]);
     setFiles((prev) => [...prev, file]);
   };
+
+  useEffect(() => {
+    getOrders(1, selectDate.startDate, selectDate.endDate);
+    getOrderStatusSummary();
+    setSelectedDeliveryGroups([]);
+  }, []);
+
+  useEffect(() => {
+    setCheckedItems({});
+    setSelectedDeliveryGroups([]);
+  }, [orders]);
 
   return (
     <div className="mypage-layout">
@@ -152,7 +165,11 @@ export default function MarketOrders() {
               <p>배송완료</p>
               <span>{orderStatusSummary.deliveredStatus}</span>
             </div>
-            <div className="mypage-statusCard">
+            <div
+              className="mypage-statusCard"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/zipddak/mypage/market/returns")}
+            >
               <p>취소/교환/환불</p>
               <span>{orderStatusSummary.returnsStatus}</span>
             </div>
@@ -278,14 +295,16 @@ export default function MarketOrders() {
                               onClick={() => {
                                 const selected =
                                   checkedItems[order.orderIdx] || [];
+
                                 if (selected.length === 0) {
                                   alert("교환할 상품을 선택해주세요");
                                   return;
                                 }
+
                                 navigate(
-                                  `/user/mypage/market/exchange/${order.orderIdx}`,
+                                  `/zipddak/mypage/market/exchange/${order.orderIdx}`,
                                   {
-                                    state: { selectedProductIds: selected },
+                                    state: { selectedDeliveryGroups },
                                   }
                                 );
                               }}
@@ -298,14 +317,64 @@ export default function MarketOrders() {
                               onClick={() => {
                                 const selected =
                                   checkedItems[order.orderIdx] || [];
+
                                 if (selected.length === 0) {
                                   alert("반품할 상품을 선택해주세요");
                                   return;
                                 }
+
+                                // 해당 주문에 대한 배송 그룹만 가져옴
+                                const deliveryGroupForOrder =
+                                  selectedDeliveryGroups.find(
+                                    (o) => o.orderIdx === order.orderIdx
+                                  );
+
+                                if (!deliveryGroupForOrder) {
+                                  alert("반품 가능한 상품이 없습니다.");
+                                  return;
+                                }
+
+                                // 반품 가능 상태만 필터링
+                                const VALID_STATUSES = ["배송완료", "배송중"];
+
+                                const filteredDeliveryGroups = {
+                                  ...deliveryGroupForOrder,
+                                  deliveryGroups:
+                                    deliveryGroupForOrder.deliveryGroups
+                                      .map((group) => ({
+                                        ...group,
+                                        orderItems: group.orderItems.filter(
+                                          (item) =>
+                                            selected.includes(
+                                              item.orderItemIdx
+                                            ) &&
+                                            VALID_STATUSES.includes(
+                                              item.orderStatus
+                                            )
+                                        ),
+                                      }))
+                                      .filter(
+                                        (group) => group.orderItems.length > 0
+                                      ), // 빈 그룹 제거
+                                };
+
+                                // 반품 가능한 상품이 하나도 없다면 중단
+                                if (
+                                  filteredDeliveryGroups.deliveryGroups
+                                    .length === 0
+                                ) {
+                                  alert(
+                                    "반품 가능한 상품이 없습니다.\n(배송중 또는 배송완료만 반품 가능)"
+                                  );
+                                  return;
+                                }
+
                                 navigate(
-                                  `/user/mypage/market/return/${order.orderIdx}`,
+                                  `/zipddak/mypage/market/return/${order.orderIdx}`,
                                   {
-                                    state: { selectedProductIds: selected },
+                                    state: {
+                                      deliveryGroups: filteredDeliveryGroups,
+                                    },
                                   }
                                 );
                               }}
@@ -323,9 +392,10 @@ export default function MarketOrders() {
                             cursor: "pointer",
                           }}
                           onClick={() => {
+                            setDeliveryGroups(order.deliveryGroups);
                             window.scrollTo(0, 0);
                             navigate(
-                              `/user/mypage/market/detail/${order.orderIdx}?type=order`
+                              `/zipddak/mypage/market/detail/${order.orderIdx}?type=order`
                             );
                           }}
                         >
@@ -370,18 +440,155 @@ export default function MarketOrders() {
                             }
                             onChange={(e) => {
                               const checked = e.target.checked;
+                              const orderId = order.orderIdx;
+                              const orderItem = item;
 
+                              const groupInfo = {
+                                brandName: group.brandName,
+                                deliveryType: group.deliveryType,
+                                deliveryFeeType: group.deliveryFeeType,
+                                freeChargeAmount: group.freeChargeAmount,
+                                isFreeCharge: group.isFreeCharge,
+                                deliveryFeePrice: group.deliveryFeePrice,
+                                appliedDeliveryFee: group.appliedDeliveryFee,
+                              };
+
+                              // ---------------------------
+                              // 1) checkedItems 업데이트
+                              // ---------------------------
                               setCheckedItems((prev) => {
-                                const current = prev[order.orderIdx] || [];
+                                const current = prev[orderId] || [];
 
                                 return {
                                   ...prev,
-                                  [order.orderIdx]: checked
-                                    ? [...current, item.orderItemIdx] // 추가
+                                  [orderId]: checked
+                                    ? [...current, orderItem.orderItemIdx] // 추가
                                     : current.filter(
-                                        (id) => id !== item.orderItemIdx
+                                        (id) => id !== orderItem.orderItemIdx
                                       ), // 제거
                                 };
+                              });
+
+                              // ---------------------------
+                              // 2) selectedDeliveryGroups 업데이트
+                              // ---------------------------
+                              setSelectedDeliveryGroups((prev) => {
+                                // 현재 주문 존재 여부 확인
+                                const orderIndex = prev.findIndex(
+                                  (o) => o.orderIdx === orderId
+                                );
+
+                                // ======================
+                                // 체크 해제일 경우
+                                // ======================
+                                if (!checked) {
+                                  if (orderIndex === -1) return prev;
+
+                                  let newState = [...prev];
+                                  let targetOrder = { ...newState[orderIndex] };
+
+                                  // 해당 주문 내 그룹 업데이트
+                                  targetOrder.deliveryGroups =
+                                    targetOrder.deliveryGroups
+                                      .map((g) => {
+                                        if (
+                                          g.brandName === groupInfo.brandName &&
+                                          g.deliveryType ===
+                                            groupInfo.deliveryType &&
+                                          g.deliveryFeeType ===
+                                            groupInfo.deliveryFeeType
+                                        ) {
+                                          return {
+                                            ...g,
+                                            orderItems: g.orderItems.filter(
+                                              (oi) =>
+                                                oi.orderItemIdx !==
+                                                orderItem.orderItemIdx
+                                            ),
+                                          };
+                                        }
+                                        return g;
+                                      })
+                                      .filter((g) => g.orderItems.length > 0); // 빈 그룹 삭제
+
+                                  // 빈 주문이면 전체 삭제
+                                  if (targetOrder.deliveryGroups.length === 0) {
+                                    newState.splice(orderIndex, 1);
+                                  } else {
+                                    newState[orderIndex] = targetOrder;
+                                  }
+
+                                  return newState;
+                                }
+
+                                // ======================
+                                // 체크 - 기존 주문 존재
+                                // ======================
+                                if (orderIndex !== -1) {
+                                  let newState = [...prev];
+                                  let targetOrder = { ...newState[orderIndex] };
+
+                                  // 기존 그룹 있는지 확인
+                                  const groupIndex =
+                                    targetOrder.deliveryGroups.findIndex(
+                                      (g) =>
+                                        g.brandName === groupInfo.brandName &&
+                                        g.deliveryType ===
+                                          groupInfo.deliveryType &&
+                                        g.deliveryFeeType ===
+                                          groupInfo.deliveryFeeType
+                                    );
+
+                                  if (groupIndex !== -1) {
+                                    let targetGroup = {
+                                      ...targetOrder.deliveryGroups[groupIndex],
+                                    };
+
+                                    // 중복 방지 후 아이템 추가
+                                    if (
+                                      !targetGroup.orderItems.some(
+                                        (oi) =>
+                                          oi.orderItemIdx ===
+                                          orderItem.orderItemIdx
+                                      )
+                                    ) {
+                                      targetGroup.orderItems = [
+                                        ...targetGroup.orderItems,
+                                        orderItem,
+                                      ];
+                                    }
+
+                                    targetOrder.deliveryGroups[groupIndex] =
+                                      targetGroup;
+                                    newState[orderIndex] = targetOrder;
+                                    return newState;
+                                  }
+
+                                  // 기존 그룹이 없다면 새 그룹 생성
+                                  targetOrder.deliveryGroups.push({
+                                    ...groupInfo,
+                                    orderItems: [orderItem],
+                                  });
+
+                                  newState[orderIndex] = targetOrder;
+                                  return newState;
+                                }
+
+                                // ======================
+                                // 체크 - 주문 자체가 없을 경우
+                                // ======================
+                                return [
+                                  ...prev,
+                                  {
+                                    orderIdx: orderId,
+                                    deliveryGroups: [
+                                      {
+                                        ...groupInfo,
+                                        orderItems: [orderItem],
+                                      },
+                                    ],
+                                  },
+                                ];
                               });
                             }}
                           />

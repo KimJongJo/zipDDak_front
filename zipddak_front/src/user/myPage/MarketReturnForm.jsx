@@ -1,18 +1,86 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Input } from "reactstrap";
+import { Input, Modal, ModalBody } from "reactstrap";
 
 export default function MarketReturnForm() {
-  const { orderId } = useParams();
+  const { orderIdx } = useParams();
   const { state } = useLocation();
-  console.log(state.selectedProductIds);
+
+  const [order, setOrder] = useState({});
+  const [deliveryGroups, setDeliveryGroups] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
 
+  const [reasonType, setReasonType] = useState("");
+  const [reasonDetail, setReasonDetail] = useState("");
+  const [shippingChargeType, setShippingChargeType] = useState("");
+  const [totalProductAmount, setTotalProductAmount] = useState(0);
+  const [returnShippingFee, setReturnShippingFee] = useState(0);
+  const [finalRefundAmount, setFinalRefundAmount] = useState(0);
+
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
+  const customerFaultReasons = [
+    "규격/사이즈를 잘못 선택함",
+    "색상 또는 옵션을 잘못 선택함",
+    "수량을 잘못 주문함",
+    "단순 변심",
+    "상품이 마음에 들지 않음",
+    "현장에서 사용 불가(호환 문제)",
+  ];
+
+  // 주문 상세 조회
+  const getOrder = () => {
+    axios
+      .get("http://localhost:8080" + `/market/orderInfo?orderIdx=${orderIdx}`)
+      .then((res) => {
+        setOrder(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 반품 신청
+  const submitReturn = () => {
+    const formData = new FormData();
+
+    formData.append("orderIdx", orderIdx);
+    deliveryGroups.forEach((group) => {
+      group.orderItems.forEach((item) => {
+        formData.append("returnItemIdxs", item.orderItemIdx);
+      });
+    });
+    formData.append("reasonType", reasonType);
+    formData.append("reasonDetail", reasonDetail);
+    formData.append("shippingChargeType", shippingChargeType);
+    formData.append("returnShippingFee", returnShippingFee);
+    formData.append("refundAmount", finalRefundAmount);
+
+    // 파일 업로드
+    files.forEach((file) => {
+      formData.append("returnImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/market/return", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        setIsModalOpen(true);
+
+        setTimeout(() => {
+          navigate("/zipddak/mypage/market/orders");
+        }, 1500);
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 반품사유 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -21,96 +89,49 @@ export default function MarketReturnForm() {
     setFiles((prev) => [...prev, file]);
   };
 
-  const order = {
-    orderId: "ORDER-20250928-5576",
-    orderDate: "2025-09-28",
+  useEffect(() => {
+    getOrder();
 
-    deliveryGroups: [
-      {
-        brandName: "브랜드명",
-        deliveryType: "택배배송",
-        deliveryFeeType: "COMBINED",
-        deliveryFeePrice: 4000,
-        appliedDeliveryFee: 4000,
+    if (state) {
+      setDeliveryGroups(state.deliveryGroups.deliveryGroups);
+    }
+  }, []);
 
-        items: [
-          {
-            productId: "PRD-001",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-          {
-            productId: "PRD-002",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-        ],
-      },
-      {
-        brandName: "브랜드명",
-        deliveryType: "택배배송",
-        deliveryFeeType: "COMBINED",
-        deliveryFeePrice: 4000,
-        appliedDeliveryFee: 4000,
+  // 총 상품금액 계산
+  useEffect(() => {
+    if (!deliveryGroups) return;
 
-        items: [
-          {
-            productId: "PRD-001",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-          {
-            productId: "PRD-002",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-        ],
-      },
-    ],
+    let total = 0;
 
-    reasonCode: "CHANGE_OF_MIND",
-    reasonDetail: "제품 개봉 전이며 단순 변심으로 반품합니다.",
+    deliveryGroups.forEach((group) => {
+      group.orderItems.forEach((item) => {
+        total += item.price * item.quantity;
+      });
+    });
 
-    reasonImage1: "https://via.placeholder.com/120",
-    reasonImage2: null,
-    reasonImage3: null,
-    reasonImage4: null,
-    reasonImage5: null,
+    setTotalProductAmount(total);
+  }, [deliveryGroups]);
 
-    receiverName: "홍길동",
-    receiverPhone: "010-1234-5678",
-    receiverAddress1: "서울특별시 강남구 테헤란로 120",
-    receiverAddress2: "101동 1001호",
-    deliveryMessage: "문 앞에 두고 가주세요.",
+  // 반품배송비 및 최종환불예정금액 계산
+  useEffect(() => {
+    if (!reasonType) return;
 
-    returnProductPrice: 153000, // (예: 51,000원 * 3)
-    returnShippingFee: 4000, // 반품 시 차감 비용
-    refundAmount: 149000, // returnProductPrice - returnShippingFee
-  };
+    let shippingFee = 0;
+    setShippingChargeType("SELLER");
+
+    // 고객 귀책이면 배송비 부과
+    if (customerFaultReasons.includes(reasonType)) {
+      setShippingChargeType("BUYER");
+      deliveryGroups.forEach((group) => {
+        if (group.deliveryType === "post") {
+          shippingFee += group.appliedDeliveryFee;
+        }
+      });
+    }
+
+    setReturnShippingFee(shippingFee);
+    setFinalRefundAmount(totalProductAmount - shippingFee);
+  }, [reasonType]);
 
   return (
     <div className="mypage-layout">
@@ -139,7 +160,7 @@ export default function MarketReturnForm() {
                 fontWeight: "600",
               }}
             >
-              {order.orderId}
+              {order.orderCode}
             </span>
           </p>
           <p>
@@ -149,7 +170,7 @@ export default function MarketReturnForm() {
                 fontWeight: "600",
               }}
             >
-              {order.orderDate.slice(0, 10)}
+              {order.createdAt}
             </span>
           </p>
         </div>
@@ -169,15 +190,15 @@ export default function MarketReturnForm() {
             </tr>
           </thead>
           <tbody>
-            {order.deliveryGroups.map((group, gidx) => (
+            {deliveryGroups.map((group, gidx) => (
               <>
-                {group.items.map((item, idx) => (
+                {group.orderItems.map((item, idx) => (
                   <tr
                     style={
-                      gidx === order.deliveryGroups.length - 1 &&
-                      idx === group.items.length - 1
+                      gidx === deliveryGroups.length - 1 &&
+                      idx === group.orderItems.length - 1
                         ? { borderBottom: "1px solid rgba(0, 0, 0, 0.60)" }
-                        : idx === group.items.length - 1
+                        : idx === group.orderItems.length - 1
                         ? {}
                         : { borderBottom: "none" }
                     }
@@ -196,7 +217,7 @@ export default function MarketReturnForm() {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "flex-start",
-                            gap: "6px",
+                            gap: "4px",
                             width: "100%",
                           }}
                         >
@@ -234,20 +255,39 @@ export default function MarketReturnForm() {
                     </td>
                     {idx === 0 && (
                       <td
-                        rowSpan={group.items.length}
+                        rowSpan={group.orderItems.length}
                         style={{
                           fontWeight: "500",
                         }}
                       >
-                        <p>{group.deliveryType}</p>
-                        {group.deliveryFee !== 0 && (
+                        {group.deliveryType !== "pickup" ? (
+                          group.appliedDeliveryFee !== 0 ? (
+                            <p
+                              style={{
+                                fontWeight: "600",
+                              }}
+                            >
+                              {Number(
+                                group.appliedDeliveryFee
+                              ).toLocaleString()}
+                              원
+                            </p>
+                          ) : (
+                            <p
+                              style={{
+                                fontWeight: "600",
+                              }}
+                            >
+                              무료배송
+                            </p>
+                          )
+                        ) : (
                           <p
                             style={{
                               fontWeight: "600",
-                              marginTop: "4px",
                             }}
                           >
-                            {Number(group.deliveryFee).toLocaleString()}원
+                            직접픽업
                           </p>
                         )}
                       </td>
@@ -272,7 +312,11 @@ export default function MarketReturnForm() {
               gap: "8px",
             }}
           >
-            <Input type="select" required>
+            <Input
+              type="select"
+              required
+              onChange={(e) => setReasonType(e.target.value)}
+            >
               <option value="" disabled selected hidden>
                 사유를 선택해주세요
               </option>
@@ -294,6 +338,7 @@ export default function MarketReturnForm() {
             <Input
               type="textarea"
               placeholder="현장 사용 여부, 규격 불일치, 파손 여부 등 자세한 내용을 입력해주세요."
+              onChange={(e) => setReasonDetail(e.target.value)}
             ></Input>
             <div
               style={{
@@ -381,13 +426,13 @@ export default function MarketReturnForm() {
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>총 상품금액</label>
           <p style={{ fontWeight: "600" }}>
-            {Number(order.returnProductPrice).toLocaleString()}원
+            {Number(totalProductAmount).toLocaleString()}원
           </p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>반품배송비</label>
           <p style={{ fontWeight: "600" }}>
-            {Number(order.returnShippingFee).toLocaleString()}원
+            {Number(returnShippingFee).toLocaleString()}원
             <span
               style={{
                 color: "#A0A0A0",
@@ -403,7 +448,7 @@ export default function MarketReturnForm() {
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>최종환불예정금액</label>
           <p style={{ fontWeight: "600", color: "#FF5833" }}>
-            {Number(order.refundAmount).toLocaleString()}원
+            {Number(finalRefundAmount).toLocaleString()}원
           </p>
         </div>
       </div>
@@ -412,16 +457,16 @@ export default function MarketReturnForm() {
         <h3 className="mypage-sectionTitle">회수지 정보</h3>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>받는사람</label>
-          <p>{order.receiverName}</p>
+          <p>{order.postRecipient}</p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>휴대폰 번호</label>
-          <p>{order.receiverPhone}</p>
+          <p>{order.phone}</p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>주소</label>
           <p>
-            {order.receiverAddress1} {order.receiverAddress2}
+            {order.postZonecode} {order.postAddr1} {order.postAddr2}
           </p>
         </div>
       </div>
@@ -470,7 +515,7 @@ export default function MarketReturnForm() {
           className="secondary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
           onClick={() => {
-            navigate("/user/mypage/market/orders");
+            navigate("/zipddak/mypage/market/orders");
           }}
         >
           취소
@@ -478,13 +523,33 @@ export default function MarketReturnForm() {
         <button
           className="primary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
-          onClick={() => {
-            navigate("/user/mypage/market/orders");
-          }}
+          onClick={() => submitReturn()}
         >
           반품 신청 접수하기
         </button>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        className="mypage-modal"
+        style={{ width: "380px" }}
+      >
+        <ModalBody>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "8px",
+              whiteSpace: "nowrap",
+              fontSize: "14px",
+            }}
+          >
+            <p>반품 신청이 접수되었습니다.</p>
+          </div>
+        </ModalBody>
+      </Modal>
     </div>
   );
 }
