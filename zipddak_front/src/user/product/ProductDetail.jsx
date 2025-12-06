@@ -2,12 +2,167 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/ProductDetail.css";
 import { useState, useRef, useEffect } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import axios from "axios";
+import { baseUrl } from "../../config";
+import { useParams } from "react-router";
 
 export default function ProductDetail() {
     const [bottomSelect, setBottomSelect] = useState(1);
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
-    const [unmountOnClose, setUnmountOnClose] = useState(true);
+
+    const [inquiries, setInquiries] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const [avgScore, setAvgScore] = useState(0);
+    const [reviewCount, setReviewCount] = useState(0);
+    const [inquiryCount, setInquiryCount] = useState(0);
+    const [product, setProduct] = useState({});
+
+    // 리뷰 현재 페이지
+    const [reviewPage, setReviewPage] = useState(1);
+    // 문의 현재 페이지
+    const [inquiryPage, setInquiryPage] = useState(1);
+
+    // 구매 총 금액
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    // 상품 옵션
+    const [productOption, setProductOption] = useState({});
+
+    // 상품 옵션 상단
+    const [selectOption, setSelectOption] = useState("");
+    // const [selectColor, setSelectColor] = useState("");
+    const [selectOptionInfo, setSelectOptionInfo] = useState({});
+
+    // 상품 옵션 하단
+    const [selectOption2, setSelectOption2] = useState("");
+    const [selectOptionInfo2, setSelectOptionInfo2] = useState({});
+
+    // 구매 목록 상품들
+    const [orderList, setOrderList] = useState([]);
+
+    // 자재 상품 id
+    const { productId } = useParams();
+
+    // 규격 변경 핸들러
+    const handleOptionChange = (value, type = "top") => {
+        if (type === "top") {
+            setSelectOption(value); // 규격 상태 변경
+            setSelectOptionInfo({}); // 선택 옵션 초기화
+        } else {
+            setSelectOption2(value);
+            setSelectOptionInfo2({});
+        }
+    };
+
+    // 증가
+    const increaseCount = (optionId) => {
+        setOrderList((prevList) =>
+            prevList.map((option) =>
+                option.optionId === optionId
+                    ? { ...option, count: option.count + 1 } // count 1 증가
+                    : option
+            )
+        );
+    };
+
+    // 감소
+    const decreaseCount = (optionId) => {
+        setOrderList(
+            (prevList) =>
+                prevList
+                    .map((option) =>
+                        option.optionId === optionId
+                            ? { ...option, count: option.count - 1 } // count 1 감소
+                            : option
+                    )
+                    .filter((option) => option.count > 0) // 0보다 큰것만 보이게
+        );
+    };
+
+    // 삭제
+    const deleteOption = (optionId) => {
+        setOrderList(
+            (prevList) => prevList.filter((option) => option.optionId !== optionId) // 선택한걸 제외한 것만 남기게
+        );
+    };
+
+    const handleOption = (optionId, type = "top") => {
+        const targetOption = type === "top" ? selectOption : selectOption2;
+        const selectedOption = productOption[targetOption]?.find((o) => o.optionId === Number(optionId));
+        if (selectedOption) {
+            const info = { optionId: selectedOption.optionId, price: selectedOption.price, color: selectedOption.color };
+            type === "top" ? setSelectOptionInfo(info) : setSelectOptionInfo2(info);
+        } else {
+            type === "top" ? setSelectOptionInfo({}) : setSelectOptionInfo2({});
+        }
+    };
+
+    const addOption = (type = "top") => {
+        const info = type === "top" ? selectOptionInfo : selectOptionInfo2;
+        const name = type === "top" ? selectOption : selectOption2;
+        if (!info.optionId) return;
+
+        const existingIndex = orderList.findIndex((item) => item.optionId === info.optionId);
+        if (existingIndex !== -1) {
+            const updatedList = [...orderList];
+            updatedList[existingIndex].count += 1;
+            setOrderList(updatedList);
+        } else {
+            setOrderList([
+                ...orderList,
+                {
+                    optionId: info.optionId,
+                    name,
+                    value: info.color,
+                    price: info.price,
+                    count: 1,
+                },
+            ]);
+        }
+    };
+
+    // 리뷰 더보기
+    const loadMoreReviews = async () => {
+        const nextPage = reviewPage + 1;
+
+        try {
+            const res = await axios.get(`${baseUrl}/reviews?productId=${productId}&page=${nextPage}`);
+
+            if (res.data.length > 0) {
+                setReviews((prev) => [...prev, ...res.data]);
+                setReviewPage(nextPage);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // 문의 더보기
+    const loadMoreInquiries = async () => {
+        if (!inquiryHasMore) return;
+
+        const nextPage = inquiryPage + 1;
+
+        try {
+            const res = await axios.get(`${baseUrl}/inquiries?productId=${productId}&page=${nextPage}`);
+
+            if (res.data.length > 0) {
+                setInquiries((prev) => [...prev, ...res.data]);
+                setInquiryPage(nextPage);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        let sum = 0;
+        orderList.forEach((order) => {
+            sum += order.price * order.count;
+        });
+        setTotalPrice(sum);
+    }, [orderList]); // orderList가 바뀔 때마다 totalPrice 계산
 
     // --- 섹션 refs ---
     const infoRef = useRef(null);
@@ -17,8 +172,8 @@ export default function ProductDetail() {
 
     const navItems = [
         { id: 1, label: "상품정보", ref: infoRef },
-        { id: 2, label: "리뷰", ref: reviewRef, count: 1001 },
-        { id: 3, label: "문의", ref: askRef, count: 90 },
+        { id: 2, label: "리뷰", ref: reviewRef, count: reviewCount },
+        { id: 3, label: "문의", ref: askRef, count: inquiryCount },
         { id: 4, label: "배송/환불", ref: deliveryRef },
     ];
 
@@ -60,6 +215,24 @@ export default function ProductDetail() {
         };
     }, []);
 
+    useEffect(() => {
+        axios.get(`${baseUrl}/product?productId=${productId}`).then((res) => {
+            const data = res.data;
+            // console.log(data);
+            setAvgScore(data.avgScore);
+            setReviewCount(data.reviewCount);
+            setInquiries(data.productInquiries);
+            setReviews(data.productReviews);
+            setProduct(data.productDetailDto);
+            setProductOption(data.productOption);
+            setInquiryCount(data.inquiryCount);
+
+            // 리뷰 페이지, 문의 페이지 1페이지로 초기화
+            setReviewPage(1);
+            setInquiryPage(1);
+        });
+    }, []);
+
     return (
         <div className="body-div">
             <div className="ProductDetail-main-div">
@@ -79,14 +252,17 @@ export default function ProductDetail() {
                     <div className="detail-top-right">
                         <div className="detail-product-info">
                             {/* 카테고리 */}
-                            <span className="product-category">카테고리</span>
+                            <div>
+                                <span className="product-category">{product.category}</span>
+                                {product.subCategory ? <span className="product-category"> - {product.subCategory}</span> : <></>}
+                            </div>
 
                             {/* 업체명 */}
-                            <span className="product-store-name">자재판매업체</span>
+                            <span className="product-store-name">{product.brandName}</span>
 
                             <div className="detail-product-name-div">
                                 {/* 상품 이름 */}
-                                <div className="detail-product-name">발트 라운드 수납 선반 다용도 주방 거실장</div>
+                                <div className="detail-product-name">{product.name}</div>
                                 <i className="bi bi-heart product-like"></i>
                             </div>
                             <div className="detail-product-div-under">
@@ -94,65 +270,126 @@ export default function ProductDetail() {
                                     <div>
                                         <div className="detail-sale-div">
                                             {/* 세일 퍼센트 */}
-                                            <span className="detail-sale-percent">5%</span>
+                                            <span className="detail-sale-percent">{product.discount}%</span>
                                             {/* 정가 */}
-                                            <del className="detail-default-price">10,000원</del>
+                                            <del className="detail-default-price">{product?.price?.toLocaleString()}원</del>
                                         </div>
                                         <div>
                                             {/* 판매 가격 */}
-                                            <span className="detail-sale-price">10,000</span>
+                                            <span className="detail-sale-price">{product?.salePrice?.toLocaleString()}</span>
                                             <span className="won">원</span>
                                         </div>
                                     </div>
-                                    <div className="detail-review">
-                                        <div className="detail-star-list">
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
-                                            <i className="bi bi-star-fill"></i>
+                                    <div className="detail-review" style={{ display: "flex", alignItems: "center" }}>
+                                        <div style={{ display: "flex", gap: "2px", lineHeight: "20px" }}>
+                                            {[1, 2, 3, 4, 5].map((i) => {
+                                                const score = avgScore; // 예: 3.7
+                                                let fillPercent = 0;
+
+                                                if (score >= i) {
+                                                    fillPercent = 100; // 완전 채움
+                                                } else if (score + 1 > i) {
+                                                    fillPercent = (score - (i - 1)) * 100; // 남은 부분만 채우기
+                                                }
+
+                                                return (
+                                                    <div key={i} style={{ position: "relative", width: "15px", height: "20px" }}>
+                                                        {/* 빈 별 */}
+                                                        <i
+                                                            className="bi bi-star"
+                                                            style={{
+                                                                position: "absolute",
+                                                                top: 0,
+                                                                left: 0,
+                                                                fontSize: "15px",
+                                                                color: "#ddd",
+                                                            }}
+                                                        ></i>
+
+                                                        {/* 채워진 별 (width로 부분만 보이게) */}
+                                                        <i
+                                                            className="bi bi-star-fill"
+                                                            style={{
+                                                                position: "absolute",
+                                                                top: 0,
+                                                                left: 0,
+                                                                width: `${fillPercent}%`,
+                                                                overflow: "hidden",
+                                                                whiteSpace: "nowrap",
+                                                                fontSize: "15px",
+                                                                color: "#FFD700", // 노란색(원하면 변경)
+                                                            }}
+                                                        ></i>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                         {/* 리뷰 수 */}
-                                        <span className="detail-review-count">1,001 개 리뷰</span>
+                                        <span className="detail-review-count">{reviewCount}개 리뷰</span>
                                     </div>
                                 </div>
                                 <hr className="hr" />
                                 <div className="detail-select-option">
                                     <span className="detail-option-span">구매 옵션</span>
                                     <div className="detail-select-div">
-                                        <select className="detail-select">
-                                            <option value="">규격</option>
+                                        <select onChange={(e) => handleOptionChange(e.target.value, "top")} className="detail-select" defaultValue={"none"}>
+                                            <option value="none" disabled>
+                                                규격
+                                            </option>
+                                            {Object.keys(productOption).map((option) => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="detail-select-div">
-                                        <select className="detail-select">
-                                            <option value="">색상</option>
+                                        <select onChange={(e) => handleOption(e.target.value, "top")} className="detail-select" value={selectOptionInfo.optionId || "none"}>
+                                            <option value="none" disabled>
+                                                색상
+                                            </option>
+                                            {/* 점 표기법으로 접근하면 undefined */}
+                                            {/* 대괄호 표기법으로 접근해야 접근이 가능 */}
+                                            {productOption[selectOption]?.map((option) => (
+                                                <option key={option.optionId} value={option.optionId}>
+                                                    {option.color}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="detail-button-div">
-                                        <button type="button" className="detail-append-buy">
+                                        <button onClick={() => addOption("top")} type="button" className="detail-append-buy">
                                             구매 추가
                                         </button>
                                     </div>
 
                                     {/* 추가될 div 박스 만들기 */}
-
-                                    <div className="detail-append-box">
-                                        <div className="detail-append-box-top detail-box-son">
-                                            <span className="detail-size">120x120x11700mm, 화이트</span>
-                                            <i className="bi bi-x-lg detail-x-button"></i>
-                                        </div>
-                                        <div className="detail-append-box-bottom detail-box-son">
-                                            {/* 수량 증감 버튼 */}
-                                            <div className="detail-append-button">
-                                                <i className="bi bi-dash-lg append-button-son"></i>
-                                                <span className="append-button-son">1</span>
-                                                <i className="bi bi-plus-lg append-button-son"></i>
+                                    {orderList.map((option) => (
+                                        <div key={option.optionId} className="detail-append-box">
+                                            <div className="detail-append-box-top detail-box-son">
+                                                <span className="detail-size">
+                                                    {option.name}, {option.value}
+                                                </span>
+                                                <button className="count-button-style" onClick={() => deleteOption(option.optionId)}>
+                                                    <i className="bi bi-x-lg detail-x-button"></i>
+                                                </button>
                                             </div>
-                                            {/* 가격 */}
-                                            <span className="detail-order-price">10,000원</span>
+                                            <div className="detail-append-box-bottom detail-box-son">
+                                                {/* 수량 증감 버튼 */}
+                                                <div className="detail-append-button">
+                                                    <button className="count-button-style" onClick={() => decreaseCount(option.optionId)}>
+                                                        <i className="bi bi-dash-lg append-button-son"></i>
+                                                    </button>
+                                                    <span className="append-button-son">{option.count}</span>
+                                                    <button className="count-button-style" onClick={() => increaseCount(option.optionId)}>
+                                                        <i className="bi bi-plus-lg append-button-son"></i>
+                                                    </button>
+                                                </div>
+                                                {/* 가격 */}
+                                                <span className="detail-order-price">{(option.price * option.count).toLocaleString()}원</span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ))}
 
                                     {/* 여기까지 추가되는 div 박스 */}
                                 </div>
@@ -161,15 +398,15 @@ export default function ProductDetail() {
                                     <div className="detail-order-price-div">
                                         <span className="detail-order-hard-span">주문 금액</span>
                                         {/* 주문 금액 */}
-                                        <span className="detail-order-hard-price">20,000원</span>
+                                        <span className="detail-order-hard-price">{totalPrice.toLocaleString()}원</span>
                                     </div>
-                                    <div className="font-15">배송정책</div>
+                                    <div className="font-15">배송정보</div>
                                     <div className="font-14">
-                                        방법 : <span className="font-14"> 택배배송</span>
+                                        방법 : {product.postYn ? <span className="font-14">(택배배송)</span> : <></>}
+                                        {product.pickupYn ? <span className="font-14">(픽업가능)</span> : <></>}
                                     </div>
-                                    <div className="font-14">
-                                        배송 단위 :<span className="font-14"> 묶음 배송</span>
-                                    </div>
+                                    <div className="font-14">배송 단위 : {product.postType === "single" ? <span className="font-14">개별배송</span> : <span className="font-14">묶음배송</span>}</div>
+                                    <div className="font-14">배송비 : {product?.postCharge?.toLocaleString()}원</div>
                                     <div className="font-14">결제 : 주문 시 결제</div>
                                     <div className="font-14">안내 : 상품이 발송되면 송장번호를 마이페이지에서 확인하실 수 있습니다.</div>
                                 </div>
@@ -207,38 +444,76 @@ export default function ProductDetail() {
                                 <div>
                                     <span className="detail-bottom-review-span">리뷰</span>
                                     {/* 리뷰 수 */}
-                                    <span className="detail-bottom-review-count">16 </span>
+                                    <span className="detail-bottom-review-count">{reviewCount}</span>
                                 </div>
 
                                 <div className="detail-bottom-review-box-div">
-                                    <div className="detail-bottom-review-box">
-                                        <div>
-                                            {/* 사용자 닉네임 */}
-                                            <span className="detail-bottom-review-nickname">닉네임</span>
-                                        </div>
-                                        <div>
-                                            <div className="detail-bottom-review-start-list-div">
-                                                <div className="detail-star-list">
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                    <i className="bi bi-star-fill"></i>
-                                                </div>
-                                                {/* 리뷰 작성일 */}
-                                                <span className="detail-bottom-review-created">2025년 11월 09일 12시 12분</span>
+                                    {reviews.map((review) => (
+                                        <div key={review.reviewProductIdx} className="detail-bottom-review-box">
+                                            <div>
+                                                {/* 사용자 닉네임 */}
+                                                <span className="detail-bottom-review-nickname">{review.nickname}</span>
                                             </div>
+                                            <div>
+                                                <div className="detail-bottom-review-start-list-div">
+                                                    <div style={{ display: "flex", gap: "2px" }}>
+                                                        {[1, 2, 3, 4, 5].map((i) => {
+                                                            const score = review.score; // 예: 3.7
+                                                            let fillPercent = 0;
+
+                                                            if (score >= i) {
+                                                                fillPercent = 100; // 완전 채움
+                                                            } else if (score + 1 > i) {
+                                                                fillPercent = (score - (i - 1)) * 100; // 남은 부분만 채우기
+                                                            }
+
+                                                            return (
+                                                                <div key={i} style={{ position: "relative", width: "15px", height: "20px" }}>
+                                                                    {/* 빈 별 */}
+                                                                    <i
+                                                                        className="bi bi-star"
+                                                                        style={{
+                                                                            position: "absolute",
+                                                                            top: 0,
+                                                                            left: 0,
+                                                                            fontSize: "15px",
+                                                                            color: "#ddd",
+                                                                        }}
+                                                                    ></i>
+
+                                                                    {/* 채워진 별 (width로 부분만 보이게) */}
+                                                                    <i
+                                                                        className="bi bi-star-fill"
+                                                                        style={{
+                                                                            position: "absolute",
+                                                                            top: 0,
+                                                                            left: 0,
+                                                                            width: `${fillPercent}%`,
+                                                                            overflow: "hidden",
+                                                                            whiteSpace: "nowrap",
+                                                                            fontSize: "15px",
+                                                                            color: "#FFD700", // 노란색(원하면 변경)
+                                                                        }}
+                                                                    ></i>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    {/* 리뷰 작성일 */}
+                                                    <span className="detail-bottom-review-created">{review.createdate}</span>
+                                                </div>
+                                            </div>
+                                            <img className="detail-bottom-review-img" src="/images/이미지테스트.png" />
+                                            <div className="detail-bottom-review-content">{review.content}</div>
                                         </div>
-                                        <img className="detail-bottom-review-img" src="/images/이미지테스트.png" />
-                                        <div className="detail-bottom-review-content">
-                                            상품에 대한 리뷰 작성 글 예시 입니다. <br />
-                                            상품에 대한 리뷰
-                                            <br />
-                                            작성 글 예시 입니다.
-                                            <br />
-                                            상품에 대한 리뷰 작성 글 예시입니다.
-                                        </div>
-                                    </div>
+                                    ))}
+                                </div>
+                                <div className="productDetail-info-more-btn-div">
+                                    {reviewCount > reviews.length && (
+                                        <button onClick={loadMoreReviews} className="productDetail-info-more-btn">
+                                            리뷰 더보기 <i className="bi bi-chevron-down"></i>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -248,7 +523,7 @@ export default function ProductDetail() {
                                     <div>
                                         <span className="detail-bottom-ask-span">문의</span>
                                         {/* 문의 수 */}
-                                        <span className="detail-bottom-ask-count">16 </span>
+                                        <span className="detail-bottom-ask-count">{inquiryCount}</span>
                                     </div>
                                     {/* 문의 하기 버튼 */}
                                     <button className="detail-bottom-ask-button" onClick={() => setModal(true)}>
@@ -257,51 +532,52 @@ export default function ProductDetail() {
                                 </div>
 
                                 <div className="detail-bottom-ask-box-div">
-                                    <div className="detail-bottom-ask-box">
-                                        <div>
-                                            {/* 문의 사용자 닉네임 */}
-                                            <span className="detail-bottom-ask-nickname">닉네임</span>
-                                            {/* 문의 날짜 */}
-                                            <span className="detail-bottom-ask-created">2025년 11월 09일 12시 12분</span>
+                                    {inquiries.map((inquiry) => (
+                                        <div className="detail-bottom-ask-box" key={inquiry.inquiryIdx}>
+                                            <div>
+                                                {/* 문의 사용자 닉네임 */}
+                                                <span className="detail-bottom-ask-nickname">{inquiry.writerNickname}</span>
+                                                {/* 문의 날짜 */}
+                                                <span className="detail-bottom-ask-created">{inquiry.writeAt}</span>
+                                            </div>
+                                            <table className="productDetail-inquiry-table">
+                                                <tbody className="detail-bottom-ask-table">
+                                                    <tr>
+                                                        <td className="detail-bottom-ask-Q-td">
+                                                            <span className="detail-bottom-ask-Q">Q</span>
+                                                        </td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            {/* 문의 내용 */}
+                                                            <span className="detail-bottom-ask-content">{inquiry.content}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="detail-bottom-ask-A-td">
+                                                            <span className="detail-bottom-ask-A">A</span>
+                                                        </td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            {/* 자재업체 이름 */}
+                                                            <span className="detail-bottom-ask-storeName">{inquiry.brandName}</span>
+                                                            {/* 답변 날짜 */}
+                                                            <span className="detail-bottom-ask-return-created">{inquiry.answerAt}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td className="detail-bottom-ask-left-padding-0">
+                                                            <div className="detail-bottom-ask-return">{inquiry.answer}</div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
                                         </div>
-                                        <table className="productDetail-inquiry-table">
-                                            <tbody className="detail-bottom-ask-table">
-                                                <tr>
-                                                    <td className="detail-bottom-ask-Q-td">
-                                                        <span className="detail-bottom-ask-Q">Q</span>
-                                                    </td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        {/* 문의 내용 */}
-                                                        <span className="detail-bottom-ask-content">언제쯤 출고될지 대강 알 수 있을까요?</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="detail-bottom-ask-A-td">
-                                                        <span className="detail-bottom-ask-A">A</span>
-                                                    </td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        {/* 자재업체 이름 */}
-                                                        <span className="detail-bottom-ask-storeName">자재업체이름</span>
-                                                        {/* 답변 날짜 */}
-                                                        <span className="detail-bottom-ask-return-created">2025년 11월 09일 12시 12분</span>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td></td>
-                                                    <td className="detail-bottom-ask-left-padding-0">
-                                                        <div className="detail-bottom-ask-return">
-                                                            안녕하세요 고객님 <br />
-                                                            우선 이용에 불편드려서 죄송합니다. <br />
-                                                            현재 출고는 완료되었으나, <br />
-                                                            택배사 물량과다로 스캔 작업 지연되고 있습니다. <br />
-                                                            금일 저녁~익일 새벽에 배송조회 가능 할 것 같습니다. <br />
-                                                            시간 양해 부탁드립니다. <br />
-                                                            불편드려서 죄송합니다.
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                    ))}
+                                    <div className="productDetail-info-more-btn-div">
+                                        {inquiryCount > inquiries.length && (
+                                            <button onClick={loadMoreInquiries} className="productDetail-info-more-btn">
+                                                문의 더보기 <i className="bi bi-chevron-down"></i>
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 {/* 문의하기 모달 */}
@@ -311,12 +587,7 @@ export default function ProductDetail() {
                                     </ModalHeader>
                                     <div className="ask-modal-body">
                                         <Input style={{ fontSize: "14px" }} className="ask-modal-body-input" type="textarea" placeholder="문의하실 내용을 입력해주세요" rows={5} />
-                                        <div className="ask-modal-body-checkbox">
-                                            <input type="checkbox" className="test" id="askPrivate" />
-                                            <label htmlFor="askPrivate" className="ask-modal-private-span">
-                                                비밀글로 작성
-                                            </label>
-                                        </div>
+
                                         <div className="ask-modal-body-button-div">
                                             <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
                                                 취소
@@ -341,12 +612,19 @@ export default function ProductDetail() {
                                             <tr>
                                                 <td className="detail-bottom-return-table-first-td">배송 단위</td>
                                                 {/* 배송 단위 */}
-                                                <td>묶음 배송</td>
+                                                <td>{product.postType === "single" ? <span>개별배송</span> : <span>묶음배송</span>}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="detail-bottom-return-table-first-td">수령 방법</td>
+                                                {/* 수령 방법 */}
+                                                <td>
+                                                    {product.postYn ? <span>(택배배송)</span> : <></>} {product.pickupYn ? <span>(픽업가능)</span> : <></>}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td className="detail-bottom-return-table-first-td">배송비</td>
                                                 {/* 배송비 */}
-                                                <td>10,000원</td>
+                                                <td>{product.postCharge?.toLocaleString()}원</td>
                                             </tr>
                                             <tr>
                                                 <td className="detail-bottom-return-table-first-td">안내</td>
@@ -387,39 +665,63 @@ export default function ProductDetail() {
                         <div className="detail-bottom-right">
                             <div className="detail-select-option">
                                 <div className="detail-select-div">
-                                    <select className="detail-select2">
-                                        <option value="">규격</option>
+                                    <select onChange={(e) => handleOptionChange(e.target.value, "bottom")} className="detail-select2" defaultValue={"none"}>
+                                        <option disabled value="none">
+                                            규격
+                                        </option>
+                                        {Object.keys(productOption).map((option) => (
+                                            <option key={option} value={option}>
+                                                {option}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="detail-select-div">
-                                    <select className="detail-select2">
-                                        <option value="">색상</option>
+                                    <select onChange={(e) => handleOption(e.target.value, "bottom")} className="detail-select2" value={selectOptionInfo2.optionId || "none"}>
+                                        <option value="none" disabled>
+                                            색상
+                                        </option>
+                                        {productOption[selectOption2]?.map((option) => (
+                                            <option key={option.optionId} value={option.optionId}>
+                                                {option.color}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="detail-button-div">
-                                    <button type="button" className="detail-append-buy">
+                                    <button onClick={() => addOption("bottom")} type="button" className="detail-append-buy">
                                         구매 추가
                                     </button>
                                 </div>
 
                                 {/* 추가될 div 박스 만들기 */}
 
-                                <div className="detail-append-box">
-                                    <div className="detail-append-box-top detail-box-son2">
-                                        <span className="detail-size">120x120x11700mm, 화이트</span>
-                                        <i className="bi bi-x-lg detail-x-button"></i>
-                                    </div>
-                                    <div className="detail-append-box-bottom detail-box-son2">
-                                        {/* 수량 증감 버튼 */}
-                                        <div className="detail-append-button">
-                                            <i className="bi bi-dash-lg append-button-son"></i>
-                                            <span className="append-button-son">1</span>
-                                            <i className="bi bi-plus-lg append-button-son"></i>
+                                {orderList.map((option) => (
+                                    <div key={option.optionId} className="detail-append-box">
+                                        <div className="detail-append-box-top detail-box-son2">
+                                            <span className="detail-size">
+                                                {option.name}, {option.value}
+                                            </span>
+                                            <button className="count-button-style" onClick={() => deleteOption(option.optionId)}>
+                                                <i className="bi bi-x-lg detail-x-button"></i>
+                                            </button>
                                         </div>
-                                        {/* 가격 */}
-                                        <span className="detail-order-price">10,000원</span>
+                                        <div className="detail-append-box-bottom detail-box-son2">
+                                            {/* 수량 증감 버튼 */}
+                                            <div className="detail-append-button">
+                                                <button className="count-button-style" onClick={() => decreaseCount(option.optionId)}>
+                                                    <i className="bi bi-dash-lg append-button-son"></i>
+                                                </button>
+                                                <span className="append-button-son">{option.count}</span>
+                                                <button className="count-button-style" onClick={() => increaseCount(option.optionId)}>
+                                                    <i className="bi bi-plus-lg append-button-son"></i>
+                                                </button>
+                                            </div>
+                                            {/* 가격 */}
+                                            <span className="detail-order-price">{(option.price * option.count).toLocaleString()}원</span>
+                                        </div>
                                     </div>
-                                </div>
+                                ))}
 
                                 {/* 여기까지 추가되는 div 박스 */}
 
@@ -429,11 +731,7 @@ export default function ProductDetail() {
                                         <span className="detail-order-hard-span">주문 금액</span>
                                         <div>
                                             {/* 주문 금액 */}
-                                            {/* 세일 퍼센트 */}
-                                            <span className="detail-sale-percent">5%</span>
-                                            {/* 정가 */}
-                                            <del className="detail-default-price">10,000원</del>
-                                            <span className="detail-order-hard-price2">20,000원</span>
+                                            <span className="detail-order-hard-price2">{totalPrice.toLocaleString()}원</span>
                                         </div>
                                     </div>
                                 </div>
