@@ -5,7 +5,7 @@ import { Input } from "reactstrap";
 export default function MarketReturnForm() {
   const { orderId } = useParams();
   const { state } = useLocation();
-  console.log(state.selectedProductIds);
+  console.log(state.selectedOrderItemIdxs);
 
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
@@ -13,103 +13,13 @@ export default function MarketReturnForm() {
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
+  // 반품사유 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setImages((prev) => [...prev, URL.createObjectURL(file)]);
     setFiles((prev) => [...prev, file]);
-  };
-
-  const order = {
-    orderId: "ORDER-20250928-5576",
-    orderDate: "2025-09-28",
-
-    deliveryGroups: [
-      {
-        brandName: "브랜드명",
-        deliveryType: "택배배송",
-        deliveryFeeType: "COMBINED",
-        deliveryFeePrice: 4000,
-        appliedDeliveryFee: 4000,
-
-        items: [
-          {
-            productId: "PRD-001",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-          {
-            productId: "PRD-002",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-        ],
-      },
-      {
-        brandName: "브랜드명",
-        deliveryType: "택배배송",
-        deliveryFeeType: "COMBINED",
-        deliveryFeePrice: 4000,
-        appliedDeliveryFee: 4000,
-
-        items: [
-          {
-            productId: "PRD-001",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-          {
-            productId: "PRD-002",
-            productName: "상품명이 들어갑니다",
-            optionName: "옵션명",
-            quantity: 3,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: null,
-          },
-        ],
-      },
-    ],
-
-    reasonCode: "CHANGE_OF_MIND",
-    reasonDetail: "제품 개봉 전이며 단순 변심으로 반품합니다.",
-
-    reasonImage1: "https://via.placeholder.com/120",
-    reasonImage2: null,
-    reasonImage3: null,
-    reasonImage4: null,
-    reasonImage5: null,
-
-    receiverName: "홍길동",
-    receiverPhone: "010-1234-5678",
-    receiverAddress1: "서울특별시 강남구 테헤란로 120",
-    receiverAddress2: "101동 1001호",
-    deliveryMessage: "문 앞에 두고 가주세요.",
-
-    returnProductPrice: 153000, // (예: 51,000원 * 3)
-    returnShippingFee: 4000, // 반품 시 차감 비용
-    refundAmount: 149000, // returnProductPrice - returnShippingFee
   };
 
   return (

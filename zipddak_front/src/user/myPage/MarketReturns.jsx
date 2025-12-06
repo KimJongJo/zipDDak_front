@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useSetAtom } from "jotai";
+import { deliveryGroupsAtom } from "./orderAtoms";
 import DeliveryButton from "./DeliveryButton";
 import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationItem, PaginationLink, Input } from "reactstrap";
@@ -17,6 +19,8 @@ export default function MarketReturns() {
     startDate: null,
     endDate: null,
   });
+
+  const setDeliveryGroups = useSetAtom(deliveryGroupsAtom);
 
   const navigate = useNavigate();
 
@@ -146,9 +150,10 @@ export default function MarketReturns() {
                           cursor: "pointer",
                         }}
                         onClick={() => {
+                          setDeliveryGroups(order.deliveryGroups);
                           window.scrollTo(0, 0);
                           navigate(
-                            `/user/mypage/market/detail/${order.orderIdx}?type=return`
+                            `/zipddak/mypage/market/detail/${order.orderIdx}?type=return`
                           );
                         }}
                       >

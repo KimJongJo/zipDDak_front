@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
+import { useSetAtom } from "jotai";
+import { deliveryGroupsAtom } from "./orderAtoms";
 import { useNavigate } from "react-router-dom";
 import DeliveryButton from "./DeliveryButton";
 import {
@@ -37,6 +39,8 @@ export default function MarketOrders() {
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
+
+  const setDeliveryGroups = useSetAtom(deliveryGroupsAtom);
 
   const imgRef = useRef(null);
   const navigate = useNavigate();
@@ -95,11 +99,6 @@ export default function MarketOrders() {
       });
   };
 
-  useEffect(() => {
-    getOrders(1, selectDate.startDate, selectDate.endDate);
-    getOrderStatusSummary();
-  }, []);
-
   // 후기작성 시 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -108,6 +107,11 @@ export default function MarketOrders() {
     setImages((prev) => [...prev, URL.createObjectURL(file)]);
     setFiles((prev) => [...prev, file]);
   };
+
+  useEffect(() => {
+    getOrders(1, selectDate.startDate, selectDate.endDate);
+    getOrderStatusSummary();
+  }, []);
 
   return (
     <div className="mypage-layout">
@@ -152,7 +156,11 @@ export default function MarketOrders() {
               <p>배송완료</p>
               <span>{orderStatusSummary.deliveredStatus}</span>
             </div>
-            <div className="mypage-statusCard">
+            <div
+              className="mypage-statusCard"
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/zipddak/mypage/market/returns")}
+            >
               <p>취소/교환/환불</p>
               <span>{orderStatusSummary.returnsStatus}</span>
             </div>
@@ -278,14 +286,16 @@ export default function MarketOrders() {
                               onClick={() => {
                                 const selected =
                                   checkedItems[order.orderIdx] || [];
+
                                 if (selected.length === 0) {
                                   alert("교환할 상품을 선택해주세요");
                                   return;
                                 }
+
                                 navigate(
-                                  `/user/mypage/market/exchange/${order.orderIdx}`,
+                                  `/zipddak/mypage/market/exchange/${order.orderIdx}`,
                                   {
-                                    state: { selectedProductIds: selected },
+                                    state: { selectedOrderItemIdxs: selected },
                                   }
                                 );
                               }}
@@ -298,14 +308,16 @@ export default function MarketOrders() {
                               onClick={() => {
                                 const selected =
                                   checkedItems[order.orderIdx] || [];
+
                                 if (selected.length === 0) {
                                   alert("반품할 상품을 선택해주세요");
                                   return;
                                 }
+
                                 navigate(
-                                  `/user/mypage/market/return/${order.orderIdx}`,
+                                  `/zipddak/mypage/market/return/${order.orderIdx}`,
                                   {
-                                    state: { selectedProductIds: selected },
+                                    state: { selectedOrderItemIdxs: selected },
                                   }
                                 );
                               }}
@@ -323,9 +335,10 @@ export default function MarketOrders() {
                             cursor: "pointer",
                           }}
                           onClick={() => {
+                            setDeliveryGroups(order.deliveryGroups);
                             window.scrollTo(0, 0);
                             navigate(
-                              `/user/mypage/market/detail/${order.orderIdx}?type=order`
+                              `/zipddak/mypage/market/detail/${order.orderIdx}?type=order`
                             );
                           }}
                         >
