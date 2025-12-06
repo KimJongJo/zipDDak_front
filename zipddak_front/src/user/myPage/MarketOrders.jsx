@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import DeliveryButton from "./DeliveryButton";
 import {
   Pagination,
   PaginationItem,
@@ -14,14 +15,24 @@ import {
 
 export default function MarketOrders() {
   const [orders, setOrders] = useState([]);
+  const [orderStatusSummary, setOrderStatusSummary] = useState({});
   const [pageBtn, setPageBtn] = useState([]);
-  const [pageInfo, setPageInfo] = useState({});
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
   const [selectDate, setSelectDate] = useState({
     startDate: null,
     endDate: null,
   });
+
+  const [selectOrderIdx, setSelectOrderIdx] = useState(0);
   const [checkedItems, setCheckedItems] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // 취소 | 후기
+
   const [targetReview, setTargetReview] = useState({});
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
@@ -31,22 +42,17 @@ export default function MarketOrders() {
   const navigate = useNavigate();
 
   // 주문 목록 조회
-  const getOrders = (page) => {
+  const getOrders = (page, startDate, endDate) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/market/orderList?username=test@kosta.com&page=${page}&startDate=${selectDate.startDate}&endDate=${selectDate.endDate}`
+          `/market/orderList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
       )
       .then((res) => {
-        console.log(res);
-        return res.data;
-      })
-      .then((data) => {
-        setOrders(data.orderListDtoList);
-        return data.pageInfo;
+        setOrders(res.data.orderListDtoList);
+        return res.data.pageInfo;
       })
       .then((pageData) => {
-        console.log(pageData);
         setPageInfo(pageData);
         let pageBtns = [];
         for (let i = pageData.startPage; i <= pageData.endPage; i++) {
@@ -59,8 +65,39 @@ export default function MarketOrders() {
       });
   };
 
+  // 주문 취소
+  const cancelOrderItems = (orderIdx) => {
+    axios
+      .post("http://localhost:8080/market/cancel", checkedItems[orderIdx])
+      .then((res) => {
+        if (res.data) {
+          setCheckedItems({});
+          getOrders(pageInfo.curPage, selectDate.startDate, selectDate.endDate);
+          getOrderStatusSummary();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 상품주문상태 써머리
+  const getOrderStatusSummary = () => {
+    axios
+      .get(
+        "http://localhost:8080/market/orderStatusSummary?username=test@kosta.com"
+      )
+      .then((res) => {
+        setOrderStatusSummary(res.data.orderStatusSummary);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   useEffect(() => {
-    getOrders(1);
+    getOrders(1, selectDate.startDate, selectDate.endDate);
+    getOrderStatusSummary();
   }, []);
 
   // 후기작성 시 이미지 업로드
@@ -79,24 +116,46 @@ export default function MarketOrders() {
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            gap: "2px",
           }}
         >
-          <div className="mypage-statusCard">
-            <p>상품준비중</p>
-            <span>0</span>
-          </div>
-          <div className="mypage-statusCard">
-            <p>배송중</p>
-            <span>0</span>
-          </div>
-          <div className="mypage-statusCard">
-            <p>배송완료</p>
-            <span>0</span>
-          </div>
-          <div className="mypage-statusCard">
-            <p>취소/교환/환불</p>
-            <span>0</span>
+          <span
+            style={{
+              color: "#A0A0A0",
+              fontSize: "12px",
+              fontStyle: "normal",
+              fontWeight: "400",
+              lineHeight: "20px",
+              margin: "0",
+            }}
+          >
+            최근 6개월간 주문 상품 상태
+          </span>
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <div className="mypage-statusCard">
+              <p>상품준비중</p>
+              <span>{orderStatusSummary.readyStatus}</span>
+            </div>
+            <div className="mypage-statusCard">
+              <p>배송중</p>
+              <span>{orderStatusSummary.shippingStatus}</span>
+            </div>
+            <div className="mypage-statusCard">
+              <p>배송완료</p>
+              <span>{orderStatusSummary.deliveredStatus}</span>
+            </div>
+            <div className="mypage-statusCard">
+              <p>취소/교환/환불</p>
+              <span>{orderStatusSummary.returnsStatus}</span>
+            </div>
           </div>
         </div>
 
@@ -115,6 +174,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, startDate: e.target.value });
+              getOrders(pageInfo.curPage, e.target.value, selectDate.endDate);
             }}
           ></Input>{" "}
           -{" "}
@@ -124,6 +184,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, endDate: e.target.value });
+              getOrders(pageInfo.curPage, selectDate.startDate, e.target.value);
             }}
           ></Input>
         </div>
@@ -142,7 +203,10 @@ export default function MarketOrders() {
             {orders.map((order) => (
               <>
                 {/* 주문번호 한 줄 */}
-                <tr style={{ borderTop: "1px solid rgba(0, 0, 0, 0.60)" }}>
+                <tr
+                  style={{ borderTop: "1px solid rgba(0, 0, 0, 0.60)" }}
+                  key={order.orderIdx}
+                >
                   <td colSpan={6} style={{ height: "66px" }}>
                     <div
                       style={{
@@ -166,7 +230,7 @@ export default function MarketOrders() {
                               fontWeight: "600",
                             }}
                           >
-                            {order.orderIdx}
+                            {order.orderCode}
                           </span>
                         </p>
                         <p>
@@ -193,11 +257,14 @@ export default function MarketOrders() {
                             style={{ width: "60px", height: "33px" }}
                             onClick={() => {
                               const selected =
-                                checkedItems[order.orderId] || [];
+                                checkedItems[order.orderIdx] || [];
                               if (selected.length === 0) {
                                 alert("취소할 상품을 선택해주세요");
                                 return;
                               }
+                              setModalType("취소");
+                              setSelectOrderIdx(order.orderIdx);
+                              setIsModalOpen(true);
                             }}
                           >
                             취소
@@ -210,13 +277,13 @@ export default function MarketOrders() {
                               style={{ width: "60px", height: "33px" }}
                               onClick={() => {
                                 const selected =
-                                  checkedItems[order.orderId] || [];
+                                  checkedItems[order.orderIdx] || [];
                                 if (selected.length === 0) {
                                   alert("교환할 상품을 선택해주세요");
                                   return;
                                 }
                                 navigate(
-                                  `/user/mypage/market/exchange/${order.orderId}`,
+                                  `/user/mypage/market/exchange/${order.orderIdx}`,
                                   {
                                     state: { selectedProductIds: selected },
                                   }
@@ -230,13 +297,13 @@ export default function MarketOrders() {
                               style={{ width: "60px", height: "33px" }}
                               onClick={() => {
                                 const selected =
-                                  checkedItems[order.orderId] || [];
+                                  checkedItems[order.orderIdx] || [];
                                 if (selected.length === 0) {
                                   alert("반품할 상품을 선택해주세요");
                                   return;
                                 }
                                 navigate(
-                                  `/user/mypage/market/return/${order.orderId}`,
+                                  `/user/mypage/market/return/${order.orderIdx}`,
                                   {
                                     state: { selectedProductIds: selected },
                                   }
@@ -258,7 +325,7 @@ export default function MarketOrders() {
                           onClick={() => {
                             window.scrollTo(0, 0);
                             navigate(
-                              `/user/mypage/market/detail/${order.orderId}?type=order`
+                              `/user/mypage/market/detail/${order.orderIdx}?type=order`
                             );
                           }}
                         >
@@ -284,14 +351,22 @@ export default function MarketOrders() {
                             ? {}
                             : { borderBottom: "none" }
                         }
+                        key={item.orderItemIdx}
                       >
                         <td>
                           <Input
                             type="checkbox"
                             checked={
                               checkedItems[order.orderIdx]?.includes(
-                                item.productIdx
+                                item.orderItemIdx
                               ) || false
+                            }
+                            disabled={
+                              !(
+                                item.orderStatus === "상품준비중" ||
+                                item.orderStatus === "배송중" ||
+                                item.orderStatus === "배송완료"
+                              )
                             }
                             onChange={(e) => {
                               const checked = e.target.checked;
@@ -302,14 +377,14 @@ export default function MarketOrders() {
                                 return {
                                   ...prev,
                                   [order.orderIdx]: checked
-                                    ? [...current, item.productIdx] // 추가
+                                    ? [...current, item.orderItemIdx] // 추가
                                     : current.filter(
-                                        (id) => id !== item.productIdx
+                                        (id) => id !== item.orderItemIdx
                                       ), // 제거
                                 };
                               });
                             }}
-                          ></Input>
+                          />
                         </td>
                         <td>
                           <div
@@ -382,17 +457,14 @@ export default function MarketOrders() {
                             >
                               {item.orderStatus}
                             </p>
-                            {item.orderStatus === "배송중" && (
-                              <button
-                                className="primary-button"
-                                style={{
-                                  width: "68px",
-                                  height: "33px",
-                                }}
-                                onClick={() => {}}
-                              >
-                                배송조회
-                              </button>
+                            {(item.orderStatus === "배송중" ||
+                              item.orderStatus === "교환회수" ||
+                              item.orderStatus === "교환발송" ||
+                              item.orderStatus === "반품회수") && (
+                              <DeliveryButton
+                                tCode={item.postComp}
+                                invoice={item.trackingNo}
+                              />
                             )}
                             {item.orderStatus === "배송완료" && (
                               <button
@@ -474,7 +546,13 @@ export default function MarketOrders() {
         </PaginationItem> */}
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
-            <PaginationLink onClick={() => getOrders(b)}>{b}</PaginationLink>
+            <PaginationLink
+              onClick={() =>
+                getOrders(b, selectDate.startDate, selectDate.endDate)
+              }
+            >
+              {b}
+            </PaginationLink>
           </PaginationItem>
         ))}
         {/* <PaginationItem disabled={pageInfo.curPage > pageInfo.endPage - 1}>
@@ -489,133 +567,190 @@ export default function MarketOrders() {
         </PaginationItem> */}
       </Pagination>
 
-      <Modal
-        isOpen={isModalOpen}
-        toggle={() => setIsModalOpen(false)}
-        className="mypage-modal"
-        style={{ width: "460px" }}
-      >
-        <ModalHeader toggle={() => setIsModalOpen(false)}>
-          후기 작성
-        </ModalHeader>
-        <ModalBody>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-            <img src="" width="80px" height="80px" />
+      {modalType === "후기" && (
+        <Modal
+          isOpen={isModalOpen}
+          toggle={() => setIsModalOpen(false)}
+          className="mypage-modal"
+          style={{ width: "460px" }}
+        >
+          <ModalHeader toggle={() => setIsModalOpen(false)}>
+            후기 작성
+          </ModalHeader>
+          <ModalBody>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <img src="" width="80px" height="80px" />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "10px",
+                  fontSize: "14px",
+                }}
+              >
+                <p style={{ fontWeight: "600" }}>{targetReview.brandName}</p>
+                <p style={{ fontWeight: "500" }}>{targetReview.productName}</p>
+                {targetReview.optionName && (
+                  <p style={{ color: "#6A7685" }}>{targetReview.optionName}</p>
+                )}
+              </div>
+            </div>
+            <div className="label-wrapper">
+              <label>구매한 상품은 어떠셨나요?</label>
+              <div className="review-star">
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <i
+                    key={num}
+                    class={`bi ${rating >= num ? "bi-star-fill" : "bi-star"}`}
+                    style={{
+                      fontSize: "20px",
+                      cursor: "pointer",
+                      color: "rgba(247, 196, 68, 1)",
+                    }}
+                    onClick={() => setRating(num)}
+                  ></i>
+                ))}
+              </div>
+            </div>
+
+            <div className="label-wrapper">
+              <label>상품 후기를 적어주세요</label>
+              <Input
+                type="textarea"
+                placeholder="상품에 대해 만족스러웠던 점이나, 디자인, 팁 등을 남겨주세요."
+              ></Input>
+            </div>
+
+            <div className="label-wrapper">
+              <label>사진 첨부</label>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                {images.map((img, idx) => (
+                  <div style={{ position: "relative" }}>
+                    <img key={idx} src={img} width="60px" height="60px" />
+                    <i
+                      class="bi bi-x-circle-fill"
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        position: "absolute",
+                        top: "-4px",
+                        right: "-4px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        setImages((prev) => prev.filter((_, i) => i !== idx));
+                        setFiles((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                    />
+                  </div>
+                ))}
+                {images.length < 5 && (
+                  <div
+                    onClick={() => imgRef.current.click()}
+                    style={{
+                      width: "60px",
+                      height: "60px",
+                      background: "#000",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                  >
+                    <i
+                      class="bi bi-plus-lg"
+                      style={{
+                        fontSize: "30px",
+                        color: "#fff",
+                      }}
+                    ></i>
+                    <input
+                      type="file"
+                      hidden
+                      ref={imgRef}
+                      onChange={handleImageUpload}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <button
+              className="primary-button"
+              style={{ width: "100%", height: "40px", fontSize: "14px" }}
+            >
+              후기 등록하기
+            </button>
+          </ModalFooter>
+        </Modal>
+      )}
+
+      {modalType === "취소" && (
+        <Modal
+          isOpen={isModalOpen}
+          toggle={() => setIsModalOpen(false)}
+          className="mypage-modal"
+          style={{ width: "380px" }}
+        >
+          <ModalHeader toggle={() => setIsModalOpen(false)}></ModalHeader>
+          <ModalBody>
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "10px",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+                whiteSpace: "nowrap",
                 fontSize: "14px",
               }}
             >
-              <p style={{ fontWeight: "600" }}>{targetReview.brandName}</p>
-              <p style={{ fontWeight: "500" }}>{targetReview.productName}</p>
-              {targetReview.optionName && (
-                <p style={{ color: "#6A7685" }}>{targetReview.optionName}</p>
-              )}
+              <p>주문 취소 시 즉시 취소처리됩니다.</p>
+              <p>주문을 취소하시겠습니까?</p>
             </div>
-          </div>
-          <div className="label-wrapper">
-            <label>구매한 상품은 어떠셨나요?</label>
-            <div className="review-star">
-              {[1, 2, 3, 4, 5].map((num) => (
-                <i
-                  key={num}
-                  class={`bi ${rating >= num ? "bi-star-fill" : "bi-star"}`}
-                  style={{
-                    fontSize: "20px",
-                    cursor: "pointer",
-                    color: "rgba(247, 196, 68, 1)",
-                  }}
-                  onClick={() => setRating(num)}
-                ></i>
-              ))}
-            </div>
-          </div>
-
-          <div className="label-wrapper">
-            <label>상품 후기를 적어주세요</label>
-            <Input
-              type="textarea"
-              placeholder="상품에 대해 만족스러웠던 점이나, 디자인, 팁 등을 남겨주세요."
-            ></Input>
-          </div>
-
-          <div className="label-wrapper">
-            <label>사진 첨부</label>
+          </ModalBody>
+          <ModalFooter>
             <div
               style={{
+                width: "100%",
                 display: "flex",
-                gap: "8px",
+                alignItems: "center",
+                gap: "4px",
               }}
             >
-              {images.map((img, idx) => (
-                <div style={{ position: "relative" }}>
-                  <img key={idx} src={img} width="60px" height="60px" />
-                  <i
-                    class="bi bi-x-circle-fill"
-                    style={{
-                      width: "16px",
-                      height: "16px",
-                      position: "absolute",
-                      top: "-4px",
-                      right: "-4px",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => {
-                      setImages((prev) => prev.filter((_, i) => i !== idx));
-                      setFiles((prev) => prev.filter((_, i) => i !== idx));
-                    }}
-                  />
-                </div>
-              ))}
-              {images.length < 5 && (
-                <div
-                  onClick={() => imgRef.current.click()}
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    background: "#000",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <i
-                    class="bi bi-plus-lg"
-                    style={{
-                      fontSize: "30px",
-                      color: "#fff",
-                    }}
-                  ></i>
-                  <input
-                    type="file"
-                    hidden
-                    ref={imgRef}
-                    onChange={handleImageUpload}
-                  />
-                </div>
-              )}
+              <button
+                className="secondary-button"
+                style={{ width: "100%", height: "33px" }}
+                onClick={() => setIsModalOpen(false)}
+              >
+                취소
+              </button>
+              <button
+                className="primary-button"
+                style={{ width: "100%", height: "33px" }}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  cancelOrderItems(selectOrderIdx);
+                }}
+              >
+                확인
+              </button>
             </div>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <button
-            className="primary-button"
-            style={{ width: "100%", height: "40px", fontSize: "14px" }}
-          >
-            후기 등록하기
-          </button>
-        </ModalFooter>
-      </Modal>
+          </ModalFooter>
+        </Modal>
+      )}
     </div>
   );
 }
