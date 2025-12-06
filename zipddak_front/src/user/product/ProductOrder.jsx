@@ -2,35 +2,23 @@ import "../css/ProductOrder.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { orderListAtom } from "./productAtom";
+import { baseUrl } from "../../config";
+import axios from "axios";
+import { Modal } from "reactstrap";
+// import TossPayments from "@tosspayments/payment-sdk";
 
 export default function ProductOrder() {
-    const storeInfo = {
-        storeName: "자재업체이름",
-        qothd: "무료배송",
-    };
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
+
+    const [orderList, setOrderList] = useAtom(orderListAtom);
+    const [options, setOptions] = useState({});
+
+    const [productInfo, setProductInfo] = useState([]);
 
     const [totalPrice, setTotalPrice] = useState(0);
-
-    // 테스트 객체배열
-    const [productInfo, setProductInfo] = useState([
-        {
-            img: "/images/이미지테스트.png",
-            productName: "발트 라운드 수납 선반 다용도 주방 거실장",
-            size: "120x120x11700mm",
-            color: "화이트",
-            count: 1,
-            price: 456000,
-        },
-        {
-            img: "/images/이미지테스트.png",
-            productName: "발트 라운드 수납 선반 다용도 주방 거실장",
-            size: "120x120x11700mm",
-            color: "블랙",
-            count: 2,
-            price: 456000,
-        },
-    ]);
-
     const [user, setUser] = useState({
         name: "",
         tel: "",
@@ -53,8 +41,6 @@ export default function ProductOrder() {
         });
     };
 
-    // const [productInfo, setProductInfo] = useState([]);
-
     // 수량 증가
     const increaseCount = (index) => {
         setProductInfo((prev) => {
@@ -71,12 +57,24 @@ export default function ProductOrder() {
     const decreaseCount = (index) => {
         setProductInfo((prev) => {
             const newArr = [...prev];
-            if (newArr[index].count > 1) {
+
+            // 배열 길이가 1이고, 해당 상품 수량이 1이면 아무 작업도 하지 않음
+            if (newArr.length === 1 && newArr[index].count === 1) {
+                setModal(true);
+                return newArr;
+            }
+
+            // 수량이 1이면 삭제
+            if (newArr[index].count === 1) {
+                newArr.splice(index, 1);
+            } else {
+                // 수량이 1보다 크면 1 감소
                 newArr[index] = {
                     ...newArr[index],
                     count: newArr[index].count - 1,
                 };
             }
+
             return newArr;
         });
     };
@@ -84,6 +82,11 @@ export default function ProductOrder() {
     // 구매 목록에서 상품 삭제
     // -> index 번째 상품을 삭제
     const removeProduct = (index) => {
+        if (productInfo.length <= 1) {
+            // 모달 오픈?
+            setModal(true);
+            return;
+        }
         setProductInfo((prev) =>
             // prev: 이전 productInfo 배열
             prev.filter(
@@ -106,11 +109,22 @@ export default function ProductOrder() {
     useEffect(() => {
         let total = 0;
         productInfo.map((product) => {
-            total += product.count * product.price;
+            total += product.count * (product.price + options.salePrice);
         });
+        total += options.postCharge;
 
         setTotalPrice(total);
     }, [productInfo]);
+
+    useEffect(() => {
+        if (orderList.length > 0) {
+            axios.post(`${baseUrl}/orderListProduct`, { orderList }).then((res) => {
+                console.log(res.data);
+                setOptions(res.data);
+                setProductInfo(res.data.orderList);
+            });
+        }
+    }, [orderList]);
 
     return (
         <div className="body-div">
@@ -124,22 +138,23 @@ export default function ProductOrder() {
                                 <span className="product-order-check-span">주문 상품</span>
                                 {/* 업체이름 div */}
                                 <div className="product-order-check-store-div">
-                                    <span className="font-15">{storeInfo.storeName}</span>
-                                    <span className="font-15">{storeInfo.qothd}</span>
+                                    <span className="font-15">{options.brandName}</span>
+                                    {options.postCharge !== 0 ? <span className="font-15">배송비: {options.postCharge?.toLocaleString()}원</span> : <span className="font-15">무료배송</span>}
                                 </div>
                                 {/* 상품 정보 */}
                                 {/* 구매 목록 반복문으로 돌림 */}
-                                {productInfo.map((product, index) => (
-                                    <div className="product-order-check-detail" key={index}>
+                                {/* 가져온 옵션 데이터에 orderList가 있고, 그게 1 이상일대 */}
+                                {productInfo.map((option, index) => (
+                                    <div className="product-order-check-detail" key={option.optionId}>
                                         <div className="product-order-check-img-div">
-                                            <img className="product-order-check-img" src={product.img} />
+                                            <img className="product-order-check-img" src={options.img} />
                                         </div>
 
                                         <div className="product-order-check-buy-info">
                                             <div className="product-order-check-info">
-                                                <span className="font-16">{product.productName}</span>
+                                                <span className="font-16">{options.productName}</span>
                                                 <span className="font-14">
-                                                    {product.size} / {product.color}
+                                                    {option.name} / {option.value}
                                                 </span>
 
                                                 {/* 개수 조절 */}
@@ -148,7 +163,7 @@ export default function ProductOrder() {
                                                         <i className="bi bi-dash-lg append-button-son"></i>
                                                     </button>
 
-                                                    <span className="font-14">{product.count}</span>
+                                                    <span className="font-14">{option.count}</span>
 
                                                     <button className="count-button-style" onClick={() => increaseCount(index)}>
                                                         <i className="bi bi-plus-lg append-button-son"></i>
@@ -162,7 +177,7 @@ export default function ProductOrder() {
                                                     <i className="bi bi-x-lg detail-x-button"></i>
                                                 </button>
                                                 <span className="font-14">
-                                                    {(product.price * product.count).toLocaleString()}
+                                                    {((option.price + options.salePrice) * option.count).toLocaleString()}
                                                     <span>원</span>
                                                 </span>
                                             </div>
@@ -332,7 +347,7 @@ export default function ProductOrder() {
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-15">배송비</span>
-                                        <span className="font-14">0원</span>
+                                        <span className="font-14">{options.postCharge?.toLocaleString()}원</span>
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-16 semibold">최종 결제 금액</span>
@@ -353,6 +368,18 @@ export default function ProductOrder() {
                             <button className="product-order-from-bottom-button font-16 semibold">{totalPrice.toLocaleString()}원 결제하기</button>
                         </div>
                     </div>
+
+                    <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                        <div className="ask-modal-body">
+                            <div>한 개 이상의 상품을 선택해야 주문할 수 있습니다.</div>
+
+                            <div className="ask-modal-body-button-div">
+                                <button className="ask-modal-write ask-modal-button" type="button" onClick={toggle}>
+                                    확인
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
                 </div>
             </div>
         </div>
