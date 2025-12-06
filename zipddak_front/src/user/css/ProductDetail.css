@@ -664,3 +664,16 @@
     border: none;
     text-align: left;
 }
+
+.productDetail-info-more-btn-div {
+    display: flex;
+    justify-content: center;
+}
+
+.productDetail-info-more-btn {
+    border: none;
+    background-color: transparent;
+    font-size: 15px;
+    padding: 20px;
+    color: #6d758f;
+}
