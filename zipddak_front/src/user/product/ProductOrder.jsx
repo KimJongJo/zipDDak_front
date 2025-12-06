@@ -7,6 +7,8 @@ import { orderListAtom } from "./productAtom";
 import { baseUrl } from "../../config";
 import axios from "axios";
 import { Modal } from "reactstrap";
+import { Modal as AddrModal } from "antd";
+import DaumPostcode from "react-daum-postcode";
 // import TossPayments from "@tosspayments/payment-sdk";
 
 export default function ProductOrder() {
@@ -28,11 +30,26 @@ export default function ProductOrder() {
         sender: "",
         recvier: "",
         tel: "",
-        postCode: "",
-        address: "",
+        zonecode: "",
+        addr1: "",
         detailAddress: "",
         requestContent: "",
     });
+
+    //주소
+    const [isAddOpen, setIsAddOpen] = useState(false);
+
+    const complateHandler = (data) => {
+        setRecvUser({
+            ...recvUser,
+            zonecode: data.zonecode,
+            addr1: data.roadAddress || data.address,
+        });
+    };
+
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    };
 
     const changeRecvUserInfo = (e) => {
         setRecvUser({
@@ -294,15 +311,23 @@ export default function ProductOrder() {
                                                 </td>
                                                 <td>
                                                     <div className="product-order-check-input-address-button-div">
-                                                        <button className="product-order-check-input-address-button">찾기</button>
-                                                        <Input name="postCode" onChange={changeRecvUserInfo} className="product-order-check-input-address-input font-15" />
+                                                        <button className="product-order-check-input-address-button" onClick={() => setIsAddOpen(!isAddOpen)}>
+                                                            찾기
+                                                        </button>
+                                                        <Input
+                                                            readOnly
+                                                            value={recvUser.zonecode}
+                                                            name="postCode"
+                                                            onChange={changeRecvUserInfo}
+                                                            className="product-order-check-input-address-input font-15"
+                                                        />
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    <Input name="address" onChange={changeRecvUserInfo} className="product-order-check-input-address font-15" />
+                                                    <Input readOnly value={recvUser.addr1} name="address" onChange={changeRecvUserInfo} className="product-order-check-input-address font-15" />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -382,6 +407,12 @@ export default function ProductOrder() {
                     </Modal>
                 </div>
             </div>
+
+            {isAddOpen && (
+                <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
+                </AddrModal>
+            )}
         </div>
     );
 }
