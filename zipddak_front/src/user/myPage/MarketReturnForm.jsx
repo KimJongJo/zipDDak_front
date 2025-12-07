@@ -71,11 +71,13 @@ export default function MarketReturnForm() {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => {
-        setIsModalOpen(true);
+        if (res.data) {
+          setIsModalOpen(true);
 
-        setTimeout(() => {
-          navigate("/zipddak/mypage/market/orders");
-        }, 1500);
+          setTimeout(() => {
+            navigate("/zipddak/mypage/market/orders");
+          }, 1500);
+        }
       })
       .catch((err) => console.error(err));
   };
@@ -217,6 +219,7 @@ export default function MarketReturnForm() {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "flex-start",
+                            textAlign: "left",
                             gap: "4px",
                             width: "100%",
                           }}
@@ -373,7 +376,7 @@ export default function MarketReturnForm() {
                     />
                   </div>
                 ))}
-                {images.length < 5 && (
+                {images.length < 3 && (
                   <div
                     onClick={() => imgRef.current.click()}
                     style={{
