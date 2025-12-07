@@ -9,18 +9,25 @@ import axios from "axios";
 import { Modal } from "reactstrap";
 import { Modal as AddrModal } from "antd";
 import DaumPostcode from "react-daum-postcode";
-// import TossPayments from "@tosspayments/payment-sdk";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 
 export default function ProductOrder() {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
+
+    // 주문에 쓰일 데이터
+    const [orderData, setOrderData] = useState({});
 
     const [orderList, setOrderList] = useAtom(orderListAtom);
     const [options, setOptions] = useState({});
 
     const [productInfo, setProductInfo] = useState([]);
 
+    // 총 상품 금액
+    const [productTotalPrice, setProductTotalPrice] = useState(0);
+    // 총 결제 금액
     const [totalPrice, setTotalPrice] = useState(0);
+
     const [user, setUser] = useState({
         name: "",
         tel: "",
@@ -40,6 +47,7 @@ export default function ProductOrder() {
     const [isAddOpen, setIsAddOpen] = useState(false);
 
     const complateHandler = (data) => {
+        console.log(data);
         setRecvUser({
             ...recvUser,
             zonecode: data.zonecode,
@@ -53,7 +61,7 @@ export default function ProductOrder() {
 
     const changeRecvUserInfo = (e) => {
         setRecvUser({
-            ...user,
+            ...recvUser,
             [e.target.name]: e.target.value,
         });
     };
@@ -117,10 +125,7 @@ export default function ProductOrder() {
 
     // 위와 동일하게 채우기 버튼 클릭 이벤트
     const sameInfo = () => {
-        setRecvUser({
-            recvier: user.name,
-            tel: user.tel,
-        });
+        setRecvUser({ ...recvUser, recvier: user.name, tel: user.tel });
     };
 
     useEffect(() => {
@@ -128,6 +133,7 @@ export default function ProductOrder() {
         productInfo.map((product) => {
             total += product.count * (product.price + options.salePrice);
         });
+        setProductTotalPrice(total);
         total += options.postCharge;
 
         setTotalPrice(total);
@@ -135,13 +141,44 @@ export default function ProductOrder() {
 
     useEffect(() => {
         if (orderList.length > 0) {
-            axios.post(`${baseUrl}/orderListProduct`, { orderList }).then((res) => {
+            axios.post(`${baseUrl}/orderListProduct`, { orderList, username: "rlawhdwh" }).then((res) => {
                 console.log(res.data);
                 setOptions(res.data);
                 setProductInfo(res.data.orderList);
+                setUser({ name: res.data.userInfo.name, tel: res.data.userInfo.phone });
             });
         }
     }, [orderList]);
+
+    // 토스 페이먼츠 결제 요청 시작
+    const requestTossPaymentApi = async () => {
+        const username = "rlawhdwh";
+
+        const res = await axios.post(`${baseUrl}/payment/product`, {
+            username: username,
+            productId: options.productId,
+            orderList: productInfo,
+            postCharge: options.postCharge,
+            recvUser: recvUser,
+        });
+
+        const { orderId, orderName, amount } = res.data;
+
+        const encodedOrderName = encodeURIComponent(orderName);
+
+        // 테스트 경우 클라이언트 키가 노출되어도 상관 없음
+        // 실제 운영하는 환경에서는 서버에서 clientKey를 내려주고 클라이언트 요청시 가져와서 사용
+        const tossPayments = await loadTossPayments("test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD");
+
+        await tossPayments.requestPayment({
+            method: "CARD",
+            amount: amount,
+            orderId: orderId,
+            orderName: orderName,
+            successUrl: `http://localhost:8080/payment/complate?productId=${options.productId}&orderName=${encodedOrderName}&username=${username}`, // 성공시 서버쪽으로 보냄
+            failUrl: "http://localhost:5173/zipddak/productOrder",
+        });
+    };
 
     return (
         <div className="body-div">
@@ -214,7 +251,7 @@ export default function ProductOrder() {
                                                     <span className="font-15">이름</span>
                                                 </td>
                                                 <td>
-                                                    <Input className="product-order-check-input font-15" onChange={(e) => setUser({ ...user, name: e.target.value })} />
+                                                    <Input value={user.name} className="product-order-check-input font-15" onChange={(e) => setUser({ ...user, name: e.target.value })} />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -247,6 +284,7 @@ export default function ProductOrder() {
                                                     <div className="product-order-check-input-tel-div">
                                                         <Input className="product-order-check-input-tel-first font-15" value={"010"} readOnly />
                                                         <Input
+                                                            value={user.tel || ""}
                                                             onChange={(e) => setUser({ ...user, tel: e.target.value })}
                                                             maxLength={8}
                                                             className="product-order-check-input-tel-second font-15"
@@ -297,7 +335,7 @@ export default function ProductOrder() {
                                                         <Input
                                                             name="tel"
                                                             onChange={changeRecvUserInfo}
-                                                            value={recvUser.tel}
+                                                            value={recvUser.tel || ""}
                                                             maxLength={8}
                                                             className="product-order-check-input-tel-second font-15"
                                                             type="tel"
@@ -314,20 +352,14 @@ export default function ProductOrder() {
                                                         <button className="product-order-check-input-address-button" onClick={() => setIsAddOpen(!isAddOpen)}>
                                                             찾기
                                                         </button>
-                                                        <Input
-                                                            readOnly
-                                                            value={recvUser.zonecode}
-                                                            name="postCode"
-                                                            onChange={changeRecvUserInfo}
-                                                            className="product-order-check-input-address-input font-15"
-                                                        />
+                                                        <Input readOnly value={recvUser.zonecode || ""} name="postCode" className="product-order-check-input-address-input font-15" />
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    <Input readOnly value={recvUser.addr1} name="address" onChange={changeRecvUserInfo} className="product-order-check-input-address font-15" />
+                                                    <Input readOnly value={recvUser.addr1 || ""} name="address" className="product-order-check-input-address font-15" />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -368,7 +400,7 @@ export default function ProductOrder() {
                                     <span className="font-16 semibold">결제금액</span>
                                     <div className="product-order-form-second">
                                         <span className="font-15">총 상품 금액</span>
-                                        <span className="font-14">{totalPrice.toLocaleString()}원</span>
+                                        <span className="font-14">{productTotalPrice.toLocaleString()}원</span>
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-15">배송비</span>
@@ -390,7 +422,9 @@ export default function ProductOrder() {
                                     </div>
                                 </div>
                             </div>
-                            <button className="product-order-from-bottom-button font-16 semibold">{totalPrice.toLocaleString()}원 결제하기</button>
+                            <button onClick={requestTossPaymentApi} className="product-order-from-bottom-button font-16 semibold">
+                                {totalPrice.toLocaleString()}원 결제하기
+                            </button>
                         </div>
                     </div>
 

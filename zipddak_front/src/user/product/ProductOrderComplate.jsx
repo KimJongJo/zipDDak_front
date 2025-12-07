@@ -1,7 +1,17 @@
 import "../css/ProductOrderComplate.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router";
+import { baseUrl } from "../../config";
+import axios from "axios";
 
 export default function ProductOrderComplate() {
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const orderCode = searchParams.get("orderCode");
+
+    const [orderInfo, setOrderInfo] = useState({});
+    const [orderList, setOrderList] = useState([]);
+
     // 테스트 객체배열
     const [productInfo, setProductInfo] = useState([
         {
@@ -22,6 +32,14 @@ export default function ProductOrderComplate() {
         },
     ]);
 
+    useEffect(() => {
+        axios.get(`${baseUrl}/orderInfo?orderCode=${orderCode}`).then((res) => {
+            console.log(res.data);
+            setOrderInfo(res.data.orderDto);
+            setOrderList(res.data.orderItems);
+        });
+    }, []);
+
     return (
         <div className="body-div">
             <div className="ProductOrderComplate-main-div">
@@ -31,7 +49,7 @@ export default function ProductOrderComplate() {
                     <span className="font-20 semibold">주문이 완료되었습니다</span>
                     {/* 주문 날짜 */}
                     <span className="font-14 semibold">
-                        주문날짜 : <span>2025-11-27</span>
+                        주문날짜 : <span>{orderInfo.createdAt}</span>
                     </span>
                 </div>
                 <div className="order-complate-first-table">
@@ -55,24 +73,24 @@ export default function ProductOrderComplate() {
                                     <span className="font-14">합계금액</span>
                                 </td>
                             </tr>
-                            {productInfo.map((product) => (
-                                <tr className="order-complate-second-table-tr">
+                            {orderList.map((order) => (
+                                <tr key={order.orderItemIdx} className="order-complate-second-table-tr">
                                     <td>
-                                        <img className="order-complate-product-img" src={product.img} />
+                                        <img className="order-complate-product-img" src={order.img} />
                                     </td>
                                     <td>
-                                        <span className="font-14">{product.productName}</span>
+                                        <span className="font-14">{order.productName}</span>
                                     </td>
                                     <td>
                                         <span className="font-14">
-                                            {product.size} / {product.color}
+                                            {order.option.optionName} / {order.option.optionValue}
                                         </span>
                                     </td>
                                     <td>
-                                        <span className="font-14">{product.count}</span>
+                                        <span className="font-14">{order.quantity}</span>
                                     </td>
                                     <td>
-                                        <span className="font-14">{(product.count * product.price).toLocaleString()}원</span>
+                                        <span className="font-14">{((order.option.optionPrice + order.productPrice) * order.quantity).toLocaleString()}원</span>
                                     </td>
                                 </tr>
                             ))}
@@ -91,7 +109,7 @@ export default function ProductOrderComplate() {
                                 </td>
                                 <td className="order-complate-td">
                                     {/* 받는 사람 */}
-                                    <span className="font-14">김종조</span>
+                                    <span className="font-14">{orderInfo.postRecipient}</span>
                                 </td>
                             </tr>
                             <tr>
@@ -109,7 +127,9 @@ export default function ProductOrderComplate() {
                                 </td>
                                 <td className="order-complate-td  order-complate-line">
                                     {/* 배송지 주소 */}
-                                    <span className="font-14">(12345) 서울 금천구 가산디지털1로 70 9층</span>
+                                    <span className="font-14">
+                                        ({orderInfo.postZonecode}) {orderInfo.postAddr1} {orderInfo.postAddr2}
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -127,7 +147,7 @@ export default function ProductOrderComplate() {
                                 </td>
                                 {/* 상품 금액 */}
                                 <td className="order-complate-td">
-                                    <span className="font-14">10,000원</span>
+                                    <span className="font-14">{orderInfo.subtotalAmount?.toLocaleString()}원</span>
                                 </td>
                             </tr>
                             <tr>
@@ -135,7 +155,7 @@ export default function ProductOrderComplate() {
                                     <span className="font-14">배송비</span>
                                 </td>
                                 <td className="order-complate-td order-complate-line">
-                                    <span className="font-14">0원</span>
+                                    <span className="font-14">{orderInfo.shippingAmount?.toLocaleString()}원</span>
                                 </td>
                             </tr>
                             <tr>
@@ -143,7 +163,7 @@ export default function ProductOrderComplate() {
                                     <span className="font-14">총 결제 금액</span>
                                 </td>
                                 <td className="order-complate-td order-complate-line">
-                                    <span className="font-14">10,000원</span>
+                                    <span className="font-14">{orderInfo.totalAmount?.toLocaleString()}원</span>
                                 </td>
                             </tr>
                         </tbody>
