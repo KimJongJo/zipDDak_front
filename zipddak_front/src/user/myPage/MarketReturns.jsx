@@ -198,6 +198,7 @@ export default function MarketReturns() {
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "flex-start",
+                                textAlign: "left",
                                 gap: "4px",
                               }}
                             >

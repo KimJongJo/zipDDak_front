@@ -27,6 +27,7 @@ export default function MarketOrderDetail() {
     axios
       .get("http://localhost:8080" + `/market/detail?orderIdx=${orderIdx}`)
       .then((res) => {
+        console.log(res.data);
         setOrderDetail(res.data.orderDetail);
       })
       .catch((err) => {

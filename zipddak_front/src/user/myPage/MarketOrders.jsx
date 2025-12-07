@@ -79,6 +79,7 @@ export default function MarketOrders() {
       .then((res) => {
         if (res.data) {
           setCheckedItems({});
+          setOrders([]);
           getOrders(pageInfo.curPage, selectDate.startDate, selectDate.endDate);
           getOrderStatusSummary();
         }
@@ -170,7 +171,7 @@ export default function MarketOrders() {
               style={{ cursor: "pointer" }}
               onClick={() => navigate("/zipddak/mypage/market/returns")}
             >
-              <p>취소/교환/환불</p>
+              <p>취소/교환/반품</p>
               <span>{orderStatusSummary.returnsStatus}</span>
             </div>
           </div>
@@ -191,6 +192,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, startDate: e.target.value });
+              setOrders([]);
               getOrders(pageInfo.curPage, e.target.value, selectDate.endDate);
             }}
           ></Input>{" "}
@@ -201,6 +203,7 @@ export default function MarketOrders() {
             style={{ width: "140px", height: "32px" }}
             onChange={(e) => {
               setSelectDate({ ...selectDate, endDate: e.target.value });
+              setOrders([]);
               getOrders(pageInfo.curPage, selectDate.startDate, e.target.value);
             }}
           ></Input>
@@ -301,10 +304,58 @@ export default function MarketOrders() {
                                   return;
                                 }
 
+                                // 해당 주문에 대한 배송 그룹만 가져옴
+                                const deliveryGroupForOrder =
+                                  selectedDeliveryGroups.find(
+                                    (o) => o.orderIdx === order.orderIdx
+                                  );
+
+                                if (!deliveryGroupForOrder) {
+                                  alert("교환 가능한 상품이 없습니다.");
+                                  return;
+                                }
+
+                                // 교환 가능 상태만 필터링
+                                const VALID_STATUSES = ["배송완료", "배송중"];
+
+                                const filteredDeliveryGroups = {
+                                  ...deliveryGroupForOrder,
+                                  deliveryGroups:
+                                    deliveryGroupForOrder.deliveryGroups
+                                      .map((group) => ({
+                                        ...group,
+                                        orderItems: group.orderItems.filter(
+                                          (item) =>
+                                            selected.includes(
+                                              item.orderItemIdx
+                                            ) &&
+                                            VALID_STATUSES.includes(
+                                              item.orderStatus
+                                            )
+                                        ),
+                                      }))
+                                      .filter(
+                                        (group) => group.orderItems.length > 0
+                                      ), // 빈 그룹 제거
+                                };
+
+                                // 교환 가능한 상품이 하나도 없다면 중단
+                                if (
+                                  filteredDeliveryGroups.deliveryGroups
+                                    .length === 0
+                                ) {
+                                  alert(
+                                    "교환 가능한 상품이 없습니다.\n(배송중 또는 배송완료만 반품 가능)"
+                                  );
+                                  return;
+                                }
+
                                 navigate(
                                   `/zipddak/mypage/market/exchange/${order.orderIdx}`,
                                   {
-                                    state: { selectedDeliveryGroups },
+                                    state: {
+                                      deliveryGroups: filteredDeliveryGroups,
+                                    },
                                   }
                                 );
                               }}
@@ -612,6 +663,7 @@ export default function MarketOrders() {
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "flex-start",
+                                textAlign: "left",
                                 gap: "4px",
                               }}
                             >
@@ -754,9 +806,10 @@ export default function MarketOrders() {
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
             <PaginationLink
-              onClick={() =>
-                getOrders(b, selectDate.startDate, selectDate.endDate)
-              }
+              onClick={() => {
+                setOrders([]);
+                getOrders(b, selectDate.startDate, selectDate.endDate);
+              }}
             >
               {b}
             </PaginationLink>
