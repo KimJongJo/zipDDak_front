@@ -73,5 +73,8 @@ export default function usePriceCalc() {
         handlePrice,
         handleSalePrice,
         handleDiscountRate,
+        setPrice,
+        setSalePrice,
+        setDiscountRate,
     };
 }

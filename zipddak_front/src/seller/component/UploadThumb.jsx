@@ -1,7 +1,7 @@
-import { FormGroup, Label, Input } from "reactstrap";
+import { FormGroup, Label, Input, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 
-export default function UploadThumb({ thumbRef, thumbPreview, handleThumbChange, deleteThumb }) {
+export default function UploadThumb({ thumbRef, thumbPreview, onChange, onDelete }) {
     return (
         <>
             <FormGroup className="position-relative">
@@ -11,12 +11,15 @@ export default function UploadThumb({ thumbRef, thumbPreview, handleThumbChange,
                 <Tippy content="상품 이미지 첨부하기" theme="custom">
                     <img src="/Paperclip.svg" className="pointer" onClick={() => thumbRef.current.click()} />
                 </Tippy>
-                <Input type="file" accept="image/*" innerRef={thumbRef} onChange={handleThumbChange} hidden />
+                {/* ↓선택된 파일 갖고있는 용 */}
+                <Input type="file" name="thumbnailFileIdx" accept="image/*" innerRef={thumbRef} onChange={onChange} hidden />
+
+                {/* 이미지 미리보기 */}
                 {thumbPreview && (
                     <div id="thumbPreview" className="img_previewBox">
                         <div className="preview-wrap">
                             <img src={thumbPreview} className="preview-img" />
-                            <button type="button" className="delete-btn" onClick={deleteThumb}>
+                            <button type="button" className="delete-btn" onClick={onDelete}>
                                 <i class="bi bi-x"></i>
                             </button>
                         </div>

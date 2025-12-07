@@ -203,7 +203,7 @@ function App() {
                 <Route path="myInfo" element={<MyInfo />} />
 
                 <Route path="ask" element={<AskToManager />} />
-                <Route path="productModify" element={<ProductModify />} />
+                <Route path="productModify/:productIdx" element={<ProductModify />} />
 
                 <Route path="orderDetail" element={<OrderDetail />} />
                 <Route path="shippingDetail" element={<ShippingDetail />} />
