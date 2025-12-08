@@ -20,11 +20,11 @@ export default function Likes() {
   });
 
   // 관심 상품목록 조회
-  const getProductLikes = () => {
+  const getProductLikes = (page) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/likeList/product?username=test@kosta.com&page=${pageInfo.curPage}`
+          `/likeList/product?username=test@kosta.com&page=${page}`
       )
       .then((res) => {
         setProductLikes(res.data.favoriteProductList);
@@ -59,11 +59,11 @@ export default function Likes() {
   };
 
   // 관심 공구목록 조회
-  const getToolLikes = () => {
+  const getToolLikes = (page) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/likeList/tool?username=test@kosta.com&page=${pageInfo.curPage}`
+          `/likeList/tool?username=test@kosta.com&page=${page}`
       )
       .then((res) => {
         setToolLikes(res.data.favoriteToolList);
@@ -98,11 +98,11 @@ export default function Likes() {
   };
 
   // 관심 전문가목록 조회
-  const getExpertLikes = () => {
+  const getExpertLikes = (page) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/likeList/expert?username=test@kosta.com&page=${pageInfo.curPage}`
+          `/likeList/expert?username=test@kosta.com&page=${page}`
       )
       .then((res) => {
         setExpertLikes(res.data.favoriteExpertList);
@@ -137,11 +137,11 @@ export default function Likes() {
   };
 
   // 관심 커뮤니티목록 조회
-  const getCommunityLikes = () => {
+  const getCommunityLikes = (page) => {
     axios
       .get(
         "http://localhost:8080" +
-          `/likeList/community?username=test@kosta.com&page=${pageInfo.curPage}`
+          `/likeList/community?username=test@kosta.com&page=${page}`
       )
       .then((res) => {
         setCommunityLikes(res.data.favoriteCommunityList);
@@ -177,13 +177,13 @@ export default function Likes() {
 
   useEffect(() => {
     if (tab === "상품") {
-      getProductLikes();
+      getProductLikes(1);
     } else if (tab === "공구") {
-      getToolLikes();
+      getToolLikes(1);
     } else if (tab === "전문가") {
-      getExpertLikes();
+      getExpertLikes(1);
     } else if (tab === "커뮤니티") {
-      getCommunityLikes();
+      getCommunityLikes(1);
     }
   }, [tab]);
 
@@ -254,7 +254,7 @@ export default function Likes() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: "20px",
           }}
         >
@@ -347,9 +347,9 @@ export default function Likes() {
       {tab === "커뮤니티" && communityLikes.length !== 0 && (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
           }}
         >
           {communityLikes.map((community) => (
@@ -381,15 +381,29 @@ export default function Likes() {
       )}
 
       <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
+        {pageBtn.map((b) => (
+          <PaginationItem key={b} active={b === pageInfo.curPage}>
+            <PaginationLink
+              onClick={() => {
+                if (tab === "상품") {
+                  setProductLikes([]);
+                  getProductLikes(b);
+                } else if (tab === "공구") {
+                  setToolLikes([]);
+                  getToolLikes(b);
+                } else if (tab === "전문가") {
+                  setExpertLikes([]);
+                  getExpertLikes(b);
+                } else if (tab === "커뮤니티") {
+                  setCommunityLikes([]);
+                  getCommunityLikes(b);
+                }
+              }}
+            >
+              {b}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
       </Pagination>
     </div>
   );
