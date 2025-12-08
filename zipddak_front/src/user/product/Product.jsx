@@ -1,14 +1,27 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Product.css";
+import { useNavigate } from "react-router";
 
-export default function Product({ product }) {
+export default function Product({ product, toggleFavorite }) {
+    const navigate = useNavigate();
+    let username = "rlawhdwh";
+
     return (
-        <a href={`/zipddak/product/${product.productIdx}`} className="Product-card">
+        <div onClick={() => navigate(`/zipddak/product/${product.productIdx}`)} style={{ cursor: "pointer" }} className="Product-card">
             {/* 자재 이미지 */}
             <div className="product-image">
                 <img src={`${product.storagePath}/${product.fileRename}`} alt="상품" />
-                <i className="bi bi-heart favorite-icon"></i>
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation(); // 화면 이동 클릭 막음
+                        // 로그인이 안되어있으면 막음
+                        username && toggleFavorite();
+                    }}
+                    className="favorite-icon"
+                >
+                    {product.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                </button>
             </div>
 
             {/* 자재 정보 */}
@@ -30,6 +43,6 @@ export default function Product({ product }) {
                     {/* 리뷰 수 */}(<span className="review-count">{product.reviewCount}</span>)
                 </div>
             </div>
-        </a>
+        </div>
     );
 }

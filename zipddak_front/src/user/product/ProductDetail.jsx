@@ -5,8 +5,13 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
 import axios from "axios";
 import { baseUrl } from "../../config";
 import { useParams } from "react-router";
+import { useAtom } from "jotai";
+import { orderListAtom } from "./productAtom";
+import { useNavigate } from "react-router";
 
 export default function ProductDetail() {
+    const navigate = useNavigate();
+
     const [bottomSelect, setBottomSelect] = useState(1);
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
@@ -18,6 +23,8 @@ export default function ProductDetail() {
     const [inquiryCount, setInquiryCount] = useState(0);
     const [product, setProduct] = useState({});
 
+    // 관심 유무
+    const [favorite, setFavorite] = useState(false);
     // 리뷰 현재 페이지
     const [reviewPage, setReviewPage] = useState(1);
     // 문의 현재 페이지
@@ -39,7 +46,7 @@ export default function ProductDetail() {
     const [selectOptionInfo2, setSelectOptionInfo2] = useState({});
 
     // 구매 목록 상품들
-    const [orderList, setOrderList] = useState([]);
+    const [orderList, setOrderList] = useAtom(orderListAtom);
 
     // 자재 상품 id
     const { productId } = useParams();
@@ -112,10 +119,11 @@ export default function ProductDetail() {
             setOrderList([
                 ...orderList,
                 {
+                    productId: product.productIdx,
                     optionId: info.optionId,
                     name,
                     value: info.color,
-                    price: info.price,
+                    price: info.price + product.salePrice,
                     count: 1,
                 },
             ]);
@@ -154,6 +162,14 @@ export default function ProductDetail() {
         } catch (err) {
             console.error(err);
         }
+    };
+
+    // 관심 토글
+    const favoriteToggle = async (productIdx) => {
+        const username = "rlawhdwh";
+        await axios.post(`${baseUrl}/favoriteToggle`, { productIdx, username });
+
+        setFavorite(!favorite);
     };
 
     useEffect(() => {
@@ -216,9 +232,9 @@ export default function ProductDetail() {
     }, []);
 
     useEffect(() => {
-        axios.get(`${baseUrl}/product?productId=${productId}`).then((res) => {
+        axios.get(`${baseUrl}/product?productId=${productId}&username=rlawhdwh`).then((res) => {
             const data = res.data;
-            // console.log(data);
+            console.log(data);
             setAvgScore(data.avgScore);
             setReviewCount(data.reviewCount);
             setInquiries(data.productInquiries);
@@ -226,10 +242,14 @@ export default function ProductDetail() {
             setProduct(data.productDetailDto);
             setProductOption(data.productOption);
             setInquiryCount(data.inquiryCount);
+            setFavorite(data.favorite);
 
             // 리뷰 페이지, 문의 페이지 1페이지로 초기화
             setReviewPage(1);
             setInquiryPage(1);
+
+            // 구매 목록 초기화
+            setOrderList([]);
         });
     }, []);
 
@@ -263,7 +283,9 @@ export default function ProductDetail() {
                             <div className="detail-product-name-div">
                                 {/* 상품 이름 */}
                                 <div className="detail-product-name">{product.name}</div>
-                                <i className="bi bi-heart product-like"></i>
+                                <button onClick={() => favoriteToggle(product.productIdx)} style={{ border: "none", backgroundColor: "transparent" }}>
+                                    {favorite ? <i className="bi bi-heart-fill product-like"></i> : <i className="bi bi-heart product-like"></i>}
+                                </button>
                             </div>
                             <div className="detail-product-div-under">
                                 <div className="detail-price-review-div">
@@ -352,7 +374,7 @@ export default function ProductDetail() {
                                             {/* 대괄호 표기법으로 접근해야 접근이 가능 */}
                                             {productOption[selectOption]?.map((option) => (
                                                 <option key={option.optionId} value={option.optionId}>
-                                                    {option.color}
+                                                    {option.color} + {option.price.toLocaleString()}원
                                                 </option>
                                             ))}
                                         </select>
@@ -412,7 +434,14 @@ export default function ProductDetail() {
                                 </div>
                                 <div className="detail-order-button-div">
                                     <button className="detail-order-button go-cart">장바구니</button>
-                                    <button className="detail-order-button go-order">구매</button>
+                                    <button
+                                        onClick={() => {
+                                            navigate("/zipddak/productOrder");
+                                        }}
+                                        className="detail-order-button go-order"
+                                    >
+                                        구매
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -683,7 +712,7 @@ export default function ProductDetail() {
                                         </option>
                                         {productOption[selectOption2]?.map((option) => (
                                             <option key={option.optionId} value={option.optionId}>
-                                                {option.color}
+                                                {option.color} + {option.price.toLocaleString()}원
                                             </option>
                                         ))}
                                     </select>
@@ -736,11 +765,13 @@ export default function ProductDetail() {
                                     </div>
                                 </div>
                                 <div className="detail-order-button-div">
-                                    <button className="detail-bottom-order-heart">
-                                        <i className="bi bi-heart "></i>
+                                    <button onClick={() => favoriteToggle(product.productIdx)} className="detail-bottom-order-heart">
+                                        {favorite ? <i className="bi bi-heart-fill product-like"></i> : <i className="bi bi-heart product-like"></i>}
                                     </button>
                                     <button className="detail-order-button2 go-cart">장바구니</button>
-                                    <button className="detail-order-button2 go-order">구매</button>
+                                    <button onClick={() => navigate("/zipddak/productOrder")} className="detail-order-button2 go-order">
+                                        구매
+                                    </button>
                                 </div>
                             </div>
                         </div>
