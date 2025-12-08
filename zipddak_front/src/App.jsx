@@ -81,7 +81,7 @@ import Best from "./main/pages/Best.jsx";
 import SellerLayout from "./seller/pages/SellerLayout";
 import SellerHome from "./seller/pages/MainHome";
 import ProductRegist from "./seller/pages/ProductRegist";
-import SellerPdList from "./seller/pages/ProductList";
+import SellerPdList from "./seller/pages/ProductListSeller";
 import OrderList from "./seller/pages/OrderList";
 import ShippingList from "./seller/pages/ShippingList";
 import ReturnList from "./seller/pages/ReturnList";
@@ -102,7 +102,6 @@ import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
 
 function App() {
-
   return (
     <Routes>
       <Route path="/zipddak/*" element={<UserLayout />}>
@@ -118,8 +117,6 @@ function App() {
         <Route path="main" element={<Main />} />
         <Route path="search" element={<MainSearch />} />
         <Route path="best" element={<Best />} />
-        <Route path="market/return/:orderId" element={<MarketReturnForm />} />
-
 
         {/* 일반사용자 공구대여 */}
         <Route path="tool" element={<ToolMain />} />
@@ -148,7 +145,6 @@ function App() {
         <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
         <Route path="findExpert" element={<FindExpert />} />
 
-
         {/* 일반사용자 마이페이지 */}
         <Route path="mypage/*" element={<Mypage />}>
           <Route path="account" element={<Account />} />
@@ -161,12 +157,16 @@ function App() {
           <Route path="market/orders" element={<MarketOrders />} />
           <Route path="market/returns" element={<MarketReturns />} />
           <Route
-            path="market/detail/:orderId"
+            path="market/detail/:orderIdx"
             element={<MarketOrderDetail />}
           />
           <Route
-            path="market/exchange/:orderId"
+            path="market/exchange/:orderIdx"
             element={<MarketExchangeForm />}
+          />
+          <Route
+            path="market/return/:orderIdx"
+            element={<MarketReturnForm />}
           />
           <Route path="tool" element={<MyTool />} />
           <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
@@ -174,7 +174,6 @@ function App() {
           <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
         </Route>
       </Route>
-
 
       {/* 전문가 */}
       <Route path="/expert/*" element={<ExpertLayout />}>
@@ -198,7 +197,7 @@ function App() {
       <Route path="seller/*" element={<SellerLayout />}>
         <Route path="mainhome" element={<SellerHome />} />
         <Route path="productRegist" element={<ProductRegist />} />
-        <Route path="productList" element={<ProductList />} />
+        <Route path="productList" element={<SellerPdList />} />
         <Route path="orderList" element={<OrderList />} />
         <Route path="shippingList" element={<ShippingList />} />
         <Route path="returnList" element={<ReturnList />} />

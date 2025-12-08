@@ -1,6 +1,9 @@
-/* .cate_list {
+.delivery_method {
     display: flex;
-} */
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 5px;
+}
 
 .deli_frame,
 .pickup_frame,
@@ -14,13 +17,15 @@
     padding: 15px 10px;
     border: 1px solid var(--outerLine);
     border-radius: 5px;
+    margin-bottom: 5px;
 }
 
 .option_column {
     width: 100%;
     display: flex;
-    align-items: flex-start;
-    gap: 5px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
     height: auto;
 }
 .option_column:not(:first-child) {
@@ -28,24 +33,29 @@
     padding-top: 10px;
 }
 .optionHeader {
-    width: 30%;
-}
-.optionBody {
-    width: 70%;
+    width: 100%;
     display: flex;
-    /* align-items: flex-end; */
+    align-items: center;
+    gap: 5px;
 }
-
-.opt_subFrame {
-    width: 95%;
+.optionNameInput {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+}
+
+.optionBody {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
     flex: 1;
 }
+
 .optionBodyColumn {
     display: flex;
-    /* align-items: flex-end; */
+    align-items: center;
     gap: 5px;
 }
 
@@ -59,7 +69,7 @@
     flex-direction: column;
 }
 
-.small-category {
+.small_category {
     border-top: 1px solid var(--innerLine);
     margin-top: 5px;
     padding-top: 8px;

@@ -144,7 +144,7 @@ export default function OrderList() {
                             </Label>
                             <div className={detail.product_list}>
                                 <div className={table.tableBody}>
-                                    <table className={table.detail_view_Table}>
+                                    <table className={table.detail_table}>
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "5%" }}>

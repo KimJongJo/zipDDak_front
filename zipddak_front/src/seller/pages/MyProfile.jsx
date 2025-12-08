@@ -108,23 +108,6 @@ export default function MyProfile() {
                             </div>
                         </FormGroup>
 
-                        {/* 교환/반품 주소 */}
-                        <FormGroup className=" position-relative mb-4">
-                            <Label for="examplePassword" className="input_title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                                교환/반품 주소
-                                <button type="button" className="small-button">
-                                    <i className="bi bi-search"></i>
-                                </button>
-                            </Label>
-                            <div className="addr_column mb-2">
-                                <Input style={{ width: "30%" }} placeholder="우편번호" readOnly />
-                                <Input style={{ width: "70%" }} placeholder="도로명주소" readOnly />
-                            </div>
-                            <div className="addr_column ">
-                                <Input type="text" placeholder="상세주소를 입력하세요" />
-                            </div>
-                        </FormGroup>
-
                         {/* 배송비 */}
                         <FormGroup className="position-relative">
                             <Label for="examplePassword" className="input_title">
@@ -157,7 +140,7 @@ export default function MyProfile() {
                             <Input id="exampleText" type="textarea" />
                         </FormGroup>
                         <div className="btn_part">
-                            <button type="button" className="primary-button ">
+                            <button type="button" className="primary-button saveBtn">
                                 저장 <i className="bi bi-arrow-right-short"></i>
                             </button>
                         </div>

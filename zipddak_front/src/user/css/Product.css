@@ -24,16 +24,21 @@
     font-size: 24px;
     color: #ff5833;
     cursor: pointer;
+    border: none;
 }
 
 .product-info {
     width: 265px;
-    margin-top: 24px;
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .store-name {
     font-size: 12px;
     font-weight: 500;
+    margin-bottom: 4px;
 }
 
 .product-name {

@@ -164,8 +164,12 @@ table.list_table thead {
     border-bottom: 1px solid rgba(0, 0, 0, 0.8);
 }
 
-table th,
-table td {
+table.list_table th,
+table.list_table td,
+table.detail_table th,
+table.detail_table td,
+table.inquire_table th,
+table.inquire_table td {
     padding: 8px 10px;
     text-align: center;
 
@@ -186,9 +190,6 @@ table.list_table tbody tr:hover td:not(:has(img)) {
     cursor: pointer;
 }
 
-table.detail_view_Table thead {
-    border-top: 1px solid var(--innerLine);
-}
 /* tr.bundle_deli.bundle_last td {
     border-bottom: 1px solid #303441;
 } */

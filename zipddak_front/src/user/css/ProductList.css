@@ -12,25 +12,36 @@
     gap: 38px;
 }
 
-.search-bar {
+.productList-search-bar {
     display: flex;
     width: 620px;
     height: 45px;
     justify-content: center;
     border: 1px solid #f1f3f7;
     border-radius: 8px;
+
+    margin-top: 50px;
 }
 
-.search-input {
+.productList-search-input {
     outline: none !important;
     box-shadow: none !important;
     width: 560px;
     border: none;
+    height: 43px;
+    padding-left: 20px;
 }
 
-.search-btn {
+.productList-search-input:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.productList-search-btn {
     border: none;
     background-color: transparent;
+    padding-right: 20px;
+    font-size: 18px;
 }
 
 .cate-list {

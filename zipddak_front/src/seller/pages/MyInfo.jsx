@@ -162,7 +162,7 @@ export default function MyInfo() {
                             </FormGroup>
                         </div>
                         <div className="btn_part">
-                            <button type="button" className="primary-button ">
+                            <button type="button" className="primary-button saveBtn">
                                 저장 <i className="bi bi-arrow-right-short"></i>
                             </button>
                         </div>

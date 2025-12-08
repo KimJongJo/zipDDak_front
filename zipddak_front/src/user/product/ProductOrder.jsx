@@ -2,34 +2,31 @@ import "../css/ProductOrder.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { orderListAtom } from "./productAtom";
+import { baseUrl } from "../../config";
+import axios from "axios";
+import { Modal } from "reactstrap";
+import { Modal as AddrModal } from "antd";
+import DaumPostcode from "react-daum-postcode";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 
 export default function ProductOrder() {
-    const storeInfo = {
-        storeName: "자재업체이름",
-        qothd: "무료배송",
-    };
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
 
+    // 주문에 쓰일 데이터
+    const [orderData, setOrderData] = useState({});
+
+    const [orderList, setOrderList] = useAtom(orderListAtom);
+    const [options, setOptions] = useState({});
+
+    const [productInfo, setProductInfo] = useState([]);
+
+    // 총 상품 금액
+    const [productTotalPrice, setProductTotalPrice] = useState(0);
+    // 총 결제 금액
     const [totalPrice, setTotalPrice] = useState(0);
-
-    // 테스트 객체배열
-    const [productInfo, setProductInfo] = useState([
-        {
-            img: "/images/이미지테스트.png",
-            productName: "발트 라운드 수납 선반 다용도 주방 거실장",
-            size: "120x120x11700mm",
-            color: "화이트",
-            count: 1,
-            price: 456000,
-        },
-        {
-            img: "/images/이미지테스트.png",
-            productName: "발트 라운드 수납 선반 다용도 주방 거실장",
-            size: "120x120x11700mm",
-            color: "블랙",
-            count: 2,
-            price: 456000,
-        },
-    ]);
 
     const [user, setUser] = useState({
         name: "",
@@ -40,20 +37,34 @@ export default function ProductOrder() {
         sender: "",
         recvier: "",
         tel: "",
-        postCode: "",
-        address: "",
+        zonecode: "",
+        addr1: "",
         detailAddress: "",
         requestContent: "",
     });
 
-    const changeRecvUserInfo = (e) => {
+    //주소
+    const [isAddOpen, setIsAddOpen] = useState(false);
+
+    const complateHandler = (data) => {
+        console.log(data);
         setRecvUser({
-            ...user,
-            [e.target.name]: e.target.value,
+            ...recvUser,
+            zonecode: data.zonecode,
+            addr1: data.roadAddress || data.address,
         });
     };
 
-    // const [productInfo, setProductInfo] = useState([]);
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    };
+
+    const changeRecvUserInfo = (e) => {
+        setRecvUser({
+            ...recvUser,
+            [e.target.name]: e.target.value,
+        });
+    };
 
     // 수량 증가
     const increaseCount = (index) => {
@@ -71,12 +82,24 @@ export default function ProductOrder() {
     const decreaseCount = (index) => {
         setProductInfo((prev) => {
             const newArr = [...prev];
-            if (newArr[index].count > 1) {
+
+            // 배열 길이가 1이고, 해당 상품 수량이 1이면 아무 작업도 하지 않음
+            if (newArr.length === 1 && newArr[index].count === 1) {
+                setModal(true);
+                return newArr;
+            }
+
+            // 수량이 1이면 삭제
+            if (newArr[index].count === 1) {
+                newArr.splice(index, 1);
+            } else {
+                // 수량이 1보다 크면 1 감소
                 newArr[index] = {
                     ...newArr[index],
                     count: newArr[index].count - 1,
                 };
             }
+
             return newArr;
         });
     };
@@ -84,6 +107,11 @@ export default function ProductOrder() {
     // 구매 목록에서 상품 삭제
     // -> index 번째 상품을 삭제
     const removeProduct = (index) => {
+        if (productInfo.length <= 1) {
+            // 모달 오픈?
+            setModal(true);
+            return;
+        }
         setProductInfo((prev) =>
             // prev: 이전 productInfo 배열
             prev.filter(
@@ -97,20 +125,60 @@ export default function ProductOrder() {
 
     // 위와 동일하게 채우기 버튼 클릭 이벤트
     const sameInfo = () => {
-        setRecvUser({
-            recvier: user.name,
-            tel: user.tel,
-        });
+        setRecvUser({ ...recvUser, recvier: user.name, tel: user.tel });
     };
 
     useEffect(() => {
         let total = 0;
         productInfo.map((product) => {
-            total += product.count * product.price;
+            total += product.count * (product.price + options.salePrice);
         });
+        setProductTotalPrice(total);
+        total += options.postCharge;
 
         setTotalPrice(total);
     }, [productInfo]);
+
+    useEffect(() => {
+        if (orderList.length > 0) {
+            axios.post(`${baseUrl}/orderListProduct`, { orderList, username: "rlawhdwh" }).then((res) => {
+                console.log(res.data);
+                setOptions(res.data);
+                setProductInfo(res.data.orderList);
+                setUser({ name: res.data.userInfo.name, tel: res.data.userInfo.phone });
+            });
+        }
+    }, [orderList]);
+
+    // 토스 페이먼츠 결제 요청 시작
+    const requestTossPaymentApi = async () => {
+        const username = "rlawhdwh";
+
+        const res = await axios.post(`${baseUrl}/payment/product`, {
+            username: username,
+            productId: options.productId,
+            orderList: productInfo,
+            postCharge: options.postCharge,
+            recvUser: recvUser,
+        });
+
+        const { orderId, orderName, amount } = res.data;
+
+        const encodedOrderName = encodeURIComponent(orderName);
+
+        // 테스트 경우 클라이언트 키가 노출되어도 상관 없음
+        // 실제 운영하는 환경에서는 서버에서 clientKey를 내려주고 클라이언트 요청시 가져와서 사용
+        const tossPayments = await loadTossPayments("test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD");
+
+        await tossPayments.requestPayment({
+            method: "CARD",
+            amount: amount,
+            orderId: orderId,
+            orderName: orderName,
+            successUrl: `http://localhost:8080/payment/complate?productId=${options.productId}&orderName=${encodedOrderName}&username=${username}`, // 성공시 서버쪽으로 보냄
+            failUrl: "http://localhost:5173/zipddak/productOrder",
+        });
+    };
 
     return (
         <div className="body-div">
@@ -124,22 +192,23 @@ export default function ProductOrder() {
                                 <span className="product-order-check-span">주문 상품</span>
                                 {/* 업체이름 div */}
                                 <div className="product-order-check-store-div">
-                                    <span className="font-15">{storeInfo.storeName}</span>
-                                    <span className="font-15">{storeInfo.qothd}</span>
+                                    <span className="font-15">{options.brandName}</span>
+                                    {options.postCharge !== 0 ? <span className="font-15">배송비: {options.postCharge?.toLocaleString()}원</span> : <span className="font-15">무료배송</span>}
                                 </div>
                                 {/* 상품 정보 */}
                                 {/* 구매 목록 반복문으로 돌림 */}
-                                {productInfo.map((product, index) => (
-                                    <div className="product-order-check-detail" key={index}>
+                                {/* 가져온 옵션 데이터에 orderList가 있고, 그게 1 이상일대 */}
+                                {productInfo.map((option, index) => (
+                                    <div className="product-order-check-detail" key={option.optionId}>
                                         <div className="product-order-check-img-div">
-                                            <img className="product-order-check-img" src={product.img} />
+                                            <img className="product-order-check-img" src={options.img} />
                                         </div>
 
                                         <div className="product-order-check-buy-info">
                                             <div className="product-order-check-info">
-                                                <span className="font-16">{product.productName}</span>
+                                                <span className="font-16">{options.productName}</span>
                                                 <span className="font-14">
-                                                    {product.size} / {product.color}
+                                                    {option.name} / {option.value}
                                                 </span>
 
                                                 {/* 개수 조절 */}
@@ -148,7 +217,7 @@ export default function ProductOrder() {
                                                         <i className="bi bi-dash-lg append-button-son"></i>
                                                     </button>
 
-                                                    <span className="font-14">{product.count}</span>
+                                                    <span className="font-14">{option.count}</span>
 
                                                     <button className="count-button-style" onClick={() => increaseCount(index)}>
                                                         <i className="bi bi-plus-lg append-button-son"></i>
@@ -162,7 +231,7 @@ export default function ProductOrder() {
                                                     <i className="bi bi-x-lg detail-x-button"></i>
                                                 </button>
                                                 <span className="font-14">
-                                                    {(product.price * product.count).toLocaleString()}
+                                                    {((option.price + options.salePrice) * option.count).toLocaleString()}
                                                     <span>원</span>
                                                 </span>
                                             </div>
@@ -182,7 +251,7 @@ export default function ProductOrder() {
                                                     <span className="font-15">이름</span>
                                                 </td>
                                                 <td>
-                                                    <Input className="product-order-check-input font-15" onChange={(e) => setUser({ ...user, name: e.target.value })} />
+                                                    <Input value={user.name} className="product-order-check-input font-15" onChange={(e) => setUser({ ...user, name: e.target.value })} />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -215,6 +284,7 @@ export default function ProductOrder() {
                                                     <div className="product-order-check-input-tel-div">
                                                         <Input className="product-order-check-input-tel-first font-15" value={"010"} readOnly />
                                                         <Input
+                                                            value={user.tel || ""}
                                                             onChange={(e) => setUser({ ...user, tel: e.target.value })}
                                                             maxLength={8}
                                                             className="product-order-check-input-tel-second font-15"
@@ -265,7 +335,7 @@ export default function ProductOrder() {
                                                         <Input
                                                             name="tel"
                                                             onChange={changeRecvUserInfo}
-                                                            value={recvUser.tel}
+                                                            value={recvUser.tel || ""}
                                                             maxLength={8}
                                                             className="product-order-check-input-tel-second font-15"
                                                             type="tel"
@@ -279,15 +349,17 @@ export default function ProductOrder() {
                                                 </td>
                                                 <td>
                                                     <div className="product-order-check-input-address-button-div">
-                                                        <button className="product-order-check-input-address-button">찾기</button>
-                                                        <Input name="postCode" onChange={changeRecvUserInfo} className="product-order-check-input-address-input font-15" />
+                                                        <button className="product-order-check-input-address-button" onClick={() => setIsAddOpen(!isAddOpen)}>
+                                                            찾기
+                                                        </button>
+                                                        <Input readOnly value={recvUser.zonecode || ""} name="postCode" className="product-order-check-input-address-input font-15" />
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    <Input name="address" onChange={changeRecvUserInfo} className="product-order-check-input-address font-15" />
+                                                    <Input readOnly value={recvUser.addr1 || ""} name="address" className="product-order-check-input-address font-15" />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -328,11 +400,11 @@ export default function ProductOrder() {
                                     <span className="font-16 semibold">결제금액</span>
                                     <div className="product-order-form-second">
                                         <span className="font-15">총 상품 금액</span>
-                                        <span className="font-14">{totalPrice.toLocaleString()}원</span>
+                                        <span className="font-14">{productTotalPrice.toLocaleString()}원</span>
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-15">배송비</span>
-                                        <span className="font-14">0원</span>
+                                        <span className="font-14">{options.postCharge?.toLocaleString()}원</span>
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-16 semibold">최종 결제 금액</span>
@@ -350,11 +422,31 @@ export default function ProductOrder() {
                                     </div>
                                 </div>
                             </div>
-                            <button className="product-order-from-bottom-button font-16 semibold">{totalPrice.toLocaleString()}원 결제하기</button>
+                            <button onClick={requestTossPaymentApi} className="product-order-from-bottom-button font-16 semibold">
+                                {totalPrice.toLocaleString()}원 결제하기
+                            </button>
                         </div>
                     </div>
+
+                    <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                        <div className="ask-modal-body">
+                            <div>한 개 이상의 상품을 선택해야 주문할 수 있습니다.</div>
+
+                            <div className="ask-modal-body-button-div">
+                                <button className="ask-modal-write ask-modal-button" type="button" onClick={toggle}>
+                                    확인
+                                </button>
+                            </div>
+                        </div>
+                    </Modal>
                 </div>
             </div>
+
+            {isAddOpen && (
+                <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
+                </AddrModal>
+            )}
         </div>
     );
 }
