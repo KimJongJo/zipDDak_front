@@ -83,7 +83,7 @@ body {
 /* 쳌박, 라디오 + 라벨 일자정렬 */
 .form-check-label {
   display: flex;
-  /* align-items: center; */
+  align-items: center;
   align-items: flex-end;
   gap: 8px;
 }

@@ -1,7 +1,7 @@
-body {
-    font-family: pretendard;
+.signUp-box {
+    width: 1200px;
+    padding: 0 16px;
     font-size: 14px;
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -59,11 +59,11 @@ body {
 .s_bodybox {
     width: 740px;
     height: 140px;
-    padding: 12px 25px;
+    padding: 20px 25px;
     background-color: #F7F8FA;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .sns_login {
@@ -75,28 +75,42 @@ body {
     height: 50px;
     display: flex;
     border-bottom: 2px solid #dee2e6;
-    margin-bottom: 20px;
+    margin: 30px 0;
 }
 
 .tab_nav {
     padding: 14px 20px;
-    font-family: "Pretendard Variable Semibold";
     font-size: 15px;
-    border-bottom: 2px solid #303441;
+    font-weight: 600;
+    color: #667085;
+    cursor: pointer;
 }
 
-.input_form,
+.tab_nav.active,
+.tab_nav:active,
+.tab_nav:hover {
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #303441;
+    border-bottom: 2px solid #303441;
+    cursor: pointer;
+}
+
+.input_form
+ {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.tab1,
 .tab2 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.tab1 {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: 30px;
 }
 
@@ -133,7 +147,8 @@ body {
     font-size: 19px;
     display: flex;
     align-items: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: 40px;
+   
 }
 
 .title2 {
@@ -154,16 +169,16 @@ body {
     color: #667085;
 }
 
-.sns_icon {
+.sns_icons {
     display: flex;
     align-items: center;
     gap: 20px;
+    cursor: pointer;
 }
 
 .input_post {
     display: flex;
     align-items: center;
-    width: 250px;
     height: 45px;
     gap: 12px;
 }
@@ -178,12 +193,14 @@ body {
 
 .condition_box,
 .experts_category {
+    width: 100%;
     border: 1px solid #dee2e6;
     border-radius: 6px;
     padding: 18px 12px;
 }
 
 .ecategory_part {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -212,7 +229,14 @@ body {
 }
 
 .mainButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 30px 0;
+}
+
+.signStroeMainBottom {
+    width: 100%;
 }
 
 .loginFooter {
@@ -220,10 +244,18 @@ body {
     justify-content: center;
     align-items: center;
     gap: 10px;
+    margin-top: 40px;
 }
 
 .s_bigInfo {
+    display: flex;
+    gap: 10px;
     margin: 20px 0;
+}
+
+.completeStore3 {
+    align-items: center;
+    justify-content: center;
 }
 
 .s_form {
@@ -284,6 +316,10 @@ body {
 
 .s_input {
     width: 300px;
+}
+
+.sl_input {
+    width: 400px;
 }
 
 .s_check {
@@ -350,5 +386,43 @@ textarea.form-control {
 .condition-check {
     display: flex;
     align-items: center;
+    gap: 10px;
+}
+
+.long-button {
+    width: 100%;
+}
+
+.necc_stroe {
+    margin-top: 10px;
+}
+
+.expca {
+    gap: 8px;
+}
+
+.code-box {
+    width: 50% !important;
+}
+
+.loginStep {
+    margin-top: 10px;
+}
+
+.storebottom {
+    width: 340px;
+}
+
+.phoneauthInput {
+    width: 400px;
+}
+
+.sll_input {
+    width: 800px;
+}
+
+.categoryCheck-box {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
 }
