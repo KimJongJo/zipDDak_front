@@ -67,6 +67,7 @@
 }
 .totalSearchBox .searchInput {
     width: 210px;
+    height: 35px;
 }
 
 .tableBody {

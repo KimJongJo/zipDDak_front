@@ -2,14 +2,90 @@
 import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
-
+// library
+import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
-import Tippy from "@tippyjs/react";
-
 import { useState, useEffect, useRef } from "react";
+import { myAxios } from "../../config/config.jsx";
 
 export default function ProductList() {
     const pageTitle = usePageTitle("상품 조회 리스트");
+    const navigate = useNavigate();
+
+    const [myProductList, setMyProductList] = useState([]);
+    const [pageBtn, setPageBtn] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
+    const [keyword, setKeyword] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState([]);
+
+    //(필터) 셀러가 등록한 상품의 카테고리만 출력
+    const [categories, setCategories] = useState([]);
+    const [categoryMap, setCategoryMap] = useState({}); //리스트에 매핑할 카테고리Map
+    useEffect(() => {
+        myAxios()
+            // .get(`/seller/product/categories?sellerId=${sellerId}`)
+            .get(`/seller/product/categories?sellerId=test`)
+            .then((res) => {
+                setCategories(res.data); // 필터에 카테고리명 매핑
+
+                // categories를 이용한 categoryMap 생성
+                const map = Object.fromEntries(res.data.map((c) => [c.categoryIdx, c.name]));
+                setCategoryMap(map);
+            })
+            .catch((err) => console.error(err));
+    }, []);
+
+    //(필터) 카테고리 선택
+    const onChangeCategory = (e) => {
+        const value = e.target.value;
+
+        // 전체 선택일 경우
+        if (value === "all") {
+            setSelectedCategory([]);
+            return;
+        }
+
+        if (e.target.checked) {
+            setSelectedCategory((prev) => [...prev, value]);
+        } else {
+            setSelectedCategory((prev) => prev.filter((v) => v !== value));
+        }
+    };
+
+    const submit = (page) => {
+        const productListUrl = `/seller/product/myProductList?sellerId=test&page=${page}&category=${selectedCategory}&keyword=${keyword}`;
+        myAxios()
+            .get(productListUrl)
+            .then((res) => {
+                console.log(res.data);
+                return res.data;
+            })
+            .then((data) => {
+                setMyProductList(data.myproductsList);
+
+                const pageData = {
+                    curPage: data.curPage,
+                    allPage: data.allPage,
+                    startPage: data.startPage,
+                    endPage: data.endPage,
+                };
+                setPageInfo(pageData);
+
+                // 페이지 버튼 생성
+                let pageBtns = [];
+                for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+                    pageBtns.push(i);
+                }
+                setPageBtn(pageBtns);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    useEffect(() => {
+        submit(1);
+    }, []);
 
     return (
         <>
@@ -59,78 +135,23 @@ export default function ProductList() {
                                 <div className={table.filterColumn}>
                                     <div className={table.filterTitle}>카테고리</div>
                                     <div className={table.filterBody}>
+                                        {/* 전체 체크박스 */}
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="all" />
                                                 전체
                                             </Label>
                                         </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                주방
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                욕실
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                중문 / 도어
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                폴딩도어
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                벽지 / 장판 / 마루
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                타일
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                시트 / 필름
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                스위치 / 콘센트
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                커튼 블라인드
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                페인트
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                조명
-                                            </Label>
-                                        </FormGroup>
+
+                                        {/* DB에서 받아온 카테고리만 렌더링 */}
+                                        {categories.map((c) => (
+                                            <FormGroup check inline key={c.categoryIdx}>
+                                                <Label check>
+                                                    <Input type="checkbox" value={c.categoryIdx} onChange={onChangeCategory} />
+                                                    {c.name}
+                                                </Label>
+                                            </FormGroup>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -140,14 +161,14 @@ export default function ProductList() {
                                 <div>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
-                                            <button type="button" className="small-button">
+                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
+                                            <button type="button" className="small-button" onClick={() => submit(1)}>
                                                 검색
                                             </button>
                                         </div>
                                         <div className="btn_part">
-                                            <button type="button" className="primary-button ">
-                                                <i class="bi bi-plus-square"></i> 상품 등록
+                                            <button type="button" className="primary-button" onClick={() => navigate("/seller/productRegist")}>
+                                                <i className="bi bi-plus-square"></i> 상품 등록
                                             </button>
                                         </div>
                                     </div>
@@ -156,8 +177,7 @@ export default function ProductList() {
                                             <thead>
                                                 <tr>
                                                     <th style={{ width: "5%" }}>Img</th>
-                                                    <th style={{ width: "30%" }}>상품명</th>
-                                                    <th style={{ width: "10%" }}>상품코드</th>
+                                                    <th style={{ width: "35%" }}>상품명</th>
                                                     <th style={{ width: "10%" }}>카테고리</th>
                                                     <th style={{ width: "10%" }}>판매가</th>
                                                     <th style={{ width: "10%" }}>리뷰수</th>
@@ -167,33 +187,37 @@ export default function ProductList() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td style={{ padding: "0" }}>
-                                                        <img src="/no_img.svg" style={{ width: "100%" }} />
-                                                    </td>
-                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                    <td>P123456</td>
-                                                    <td>주방 &gt; 소분류</td>
-                                                    <td className={table.price_cell}>12,300</td>
-                                                    <td>100</td>
-                                                    <td>4.5</td>
-                                                    <td>[판매중]</td>
-                                                    <td>2025-11-07</td>
-                                                </tr>
+                                                {myProductList.map((myProduct) => (
+                                                    <tr key={myProduct.productIdx} onClick={() => navigate(`/productDetail/${myProduct.productIdx}`)}>
+                                                        <td style={{ padding: "0" }}>
+                                                            <img src="/no_img.svg" style={{ width: "100%" }} />
+                                                        </td>
+                                                        <td className={table.title_cell}> {myProduct.name}</td>
+                                                        <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
+                                                        <td>{myProduct.price}</td>
+                                                        <td>리뷰수</td>
+                                                        <td>리뷰평점</td>
+                                                        <td>{myProduct.visibleYn ? "판매중" : "비공개"}</td>
+                                                        <td>{myProduct.createdAt}</td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
+
                                 <div className="pagination_part">
                                     <Pagination className={table.pagination}>
-                                        <PaginationItem active>
-                                            <PaginationLink>1</PaginationLink>
-                                        </PaginationItem>
                                         <PaginationItem>
-                                            <PaginationLink>2</PaginationLink>
+                                            <PaginationLink previous onClick={() => submit(pageInfo.curPage - 1)} />
                                         </PaginationItem>
+                                        {pageBtn.map((p) => (
+                                            <PaginationItem key={p} active={pageInfo.curPage == p}>
+                                                <PaginationLink onClick={() => submit(p)}>{p}</PaginationLink>
+                                            </PaginationItem>
+                                        ))}
                                         <PaginationItem>
-                                            <PaginationLink>3</PaginationLink>
+                                            <PaginationLink next onClick={() => submit(pageInfo.curPage + 1)} />
                                         </PaginationItem>
                                     </Pagination>
                                 </div>

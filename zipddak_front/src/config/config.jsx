@@ -31,7 +31,7 @@ export const myAxios = (token, setToken) => {
                 }
             }
             return Promise.reject(error);
-        }
+        },
     );
 
     //토큰이 있으면 헤더에 토큰을 삽입하여 요청
