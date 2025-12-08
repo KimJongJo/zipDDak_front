@@ -185,7 +185,7 @@ function App() {
           <Route path="works" element={<ExpertMyWorks />} />
           <Route path="requests" element={<Requests />} />
           <Route path="inquiries" element={<ExpertInquiries />} />
-          <Route path="inquiries/wrtie" element={<ExpertInquiryForm />} />
+          <Route path="inquiries/write" element={<ExpertInquiryForm />} />
           <Route path="community" element={<ExpertCommunity />} />
           <Route path="account" element={<ExpertAccount />} />
           <Route path="settlement" element={<Settlement />} />
