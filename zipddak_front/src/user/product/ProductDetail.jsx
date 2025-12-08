@@ -16,6 +16,9 @@ export default function ProductDetail() {
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
 
+    const [cartModal, setCartModal] = useState(false);
+    const cartToggle = () => setCartModal(!cartModal);
+
     const [inquiries, setInquiries] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [avgScore, setAvgScore] = useState(0);
@@ -198,6 +201,14 @@ export default function ProductDetail() {
         // item.ref.current?.scrollIntoView({ behavior: "auto", block: "start" });
         const top = item.ref.current.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({ top: top, behavior: "instant" });
+    };
+
+    // 장바구니에 담기
+    const addCart = () => {
+        console.log(orderList);
+        axios.post(`${baseUrl}/addCart`, { orderListDto: orderList, username: "rlawhdwh" }).then((res) => {
+            setCartModal(true);
+        });
     };
 
     useEffect(() => {
@@ -433,7 +444,9 @@ export default function ProductDetail() {
                                     <div className="font-14">안내 : 상품이 발송되면 송장번호를 마이페이지에서 확인하실 수 있습니다.</div>
                                 </div>
                                 <div className="detail-order-button-div">
-                                    <button className="detail-order-button go-cart">장바구니</button>
+                                    <button onClick={addCart} className="detail-order-button go-cart">
+                                        장바구니
+                                    </button>
                                     <button
                                         onClick={() => {
                                             navigate("/zipddak/productOrder");
@@ -773,6 +786,20 @@ export default function ProductDetail() {
                                         구매
                                     </button>
                                 </div>
+
+                                <Modal className="ask-modal-box" isOpen={cartModal} toggle={cartToggle}>
+                                    <div className="ask-modal-body">
+                                        <div>장바구니에 추가되었습니다.</div>
+                                        <div className="ask-modal-body-button-div">
+                                            <button className="ask-modal-back ask-modal-button" type="button" onClick={cartToggle}>
+                                                확인
+                                            </button>
+                                            <button className="ask-modal-write ask-modal-button" type="button" onClick={() => navigate("/zipddak/cart")}>
+                                                장바구니
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Modal>
                             </div>
                         </div>
                     </div>
