@@ -1,7 +1,7 @@
 //css
 import "../css/settings.module.css";
 //js
-import imageUploadFunc from "../js/imgUpload_func.jsx";
+import useImgUpload from "../js/useImgUpload.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";

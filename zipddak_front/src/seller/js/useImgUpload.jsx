@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export default function imageUploadFunc(options = {}) {
+export default function useImgUpload(options = {}) {
     const { maxAddImages = 5, maxDetailImages = 2, maxSizeMB = 5 } = options;
 
     const thumbRef = useRef(null);

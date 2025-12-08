@@ -64,6 +64,7 @@ export function menu_data(menu, openMenu, toggleMenu, setOpenMenu) {
 
     return (
         <li
+            key={menu.key}
             className={`dropdown ${openMenu === menu.key ? "open" : ""}`}
             onClick={(e) => {
                 e.stopPropagation();
@@ -84,7 +85,7 @@ export function menu_data(menu, openMenu, toggleMenu, setOpenMenu) {
                 {menu.items.map((item, idx) => (
                     <li
                         className="dropdown_menu1"
-                        key={idx}
+                        key={item.label}
                         onClick={() => setOpenMenu(null)} // 소메뉴 클릭하면 닫힘
                     >
                         <a href={item.href}>
