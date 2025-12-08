@@ -15,8 +15,6 @@ export default function ProductList() {
     const [myProductList, setMyProductList] = useState([]);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
-    const [keyword, setKeyword] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState([]);
 
     //(필터) 셀러가 등록한 상품의 카테고리만 출력
     const [categories, setCategories] = useState([]);
@@ -35,32 +33,34 @@ export default function ProductList() {
             .catch((err) => console.error(err));
     }, []);
 
-    //(필터) 카테고리 선택
+    // 필터 상태값
+    const [selectedCategory, setSelectedCategory] = useState([]);
+    const [keyword, setKeyword] = useState("");
+
+    // (필터) 카테고리 선택
     const onChangeCategory = (e) => {
         const value = e.target.value;
-
-        // 전체 선택일 경우
         if (value === "all") {
+            // 전체 체크 시 선택 초기화
             setSelectedCategory([]);
             return;
         }
-
         if (e.target.checked) {
-            setSelectedCategory((prev) => [...prev, value]);
+            setSelectedCategory((prev) => [...prev, Number(value)]);
         } else {
-            setSelectedCategory((prev) => prev.filter((v) => v !== value));
+            setSelectedCategory((prev) => prev.filter((v) => v !== Number(value)));
         }
     };
 
-    const submit = (page) => {
-        const productListUrl = `/seller/product/myProductList?sellerId=test&page=${page}&category=${selectedCategory}&keyword=${keyword}`;
+    // 검색/페이징 공통 함수
+    const submit = (page = 1) => {
+        const productListUrl = `/seller/product/myProductList` + `?sellerId=test` + `&page=${page}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
+
         myAxios()
             .get(productListUrl)
             .then((res) => {
-                console.log(res.data);
-                return res.data;
-            })
-            .then((data) => {
+                const data = res.data;
+
                 setMyProductList(data.myproductsList);
 
                 const pageData = {
@@ -71,21 +71,24 @@ export default function ProductList() {
                 };
                 setPageInfo(pageData);
 
-                // 페이지 버튼 생성
-                let pageBtns = [];
+                const btns = [];
                 for (let i = pageData.startPage; i <= pageData.endPage; i++) {
-                    pageBtns.push(i);
+                    btns.push(i);
                 }
-                setPageBtn(pageBtns);
+                setPageBtn(btns);
             })
-            .catch((err) => {
-                console.log(err);
-            });
+            .catch((err) => console.log(err));
     };
 
+    // 최초 1회 로딩
     useEffect(() => {
         submit(1);
     }, []);
+
+    // 필터 변경 시 자동 submit
+    useEffect(() => {
+        submit(1);
+    }, [selectedCategory]);
 
     return (
         <>

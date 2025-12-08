@@ -218,6 +218,10 @@ tr.single_deli:not(:has(+ tr.single_deli)) td {
     border-bottom: 1px solid #303441;
 }
 
+table.list_table tbody tr:hover td.noData:not(:has(img)) {
+    background-color: transparent;
+    cursor: default;
+}
 /* ****************************************
     페이지네이션 
 ***************************************** */
