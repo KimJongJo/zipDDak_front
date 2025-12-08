@@ -1,20 +1,127 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import DaumPostcode from "react-daum-postcode";
 import { Input, Modal, ModalBody } from "reactstrap";
 
 export default function MarketExchangeForm() {
-  const { orderId } = useParams();
+  const { orderIdx } = useParams();
   const { state } = useLocation();
-  console.log(state.selectedProductIds);
 
-  const [modal, setModal] = useState(false);
+  const [order, setOrder] = useState({});
+  const [deliveryGroups, setDeliveryGroups] = useState([]);
+  const [options, setOptions] = useState({});
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // 주소 | 안내
+
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
+
+  const [reasonType, setReasonType] = useState("");
+  const [reasonDetail, setReasonDetail] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [shippingChargeType, setShippingChargeType] = useState("");
+  const [roundShippingFee, setRoundShippingFee] = useState(0);
+  const [reshipName, setReshipName] = useState("");
+  const [reshipPhone, setReshipPhone] = useState("");
+  const [reshipZipcode, setReshipZipcode] = useState("");
+  const [reshipAddr1, setReshipAddr1] = useState("");
+  const [reshipAddr2, setReshipAddr2] = useState("");
+  const [reshipPostMemo, setReshipPostMemo] = useState("");
 
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
+  const customerFaultReasons = [
+    "규격/사이즈가 현장 조건과 맞지 않음",
+    "색상 또는 옵션을 잘못 선택함",
+    "필요한 사이즈/길이/두께를 잘못 선택함",
+  ];
+
+  // 주문 상세 조회
+  const getOrder = () => {
+    axios
+      .get("http://localhost:8080" + `/market/orderInfo?orderIdx=${orderIdx}`)
+      .then((res) => {
+        setOrder(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 상품옵션 목록 조회
+  const getOptions = (productIdx) => {
+    axios
+      .get(
+        "http://localhost:8080" +
+          `/market/product/options?productIdx=${productIdx}`
+      )
+      .then((res) => {
+        setOptions((prev) => ({
+          ...prev,
+          [productIdx]: res.data,
+        }));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 교환 신청
+  const submitExchange = () => {
+    const formData = new FormData();
+
+    const exchangeItems = Object.entries(selectedOptions).map(
+      ([orderItemIdx, newOptionIdx]) => ({
+        orderItemIdx: Number(orderItemIdx),
+        newOptionIdx: Number(newOptionIdx),
+      })
+    );
+
+    const exchangeRequest = {
+      orderIdx,
+      reasonType,
+      reasonDetail,
+      shippingChargeType,
+      roundShippingFee,
+      reshipName,
+      reshipPhone,
+      reshipZipcode,
+      reshipAddr1,
+      reshipAddr2,
+      reshipPostMemo,
+      exchangeItems,
+    };
+    formData.append(
+      "exchangeRequest",
+      new Blob([JSON.stringify(exchangeRequest)], { type: "application/json" })
+    );
+
+    // 파일 업로드
+    files.forEach((file) => {
+      formData.append("exchangeImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/market/exchange", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          setModalType("안내");
+          setIsModalOpen(true);
+
+          setTimeout(() => {
+            navigate("/zipddak/mypage/market/orders");
+          }, 1500);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 교환사유 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -23,121 +130,45 @@ export default function MarketExchangeForm() {
     setFiles((prev) => [...prev, file]);
   };
 
+  // 다음 주소 검색 완료
   const handleComplate = (data) => {
     let { zonecode, address } = data;
-    // setUser({ ...user, postcode: zonecode, address1: address });
+    setReshipZipcode(zonecode);
+    setReshipAddr1(address);
   };
 
+  // 다음 주소 모달 닫기
   const handleClose = (state) => {
-    if (state == "COMPLETE_CLOSE") setModal(false);
+    if (state == "COMPLETE_CLOSE") setIsModalOpen(false);
   };
 
-  const order = {
-    orderId: "ORDER-20250928-5576",
-    orderDate: "2025-09-28",
+  useEffect(() => {
+    getOrder();
 
-    deliveryGroups: [
-      {
-        brandName: "브랜드A",
-        deliveryType: "택배배송",
-        deliveryFeeType: "COMBINED",
-        deliveryFeePrice: 4000,
-        appliedDeliveryFee: 4000,
+    if (state) {
+      setDeliveryGroups(state.deliveryGroups.deliveryGroups);
+    }
+  }, []);
 
-        items: [
-          {
-            productId: "PRD-001",
-            productName: "상품명이 들어갑니다",
-            optionName: "블랙 / 1개입",
-            quantity: 1,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: "화이트 / 1개입", // 교환 희망 옵션
-          },
-          {
-            productId: "PRD-002",
-            productName: "상품명이 들어갑니다",
-            optionName: "그레이 / 1개입",
-            quantity: 1,
-            price: 245000,
-            thumbnail: "https://via.placeholder.com/100",
-            orderStatus: "배송완료",
-            reviewAvailable: false,
-            exchangeOption: "블루 / 1개입",
-          },
-        ],
-      },
-    ],
+  // 왕복배송비 계산
+  useEffect(() => {
+    if (!reasonType) return;
 
-    reasonCode: "WRONG_OPTION",
-    reasonDetail: "주문 시 옵션을 잘못 선택하여 교환 요청합니다.",
+    let shippingFee = 0;
+    setShippingChargeType("SELLER");
 
-    reasonImage1: "https://via.placeholder.com/120",
-    reasonImage2: null,
-    reasonImage3: null,
-    reasonImage4: null,
-    reasonImage5: null,
+    // 고객 귀책이면 배송비 부과
+    if (customerFaultReasons.includes(reasonType)) {
+      setShippingChargeType("BUYER");
+      deliveryGroups.forEach((group) => {
+        if (group.deliveryType === "post") {
+          shippingFee += group.appliedDeliveryFee;
+        }
+      });
+    }
 
-    receiverName: "홍길동",
-    receiverPhone: "010-1234-5678",
-    receiverAddress1: "서울특별시 강남구 테헤란로 120",
-    receiverAddress2: "101동 1001호",
-
-    shippingPayer: "BUYER",
-    roundTripShippingFee: 6000,
-
-    pickupReceiverName: "홍길동",
-    pickupReceiverPhone: "010-1234-5678",
-    pickupPostcode: "06236",
-    pickupAddress1: "서울시 강남구 테헤란로 120",
-    pickupAddress2: "101동 1001호",
-    pickupMessage: "문 앞에 놓아두셔도 됩니다.",
-  };
-  const options = [
-    {
-      productId: "PRD-001",
-      options: [
-        {
-          optionId: "OPT-001-1",
-          optionName: "블랙 / 1개입",
-          additionalPrice: 0,
-        },
-        {
-          optionId: "OPT-001-2",
-          optionName: "화이트 / 1개입",
-          additionalPrice: 0,
-        },
-        {
-          optionId: "OPT-001-3",
-          optionName: "블루 / 1개입",
-          additionalPrice: 2000,
-        },
-      ],
-    },
-
-    {
-      productId: "PRD-002",
-      options: [
-        {
-          optionId: "OPT-002-1",
-          optionName: "그레이 / 1개입",
-          additionalPrice: 0,
-        },
-        {
-          optionId: "OPT-002-2",
-          optionName: "블루 / 1개입",
-          additionalPrice: 1000,
-        },
-        {
-          optionId: "OPT-002-3",
-          optionName: "레드 / 1개입",
-          additionalPrice: 1000,
-        },
-      ],
-    },
-  ];
+    setRoundShippingFee(shippingFee);
+  }, [reasonType]);
 
   return (
     <div className="mypage-layout">
@@ -166,7 +197,7 @@ export default function MarketExchangeForm() {
                 fontWeight: "600",
               }}
             >
-              {order.orderId}
+              {order.orderCode}
             </span>
           </p>
           <p>
@@ -176,7 +207,7 @@ export default function MarketExchangeForm() {
                 fontWeight: "600",
               }}
             >
-              {order.orderDate.slice(0, 10)}
+              {order.createdAt}
             </span>
           </p>
         </div>
@@ -209,15 +240,15 @@ export default function MarketExchangeForm() {
             </tr>
           </thead>
           <tbody>
-            {order.deliveryGroups.map((group, gidx) => (
+            {deliveryGroups.map((group, gidx) => (
               <>
-                {group.items.map((item, idx) => (
+                {group.orderItems.map((item, idx) => (
                   <tr
                     style={
-                      gidx === order.deliveryGroups.length - 1 &&
-                      idx === group.items.length - 1
+                      gidx === deliveryGroups.length - 1 &&
+                      idx === group.orderItems.length - 1
                         ? { borderBottom: "1px solid rgba(0, 0, 0, 0.60)" }
-                        : idx === group.items.length - 1
+                        : idx === group.orderItems.length - 1
                         ? {}
                         : { borderBottom: "none" }
                     }
@@ -236,7 +267,8 @@ export default function MarketExchangeForm() {
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "flex-start",
-                            gap: "6px",
+                            textAlign: "left",
+                            gap: "4px",
                             width: "100%",
                           }}
                         >
@@ -266,19 +298,37 @@ export default function MarketExchangeForm() {
                       </div>
                     </td>
                     <td style={{ padding: "0 10px" }}>
-                      <Input type="select" size="sm" required>
-                        <option value="" disabled selected hidden>
+                      <Input
+                        type="select"
+                        size="sm"
+                        required
+                        value={selectedOptions[item.orderItemIdx] || ""}
+                        onChange={(e) => {
+                          setSelectedOptions((prev) => ({
+                            ...prev,
+                            [item.orderItemIdx]: e.target.value,
+                          }));
+                        }}
+                        style={{
+                          height: "36px",
+                        }}
+                        onClick={() => {
+                          getOptions(item.productIdx);
+                        }}
+                      >
+                        <option value="" disabled hidden>
                           옵션 선택
                         </option>
-                        {(
-                          options.find(
-                            (opt) => opt.productId === item.productId
-                          )?.options || []
-                        ).map((opt) => (
-                          <option key={opt.optionId} value={opt.optionId}>
-                            {opt.optionName}
-                            {opt.additionalPrice > 0 &&
-                              ` (+${opt.additionalPrice.toLocaleString()}원)`}
+                        {options[item.productIdx]?.map((opt) => (
+                          <option
+                            key={opt.productOptionIdx}
+                            value={opt.productOptionIdx}
+                          >
+                            {opt.name} - {opt.value}
+                            {opt.price > item.price &&
+                              ` (+${(
+                                item.price - opt.price
+                              ).toLocaleString()}원)`}
                           </option>
                         ))}
                       </Input>
@@ -292,20 +342,39 @@ export default function MarketExchangeForm() {
                     </td>
                     {idx === 0 && (
                       <td
-                        rowSpan={group.items.length}
+                        rowSpan={group.orderItems.length}
                         style={{
                           fontWeight: "500",
                         }}
                       >
-                        <p>{group.deliveryType}</p>
-                        {group.deliveryFee !== 0 && (
+                        {group.deliveryType !== "pickup" ? (
+                          group.appliedDeliveryFee !== 0 ? (
+                            <p
+                              style={{
+                                fontWeight: "600",
+                              }}
+                            >
+                              {Number(
+                                group.appliedDeliveryFee
+                              ).toLocaleString()}
+                              원
+                            </p>
+                          ) : (
+                            <p
+                              style={{
+                                fontWeight: "600",
+                              }}
+                            >
+                              무료배송
+                            </p>
+                          )
+                        ) : (
                           <p
                             style={{
                               fontWeight: "600",
-                              marginTop: "4px",
                             }}
                           >
-                            {Number(group.deliveryFee).toLocaleString()}원
+                            직접픽업
                           </p>
                         )}
                       </td>
@@ -330,7 +399,11 @@ export default function MarketExchangeForm() {
               gap: "8px",
             }}
           >
-            <Input type="select" required>
+            <Input
+              type="select"
+              required
+              onChange={(e) => setReasonType(e.target.value)}
+            >
               <option value="" disabled selected hidden>
                 사유를 선택해주세요
               </option>
@@ -347,6 +420,7 @@ export default function MarketExchangeForm() {
             <Input
               type="textarea"
               placeholder="현장 사용 여부, 규격 불일치, 파손 여부 등 자세한 내용을 입력해주세요."
+              onChange={(e) => setReasonDetail(e.target.value)}
             ></Input>
             <div
               style={{
@@ -381,7 +455,7 @@ export default function MarketExchangeForm() {
                     />
                   </div>
                 ))}
-                {images.length < 5 && (
+                {images.length < 3 && (
                   <div
                     onClick={() => imgRef.current.click()}
                     style={{
@@ -433,16 +507,16 @@ export default function MarketExchangeForm() {
         <h3 className="mypage-sectionTitle">회수지 정보</h3>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>받는사람</label>
-          <p>{order.receiverName}</p>
+          <p>{order.postRecipient}</p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>휴대폰 번호</label>
-          <p>{order.receiverPhone}</p>
+          <p>{order.phone}</p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>주소</label>
           <p>
-            {order.receiverAddress1} {order.receiverAddress2}
+            {order.postZonecode} {order.postAddr1} {order.postAddr2}
           </p>
         </div>
       </div>
@@ -452,11 +526,11 @@ export default function MarketExchangeForm() {
         <h3 className="mypage-sectionTitle">배송지 정보</h3>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>받는사람</label>
-          <Input />
+          <Input onChange={(e) => setReshipName(e.target.value)} />
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>휴대폰 번호</label>
-          <Input />
+          <Input onChange={(e) => setReshipPhone(e.target.value)} />
         </div>
         <div
           className="labelInput-wrapper"
@@ -470,11 +544,14 @@ export default function MarketExchangeForm() {
               gap: "100px",
             }}
           >
-            <p>{order.postcode}</p>
+            <p>{reshipZipcode}</p>
             <button
               className="secondary-button"
               style={{ width: "100px", height: "33px" }}
-              onClick={() => setModal(!modal)}
+              onClick={() => {
+                setModalType("주소");
+                setIsModalOpen(!isModalOpen);
+              }}
             >
               우편번호 검색
             </button>
@@ -485,18 +562,18 @@ export default function MarketExchangeForm() {
           style={{ borderBottom: "none", padding: "10px 0" }}
         >
           <label style={{ width: "150px" }}>도로명 주소</label>
-          <p>{order.address1}</p>
+          <p>{reshipAddr1}</p>
         </div>
         <div
           className="labelInput-wrapper"
           style={{ padding: "10px 0 16px 0" }}
         >
           <label style={{ width: "150px" }}>상세 주소</label>
-          <Input value={order.address2} />
+          <Input onChange={(e) => setReshipAddr2(e.target.value)} />
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>배송요청사항</label>
-          <Input />
+          <Input onChange={(e) => setReshipPostMemo(e.target.value)} />
         </div>
       </div>
 
@@ -530,7 +607,7 @@ export default function MarketExchangeForm() {
                 id="shippingPayer"
                 type="radio"
                 name="shippingPayer"
-                checked={order.shippingPayer === "SELLER"}
+                checked={shippingChargeType === "SELLER"}
                 disabled
               />
               <laebl for="shippingPayer">판매자</laebl>
@@ -540,7 +617,7 @@ export default function MarketExchangeForm() {
                 id="shippingPayer"
                 type="radio"
                 name="shippingPayer"
-                checked={order.shippingPayer === "BUYER"}
+                checked={shippingChargeType === "BUYER"}
                 disabled
               />
               <laebl for="shippingPayer">구매자</laebl>
@@ -550,7 +627,7 @@ export default function MarketExchangeForm() {
         <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>왕복배송비</label>
           <p style={{ fontWeight: "600" }}>
-            {Number(order.roundTripShippingFee).toLocaleString()}원
+            {Number(roundShippingFee).toLocaleString()}원
             <span
               style={{
                 color: "#A0A0A0",
@@ -610,7 +687,7 @@ export default function MarketExchangeForm() {
           className="secondary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
           onClick={() => {
-            navigate("/user/mypage/market/orders");
+            navigate("/zipddak/mypage/market/orders");
           }}
         >
           취소
@@ -619,7 +696,7 @@ export default function MarketExchangeForm() {
           className="primary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
           onClick={() => {
-            navigate("/user/mypage/market/orders");
+            submitExchange();
           }}
         >
           교환 신청 접수하기
@@ -627,11 +704,37 @@ export default function MarketExchangeForm() {
       </div>
 
       {/* 다음 주소 모달 */}
-      <Modal isOpen={modal} toggle={() => setModal(!modal)}>
-        <ModalBody>
-          <DaumPostcode onComplete={handleComplate} onClose={handleClose} />
-        </ModalBody>
-      </Modal>
+      {modalType === "주소" && (
+        <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)}>
+          <ModalBody>
+            <DaumPostcode onComplete={handleComplate} onClose={handleClose} />
+          </ModalBody>
+        </Modal>
+      )}
+
+      {modalType === "안내" && (
+        <Modal
+          isOpen={isModalOpen}
+          className="mypage-modal"
+          style={{ width: "380px" }}
+        >
+          <ModalBody>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+                whiteSpace: "nowrap",
+                fontSize: "14px",
+              }}
+            >
+              <p>교환 신청이 접수되었습니다.</p>
+            </div>
+          </ModalBody>
+        </Modal>
+      )}
     </div>
   );
 }

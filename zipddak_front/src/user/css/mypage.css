@@ -131,7 +131,7 @@
   line-height: 18px;
 }
 .labelInput-wrapper input {
-  width: 424px;
+  width: 424px !important;
   height: 37px;
   color: #303441;
   font-size: 14px;
@@ -181,7 +181,7 @@
   gap: 8px;
 }
 .mypage-radio input {
-  width: 16px;
+  width: 16px !important;
   height: 16px;
   margin: 0;
 }
