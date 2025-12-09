@@ -2,10 +2,16 @@ import React, { useEffect, useState } from "react";
 import "../css/Cart.css";
 import axios from "axios";
 import { baseUrl } from "../../config";
+import { useAtom } from "jotai";
+import { orderListAtom } from "./productAtom";
+import { useNavigate } from "react-router";
 
 export default function Cart() {
+    const navigate = useNavigate();
+
     const [checkedItems, setCheckedItems] = useState({});
     const [groupedCart, setGroupedCart] = useState([]);
+    const [orderList, setOrderList] = useAtom(orderListAtom);
 
     const handleCheck = (cartNo) => {
         setCheckedItems((prev) => ({
@@ -14,137 +20,78 @@ export default function Cart() {
         }));
     };
 
-    const [cart, setCart] = useState([
-        // 업체별로 나누기
-        {
-            storeId: 1,
-            storeName: "업체 이름1",
-            cartList: [
-                {
-                    cartNo: 1,
-                    productId: 1,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "화이트",
-                    productCount: 1,
-                    // 배송단위
-                    shipping_unit: "묶음배송",
-                    // 배송비
-                    shipping_fee: 4000,
-                    productPrice: 240000,
-                },
-                {
-                    cartNo: 2,
-                    productId: 1,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "블랙",
-                    productCount: 2,
-                    // 배송단위
-                    shipping_unit: "묶음배송",
-                    // 배송비
-                    shipping_fee: 4000,
-                    productPrice: 240000,
-                },
-            ],
-        },
-        {
-            storeId: 2,
-            storeName: "업체 이름2",
-            cartList: [
-                {
-                    cartNo: 3,
-                    productId: 2,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "화이트",
-                    productCount: 1,
-                    // 배송단위
-                    shipping_unit: "묶음배송",
-                    // 배송비
-                    shipping_fee: 4000,
-                    productPrice: 240000,
-                },
-                {
-                    cartNo: 4,
-                    productId: 2,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "블랙",
-                    productCount: 2,
-                    // 배송단위
-                    shipping_unit: "묶음배송",
-                    // 배송비
-                    shipping_fee: 4000,
-                    productPrice: 240000,
-                },
-                {
-                    cartNo: 5,
-                    productId: 3,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "블랙",
-                    productCount: 2,
-                    // 배송단위
-                    shipping_unit: "개별배송",
-                    // 배송비
-                    shipping_fee: 4000,
-                    productPrice: 240000,
-                },
-                {
-                    cartNo: 6,
-                    productId: 3,
-                    productImg: "/images/이미지테스트.png",
-                    productName: "국내산 무광 다로스 니켈 고급 싱크대수전 주방수전 교체 2color",
-                    productSize: "120x120x11700mm",
-                    productColor: "블랙",
-                    productCount: 2,
-                    // 배송단위
-                    shipping_unit: "무료배송",
-                    // 배송비
-                    shipping_fee: 0,
-                    productPrice: 240000,
-                },
-            ],
-        },
-    ]);
-
     useEffect(() => {
-        axios.get(`${baseUrl}/cardList?username=rlawhdwh`).then((res) => {
+        axios.get(`${baseUrl}/cartList?page=1&username=rlawhdwh`).then((res) => {
             console.log(res.data);
+            setGroupedCart(res.data);
+
+            setOrderList([]);
         });
     }, []);
+
+    // 선택 상품 삭제
+    const cartDeleteProducts = () => {
+        setGroupedCart((prev) => {
+            // 1. 각 store에서 선택된 product 제거
+            const updated = prev
+                .map((store) => ({
+                    ...store,
+                    productList: store.productList.filter((product) => !checkedItems[product.cartIdx]),
+                }))
+                // 2. productList가 비어 있으면 그 store 자체도 제거
+                .filter((store) => store.productList.length > 0);
+
+            return updated; // ⭐ 반드시 return 해야 state가 업데이트됨!
+        });
+        axios.post(`${baseUrl}/cartList/delete`, { cartIdxs: Object.keys(checkedItems).map(Number) }).then((res) => {
+            console.log(res.data);
+        });
+    };
 
     const calculateCheckedTotal = () => {
         let totalPrice = 0;
         let totalShippingFee = 0;
 
-        cart.forEach((store) => {
-            // 배송 단위별로 그룹핑
-            const shippingGroups = store.cartList.reduce((acc, product) => {
-                if (!acc[product.shipping_unit]) acc[product.shipping_unit] = [];
-                acc[product.shipping_unit].push(product);
+        groupedCart.forEach((store) => {
+            // 배송 단위별 그룹핑
+            const shippingGroups = store.productList.reduce((acc, product) => {
+                if (!acc[product.postType]) acc[product.postType] = [];
+                acc[product.postType].push(product);
                 return acc;
             }, {});
 
             Object.values(shippingGroups).forEach((products) => {
-                let groupHasChecked = false;
+                // 묶음배송인지 확인
+                const isBundleGroup = products[0].postType === "bundle";
 
-                products.forEach((product) => {
-                    if (checkedItems[product.cartNo]) {
-                        totalPrice += product.productPrice * product.productCount;
-                        groupHasChecked = true; // 그룹에 체크된 상품이 있음을 표시
+                if (!isBundleGroup) {
+                    // ★ 개별배송(single)
+                    products.forEach((product) => {
+                        if (checkedItems[product.cartIdx]) {
+                            totalPrice += (product.productSalePrice + product.optionPrice) * product.quantity;
+                            totalShippingFee += product.postCharge * product.quantity;
+                        }
+                    });
+                } else {
+                    // ★ 묶음배송(bundle)
+                    let bundleCheckedAmount = 0; // 체크된 상품들의 합계
+                    let hasChecked = false; // 이 묶음 그룹에 체크된 상품이 있는지
+
+                    products.forEach((product) => {
+                        if (checkedItems[product.cartIdx]) {
+                            hasChecked = true;
+                            bundleCheckedAmount += (product.productSalePrice + product.optionPrice) * product.quantity;
+                            totalPrice += (product.productSalePrice + product.optionPrice) * product.quantity;
+                        }
+                    });
+
+                    // 묶음배송인데 체크된 상품이 1개도 없으면 배송비 계산할 필요 없음
+                    if (!hasChecked) return;
+
+                    // ★ 묶음배송의 무료배송 조건 체크
+                    if (bundleCheckedAmount < store.freeChargeAmount) {
+                        totalShippingFee += store.basicPostCharge;
                     }
-                });
-
-                // 그룹 내 체크된 상품이 하나라도 있으면 배송비 한 번만 추가
-                if (groupHasChecked) {
-                    totalShippingFee += products[0].shipping_fee;
                 }
             });
         });
@@ -158,33 +105,64 @@ export default function Cart() {
         const isChecked = e.target.checked;
 
         const newCheckedItems = {};
+        const newOrderList = [];
 
         // cart 상태를 기준으로 모든 cartNo 가져오기
-        cart.forEach((store) => {
-            store.cartList.forEach((product) => {
-                newCheckedItems[product.cartNo] = isChecked;
+        groupedCart.forEach((store) => {
+            store.productList.forEach((product) => {
+                newCheckedItems[product.cartIdx] = isChecked;
+
+                // 모두선택 ON일 때만 orderList 채움
+                if (isChecked) {
+                    newOrderList.push({
+                        product: product.productIdx,
+                        optionId: product.optionIdx,
+                        name: product.optionName,
+                        value: product.optionValue,
+                        price: product.productSalePrice + product.optionPrice,
+                        count: product.quantity,
+                    });
+                }
             });
         });
 
         setCheckedItems(newCheckedItems);
+
+        if (isChecked) {
+            // 모두 선택 → 전체로 초기화
+            setOrderList(newOrderList);
+        } else {
+            // 모두 해제 → 전체 비우기
+            setOrderList([]);
+        }
     };
 
-    const increaseCount = (cartNo) => {
-        setCart((prev) =>
+    const increaseCount = (cartIdx) => {
+        setGroupedCart((prev) =>
             prev.map((store) => ({
                 ...store,
-                cartList: store.cartList.map((product) => (product.cartNo === cartNo ? { ...product, productCount: product.productCount + 1 } : product)),
+                productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity + 1 } : product)),
             }))
         );
+
+        // db에 카트 수량을 증가
+        axios.post(`${baseUrl}/cartList/increaseCount`, { cartIdx: cartIdx });
     };
 
-    const decreaseCount = (cartNo) => {
-        setCart((prev) =>
-            prev.map((store) => ({
-                ...store,
-                cartList: store.cartList.map((product) => (product.cartNo === cartNo && product.productCount > 1 ? { ...product, productCount: product.productCount - 1 } : product)),
-            }))
+    const decreaseCount = (cartIdx) => {
+        setGroupedCart((prev) =>
+            prev
+                .map((store) => ({
+                    ...store,
+                    productList: store.productList
+                        .map((product) => (product.cartIdx === cartIdx && product.quantity >= 1 ? { ...product, quantity: product.quantity - 1 } : product))
+                        .filter((product) => product.quantity > 0),
+                }))
+                .filter((seller) => seller.productList.length > 0)
         );
+
+        // db에 카트 수량을 감소
+        axios.post(`${baseUrl}/cartList/decreaseCount`, { cartIdx: cartIdx });
     };
 
     return (
@@ -208,7 +186,9 @@ export default function Cart() {
                                 모두선택
                             </label>
                         </div>
-                        <button className="cart-select-delete-button font-14 medium">선택삭제</button>
+                        <button className="cart-select-delete-button font-14 medium" onClick={cartDeleteProducts}>
+                            선택삭제
+                        </button>
                     </div>
                     <table className="cart-table">
                         <thead>
@@ -231,25 +211,28 @@ export default function Cart() {
                             </tr>
                         </thead>
                         <tbody>
-                            {cart.map((store) => {
+                            {groupedCart.map((store) => {
                                 // store.cartList를 배송단위별로 그룹핑
-                                const groupedByUnit = store.cartList.reduce((acc, product) => {
-                                    if (!acc[product.shipping_unit]) acc[product.shipping_unit] = [];
-                                    acc[product.shipping_unit].push(product);
+                                const groupedByUnit = store.productList.reduce((acc, product) => {
+                                    if (!acc[product.postType]) acc[product.postType] = [];
+                                    acc[product.postType].push(product);
                                     return acc;
                                 }, {});
 
                                 return (
-                                    <React.Fragment key={store.storeId}>
+                                    <React.Fragment key={store.brandId}>
                                         {/* 업체 헤더 */}
                                         <tr className="store-row">
                                             <td colSpan={5}>
-                                                <div className="store-title">
-                                                    <span className="font-14 medium">{store.storeName}</span>
+                                                <div className="store-title" style={{ display: "flex", justifyContent: "flex-start" }}>
+                                                    <span style={{ marginRight: "540px" }} className="font-14 medium">
+                                                        {store.brandName}
+                                                    </span>
+                                                    <span>묶음배송 무료 전환 기준금액 : {store.freeChargeAmount}</span>
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href="#" className="font-14 cart-store-info-a">
+                                                <a href={"/zipddak/seller/" + store.brandId} className="font-14 cart-store-info-a">
                                                     <span>업체 정보</span> <i className="bi bi-chevron-right" style={{ fontSize: "12px" }}></i>
                                                 </a>
                                             </td>
@@ -263,7 +246,7 @@ export default function Cart() {
                                                 <React.Fragment key={unit}>
                                                     {items.map((product, idx) => (
                                                         <tr
-                                                            key={product.cartNo}
+                                                            key={product.cartIdx}
                                                             className="cart-product-under-tr"
                                                             style={{
                                                                 borderBottom: !isLastGroup && idx === items.length - 1 ? "1px solid #e6e6e6" : "none",
@@ -272,19 +255,44 @@ export default function Cart() {
                                                             <td>
                                                                 <input
                                                                     type="checkbox"
+                                                                    value={product.cartIdx}
                                                                     className="cart-selectAll-input"
-                                                                    checked={!!checkedItems[product.cartNo]}
-                                                                    onChange={() => handleCheck(product.cartNo)}
+                                                                    checked={!!checkedItems[product.cartIdx]}
+                                                                    onChange={() => {
+                                                                        handleCheck(product.cartIdx);
+
+                                                                        const isChecked = !checkedItems[product.cartIdx];
+
+                                                                        if (isChecked) {
+                                                                            // 체크 ON
+                                                                            setOrderList((prev) => [
+                                                                                ...prev,
+                                                                                {
+                                                                                    product: product.productIdx,
+                                                                                    optionId: product.optionIdx,
+                                                                                    name: product.optionName,
+                                                                                    value: product.optionValue,
+                                                                                    price: product.productSalePrice + product.optionPrice,
+                                                                                    count: product.quantity,
+                                                                                },
+                                                                            ]);
+                                                                        } else {
+                                                                            // 체크 OFF → 삭제
+                                                                            setOrderList((prev) =>
+                                                                                prev.filter((item) => !(item.product === product.productIdx && item.optionId === product.optionIdx))
+                                                                            );
+                                                                        }
+                                                                    }}
                                                                 />
                                                             </td>
 
                                                             <td style={{ width: "380px" }}>
                                                                 <div className="cart-product-img-info-div">
-                                                                    <img className="cart-product-img" src={product.productImg} alt="" />
+                                                                    <img className="cart-product-img" src={product.productImg + "/" + product.imgStoragePath} alt="" />
                                                                     <div className="cart-product-info-name">
                                                                         <span className="font-14 medium">{product.productName}</span>
                                                                         <span className="font-14" style={{ color: "#6A7685" }}>
-                                                                            {product.productSize} / {product.productColor}
+                                                                            {product.optionName} / {product.optionValue}
                                                                         </span>
                                                                     </div>
                                                                 </div>
@@ -293,11 +301,11 @@ export default function Cart() {
                                                             <td>
                                                                 <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
                                                                     <div className="detail-append-button">
-                                                                        <button className="count-button-style" onClick={() => decreaseCount(product.cartNo)}>
+                                                                        <button className="count-button-style" onClick={() => decreaseCount(product.cartIdx)}>
                                                                             <i className="bi bi-dash-lg append-button-son"></i>
                                                                         </button>
-                                                                        <span className="font-14">{product.productCount}</span>
-                                                                        <button className="count-button-style" onClick={() => increaseCount(product.cartNo)}>
+                                                                        <span className="font-14">{product.quantity}</span>
+                                                                        <button className="count-button-style" onClick={() => increaseCount(product.cartIdx)}>
                                                                             <i className="bi bi-plus-lg append-button-son"></i>
                                                                         </button>
                                                                     </div>
@@ -305,16 +313,31 @@ export default function Cart() {
                                                             </td>
 
                                                             <td style={{ textAlign: "center" }}>
-                                                                <span className="font-14 medium">{(product.productPrice * product.productCount).toLocaleString()}원</span>
+                                                                <span className="font-14 medium">{((product.productSalePrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
                                                             </td>
 
                                                             <td style={{ textAlign: "center" }}>
-                                                                <span className="font-15">{product.shipping_unit}</span>
+                                                                <span className="font-15">{product.postType === "bundle" ? "묶음배송" : "개별배송"}</span>
                                                             </td>
 
                                                             {idx === 0 && (
                                                                 <td rowSpan={items.length} style={{ textAlign: "center" }}>
-                                                                    <span className="font-15">{product.shipping_fee.toLocaleString()}원</span>
+                                                                    <span className="font-15">
+                                                                        {product.postType === "single"
+                                                                            ? `${(product.postCharge * product.quantity).toLocaleString()}`
+                                                                            : (() => {
+                                                                                  let sum = 0;
+                                                                                  store.productList?.map((p) => {
+                                                                                      if (p.postType === "bundle") {
+                                                                                          let hap = (p.productSalePrice + p.optionPrice) * p.quantity;
+                                                                                          sum += hap;
+                                                                                      }
+                                                                                  });
+                                                                                  const returnPostCharge = sum >= store.freeChargeAmount ? 0 : store.basicPostCharge;
+                                                                                  return returnPostCharge.toLocaleString();
+                                                                              })()}
+                                                                        원
+                                                                    </span>
                                                                 </td>
                                                             )}
                                                         </tr>
@@ -348,7 +371,14 @@ export default function Cart() {
                     </div>
                     {/* 구매 버튼 */}
                     {/* 수량 들어가야함 */}
-                    <button className="cart-pay-box-bottom-button font-16 semibold">1개 상품 구매하기</button>
+                    <button
+                        onClick={() => {
+                            navigate("/zipddak/productOrder");
+                        }}
+                        className="cart-pay-box-bottom-button font-16 semibold"
+                    >
+                        1개 상품 구매하기
+                    </button>
                 </div>
             </div>
         </div>

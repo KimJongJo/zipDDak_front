@@ -140,6 +140,8 @@ export default function ProductOrder() {
     }, [productInfo]);
 
     useEffect(() => {
+        console.log(orderList);
+
         if (orderList.length > 0) {
             axios.post(`${baseUrl}/orderListProduct`, { orderList, username: "rlawhdwh" }).then((res) => {
                 console.log(res.data);
