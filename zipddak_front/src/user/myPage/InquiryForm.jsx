@@ -1,13 +1,57 @@
-import { useRef, useState } from "react";
-import { Input } from "reactstrap";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
+import axios from "axios";
+import { Input, Modal, ModalBody } from "reactstrap";
 
 export default function InquiryForm() {
   const [type, setType] = useState("");
+  const [orderItemIdx, setOrderItemIdx] = useState(null);
+  const [answererType, setAnswererType] = useState("");
+  const [content, setContent] = useState("");
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
 
   const imgRef = useRef(null);
+  const navigate = useNavigate();
 
+  // 문의 작성
+  const submitInquiry = () => {
+    const formData = new FormData();
+
+    formData.append("type", type);
+    formData.append("content", content);
+    formData.append("writerUsername", "test@kosta.com");
+    formData.append("writerType", "USER");
+    formData.append("answererType", answererType);
+    if (orderItemIdx !== null && orderItemIdx !== undefined) {
+      formData.append("orderItemIdx", orderItemIdx);
+    }
+
+    // 파일 업로드
+    files.forEach((file) => {
+      formData.append("inquiriyImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/inquiry/write", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          setIsModalOpen(true);
+
+          setTimeout(() => {
+            navigate("/zipddak/mypage/inquiries");
+          }, 1500);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 문의 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -16,9 +60,19 @@ export default function InquiryForm() {
     setFiles((prev) => [...prev, file]);
   };
 
+  // 문의 타입 변경
   const handleTypeChange = (e) => {
     setType(e.target.value);
   };
+
+  useEffect(() => {
+    // 답변자 타입 설정
+    if (type === "SHIPPING" || type === "ORDER_ISSUE") {
+      setAnswererType("SELLER");
+    } else {
+      setAnswererType("ADMIN");
+    }
+  }, [type]);
 
   return (
     <div className="mypage-layout">
@@ -60,7 +114,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="payment"
+                value="PAYMENT"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -70,7 +124,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="shipping"
+                value="SHIPPING"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -80,7 +134,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="order"
+                value="ORDER_ISSUE"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -90,7 +144,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="rental"
+                value="RENTAL"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -100,7 +154,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="expert"
+                value="EXPERT_MATCHING"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -110,7 +164,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="account"
+                value="ACCOUNT"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -120,7 +174,7 @@ export default function InquiryForm() {
               <Input
                 id="inquiryType"
                 type="radio"
-                value="etc"
+                value="ETC"
                 name="inquiryType"
                 onChange={handleTypeChange}
               />
@@ -138,10 +192,13 @@ export default function InquiryForm() {
           <Input
             style={{ width: "798px" }}
             disabled={
-              type === "order" || type === "payment" || type === "shipping"
+              type === "ORDER_ISSUE" ||
+              type === "PAYMENT" ||
+              type === "SHIPPING"
                 ? false
                 : true
             }
+            onChange={(e) => setOrderItemIdx(e.target.value)}
           />
         </div>
         <div
@@ -163,7 +220,12 @@ export default function InquiryForm() {
               *
             </span>
           </label>
-          <Input type="textarea" style={{ width: "798px" }} />
+          <Input
+            type="textarea"
+            style={{ width: "798px" }}
+            placeholder="내용을 자세하게 남겨주시면 정확한 답변이 가능합니다."
+            onChange={(e) => setContent(e.target.value)}
+          />
         </div>
         <div
           className="labelInput-wrapper"
@@ -205,7 +267,7 @@ export default function InquiryForm() {
                   />
                 </div>
               ))}
-              {images.length < 5 && (
+              {images.length < 3 && (
                 <div
                   onClick={() => imgRef.current.click()}
                   style={{
@@ -246,7 +308,7 @@ export default function InquiryForm() {
             >
               상품 불량 및 오배송의 경우, 해당 제품 사진을 등록 부탁드립니다.
               <br />
-              첨부파일은 최대 5개까지 등록가능합니다.
+              첨부파일은 최대 3개까지 등록가능합니다.
             </p>
           </div>
         </div>
@@ -255,10 +317,33 @@ export default function InquiryForm() {
         <button
           className="primary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
+          onClick={() => submitInquiry()}
         >
           등록하기
         </button>
       </div>
+
+      <Modal
+        isOpen={isModalOpen}
+        className="mypage-modal"
+        style={{ width: "380px" }}
+      >
+        <ModalBody>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "8px",
+              whiteSpace: "nowrap",
+              fontSize: "14px",
+            }}
+          >
+            <p>문의가 접수되었습니다.</p>
+          </div>
+        </ModalBody>
+      </Modal>
     </div>
   );
 }
