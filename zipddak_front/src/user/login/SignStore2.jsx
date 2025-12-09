@@ -1,18 +1,19 @@
-import { Button, Input, FormGroup, Label, FormFeedback } from "reactstrap";
+import { Button, Input, FormGroup, Label, FormFeedback, Modal, ModalBody, ModalHeader, ModalFooter } from "reactstrap";
 import "../css/Signup.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import DaumPostcode from 'react-daum-postcode';
 import { Modal as AddrModal } from 'antd';
+import { myAxios } from "../../config";
 
 export default function SignStore2() {
 
     const [seller, setSeller] = useState({
         username: '', password: '', checkPassword: '', name: '', phone: '', logoFileIdx: '',
-        compBno: '', compFileIdx:'', onlinesalesFileIdx: '', compName: '', compHp: '', ceoName: '', managerName: '',
-        managerTel: '', managerEmail: '', brandName: '', handleItemCateIdx: '', introduction: '', settleBank: '', settleAccount: '', settleHost: '',
-        zonecode: '', addr1: '', addr2: '', approvalYn: '', createdAt: ''
-        , role: 'APPROVAL_SELLER', expert: false, createdate: '', profileImg: '', comFileIdx:''
+        zonecode: '', addr1: '', addr2: '', settleBank: '', settleAccount: '', settleHost: '',
+        compBno: '', compFileIdx: '', onlinesalesFileIdx: '', compName: '', compHp: '', ceoName: '',
+        managerName: '', managerTel: '', managerEmail: '', brandName: '', handleItemCateIdx: '', introduction: '',
+        approvalYn: 0, role: 'APPROVAL_SELLER',
     })
 
     const [modal, setModal] = useState(false);
@@ -23,6 +24,9 @@ export default function SignStore2() {
         setSeller({ ...seller, [e.target.name]: e.target.value })
     }
 
+    //테스트용 axios
+    const signUpapi = myAxios(null, null);
+
     //중복 아이디 체크
     const [idValid, setIdValid] = useState(null);
 
@@ -32,7 +36,7 @@ export default function SignStore2() {
             return;
         }
         const timer = setTimeout(() => {
-            myAxios.post('/checkDoubleId', { username: seller.username })
+            signUpapi.post('/checkDoubleId', { username: seller.username })
                 .then(res => {
                     if (res.data === true) {
                         setIdValid(false);
@@ -98,19 +102,52 @@ export default function SignStore2() {
         }
     }, [seller.compBno]);
 
+
+    //파일
+    const fileRef = useRef(null);
+    const imgFileRef = useRef(null);
+
+    const [file, setFile] = useState();
+    const [fileName, setFileName] = useState();
+    const [imgFile, setImageFile] = useState();
+    const [imgFileName, setImgFileName] = useState();
+
+
     //주소
     const [isAddOpen, setIsAddOpen] = useState(false);
     const complateHandler = (data) => {
         setSeller({
             ...seller,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address
+            addr1: data.roadAddress
+                || data.address
         });
     }
 
     const closeHandler = (state) => {
         setIsAddOpen(false);
     }
+
+    //카테고리 String으로 가져가기
+    const [checkedCategory, setCheckedCategory] = useState([]);
+
+    const handleCategoryCheck = (e) => {
+        const idx = e.target.value;
+        const checked = e.target.checked;
+
+        setCheckedCategory(prev => {
+            if (checked) {
+                return [...prev, idx];
+            } else {
+                return prev.filter(v => v !== idx);
+            }
+        });
+    };
+
+    const makeProvidedServiceIdx = () => {
+        return checkedCategory.join(",");
+    };
+
 
     //약관동의
     const [agree, setAgree] = useState(false);
@@ -122,6 +159,10 @@ export default function SignStore2() {
     //회원가입
     const submit = (e) => {
         e.preventDefault();
+
+        //선택한 카테고리를 db에 문자열로 저장
+        const handleItemCateIdx = makeProvidedServiceIdx()
+        setSeller({ ...seller, handleItemCateIdx: handleItemCateIdx })
 
         if (!seller.username?.trim()) {
             alert("아이디를 입력해주세요.");
@@ -140,24 +181,59 @@ export default function SignStore2() {
             return;
         }
 
-        const { checkPassword, auth_num, ...sendSeller } = seller; //checkPassword,auth_num 제거
+        // const { checkPassword, auth_num, ...sendSeller } = seller; //checkPassword,auth_num 제거
 
-        myAxios().post('/joinUser', sendSeller)
+        const formData = new FormData();
+
+        formData.append("username", seller.username);
+        formData.append("password", seller.password);
+        formData.append("name", seller.name);
+        formData.append("phone", seller.phone);
+        formData.append("zonecode", seller.zonecode);
+        formData.append("addr1", seller.addr1);
+        formData.append("addr2", seller.addr2);
+        formData.append("settleBank", seller.settleBank);
+        formData.append("settleAccount", seller.settleAccount);
+        formData.append("settleHost", seller.settleHost);
+        formData.append("compBno", seller.compBno);
+        formData.append("compName", seller.compName);
+        formData.append("compHp", seller.compHp);
+        formData.append("ceoName", seller.ceoName);
+        formData.append("managerName", seller.managerName);
+        formData.append("managerTel", seller.managerTel);
+        formData.append("managerEmail", seller.managerEmail);
+        formData.append("brandName", seller.brandName);
+        formData.append("introduction", seller.introduction);
+        formData.append("approvalYn", seller.approvalYn);
+        formData.append("role", seller.role);
+
+        formData.append("handleItemCateIdx", handleItemCateIdx);
+        formData.append("compFile", file);
+        formData.append("onlinesalesFile", imgFile);
+
+        try{
+        signUpapi.post('/joinSeller', formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+        })
+
             .then(res => {
                 if (res.data == true) {
-                    setMessage("회원가입 완료!")
+                    setMessage("입점신청 완료!")
                     navigate(`/zipddak/login`);
                 } else {
-                    setMessage("회원가입 실패")
+                    setMessage("입점신청 실패")
                 }
             })
             .catch(err => {
                 console.log(err)
-                setMessage("회원가입 중 오류가 발생했습니다.")
+                setMessage("입점신청 중 오류가 발생했습니다.")
             })
             .finally(() => {
                 setModal(true);
             })
+            }catch (err) {
+                console.log(err);
+            }
 
     }
 
@@ -189,7 +265,7 @@ export default function SignStore2() {
                                     <div className="sl_input">
                                         <Input id="username"
                                             name="username"
-                                            placeholder="이메일을 입력해주세요."
+                                            placeholder="이메일(아이디)을 입력해주세요."
                                             type="email"
                                             value={seller.username}
                                             onChange={changeInput}
@@ -240,7 +316,7 @@ export default function SignStore2() {
                                     </div>
 
                                     <div className="sl_input">
-                                        <Input 
+                                        <Input
                                             name="checkPassword"
                                             value={seller.checkPassword}
                                             placeholder="비밀번호 확인"
@@ -358,15 +434,33 @@ export default function SignStore2() {
                             <div className="s_formCol">
                                 <div className="s_formRow">
                                     <div className="sl_input">
-                                        <Input name="compFileIdx"
+                                        {/* 실제 파일 input */}
+                                        <input
+                                            type="file"
+                                            ref={fileRef}
+                                            style={{ display: "none" }}
+                                            accept="application/pdf"
+                                            onChange={(e) => {
+                                                const selectedFile = e.target.files[0];
+                                                setFile(selectedFile);          // 파일은 따로 저장
+                                                setFileName(selectedFile?.name || "");  // 화면 표시용
+                                            }}
+                                        />
+
+                                        {/* 파일명 표시용 input */}
+                                        <Input
+                                            name="compFileIdx"
                                             placeholder="*pdf파일 첨부"
                                             type="text"
+                                            value={fileName}
+                                            onChange={changeInput}
                                             readOnly
-                                            value={seller.comFileIdx}
                                         />
                                     </div>
                                     <div>
-                                        <Button className="tertiary-button">첨부하기</Button>
+                                        <Button className="tertiary-button"
+                                            onClick={() => fileRef.current.click()}
+                                        >파일 첨부</Button>
                                     </div>
                                 </div>
                             </div>
@@ -380,15 +474,35 @@ export default function SignStore2() {
                             <div className="s_formCol">
                                 <div className="s_formRow">
                                     <div className="sl_input">
-                                        <Input name="compFileIdx"
-                                            placeholder="*이미지파일 첨부 ('.png,.jpeg')"
+
+                                        {/* 실제 파일 input */}
+                                        <input
+                                            type="file"
+                                            ref={imgFileRef}
+                                            style={{ display: "none" }}
+                                            accept=".jpg,.jpeg,.png*"
+                                            onChange={(e) => {
+                                                const selectedFile = e.target.files[0];
+                                                setImageFile(selectedFile);          // 파일은 따로 저장
+                                                setImgFileName(selectedFile?.name || "");  // 화면 표시용
+                                            }}
+                                        />
+
+                                        {/* 파일명 표시용 input */}
+                                        <Input
+                                            name="onlinesalesFileIdx"
+                                            placeholder="*이미지파일 첨부 ('.jpg,.jpeg,.png')"
                                             type="text"
+                                            value={imgFileName}
+                                            onChange={changeInput}
                                             readOnly
-                                            value={seller.onlinesalesFileIdx}
                                         />
                                     </div>
+
                                     <div>
-                                        <Button className="tertiary-button">첨부하기</Button>
+                                        <Button className="tertiary-button"
+                                            onClick={() => imgFileRef.current.click()}
+                                        >첨부하기</Button>
                                     </div>
                                 </div>
                             </div>
@@ -403,7 +517,7 @@ export default function SignStore2() {
                                 <div className="s_formRow">
                                     <div className="sl_input">
                                         <Input
-                                            name="managerName"
+                                            name="ceoName"
                                             placeholder="이름(실명) 입력"
                                             type="text"
                                             onChange={changeInput}
@@ -443,24 +557,24 @@ export default function SignStore2() {
                                         <div className="input_post">
                                             <Input
                                                 className="code-box"
-                                                name="compZonecode"
+                                                name="zonecode"
                                                 placeholder="우편번호"
                                                 type="text"
-                                                value={seller.compZonecode} readOnly />
+                                                value={seller.zonecode} readOnly />
                                             <Button className="primary-button"
                                                 onClick={() => setIsAddOpen(!isAddOpen)}>주소찾기
                                             </Button>
                                         </div>
                                         <div className="sl_input">
                                             <Input
-                                                name="compAddr1"
+                                                name="addr1"
                                                 placeholder="도로명/지번 주소"
                                                 type="text"
-                                                value={seller.compAddr1} readOnly />
+                                                value={seller.addr1} readOnly />
                                         </div>
                                         <div className="sl_input">
                                             <Input
-                                                name="compAddr2"
+                                                name="addr2"
                                                 placeholder="상세주소"
                                                 type="text"
                                                 onChange={changeInput}
@@ -601,42 +715,54 @@ export default function SignStore2() {
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>시트/필름</Label>
+                                                            <Input type="checkbox" value={"18"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>시트/필름</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>스위치/콘센트</Label>
+                                                            <Input type="checkbox" value={"19"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>스위치/콘센트</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>커튼/블라인드</Label>
+                                                            <Input type="checkbox" value={"20"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>커튼/블라인드</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>창호/폴딩도어</Label>
+                                                            <Input type="checkbox" value={"15"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>창호/폴딩도어</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>벽지/장판/마루</Label>
+                                                            <Input type="checkbox" value={"16"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>벽지/장판/마루</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>중문/도어</Label>
+                                                            <Input type="checkbox" value={"14"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>중문/도어</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
@@ -645,35 +771,45 @@ export default function SignStore2() {
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>주방</Label>
+                                                            <Input type="checkbox" value={"1"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>주방</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>욕실</Label>
+                                                            <Input type="checkbox" value={"6"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>욕실</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>타일</Label>
+                                                            <Input type="checkbox" value={"17"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>타일</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>페인트</Label>
+                                                            <Input type="checkbox" value={"21"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>페인트</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
                                                 <td>
                                                     <div className="s_check">
                                                         <FormGroup check>
-                                                            <Input type="checkbox" /> <Label check>조명</Label>
+                                                            <Input type="checkbox" value={"22"}
+                                                                onChange={handleCategoryCheck}
+                                                            /> <Label check>조명</Label>
                                                         </FormGroup>
                                                     </div>
                                                 </td>
@@ -691,7 +827,11 @@ export default function SignStore2() {
                             <div className="s_formCol">
                                 <div className="s_formRow">
                                     <div className="sll_input">
-                                        <Input placeholder="상점 소개글 (공백 포함 최대 200자)" name="text" type="textarea" />
+                                        <Input 
+                                        placeholder="상점 소개글 (공백 포함 최대 200자)" 
+                                        name="introduction" 
+                                        type="textarea" 
+                                        onChange={changeInput}/>
                                     </div>
                                 </div>
                             </div>
@@ -737,7 +877,7 @@ export default function SignStore2() {
                         <div className="s_checkbody">
                             <div className="s_check">
                                 <FormGroup check>
-                                    <Input type="checkbox" checked={agree} onChange={checkNecc}/> 
+                                    <Input type="checkbox" checked={agree} onChange={checkNecc} />
                                     <Label check><span>입점신청을 위한 개인정보 수집 및 이용에 동의 </span><span className="necct">[필수]</span></Label>
                                 </FormGroup>
                             </div>
@@ -745,9 +885,19 @@ export default function SignStore2() {
                     </div>
 
                     <div className="mainButton storebottom">
-                        <Button className="primary-button long-button">입점신청하기</Button>
+                        <Button className="primary-button long-button"
+                            onClick={submit}>입점신청하기</Button>
                     </div>
                 </div>
+                <Modal isOpen={modal}>
+                    <ModalHeader >회원가입</ModalHeader>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
 
             {
