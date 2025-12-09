@@ -14,7 +14,7 @@ export default function OrderList() {
     const navigate = useNavigate();
 
     const [myOrderList, setMyOrderList] = useState([]);
-    const [myOrderCount, setmyOrderCount] = useState(0);
+    const [myOrderCount, setMyOrderCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
 
@@ -62,9 +62,9 @@ export default function OrderList() {
         params.append("sellerId", "test");
         params.append("page", page);
 
-        if (keyword) params.append("keyword", keyword);
         if (searchDate) params.append("searchDate", searchDate);
         if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
+        if (keyword) params.append("keyword", keyword);
 
         const orderListUrl = `/seller/order/myOrderList?${params.toString()}`;
 
@@ -74,7 +74,7 @@ export default function OrderList() {
                 const data = res.data;
 
                 setMyOrderList(data.myOrderList);
-                setmyOrderCount(data.myOrderCount);
+                setMyOrderCount(data.myOrderCount);
 
                 const pageData = {
                     curPage: data.curPage,
@@ -150,7 +150,7 @@ export default function OrderList() {
                                 <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
+                                            <Input name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
                                             <button type="button" className="small-button" onClick={() => submit(1)}>
                                                 검색
                                             </button>

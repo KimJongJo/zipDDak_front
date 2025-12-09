@@ -177,7 +177,7 @@ export default function ShippingList() {
                                                         <tr key={myShipping.trackingNo} onClick={() => navigate(`/orderDetail/${myShipping.orderIdx}`)}>
                                                             <td>{myShipping.orderCode}</td>
                                                             <td className={table.title_cell}>
-                                                                <span className={table.title_cell}>{myShipping.productName}</span> 포함 총 {myShipping.itemCount} 건
+                                                                <span className={table.title_cell}>{myShipping.shippingProductName}</span> 포함 총 {myShipping.itemCount} 건
                                                             </td>
                                                             <td>{myShipping.firstSendDate}</td>
                                                             <td>{myShipping.trackingNo}</td>

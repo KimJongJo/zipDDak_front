@@ -4,12 +4,104 @@ import table from "../css/table.module.css";
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
-import Tippy from "@tippyjs/react";
-
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { myAxios } from "../../config/config.jsx";
 
 export default function ReturnList() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 리스트");
+
+    const navigate = useNavigate();
+
+    const [myRefundList, setMyRefundList] = useState([]);
+    const [myRefundCount, setMyRefundCount] = useState(0);
+    const [pageBtn, setPageBtn] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
+
+    // 필터 상태값
+    const [searchOrderDate, setSearchOrderDate] = useState("");
+    const [searchRequestDate, setSearchRequestDate] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState([]);
+    const [keyword, setKeyword] = useState("");
+
+    // 처리 상태 체크박스 value 고정
+    const REFUND_STATUS = ["반품요청", "반품회수", "반품완료", "반품거절"];
+
+    // 처리 상태 체크박스 변경
+    const onChangeStatus = (e) => {
+        const value = e.target.value;
+        const checked = e.target.checked;
+
+        if (value === "all") {
+            if (checked) {
+                // 전체 선택하면 필터 초기화
+                setSelectedStatus([]);
+            }
+            return;
+        }
+
+        if (checked) {
+            setSelectedStatus((prev) => [...prev, value]);
+        } else {
+            setSelectedStatus((prev) => prev.filter((v) => v !== value));
+        }
+    };
+
+    //날짜 변경 시 자동 검색
+    useEffect(() => {
+        submit(1);
+    }, [searchOrderDate]);
+    useEffect(() => {
+        submit(1);
+    }, [searchRequestDate]);
+    // 필터 변경 시 자동 submit
+    useEffect(() => {
+        submit(1);
+    }, [selectedStatus]);
+
+    // 검색/페이징 공통 함수
+    const submit = (page = 1) => {
+        const params = new URLSearchParams();
+
+        params.append("sellerId", "test");
+        params.append("page", page);
+
+        if (keyword) params.append("keyword", keyword);
+        if (searchOrderDate) params.append("searchOrderDate", searchOrderDate);
+        if (searchRequestDate) params.append("searchRequestDate", searchRequestDate);
+        if (selectedStatus.length > 0) params.append("refundStateList", selectedStatus.join(","));
+
+        const refundListUrl = `/seller/refund/myRefundList?${params.toString()}`;
+
+        myAxios()
+            .get(refundListUrl)
+            .then((res) => {
+                const data = res.data;
+
+                setMyRefundList(data.myRefundList);
+                setMyRefundCount(data.myRefundCount);
+
+                const pageData = {
+                    curPage: data.curPage,
+                    allPage: data.allPage,
+                    startPage: data.startPage,
+                    endPage: data.endPage,
+                };
+                setPageInfo(pageData);
+
+                const btns = [];
+                for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+                    btns.push(i);
+                }
+                setPageBtn(btns);
+            })
+            .catch((err) => console.log(err));
+    };
+
+    // 최초 1회 로딩
+    useEffect(() => {
+        submit(1);
+    }, []);
 
     return (
         <>
@@ -48,41 +140,25 @@ export default function ReturnList() {
                                     <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="all" checked={selectedStatus.length === 0} onChange={onChangeStatus} />
                                                 전체
                                             </Label>
                                         </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                반품요청
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                반품회수
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                반품완료
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                반품거절
-                                            </Label>
-                                        </FormGroup>
+                                        {REFUND_STATUS.map((status) => (
+                                            <FormGroup check inline key={status}>
+                                                <Label check>
+                                                    <Input type="checkbox" value={status} checked={selectedStatus.includes(status)} onChange={onChangeStatus} />
+                                                    {status}
+                                                </Label>
+                                            </FormGroup>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
 
                             {/* 테이블 영역 */}
                             <div className={table.tableArea}>
-                                <div>
+                                <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
                                             <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
@@ -99,37 +175,63 @@ export default function ReturnList() {
                                                     <th style={{ width: "15%" }}>주문번호</th>
                                                     <th style={{ width: "20%" }}>상품명</th>
                                                     <th style={{ width: "15%" }}>구매자</th>
-                                                    <th style={{ width: "15%" }}>수거송장</th>
                                                     <th style={{ width: "10%" }}>택배사</th>
+                                                    <th style={{ width: "15%" }}>수거송장</th>
                                                     <th style={{ width: "10%" }}>처리상태</th>
                                                     <th style={{ width: "15%" }}>반품요청일</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
+                                                {/* <tr>
                                                     <td>2025-11-07</td>
                                                     <td>251107-12345</td>
                                                     <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW...외 3건</td>
                                                     <td>lmh1231@naver.com</td>
-                                                    <td>12345678901234</td>
                                                     <td>대한통운</td>
+                                                    <td>12345678901234</td>
                                                     <td>[반품요청]</td>
                                                     <td>2025-11-10 11:25:30</td>
-                                                </tr>
+                                                </tr> */}
+
+                                                {myRefundList.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan="8" className={table.noData} style={{ textAlign: "center" }}>
+                                                            현재 반품 처리건이 없습니다.
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    myRefundList.map((myRefund) => (
+                                                        <tr key={myRefund.refundIdx} onClick={() => navigate(`/returnDetail/${myRefund.refundIdx}`)}>
+                                                            <td>{myRefund.orderDate}</td>
+                                                            <td className={table.title_cell}>
+                                                                <span className={table.title_cell}>{myRefund.refundProductName}</span> 포함 총 {myRefund.refundItemCount} 건
+                                                            </td>
+                                                            <td>{myRefund.customerUsername}</td>
+                                                            <td>{myRefund.pickupPostComp}</td>
+                                                            <td>{myRefund.pickupTrackingNo}</td>
+                                                            <td>{myRefund.orderStatus}</td>
+                                                            <td>{myRefund.createdAt}</td>
+                                                        </tr>
+                                                    ))
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                                 <div className="pagination_part">
-                                    <Pagination className={table.pagination}>
-                                        <PaginationItem active>
-                                            <PaginationLink>1</PaginationLink>
-                                        </PaginationItem>
+                                    <Pagination className={table.my_pagination}>
                                         <PaginationItem>
-                                            <PaginationLink>2</PaginationLink>
+                                            <PaginationLink previous onClick={() => submit(pageInfo.curPage - 1)} />
                                         </PaginationItem>
+
+                                        {pageBtn.map((p) => (
+                                            <PaginationItem key={p} active={pageInfo.curPage === p}>
+                                                <PaginationLink onClick={() => submit(p)}>{p}</PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+
                                         <PaginationItem>
-                                            <PaginationLink>3</PaginationLink>
+                                            <PaginationLink next onClick={() => submit(pageInfo.curPage + 1)} />
                                         </PaginationItem>
                                     </Pagination>
                                 </div>
