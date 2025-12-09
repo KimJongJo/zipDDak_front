@@ -8,7 +8,7 @@ export default function PriceSection({ price, salePrice, discountRate, handlePri
                     가격<span className="required">*</span>
                 </Label>
                 <div className="unit_set">
-                    <Input className=" unit" value={price} onChange={(e) => handlePrice(e.target.value)} placeholder="가격을 입력하세요" />
+                    <Input className=" unit" value={price} placeholder="가격을 입력하세요" onChange={(e) => handlePrice(e.target.value)} />
                     {/* invalid */}
                     {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
                     <span>원</span>

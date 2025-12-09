@@ -13,7 +13,7 @@ export default function DeliveryPolicySection({ register, errors, selected, togg
                 <div className="mb-2">
                     <FormGroup check inline>
                         <Label check>
-                            <Input type="checkbox" {...register("shippingMethod.delivery")} checked={selected.delivery} onChange={toggleDelivery} />
+                            <Input type="checkbox" {...register("shippingMethod.delivery")} checked={selected.delivery} onChange={((e) => setSelectedCategory(e.target.value), toggleDelivery)} />
                             택배 배송
                         </Label>
                     </FormGroup>

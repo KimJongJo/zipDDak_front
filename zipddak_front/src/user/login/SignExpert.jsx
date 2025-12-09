@@ -1,208 +1,742 @@
-import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, AccordionHeader, AccordionBody, AccordionItem } from "reactstrap";
+import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, AccordionHeader, AccordionBody, AccordionItem, FormFeedback } from "reactstrap";
 import "../css/Signup.css";
+import { useState, useEffect, useRef } from "react";
+import { myAxios } from "../../config";
+import { Await, useNavigate } from 'react-router-dom'
+import DaumPostcode from 'react-daum-postcode';
+import { Modal as AddrModal } from 'antd'
+import qs from 'qs';
 
 export default function SignExpert() {
+
+    const [expert, setExpert] = useState({
+        userUsername: 'uu@email.com', activityName: '', zonecode: '', addr1: '', addr2: '',
+        employeeCount: 'null', businessLicense: '', businessLicensePdfId: 'null', settleBank: '', settleAccount: '', settleHost: '',
+        createdAt: '', providedServiceIdx: ''
+    })
+
+    const [modal, setModal] = useState(false);
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+
+    const changeInput = (e) => {
+        setExpert({ ...expert, [e.target.name]: e.target.value })
+    }
+
+    //테스트용 axios
+    const signUpapi = myAxios(null, null);
+
+    //탭구분
+    const [activeTab, setActiveTab] = useState(1);
+    const handleTab = (e) => {
+        setActiveTab(e);
+        document.getElementById("tabs").scrollIntoView({ behavior: "smooth" })
+    }
+
+    //전문가 분야 체크
+    const [majorservice, setMajorService] = useState({
+        majorCategory1: false,
+        majorCategory2: false,
+        majorCategory3: false
+    })
+
+    const [repairCategory, setRepairCategory] = useState({
+        repair1: [],
+        repair2: [],
+        repair3: []
+    });
+
+    const [interiorCategory, setInteriorCategory] = useState({
+        interior1: [],
+        interior2: [],
+        interior3: []
+    });
+
+
+    const ranOnceRef = useRef(false); // StrictMode 이중실행 방지용
+
+    const checkMajor = (e) => {
+        const { name, checked } = e.target;
+
+        setMajorService(prev => ({
+            ...prev,
+            [name]: checked
+        }));
+
+        if (name === 'majorCategory2' && !checked) {
+            setRepairCategory({ repair1: [], repair2: [], repair3: [] });
+            setCheckedCategory(prev => prev.filter(id => ![...repairCategory.repair1, ...repairCategory.repair2, ...repairCategory.repair3].includes(id)));
+        }
+
+
+        if (name === 'majorCategory3' && !checked) {
+            setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
+            setCheckedCategory(prev => prev.filter(id => ![...interiorCategory.interior1, ...interiorCategory.interior2, ...interiorCategory.interior3].includes(id)));
+        }
+    };
+
+    useEffect(() => {
+        // StrictMode에서 useEffect가 2번 호출될 수 있으니 방지
+        if (ranOnceRef.current) return;
+        ranOnceRef.current = true;
+
+        const preload = async () => {
+            try {
+                const repair = await signUpapi.get("/signUpExpertCategory", {
+                    params: { parentIdx: [24, 31, 37], type: "expert" },
+                    paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" })
+                });
+
+                // 방어: 요청이 취소되거나 실패하면 res가 없을 수 있음
+                if (repair && repair.data) {
+                    setRepairCategory({
+                        repair1: repair.data["24"] || [],
+                        repair2: repair.data["31"] || [],
+                        repair3: repair.data["37"] || []
+                    });
+                } else {
+                    // 안전히 빈배열로 초기화
+                    setRepairCategory({ repair1: [], repair2: [], repair3: [] });
+                }
+
+                const interior = await signUpapi.get("/signUpExpertCategory", {
+                    params: { parentIdx: [45, 55, 65], type: "expert" },
+                    paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" })
+                });
+
+                if (interior && interior.data) {
+                    setInteriorCategory({
+                        interior1: interior.data["45"] || [],
+                        interior2: interior.data["55"] || [],
+                        interior3: interior.data["65"] || []
+                    });
+                } else {
+                    setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
+                }
+
+            } catch (err) {
+                // 취소된 요청은 무시, 그 외는 로깅
+                if (err?.code === "ERR_CANCELED" || err?.message?.includes("canceled")) {
+                    // 요청 취소라면 별도 처리 없음
+                    console.warn("preload 요청이 취소되었습니다.");
+                } else {
+                    console.error("카테고리 preload 실패", err);
+                    // 실패 시에도 UI가 깨지지 않게 빈 배열로 초기화
+                    setRepairCategory({ repair1: [], repair2: [], repair3: [] });
+                    setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
+                }
+            }
+        };
+
+        preload();
+    }, []); // 빈 deps: 최초 1회
+
+
+    //카테고리 String으로 가져가기
+    const [checkedCategory, setCheckedCategory] = useState([]);
+
+    const handleCategoryCheck = (e) => {
+        const idx = Number(e.target.value);
+        const checked = e.target.checked;
+
+        setCheckedCategory(prev => {
+            if (checked) {
+                return [...prev, idx];
+            } else {
+                return prev.filter(v => v !== idx);
+            }
+        });
+    };
+
+    const makeProvidedServiceIdx = () => {
+        return checkedCategory.join(",");
+    };
+
+
+    //파일
+    const fileRef = useRef(null);
+    const imgRef = useRef(null);
+
+    const [file, setFile] = useState();
+    const [fileName, setFileName] = useState();
+    const [imgFile, setImgFile] = useState();
+
+
+    //활동명
+    const [nickValid, setNickValid] = useState(null);
+    useEffect(() => {
+        const nicknameRule = /^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{2,20}$/;
+
+        if (expert.activityName === '') {
+            setNickValid(null);
+        } else {
+            setNickValid(nicknameRule.test(expert.activityName));
+        }
+    }, [expert.activityName]);
+
+    //사업자 등록 번호
+    const [licenseValid, setLicenseValid] = useState(null);
+    useEffect(() => {
+        const licenseNum = /^[0-9]{13}$/;
+
+        if (expert.businessLicense === '') {
+            setLicenseValid(null);
+        } else {
+            setLicenseValid(licenseNum.test(expert.businessLicense));
+        }
+    }, [expert.businessLicense]);
+
+    //주소
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const complateHandler = (data) => {
+        setExpert({
+            ...expert,
+            zonecode: data.zonecode,
+            addr1: data.roadAddress || data.address
+        });
+    }
+
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    }
+
+    //약관동의
+    const [agree, setAgree] = useState({
+        all: false,
+        necessary1: false,
+        necessary2: false,
+        service1: false,
+        service2: false
+    })
+
+    const handleAllCheck = (e) => {
+        const checked = e.target.checked;
+
+        setAgree({
+            all: checked,
+            necessary1: checked,
+            necessary2: checked,
+            service1: checked,
+            service2: checked
+        });
+
+    }
+
+    const handleSingleCheck = (e) => {
+        const { name, checked } = e.target;
+
+        const newAgree = {
+            ...agree,
+            [name]: checked,
+        };
+
+        const allChecked =
+            newAgree.service1 &&
+            newAgree.service2 &&
+            newAgree.necessary1 &&
+            newAgree.necessary2
+
+        setAgree({
+            ...newAgree,
+            all: allChecked,
+        })
+    }
+
+    //회원가입
+    const submit = (e) => {
+        e.preventDefault();
+
+        //db에 문자열로 저장
+        const providedServiceIdx = makeProvidedServiceIdx();
+        const sendExpert = {
+            ...expert,
+            providedServiceIdx: providedServiceIdx
+        };
+
+        if (!expert.activityName?.trim()) {
+            alert("활동명을 입력해주세요.");
+            return;
+        } else if (!expert.businessLicense?.trim()) {
+            alert("사업자등록번호를 입력해주세요")
+            return;
+            // } else if (!expert.businessLicensePdfId?.trim()) {
+            //     alert("사업자 등록증을 첨부해주세요")
+            //     return;
+        } else if (!expert.addr1?.trim()) {
+            alert("주소를 입력해주세요")
+            return;
+        } else if (!sendExpert.providedServiceIdx?.trim()) {
+
+            alert("제공서비스는 최소 한가지 이상 선택해주세요");
+            return;
+        } else if (!expert.settleAccount?.trim()) {
+            alert("정산계좌를 입력해주세요")
+            return;
+        } else if (!agree.necessary1 && !agree.necessary2) {
+            alert("필수약관의 동의가 필요합니다.")
+            return;
+        }
+
+        const formData = new FormData();
+
+        formData.append("businessLicenseFile", file);
+
+        formData.append(
+            "expert",
+            new Blob([JSON.stringify({
+                ...sendExpert,
+                businessLicensePdfId: null
+            })], { type: "application/json" })
+        );
+
+        console.log(formData);
+
+        try {
+            signUpapi.post('/joinExpert', formData,
+                { headers: { "Content-Type": "multipart/form-data" } })
+                .then(res => {
+                    if (res.data == true) {
+                        setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.")
+                        navigate(`/zipddak/login`);
+                    } else {
+                        setMessage("전문가 회원가입 실패")
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                    setMessage("전문가 회원가입 중 오류가 발생했습니다.")
+                })
+                .finally(() => {
+                    setModal(true);
+                })
+        } catch (err) {
+            console.log(err);
+        }
+
+    }
+
+
     return (
         <>
-            <div className="SignExpert">
-                <div className="logo"></div>
-                <div className="title">전문가 회원가입</div>
+            <div className="signUp-box">
+                <div className="SignExpert">
+                    <div className="logo"></div>
+                    <div className="title">전문가 회원가입</div>
 
-                <div className="tabs">
-                    <div className="tab_nav">전문분야 선택</div>
-                    <div className="tab_nav">필수분야 입력</div>
-                </div>
+                    <div className="tabs" id="tabs">
+                        <div className={`tab_nav tab1 ${activeTab === 1 ? "active" : ""}`}
+                            onClick={() => handleTab(1)}
+                        >전문분야 선택</div>
 
-                <div className="tab1">
-                    <div className="title2">어떤 전문가로 활동하실 수 있나요?</div>
-
-                    <div className="experts_category">
-                        <FormGroup check>
-                            <Input type="checkbox" /> <Label check>시공견적 컨설팅</Label>
-                        </FormGroup>
-                        <div className="line"></div>
-                        <span>컨설팅 전문가</span>
+                        <div className={`tab_nav tab2 ${activeTab === 2 ? "active" : ""}`}
+                            onClick={() => handleTab(2)}>
+                            필수분야 입력</div>
                     </div>
 
-                    <div className="ecategory_part">
-                        <div className="experts_category">
-                            <FormGroup check>
-                                <Input type="checkbox" /> <Label check>수리</Label>
-                            </FormGroup>
-                            <div className="line"></div>
-                            <span>가전제품</span>
-                            <span>문/창문</span>
-                            <span>수도/보일러/전기</span>
+                    {activeTab === 1 &&
+                        <div className="tab1 active">
+                            <div className="title2">어떤 전문가로 활동하실 수 있나요?</div>
+
+                            <div className="experts_category">
+                                <FormGroup check>
+                                    <Input type="checkbox" name="majorCategory1" checked={majorservice.majorCategory1} onChange={checkMajor} /> <Label check>시공견적 컨설팅</Label>
+                                </FormGroup>
+                                <div className="line"></div>
+                                <span>컨설팅 전문가</span>
+                            </div>
+
+                            <div className="ecategory_part">
+                                <div className="experts_category">
+                                    <FormGroup check>
+                                        <Input type="checkbox" name="majorCategory2" checked={majorservice.majorCategory2} onChange={checkMajor} /> <Label check>수리</Label>
+                                    </FormGroup>
+                                    <div className="line"></div>
+                                    <div className="row-cm expca">
+                                        <span>가전제품</span>
+                                        <span>문/창문</span>
+                                        <span>수도/보일러/전기</span>
+                                    </div>
+                                </div>
+                                {
+                                    majorservice.majorCategory2 &&
+                                    <UncontrolledAccordion stayOpen>
+                                        <AccordionItem>
+                                            <AccordionHeader>수리 상세서비스</AccordionHeader>
+                                            <AccordionBody>
+                                                <div className="categoryCheck-box">
+                                                    <div><span>가전제품</span></div>
+                                                    <div className="line"></div>
+                                                    {repairCategory.repair1.map(c => (
+
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck} />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+
+                                                    <div className="line"></div>
+                                                    <div><span>문/창문</span></div>
+                                                    <div className="line"></div>
+                                                    {repairCategory.repair2.map(c => (
+
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck}
+                                                            />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+
+                                                    <div className="line"></div>
+                                                    <div><span>수도/보일러/전기</span></div>
+                                                    <div className="line"></div>
+                                                    {repairCategory.repair3.map(c => (
+
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck}
+                                                            />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+
+                                                </div>
+                                            </AccordionBody>
+                                        </AccordionItem>
+                                    </UncontrolledAccordion>
+                                }
+                            </div>
+
+                            <div className="ecategory_part">
+                                <div className="experts_category">
+                                    <FormGroup check>
+                                        <Input type="checkbox" name="majorCategory3" checked={majorservice.majorCategory3} onChange={checkMajor} /> <Label check>인테리어</Label>
+                                    </FormGroup>
+                                    <div className="line"></div>
+                                    <div className="row-cm expca">
+                                        <span>부분 인테리어</span>
+                                        <span>벽/천장 시공</span>
+                                        <span>바닥시공</span>
+                                    </div>
+                                </div>
+                                {
+                                    majorservice.majorCategory3 &&
+                                    <UncontrolledAccordion stayOpen>
+                                        <AccordionItem>
+                                            <AccordionHeader>인테리어 상세서비스</AccordionHeader>
+                                            <AccordionBody>
+                                                <div className="categoryCheck-box">
+                                                    <div><span>부분 인테리어</span></div>
+                                                    <div className="line"></div>
+                                                    {interiorCategory.interior1.map(c => (
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck}
+                                                            />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+                                                    <div className="line"></div>
+                                                    <div><span>벽/천장 시공</span></div>
+                                                    <div className="line"></div>
+                                                    {interiorCategory.interior2.map(c => (
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck}
+                                                            />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+                                                    <div className="line"></div>
+                                                    <div><span>바닥시공</span></div>
+                                                    <div className="line"></div>
+                                                    {interiorCategory.interior3.map(c => (
+                                                        <div key={c.categoryIdx} className="form-check">
+                                                            <Input type="checkbox"
+                                                                name={c.categoryIdx}
+                                                                value={c.categoryIdx}
+                                                                checked={checkedCategory.includes(c.categoryIdx)}
+                                                                onChange={handleCategoryCheck}
+                                                            />
+                                                            <Label check>{c.name}</Label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </AccordionBody>
+                                        </AccordionItem>
+                                    </UncontrolledAccordion>
+                                }
+                            </div>
+
+                            <div className="mainButton long-button">
+                                <Button className="primary-button long-button"
+                                    onClick={() => setActiveTab(2)}
+                                >다음으로</Button>
+                            </div>
+
                         </div>
-                        <UncontrolledAccordion stayOpen>
-                            <AccordionItem>
-                                <AccordionHeader>수리 상세서비스</AccordionHeader>
-                                <AccordionBody>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>수리</Label>
-                                    </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>수리</Label>
-                                    </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>수리</Label>
-                                    </FormGroup>
-                                </AccordionBody>
-                            </AccordionItem>
-                        </UncontrolledAccordion>
-                    </div>
+                    }
 
-                    <div className="ecategory_part">
-                        <div className="experts_category">
-                            <FormGroup check>
-                                <Input type="checkbox" /> <Label check>인테리어</Label>
-                            </FormGroup>
-                            <div className="line"></div>
-                            <span>부분 인테리어</span>
-                            <span>벽/천장 시공</span>
-                            <span>바닥시공</span>
+                    {/* -------------------------------------------------------------- */}
+
+                    {activeTab === 2 &&
+                        <div className="tab2">
+                            <div className="title2">상세정보 입력</div>
+                            <Form>
+                                <div className="input_form">
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">활동명(회사이름)</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <Input
+                                            name="activityName"
+                                            placeholder="활동명(2~20자)"
+                                            type="text"
+                                            onChange={changeInput}
+                                            valid={nickValid === true}
+                                            invalid={nickValid === false}
+                                        />
+
+                                        {nickValid === true &&
+                                            <FormFeedback valid></FormFeedback>
+                                        }
+                                        {nickValid === false &&
+                                            <FormFeedback invalid></FormFeedback>
+                                        }
+                                    </div>
+
+
+                                    <div className="input_parts">
+                                        <div className="input_label">직원수</div>
+                                        <div className="input_detail">본인을 포함한 직원수를 적어주세요</div>
+                                        <Input
+                                            name="employeeCount"
+                                            placeholder="숫자로만 입력"
+                                            type="number"
+                                            onChange={(e) => setExpert({
+                                                ...expert,
+                                                employeeCount: e.target.value ? Number(e.target.value) : null
+                                            })}
+                                        />
+                                    </div>
+
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">사업자등록번호</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <Input
+                                            name="businessLicense"
+                                            placeholder="숫자로만 13자"
+                                            type="text"
+                                            onChange={changeInput}
+                                            valid={licenseValid === true}
+                                            invalid={licenseValid === false}
+                                        />
+
+                                        {licenseValid === true &&
+                                            <FormFeedback valid></FormFeedback>
+                                        }
+                                        {licenseValid === false &&
+                                            <FormFeedback invalid>숫자 13자리 입력</FormFeedback>
+                                        }
+                                    </div>
+
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">사업자등록증</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <div className="row-cm phone-auth">
+                                            {/* 실제 파일 input */}
+                                            <input
+                                                type="file"
+                                                ref={fileRef}
+                                                style={{ display: "none" }}
+                                                accept="application/pdf"
+                                                onChange={(e) => {
+                                                    const selectedFile = e.target.files[0];
+                                                    setFile(selectedFile);          // 파일은 따로 저장
+                                                    setFileName(selectedFile?.name || "");  // 화면 표시용
+                                                }}
+                                            />
+
+                                            {/* 파일명 표시용 input */}
+                                            <Input
+                                                name="businessLicensePdfId"
+                                                placeholder="*pdf파일 첨부"
+                                                type="text"
+                                                value={fileName}
+                                                onChange={changeInput}
+                                                readOnly
+                                            />
+                                            <Button className="tertiary-button"
+                                                onClick={() => fileRef.current.click()}
+                                            >파일 첨부</Button>
+                                        </div>
+                                    </div>
+
+
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">계좌번호</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <div className="input_detail">정산이 이루어지는 계좌입니다</div>
+                                        <Input name="settleBank" type="select" className="code-box"
+                                            value={expert.settleBank} onChange={changeInput}>
+                                            <option>은행 선택</option>
+                                            <option value={"국민은행"}>국민은행</option>
+                                            <option value={"신한은행"}>신한은행</option>
+                                            <option value={"농협은행"}>농협은행</option>
+                                            <option value={"카카오뱅크"}>카카오뱅크</option>
+                                        </Input>
+                                        <Input
+                                            name="settleAccount"
+                                            placeholder="'-'제외 숫자로만 계좌번호 입력"
+                                            type="text"
+                                            onChange={changeInput}
+                                        />
+                                        <Input
+                                            name="settleHost"
+                                            placeholder="예금주"
+                                            type="text"
+                                            onChange={changeInput}
+                                        />
+                                    </div>
+
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">주소</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <div className="input_detail">활동지역이 노출됩니다</div>
+                                        <div className="input_post">
+                                            <Input
+                                                className="code-box"
+                                                name="zonecode"
+                                                placeholder="우편번호"
+                                                type="text"
+                                                value={expert.zonecode} readOnly />
+                                            <Button className="primary-button"
+                                                onClick={() => setIsAddOpen(!isAddOpen)}>주소찾기
+                                            </Button>
+                                        </div>
+
+                                        <Input
+                                            name="addr1"
+                                            placeholder="도로명/지번 주소"
+                                            type="text"
+                                            value={expert.addr1} readOnly />
+
+                                        <Input
+                                            name="addr2"
+                                            placeholder="상세주소"
+                                            type="text"
+                                            onChange={changeInput}
+                                        />
+                                    </div>
+
+                                    <div className="input_parts">
+                                        <div className="row-cm">
+                                            <div className="input_label">약관동의</div>
+                                            <span className="necc">*</span>
+                                        </div>
+                                        <div className="input_detail">회원가입 및 회원 관리등의 목적으로 이메일, 비밀번호, 휴대폰 번호 등의 정보를 수집 및 이용 하고 있습니다.</div>
+                                        <div className="condition_box">
+                                            <div className="conditionAll">
+                                                <FormGroup check>
+                                                    <Input type="checkbox"
+                                                        name="all"
+                                                        checked={agree.all}
+                                                        onChange={handleAllCheck} />
+                                                    <Label check className="check_All">
+                                                        전체동의
+                                                    </Label>
+                                                </FormGroup>
+                                            </div>
+                                            <div className="line"></div>
+                                            <div className="conditionOption">
+                                                <FormGroup check className="condition-check">
+                                                    <Input type="checkbox"
+                                                        name="necessary1"
+                                                        checked={agree.necessary1}
+                                                        onChange={handleSingleCheck}
+                                                    />
+                                                    <Label check className="condition-label">이용약관<span className="necct">(필수)</span></Label>
+                                                </FormGroup>
+                                                <FormGroup check className="condition-check">
+                                                    <Input type="checkbox"
+                                                        name="necessary2"
+                                                        checked={agree.necessary2}
+                                                        onChange={handleSingleCheck}
+                                                    />
+                                                    <Label check className="condition-label">만 14세 이상입니다<span className="necct">(필수)</span></Label>
+                                                </FormGroup>
+                                                <FormGroup check className="condition-check">
+                                                    <Input type="checkbox"
+                                                        name="service1"
+                                                        checked={agree.service1}
+                                                        onChange={handleSingleCheck}
+                                                    />
+                                                    <Label check className="condition-label">개인정보 수집 및 이용동의(선택)</Label>
+                                                </FormGroup>
+                                                <FormGroup check className="condition-check">
+                                                    <Input type="checkbox"
+                                                        name="service2"
+                                                        checked={agree.service2}
+                                                        onChange={handleSingleCheck}
+                                                    />
+                                                    <Label check className="condition-label">개인정보 마케팅 활용동의(선택)</Label>
+                                                </FormGroup>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mainButton">
+                                        <Button className="primary-button long-button"
+                                            onClick={submit}
+                                        >전문가 회원가입하기</Button>
+                                    </div>
+                                </div>
+                            </Form>
                         </div>
-                        <UncontrolledAccordion stayOpen>
-                            <AccordionItem>
-                                <AccordionHeader>인테리어 상세서비스</AccordionHeader>
-                                <AccordionBody>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>인테리어</Label>
-                                    </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>인테리어</Label>
-                                    </FormGroup>
-                                    <FormGroup check>
-                                        <Input type="checkbox" /> <Label check>인테리어</Label>
-                                    </FormGroup>
-                                </AccordionBody>
-                            </AccordionItem>
-                        </UncontrolledAccordion>
-                    </div>
-
-                    <div className="mainButton">
-                        <Button>다음으로</Button>
-                    </div>
-
+                    }
                     <div className="loginFooter">
                         <div className="input_detail">이미 아이디가 있으신가요?</div>
                         <a>
                             <div className="input_detail2">로그인</div>
                         </a>
                     </div>
+                    <div className="loginFooter"></div>
                 </div>
-
-                {/* -------------------------------------------------------------- */}
-
-                <div className="tab2">
-                    <div className="title2">상세정보 입력</div>
-                    <Form>
-                        <div className="input_form">
-                            <div className="input_parts">
-                                <div className="input_label">활동명(회사이름)</div>
-                                <Input name="expertsName" placeholder="활동명(2~20자)" type="text" />
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">직원수</div>
-                                <Input id="exampleSelect" name="select" type="select">
-                                    <option>직원수 선택</option>
-                                    <option>직원수 1명 (본인포함)</option>
-                                    <option>직원수 2명</option>
-                                    <option>직원수 3명</option>
-                                    <option>직원수 4명</option>
-                                    <option>직원수 5명</option>
-                                </Input>
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">사업자 등록 번호</div>
-                                <Input name="businessCode" placeholder="숫자로만 13자" type="text" />
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">사업자등록증</div>
-                                <Input name="businessFile" placeholder="*pdf파일" type="text" />
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">계좌번호</div>
-                                <div className="input_detail">정산이 이루어지는 계좌입니다</div>
-                                <Input name="expertsBAnk" type="select">
-                                    <option>은행 선택</option>
-                                    <option>은행</option>
-                                    <option>은행</option>
-                                    <option>은행</option>
-                                    <option>은행</option>
-                                    <option>은행</option>
-                                </Input>
-                                <Input name="expertsAccount" placeholder="숫자로만 계좌번호 입력" type="text" />
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">휴대폰 인증</div>
-                                <Input id="tel" name="tel" placeholder="'-'없이 숫자만 입력" type="text">
-                                    <Button>전송</Button>
-                                </Input>
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">주소</div>
-                                <div className="input_post">
-                                    <Input name="zone" placeholder="우편번호" type="text" />
-                                    <Button>주소찾기</Button>
-                                </div>
-                                <Input name="address" placeholder="도로명/지번 주소" type="text" />
-                                <Input name="detailAddress" placeholder="상세주소" type="text" />
-                            </div>
-
-                            <div className="input_parts">
-                                <div className="input_label">약관동의</div>
-                                <div className="input_detail">회원가입 및 회원 관리등의 목적으로 이메일, 비밀번호, 휴대폰 번호 등의 정보를 수집 및 이용 하고 있습니다.</div>
-                                <div className="condition_box">
-                                    <div className="conditionAll">
-                                        <FormGroup check>
-                                            <Input type="checkbox" />{" "}
-                                            <Label check className="check_All">
-                                                전체동의
-                                            </Label>
-                                        </FormGroup>
-                                    </div>
-                                    <div className="line"></div>
-                                    <div className="conditionOption">
-                                        <FormGroup check>
-                                            <Input type="checkbox" /> <Label check>이용약관(필수)</Label>
-                                        </FormGroup>
-                                        <FormGroup check>
-                                            <Input type="checkbox" /> <Label check>만 14세 이상입니다(필수)</Label>
-                                        </FormGroup>
-                                        <FormGroup check>
-                                            <Input type="checkbox" /> <Label check>개인정보 수집 및 이용동의(선택)</Label>
-                                        </FormGroup>
-                                        <FormGroup check>
-                                            <Input type="checkbox" /> <Label check>개인정보 마케팅 활용동의(선택)</Label>
-                                        </FormGroup>
-                                        <FormGroup check>
-                                            <Input type="checkbox" /> <Label check>이벤트, 쿠폰, 특가알림 메일 및 sms수신 (선택)</Label>
-                                        </FormGroup>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mainButton">
-                                <Button>전문가 회원가입하기</Button>
-                            </div>
-                        </div>
-                    </Form>
-                </div>
-                <div className="loginFooter">
-                    <div className="input_detail">이미 아이디가 있으신가요?</div>
-                    <a>
-                        <div className="input_detail2">로그인</div>
-                    </a>
-                </div>
-                <div className="loginFooter"></div>
             </div>
+
+            {
+                isAddOpen &&
+                <AddrModal title='주소찾기'
+                    open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
+                </AddrModal>
+            }
         </>
     );
 }

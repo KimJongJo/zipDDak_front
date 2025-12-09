@@ -13,16 +13,16 @@ export default function OptionSetting({ options, setOptions, addOptionColumn, re
                 </Label>
 
                 <div className="btn_group" style={{ gap: "3px" }}>
-                    <Tippy content="옵션을 추가하려면 클릭하세요" theme="custom">
-                        <button type="button" className="small-button" onClick={addOptionColumn}>
-                            <i className="bi bi-plus-lg"></i>
-                        </button>
-                    </Tippy>
-                    <Tippy content="옵션을 삭제하려면 클릭하세요" theme="custom">
-                        <button type="button" className="small-button" onClick={removeOptionColumn}>
-                            <i className="bi bi-dash-lg"></i>
-                        </button>
-                    </Tippy>
+                    {/* <Tippy content="옵션을 추가하려면 클릭하세요" theme="custom"> */}
+                    <button type="button" className="small-button" onClick={addOptionColumn}>
+                        <i className="bi bi-plus-lg"></i>
+                    </button>
+                    {/* </Tippy> */}
+                    {/* <Tippy content="옵션을 삭제하려면 클릭하세요" theme="custom"> */}
+                    <button type="button" className="small-button" onClick={removeOptionColumn}>
+                        <i className="bi bi-dash-lg"></i>
+                    </button>
+                    {/* </Tippy> */}
                 </div>
             </div>
 
@@ -53,11 +53,11 @@ export default function OptionSetting({ options, setOptions, addOptionColumn, re
                                     <Label>
                                         <span className="blankSpace">~</span>
                                     </Label>
-                                    <Tippy content="선택값을 추가하려면 클릭하세요" theme="custom">
-                                        <button type="button" className="small-button2" onClick={() => addValueLine(optionIdx)}>
-                                            <i className="bi bi-plus-lg"></i>
-                                        </button>
-                                    </Tippy>
+                                    {/* <Tippy content="선택값을 추가하려면 클릭하세요" theme="custom"> */}
+                                    <button type="button" className="small-button2" onClick={() => addValueLine(optionIdx)}>
+                                        <i className="bi bi-plus-lg"></i>
+                                    </button>
+                                    {/* </Tippy> */}
                                 </div>
                             </div>
 
@@ -100,11 +100,11 @@ export default function OptionSetting({ options, setOptions, addOptionColumn, re
                                             <Label>
                                                 <span className="blankSpace">~</span>
                                             </Label>
-                                            <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom">
-                                                <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
-                                                    <i className="bi bi-dash-lg"></i>
-                                                </button>
-                                            </Tippy>
+                                            {/* <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom"> */}
+                                            <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
+                                                <i className="bi bi-dash-lg"></i>
+                                            </button>
+                                            {/* </Tippy> */}
                                         </div>
                                     </div>
                                 ))}
