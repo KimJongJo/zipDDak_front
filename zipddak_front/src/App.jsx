@@ -117,6 +117,7 @@ function App() {
         <Route path="main" element={<Main />} />
         <Route path="search" element={<MainSearch />} />
         <Route path="best" element={<Best />} />
+        <Route path="market/return/:orderId" element={<MarketReturnForm />} />
 
         {/* 일반사용자 공구대여 */}
         <Route path="tool" element={<ToolMain />} />
@@ -157,16 +158,12 @@ function App() {
           <Route path="market/orders" element={<MarketOrders />} />
           <Route path="market/returns" element={<MarketReturns />} />
           <Route
-            path="market/detail/:orderIdx"
+            path="market/detail/:orderId"
             element={<MarketOrderDetail />}
           />
           <Route
-            path="market/exchange/:orderIdx"
+            path="market/exchange/:orderId"
             element={<MarketExchangeForm />}
-          />
-          <Route
-            path="market/return/:orderIdx"
-            element={<MarketReturnForm />}
           />
           <Route path="tool" element={<MyTool />} />
           <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
@@ -185,7 +182,7 @@ function App() {
           <Route path="works" element={<ExpertMyWorks />} />
           <Route path="requests" element={<Requests />} />
           <Route path="inquiries" element={<ExpertInquiries />} />
-          <Route path="inquiries/wrtie" element={<ExpertInquiryForm />} />
+          <Route path="inquiries/write" element={<ExpertInquiryForm />} />
           <Route path="community" element={<ExpertCommunity />} />
           <Route path="account" element={<ExpertAccount />} />
           <Route path="settlement" element={<Settlement />} />
@@ -212,7 +209,7 @@ function App() {
         <Route path="myInfo" element={<MyInfo />} />
 
         <Route path="ask" element={<AskToManager />} />
-        <Route path="productModify" element={<ProductModify />} />
+        <Route path="productModify/:productIdx" element={<ProductModify />} />
 
         <Route path="orderDetail" element={<OrderDetail />} />
         <Route path="shippingDetail" element={<ShippingDetail />} />

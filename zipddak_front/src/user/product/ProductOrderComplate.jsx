@@ -1,10 +1,11 @@
 import "../css/ProductOrderComplate.css";
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { baseUrl } from "../../config";
 import axios from "axios";
 
 export default function ProductOrderComplate() {
+    const navigate = useNavigate();
     const location = useLocation();
     const searchParams = new URLSearchParams(location.search);
     const orderCode = searchParams.get("orderCode");
@@ -170,7 +171,14 @@ export default function ProductOrderComplate() {
                     </table>
                 </div>
                 <div className="order-complate-button-div">
-                    <button className="order-complate-button">홈으로</button>
+                    <button
+                        onClick={() => {
+                            navigate("/zipddak/main");
+                        }}
+                        className="order-complate-button"
+                    >
+                        홈으로
+                    </button>
                 </div>
             </div>
         </div>

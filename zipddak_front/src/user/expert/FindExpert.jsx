@@ -1,24 +1,43 @@
 import { useState, useEffect, useRef } from "react";
 import { Input } from "reactstrap";
 import "../css/FindExpert.css";
+import { Modal as AddrModal } from "antd";
+import { Modal } from "reactstrap";
+import DaumPostcode from "react-daum-postcode";
+import { baseUrl } from "../../config/config";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function FindExpert() {
     const chatEndRef = useRef(null);
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const serviceOptions = ["수리", "인테리어", "시공/견적 컨설팅"];
+    const [modal, setModal] = useState(false);
+
+    const toggle = () => {
+        setModal(!modal);
+
+        navigate("/zipddak/experts");
+    };
+
+    const [requestForm, setRequestForm] = useState({});
+    const [files, setFiles] = useState([]);
+
+    const serviceOptions = ["수리", "인테리어", "시공견적컨설팅"];
 
     const secondOptions = {
         수리: {
-            가전제품: ["냉장고", "식기세척기", "인덕션", "세탁기", "에어컨", "기타 전자제품"],
-            "문 & 창문": ["도어락", "도어", "방범창", "방충망", "샷시"],
-            "수도 & 보일러 & 전기": ["싱크대", "보일러", "화장실 누수", "수도관련", "온수기", "전기배선"],
+            "가전제품 수리": ["냉장고", "식기세척기", "인덕션", "세탁기", "에어컨", "기타 전자제품"],
+            "문/창문 수리": ["도어락", "도어", "방범창", "방충망", "샷시"],
+            "수도/보일러/전기 수리": ["싱크대", "보일러", "화장실 누수", "수도관련", "온수기", "전기배선"],
         },
         인테리어: {
-            "부분 인테리어": ["도어 시공", "블라인드 & 커튼 시공", "샷시 설치", "신발장 시공", "싱크대 교체", "욕실 & 화장실 리모델링", "주방 리모델링", "중문 시공", "줄눈 시공"],
-            "벽 / 천장 시공": ["단열필름 시공", "도배 시공", "몰딩 시공", "방음 시공", "아트월 시공", "외풍차단 & 틈막이 시공", "유리필름 & 시트 시공", "인테리어 필름 시공", "페인트 시공"],
+            "부분 인테리어": ["도어 시공", "블라인드/커튼 시공", "샷시 설치", "신발장 시공", "싱크대 교체", "욕실/화장실 리모델링", "주방 리모델링", "중문 시공", "줄눈 시공"],
+            "벽/천장 시공": ["단열필름 시공", "도배 시공", "몰딩 시공", "방음 시공", "아트월 시공", "외풍차단/틈막이 시공", "유리필름/시트 시공", "인테리어필름 시공", "페인트 시공"],
             "바닥 시공": ["마루 보수", "마루 시공", "바닥재 시공", "에폭시바닥 시공", "층간소음매트 시공", "카페트 시공", "타일 시공", "장판 시공"],
         },
-        "시공/견적 컨설팅": {
+        시공견적컨설팅: {
             거실: ["공간 효율화", "미관 향상", "기능 개선", "기타"],
             주방: ["공간 효율화", "미관 향상", "기능 개선", "기타"],
             "침실 / 아이방": ["공간 효율화", "미관 향상", "기능 개선", "기타"],
@@ -28,23 +47,62 @@ export default function FindExpert() {
     };
 
     const commonQuestionsMap = {
-        "시공/견적 컨설팅": [
+        시공견적컨설팅: [
             { text: "예산은 어느 정도로 생각하시나요?", key: "budget", type: "text" },
-            { text: "서비스 완료 희망일이나 방문 가능 날짜가 있나요?", key: "schedule", type: "date" },
-            { text: "추가 요청사항이 있으면 알려주세요", key: "notes", type: "text" },
+            { text: "서비스 완료 희망일이나 방문 가능 날짜가 있나요?", key: "preferredDate", type: "date" },
+            { text: "작업할 장소는 어딘가요?", key: "location", type: "text" },
+            { text: "대략적인 작업 사이즈를 입력해주세요", key: "constructionSize", type: "text" },
+            { text: "추가 요청사항이 있으면 알려주세요", key: "additionalRequest", type: "text" },
         ],
         수리: [
-            { text: "작업 희망일을 선택해주세요", key: "schedule", type: "date" },
-            { text: "작업할 장소는 어딘가요?", key: "place", type: "text" },
-            { text: "추가 요청사항이 있으면 알려주세요", key: "notes", type: "text" },
+            { text: "작업 희망일을 선택해주세요(변동될 수 있습니다.)", key: "preferredDate", type: "date" },
+            { text: "작업할 장소는 어딘가요?", key: "location", type: "text" },
+            { text: "추가 요청사항이 있으면 알려주세요", key: "additionalRequest", type: "text" },
         ],
         인테리어: [
             { text: "예산은 어느 정도로 생각하시나요?", key: "budget", type: "text" },
-            { text: "작업 희망일을 선택해주세요", key: "schedule", type: "date" },
-            { text: "작업할 장소는 어딘가요?", key: "place", type: "text" },
-            { text: "대략적인 작업 사이즈를 입력해주세요", key: "size", type: "text" },
-            { text: "추가 요청사항이 있으면 알려주세요", key: "notes", type: "text" },
+            { text: "작업 희망일을 선택해주세요", key: "preferredDate", type: "date" },
+            { text: "작업할 장소는 어딘가요?", key: "location", type: "text" },
+            { text: "대략적인 작업 사이즈를 입력해주세요", key: "constructionSize", type: "text" },
+            { text: "추가 요청사항이 있으면 알려주세요", key: "additionalRequest", type: "text" },
         ],
+    };
+
+    const complateHandler = (data) => {
+        setRequestForm({
+            ...requestForm,
+            addr1: data.roadAddress || data.address,
+        });
+    };
+
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    };
+
+    const writeRequestForm = () => {
+        const formData = new FormData();
+
+        formData.append("userUsername", "rlawhdwh");
+
+        Object.keys(requestForm).forEach((key) => {
+            formData.append(key, requestForm[key]);
+        });
+
+        files.forEach((file) => {
+            formData.append("files", file);
+        });
+
+        axios
+            .post(`${baseUrl}/writeRequest`, formData, {
+                headers: {
+                    "Content-Type": "multipary/form-data",
+                },
+            })
+            .then((res) => {
+                if (res.data) {
+                    setModal(true);
+                }
+            });
     };
 
     const [messages, setMessages] = useState([{ id: 1, type: "bot", text: "원하시는 서비스를 선택해주세요", options: serviceOptions }]);
@@ -54,14 +112,14 @@ export default function FindExpert() {
     const [commonStep, setCommonStep] = useState(0); // 공통 질문 단계
     const [inputValue, setInputValue] = useState("");
 
-    const [address, setAddress] = useState("");
-    const [detailAddress, setDetailAddress] = useState("");
-
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-        console.log("현재 메세지: ", messages);
     }, [messages]);
+
+    // 화면이 새로고침될때 요청서 초기화
+    useEffect(() => {
+        setRequestForm({});
+    }, []);
 
     const handleSelect = (option) => {
         // 마지막 메시지에서 버튼 제거
@@ -80,15 +138,20 @@ export default function FindExpert() {
         setTimeout(() => {
             if (step === 0) {
                 setCategory(option);
+
+                setRequestForm((prev) => ({
+                    ...prev,
+                    cate1: option,
+                }));
                 let firstQ = "";
                 let firstOptions = [];
                 if (option === "수리") {
                     firstQ = "어떤 수리를 원하시나요?";
-                    firstOptions = ["가전제품", "문 & 창문", "수도 & 보일러 & 전기"];
+                    firstOptions = ["가전제품 수리", "문/창문 수리", "수도/보일러/전기 수리"];
                 } else if (option === "인테리어") {
                     firstQ = "인테리어 서비스를 선택해주세요";
-                    firstOptions = ["부분 인테리어", "벽 / 천장 시공", "바닥 시공"];
-                } else if (option === "시공/견적 컨설팅") {
+                    firstOptions = ["부분 인테리어", "벽/천장 시공", "바닥 시공"];
+                } else if (option === "시공견적컨설팅") {
                     firstQ = "시공할 공간은 어디인가요?";
                     firstOptions = ["거실", "주방", "침실 / 아이방", "사무실 / 상업공간", "기타"];
                 }
@@ -99,6 +162,18 @@ export default function FindExpert() {
 
             if (step === 1) {
                 setFirstChoice(option);
+
+                // 시공 견적 일때는 cate2가 아니라 place
+                category === "시공/견적 컨설팅"
+                    ? setRequestForm((prev) => ({
+                          ...prev,
+                          place: option,
+                      }))
+                    : setRequestForm((prev) => ({
+                          ...prev,
+                          cate2: option,
+                      }));
+
                 let secondQText = category === "수리" ? `수리하실 ${option} 종류를 선택해주세요` : category === "인테리어" ? "작업 유형을 선택해주세요" : "이번 시공의 주된 목적은 무엇인가요?";
                 setMessages((prev) => [...prev, { id: prev.length + 1, type: "bot", text: secondQText, options: secondOptions[category][option] || [] }]);
                 setStep(2);
@@ -106,6 +181,17 @@ export default function FindExpert() {
             }
 
             if (step === 2) {
+                // 시공 견적 일때는 cate3가 아니라 purpose
+                category === "시공/견적 컨설팅"
+                    ? setRequestForm((prev) => ({
+                          ...prev,
+                          purpose: option,
+                      }))
+                    : setRequestForm((prev) => ({
+                          ...prev,
+                          cate3: option,
+                      }));
+
                 const questions = commonQuestionsMap[category] || [];
                 setMessages((prev) => [
                     ...prev,
@@ -126,6 +212,7 @@ export default function FindExpert() {
     };
 
     const handleCommonConfirm = (value) => {
+        console.log(value);
         const questions = commonQuestionsMap[category] || [];
 
         setMessages((prev) => {
@@ -178,7 +265,13 @@ export default function FindExpert() {
                     {msg.options && msg.options.length > 0 && (
                         <div className="options-box">
                             {msg.options.map((opt) => (
-                                <button key={opt} className="option-btn" onClick={() => handleSelect(opt)}>
+                                <button
+                                    key={opt}
+                                    className="option-btn"
+                                    onClick={(e) => {
+                                        handleSelect(opt);
+                                    }}
+                                >
                                     {opt}
                                 </button>
                             ))}
@@ -188,7 +281,7 @@ export default function FindExpert() {
                     {/* 공통 질문 입력칸 */}
                     {msg.type === "bot" && msg.showInput && (
                         <div className="common-input-box">
-                            {msg.key === "place" ? (
+                            {msg.key === "location" ? (
                                 // 작업할 장소는 어딘가요?
                                 <div style={{ marginTop: "14px", width: "290px" }}>
                                     <div className="find-select-address-div">
@@ -197,13 +290,13 @@ export default function FindExpert() {
                                             style={{ width: "215px" }}
                                             className="font-14"
                                             type="text"
-                                            value={address} // <<< 주소 값 바인딩
+                                            value={requestForm.addr1 || ""} // <<< 주소 값 바인딩
                                             readOnly
                                             placeholder="주소 찾기 버튼으로 선택"
                                         />
 
                                         {/* 우편번호 API 연결 */}
-                                        <button className="find-select-address-button font-14" type="button">
+                                        <button className="find-select-address-button font-14" type="button" onClick={() => setIsAddOpen(!isAddOpen)}>
                                             주소찾기
                                         </button>
                                     </div>
@@ -213,7 +306,9 @@ export default function FindExpert() {
                                         className="font-14"
                                         type="text"
                                         placeholder="상세 주소를 입력하세요"
-                                        onChange={(e) => setDetailAddress(e.target.value)}
+                                        onChange={(e) => {
+                                            setRequestForm({ ...requestForm, addr2: e.target.value });
+                                        }}
                                         style={{ marginTop: "8px", height: "42px" }}
                                     />
                                     <div style={{ marginTop: "8px", display: "flex", justifyContent: "center" }}>
@@ -231,7 +326,7 @@ export default function FindExpert() {
                                             size="sm"
                                             onClick={() => {
                                                 // onClick={openPostcode}
-                                                handleCommonConfirm(address + " " + detailAddress);
+                                                requestForm.addr1 && requestForm.addr2 && handleCommonConfirm(requestForm.addr1 + " " + requestForm.addr2);
                                             }}
                                             className="font-14"
                                         >
@@ -239,7 +334,7 @@ export default function FindExpert() {
                                         </button>
                                     </div>
                                 </div>
-                            ) : msg.key === "size" ? (
+                            ) : msg.key === "constructionSize" ? (
                                 // 대략적인 작업 사이즈를 입력해주세요
                                 <div>
                                     <Input
@@ -247,7 +342,10 @@ export default function FindExpert() {
                                         style={{ resize: "none", width: "290px", height: "100px", marginTop: "14px" }}
                                         type="textarea"
                                         placeholder="ex. 800 x 1,200mm 창문 4개"
-                                        onChange={(e) => setInputValue(e.target.value)}
+                                        onChange={(e) => {
+                                            setRequestForm({ ...requestForm, constructionSize: e.target.value });
+                                            setInputValue(e.target.value);
+                                        }}
                                     />
                                     <div style={{ display: "flex", justifyContent: "center", marginTop: "8px" }}>
                                         <button
@@ -255,7 +353,7 @@ export default function FindExpert() {
                                             type="button"
                                             color="primary"
                                             size="sm"
-                                            onClick={() => handleCommonConfirm(inputValue)}
+                                            onClick={() => requestForm.constructionSize && handleCommonConfirm(inputValue)}
                                             className="font-14"
                                         >
                                             다음
@@ -270,7 +368,11 @@ export default function FindExpert() {
                                             style={{ width: "230px" }}
                                             className="font-14 want-money-input"
                                             type="number"
-                                            onChange={(e) => setInputValue(e.target.value)}
+                                            min={1}
+                                            onChange={(e) => {
+                                                setRequestForm({ ...requestForm, budget: e.target.value });
+                                                setInputValue(e.target.value);
+                                            }}
                                             placeholder="(단위 : 만원)"
                                         />
                                         <button
@@ -279,7 +381,7 @@ export default function FindExpert() {
                                             color="primary"
                                             size="sm"
                                             onClick={() => {
-                                                handleCommonConfirm(inputValue); // 기존 함수 실행
+                                                requestForm.budget && handleCommonConfirm(inputValue);
                                             }}
                                             style={{ height: "44px", width: "50px", marginLeft: "10px" }}
                                         >
@@ -287,17 +389,28 @@ export default function FindExpert() {
                                         </button>
                                     </div>
                                 </div>
-                            ) : msg.key === "schedule" ? (
+                            ) : msg.key === "preferredDate" ? (
                                 // 작업 희망일이 있나요?
                                 <div style={{ marginTop: "14px" }}>
                                     <div className="findExpert-select-date-div">
-                                        <Input className="font-14" type="date" onChange={(e) => setInputValue(e.target.value)} style={{ width: "230px" }} />
+                                        <Input
+                                            className="font-14"
+                                            type="date"
+                                            min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]} // 내일부터 선택 가능
+                                            onChange={(e) => {
+                                                setRequestForm({ ...requestForm, preferredDate: e.target.value });
+                                                setInputValue(e.target.value);
+                                            }}
+                                            style={{ width: "230px" }}
+                                        />
                                         <button
                                             style={{ height: "44px", width: "50px", marginLeft: "10px" }}
                                             type="button"
                                             className="font-14 select-date-button"
                                             size="sm"
-                                            onClick={() => handleCommonConfirm(inputValue)}
+                                            onClick={() => {
+                                                requestForm.preferredDate && handleCommonConfirm(inputValue);
+                                            }}
                                         >
                                             선택
                                         </button>
@@ -305,28 +418,71 @@ export default function FindExpert() {
                                 </div>
                             ) : (
                                 // 추가 요청 사항이 있으면 알려주세요?
-                                <>
+                                <div>
                                     <div style={{ marginTop: "14px", width: "663px" }}>
-                                        <Input className="font-14" type="textarea" style={{ width: "100%", height: "162px", resize: "none" }} onChange={(e) => setInputValue(e.target.value)} />
+                                        <Input
+                                            className="font-14"
+                                            type="textarea"
+                                            style={{ width: "100%", height: "162px", resize: "none" }}
+                                            onChange={(e) => setRequestForm({ ...requestForm, additionalRequest: e.target.value })}
+                                        />
+                                    </div>
+                                    <div style={{ margin: "15px 0" }}>
+                                        <span>첨부 이미지 파일은 최대 3장입니다.</span>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const files = Array.from(e.target.files);
+
+                                                if (files.length > 3) {
+                                                    e.target.value = ""; // 초기화
+                                                    return;
+                                                }
+
+                                                setFiles(files);
+                                            }}
+                                            multiple
+                                            type="file"
+                                            style={{ height: "33.5px" }}
+                                        />
                                     </div>
                                     <div style={{ display: "flex", justifyContent: "center", marginTop: "8px" }}>
                                         <button
                                             className="font-14 semibold"
                                             style={{ border: "none", borderRadius: "5px", height: "42px", backgroundColor: "#ff5833", color: "#ffffff", width: "122px" }}
                                             onClick={() => {
-                                                handleLastConfirm(inputValue);
+                                                writeRequestForm();
                                             }}
                                         >
                                             견적 요청서 제출
                                         </button>
                                     </div>
-                                </>
+                                </div>
                             )}
                         </div>
                     )}
                 </div>
             ))}
             <div ref={chatEndRef} />
+
+            <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                <div className="ask-modal-body">
+                    <div>견적서 요청이 완료되었습니다.</div>
+                    <div className="ask-modal-body-button-div">
+                        <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                            확인
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
+            {isAddOpen && (
+                <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
+                </AddrModal>
+            )}
         </div>
     );
 }

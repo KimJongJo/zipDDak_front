@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../css/Cart.css";
+import axios from "axios";
+import { baseUrl } from "../../config";
 
 export default function Cart() {
     const [checkedItems, setCheckedItems] = useState({});
@@ -111,6 +113,12 @@ export default function Cart() {
             ],
         },
     ]);
+
+    useEffect(() => {
+        axios.get(`${baseUrl}/cardList?username=rlawhdwh`).then((res) => {
+            console.log(res.data);
+        });
+    }, []);
 
     const calculateCheckedTotal = () => {
         let totalPrice = 0;

@@ -1,27 +1,125 @@
-import { useRef, useState } from "react";
-import {
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Input,
-} from "reactstrap";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
 
 export default function Reviews() {
   const [tab, setTab] = useState("작성 가능한 후기");
   const [chip, setChip] = useState("TOOL"); // TOOL, EXPERT, PRODUCT
+
+  const [myReviews, setMyReviews] = useState([]);
+  const [receivedReviews, setReceivedReviews] = useState([]);
+
+  const [modalType, setModalType] = useState(""); // 등록, 수정, 삭제
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [targetReview, setTargetReview] = useState({});
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(""); // 등록, 수정, 삭제
-  const [targetReview, setTargetReview] = useState({});
 
   const imgRef = useRef(null);
 
+  // 작성한 대여 후기목록 조회
+  const getMyToolReviews = () => {
+    axios
+      .get("http://localhost:8080" + `/reviewList/tool?username=test@kosta.com`)
+      .then((res) => {
+        setMyReviews(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 작성한 상품 후기목록 조회
+  const getMyProductReviews = () => {
+    axios
+      .get(
+        "http://localhost:8080" + `/reviewList/product?username=test@kosta.com`
+      )
+      .then((res) => {
+        setMyReviews(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 작성한 전문가 후기목록 조회
+  const getMyExpertReviews = () => {
+    axios
+      .get(
+        "http://localhost:8080" + `/reviewList/expert?username=test@kosta.com`
+      )
+      .then((res) => {
+        setMyReviews(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 받은 대여 후기목록 조회
+  const getReceiveToolReviews = () => {
+    axios
+      .get(
+        "http://localhost:8080" +
+          `/receive/reviewList/tool?username=test@kosta.com`
+      )
+      .then((res) => {
+        setReceivedReviews(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 대여 후기 삭제
+  const deleteToolReview = () => {
+    console.log(targetReview);
+    axios
+      .post("http://localhost:8080" + "/review/delete/tool", {
+        reviewToolIdx: targetReview.reviewToolIdx,
+      })
+      .then((res) => {
+        setIsModalOpen(false);
+        getMyToolReviews();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 매칭 후기 삭제
+  const deleteExpertReview = () => {
+    axios
+      .post("http://localhost:8080" + "/review/delete/expert", {
+        reviewExpertIdx: targetReview.reviewExpertIdx,
+      })
+      .then((res) => {
+        setIsModalOpen(false);
+        getMyExpertReviews();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 구매 후기 삭제
+  const deleteProductReview = () => {
+    axios
+      .post("http://localhost:8080" + "/review/delete/product", {
+        reviewProductIdx: targetReview.reviewProductIdx,
+      })
+      .then((res) => {
+        setIsModalOpen(false);
+        getMyProductReviews();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 리뷰 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -30,122 +128,15 @@ export default function Reviews() {
     setFiles((prev) => [...prev, file]);
   };
 
-  const ReceivedReviews = [
-    {
-      reviewId: "REV-T-001",
-      reviewType: "TOOL",
-      writerUsername: "USER-001",
-      targetUsername: "USER-100",
-      rating: 5,
-      content: "상태 좋은 공구를 대여받았습니다! 설명도 정확했어요.",
-      image1: "https://via.placeholder.com/100",
-      image2: "https://via.placeholder.com/100",
-      image3: null,
-      createdAt: "2025-02-10T12:20:00",
-      updatedAt: "2025-02-10T12:20:00",
-      contextId: "RENTAL-5501",
-    },
-    {
-      reviewId: "REV-T-002",
-      reviewType: "TOOL",
-      writerUsername: "USER-002",
-      targetUsername: "USER-003",
-      rating: 3,
-      content: "사용은 가능했지만, 부품 하나가 살짝 헐거웠어요.",
-      image1: null,
-      image2: null,
-      image3: null,
-      createdAt: "2025-03-01T09:45:00",
-      updatedAt: "2025-03-01T10:00:00",
-      contextId: "RENTAL-8822",
-    },
-  ];
-  const myReviews = [
-    {
-      reviewId: "REV-T-001",
-      reviewType: "TOOL",
-      writerUsername: "USER-001",
-      targetUsername: "USER-100",
-      rating: 5,
-      content: "상태 좋은 공구를 대여받았습니다! 설명도 정확했어요.",
-      image1: "https://via.placeholder.com/100",
-      image2: "https://via.placeholder.com/100",
-      image3: null,
-      createdAt: "2025-02-10T12:20:00",
-      updatedAt: "2025-02-10T12:20:00",
-      contextId: "RENTAL-5501",
-    },
-    {
-      reviewId: "REV-T-002",
-      reviewType: "TOOL",
-      writerUsername: "USER-002",
-      targetUsername: "USER-003",
-      rating: 3,
-      content: "사용은 가능했지만, 부품 하나가 살짝 헐거웠어요.",
-      image1: null,
-      image2: null,
-      image3: null,
-      createdAt: "2025-03-01T09:45:00",
-      updatedAt: "2025-03-01T10:00:00",
-      contextId: "RENTAL-8822",
-    },
-    {
-      reviewId: "REV-E-001",
-      reviewType: "EXPERT",
-      writerUsername: "USER-155",
-      targetUsername: "EXPERT-909",
-      rating: 4,
-      content: "전문가님이 꼼꼼히 작업해주셨어요!",
-      image1: "https://via.placeholder.com/120",
-      image2: null,
-      image3: null,
-      createdAt: "2025-04-15T15:20:00",
-      updatedAt: "2025-04-15T15:20:00",
-      contextId: "WORK-2400",
-    },
-    {
-      reviewId: "REV-E-002",
-      reviewType: "EXPERT",
-      writerUsername: "USER-200",
-      targetUsername: "EXPERT-777",
-      rating: 5,
-      content: "정말 최고였습니다! 사진에서 보이는 것처럼 완성도가 높아요.",
-      image1: "https://via.placeholder.com/100",
-      image2: "https://via.placeholder.com/100",
-      image3: "https://via.placeholder.com/100",
-      createdAt: "2025-05-11T18:00:00",
-      updatedAt: "2025-05-12T08:00:00",
-      contextId: "WORK-3321",
-    },
-    {
-      reviewId: "REV-P-001",
-      reviewType: "PRODUCT",
-      writerUsername: "USER-888",
-      targetUsername: "PRD-510",
-      rating: 4,
-      content: "브랜드 제품이 생각보다 좋네요! 배송도 빨랐습니다.",
-      image1: null,
-      image2: null,
-      image3: null,
-      createdAt: "2025-02-28T11:00:00",
-      updatedAt: "2025-02-28T11:00:00",
-      contextId: "ORDER-9099",
-    },
-    {
-      reviewId: "REV-P-002",
-      reviewType: "PRODUCT",
-      writerUsername: "USER-321",
-      targetUsername: "PRD-411",
-      rating: 5,
-      content: "디자인도 예쁘고 만족도 최고입니다!",
-      image1: "https://via.placeholder.com/80",
-      image2: "https://via.placeholder.com/80",
-      image3: "https://via.placeholder.com/80",
-      createdAt: "2025-01-20T09:00:00",
-      updatedAt: "2025-02-01T10:30:00",
-      contextId: "ORDER-1200",
-    },
-  ];
+  useEffect(() => {
+    if (tab === "작성한 후기") {
+      if (chip === "TOOL") getMyToolReviews();
+      else if (chip === "EXPERT") getMyExpertReviews();
+      else if (chip === "PRODUCT") getMyProductReviews();
+    } else if (tab === "받은 후기") {
+      getReceiveToolReviews();
+    }
+  }, [tab, chip]);
 
   return (
     <div className="mypage-layout">
@@ -238,10 +229,10 @@ export default function Reviews() {
             </button>
           </div>
         )}
-        {tab === "작성한 후기" &&
-          myReviews
-            .filter((review) => review.reviewType === chip)
-            .map((review) => (
+
+        {tab === "작성한 후기" && chip === "TOOL" && myReviews.length !== 0 && (
+          <>
+            {myReviews.map((review) => (
               <table style={{ width: "100%" }}>
                 <tr style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.10)" }}>
                   <td>
@@ -270,11 +261,9 @@ export default function Reviews() {
                             fontSize: "14px",
                           }}
                         >
-                          <p style={{ fontWeight: "600" }}>
-                            {review.targetUsername}
-                          </p>
+                          <p style={{ fontWeight: "600" }}>{review.toolName}</p>
                           <p style={{ fontWeight: "500" }}>
-                            {review.contextId}
+                            {review.ownerNickname}
                           </p>
                         </div>
                       </div>
@@ -283,7 +272,7 @@ export default function Reviews() {
                           <i
                             key={num}
                             class={`bi ${
-                              review.rating >= num ? "bi-star-fill" : "bi-star"
+                              review.score >= num ? "bi-star-fill" : "bi-star"
                             }`}
                             style={{
                               fontSize: "18px",
@@ -292,14 +281,14 @@ export default function Reviews() {
                           ></i>
                         ))}
                       </div>
-                      {review.image1 !== null && (
+                      {review.img1 !== null && (
                         <div
                           style={{
                             display: "flex",
                             gap: "8px",
                           }}
                         >
-                          {[review.image1, review.image2, review.image3]
+                          {[review.img1, review.img2, review.img3]
                             .filter(Boolean)
                             .map((img, idx) => (
                               <img
@@ -336,7 +325,7 @@ export default function Reviews() {
                         fontWeight: "400",
                       }}
                     >
-                      {review.createdAt.slice(0, 10)}
+                      {review.createdate}
                     </p>
                   </td>
                   <td
@@ -357,16 +346,17 @@ export default function Reviews() {
                         style={{ width: "66px", height: "33px" }}
                         onClick={() => {
                           setModalType("수정");
-                          setTargetReview(review);
-                          setRating(review.rating);
+                          setTargetReview({
+                            ...review,
+                            title: review.toolName,
+                            subTitle: review.ownerNickname,
+                            thumbnail: review.toolThumbnail,
+                          });
+                          setRating(review.score);
                           setImages(
-                            [
-                              review.image1,
-                              review.image2,
-                              review.image3,
-                              review.image4,
-                              review.image5,
-                            ].filter(Boolean)
+                            [review.img1, review.img2, review.img3].filter(
+                              Boolean
+                            )
                           );
                           setIsModalOpen(true);
                         }}
@@ -378,6 +368,12 @@ export default function Reviews() {
                         style={{ width: "66px", height: "33px" }}
                         onClick={() => {
                           setModalType("삭제");
+                          setTargetReview({
+                            ...review,
+                            title: review.toolName,
+                            subTitle: review.ownerNickname,
+                            thumbnail: review.toolThumbnail,
+                          });
                           setIsModalOpen(true);
                         }}
                       >
@@ -388,8 +384,334 @@ export default function Reviews() {
                 </tr>
               </table>
             ))}
+          </>
+        )}
+        {tab === "작성한 후기" &&
+          chip === "PRODUCT" &&
+          myReviews.length !== 0 && (
+            <>
+              {myReviews.map((review) => (
+                <table style={{ width: "100%" }}>
+                  <tr style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.10)" }}>
+                    <td>
+                      <div
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          padding: "30px 0",
+                          flexDirection: "column",
+                          gap: "20px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <img src="" width="48px" height="48px" />
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              fontSize: "14px",
+                            }}
+                          >
+                            <p style={{ fontWeight: "600" }}>
+                              {review.productName}
+                            </p>
+                            <p style={{ fontWeight: "500" }}>
+                              {review.brandName}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="review-star">
+                          {[1, 2, 3, 4, 5].map((num) => (
+                            <i
+                              key={num}
+                              class={`bi ${
+                                review.score >= num ? "bi-star-fill" : "bi-star"
+                              }`}
+                              style={{
+                                fontSize: "18px",
+                                color: "rgba(247, 196, 68, 1)",
+                              }}
+                            ></i>
+                          ))}
+                        </div>
+                        {review.img1 !== null && (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                            }}
+                          >
+                            {[review.img1, review.img2, review.img3]
+                              .filter(Boolean)
+                              .map((img, idx) => (
+                                <img
+                                  key={idx}
+                                  src={img}
+                                  width="80px"
+                                  height="80px"
+                                />
+                              ))}
+                          </div>
+                        )}
+                        <p
+                          style={{
+                            color: "#303441",
+                            fontSize: "14px",
+                            fontWeight: "400",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          {review.content}
+                        </p>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        width: "150px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          color: "#303441",
+                          textAlign: "center",
+                          fontSize: "14px",
+                          fontWeight: "400",
+                        }}
+                      >
+                        {review.createdate}
+                      </p>
+                    </td>
+                    <td
+                      style={{
+                        width: "118px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <button
+                          className="secondary-button"
+                          style={{ width: "66px", height: "33px" }}
+                          onClick={() => {
+                            setModalType("수정");
+                            setTargetReview({
+                              ...review,
+                              title: review.productName,
+                              subTitle: review.brandName,
+                              thumbnail: review.productThumbnail,
+                            });
+                            setRating(review.score);
+                            setImages(
+                              [review.img1, review.img2, review.img3].filter(
+                                Boolean
+                              )
+                            );
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          수정
+                        </button>
+                        <button
+                          className="secondary-button"
+                          style={{ width: "66px", height: "33px" }}
+                          onClick={() => {
+                            setModalType("삭제");
+                            setTargetReview({
+                              ...review,
+                              reviewIdx: review.reviewProductIdx,
+                              title: review.productName,
+                              subTitle: review.brandName,
+                              thumbnail: review.productThumbnail,
+                            });
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              ))}
+            </>
+          )}
+        {tab === "작성한 후기" &&
+          chip === "EXPERT" &&
+          myReviews.length !== 0 && (
+            <>
+              {myReviews.map((review) => (
+                <table style={{ width: "100%" }}>
+                  <tr style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.10)" }}>
+                    <td>
+                      <div
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          padding: "30px 0",
+                          flexDirection: "column",
+                          gap: "20px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <img src="" width="48px" height="48px" />
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              fontSize: "14px",
+                            }}
+                          >
+                            <p style={{ fontWeight: "600" }}>
+                              {review.activityName}
+                            </p>
+                            <p style={{ fontWeight: "500" }}>
+                              {review.matchingServiceName}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="review-star">
+                          {[1, 2, 3, 4, 5].map((num) => (
+                            <i
+                              key={num}
+                              class={`bi ${
+                                review.score >= num ? "bi-star-fill" : "bi-star"
+                              }`}
+                              style={{
+                                fontSize: "18px",
+                                color: "rgba(247, 196, 68, 1)",
+                              }}
+                            ></i>
+                          ))}
+                        </div>
+                        {review.img1 !== null && (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                            }}
+                          >
+                            {[review.img1, review.img2, review.img3]
+                              .filter(Boolean)
+                              .map((img, idx) => (
+                                <img
+                                  key={idx}
+                                  src={img}
+                                  width="80px"
+                                  height="80px"
+                                />
+                              ))}
+                          </div>
+                        )}
+                        <p
+                          style={{
+                            color: "#303441",
+                            fontSize: "14px",
+                            fontWeight: "400",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          {review.content}
+                        </p>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        width: "150px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          color: "#303441",
+                          textAlign: "center",
+                          fontSize: "14px",
+                          fontWeight: "400",
+                        }}
+                      >
+                        {review.createdate}
+                      </p>
+                    </td>
+                    <td
+                      style={{
+                        width: "118px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <button
+                          className="secondary-button"
+                          style={{ width: "66px", height: "33px" }}
+                          onClick={() => {
+                            setModalType("수정");
+                            setTargetReview({
+                              ...review,
+                              reviewIdx: review.reviewExpertIdx,
+                              title: review.activityName,
+                              subTitle: review.matchingServiceName,
+                              thumbnail: review.expertThumbnail,
+                            });
+                            setRating(review.score);
+                            setImages(
+                              [review.img1, review.img2, review.img3].filter(
+                                Boolean
+                              )
+                            );
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          수정
+                        </button>
+                        <button
+                          className="secondary-button"
+                          style={{ width: "66px", height: "33px" }}
+                          onClick={() => {
+                            setModalType("삭제");
+                            setTargetReview({
+                              ...review,
+                              reviewIdx: review.reviewExpertIdx,
+                              title: review.activityName,
+                              subTitle: review.matchingServiceName,
+                              thumbnail: review.expertThumbnail,
+                            });
+                            setIsModalOpen(true);
+                          }}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              ))}
+            </>
+          )}
+
         {tab === "받은 후기" &&
-          ReceivedReviews.map((review) => (
+          receivedReviews.map((review) => (
             <table style={{ width: "100%" }}>
               <tr style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.10)" }}>
                 <td>
@@ -418,10 +740,10 @@ export default function Reviews() {
                           fontSize: "14px",
                         }}
                       >
-                        <p style={{ fontWeight: "600" }}>
-                          {review.writerUsername}
+                        <p style={{ fontWeight: "600" }}>{review.toolName}</p>
+                        <p style={{ fontWeight: "500" }}>
+                          {review.ownerNickname}
                         </p>
-                        <p style={{ fontWeight: "500" }}>{review.contextId}</p>
                       </div>
                     </div>
                     <div className="review-star">
@@ -429,7 +751,7 @@ export default function Reviews() {
                         <i
                           key={num}
                           class={`bi ${
-                            review.rating >= num ? "bi-star-fill" : "bi-star"
+                            review.score >= num ? "bi-star-fill" : "bi-star"
                           }`}
                           style={{
                             fontSize: "18px",
@@ -438,14 +760,14 @@ export default function Reviews() {
                         ></i>
                       ))}
                     </div>
-                    {review.image1 !== null && (
+                    {review.img1 !== null && (
                       <div
                         style={{
                           display: "flex",
                           gap: "8px",
                         }}
                       >
-                        {[review.image1, review.image2, review.image3]
+                        {[review.img1, review.img2, review.img3]
                           .filter(Boolean)
                           .map((img, idx) => (
                             <img
@@ -482,25 +804,13 @@ export default function Reviews() {
                       fontWeight: "400",
                     }}
                   >
-                    {review.createdAt.slice(0, 10)}
+                    {review.createdate}
                   </p>
                 </td>
               </tr>
             </table>
           ))}
       </div>
-
-      <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
-      </Pagination>
 
       {modalType == "삭제" ? (
         // 후기 삭제 모달
@@ -546,6 +856,11 @@ export default function Reviews() {
               <button
                 className="primary-button"
                 style={{ width: "100%", height: "33px" }}
+                onClick={() => {
+                  if (chip === "TOOL") deleteToolReview();
+                  else if (chip === "PRODUCT") deleteProductReview();
+                  else if (chip === "EXPERT") deleteExpertReview();
+                }}
               >
                 확인
               </button>
@@ -571,7 +886,7 @@ export default function Reviews() {
                 gap: "10px",
               }}
             >
-              <img src="" width="80px" height="80px" />
+              <img src={targetReview.thumbnail} width="80px" height="80px" />
               <div
                 style={{
                   display: "flex",
@@ -581,12 +896,10 @@ export default function Reviews() {
                 }}
               >
                 <p style={{ fontWeight: "600" }}>
-                  {modalType === "등록"
-                    ? "타이틀"
-                    : targetReview.targetUsername}
+                  {modalType === "등록" ? "타이틀" : targetReview.title}
                 </p>
                 <p style={{ fontWeight: "500" }}>
-                  {modalType === "등록" ? "내용" : targetReview.contextId}
+                  {modalType === "등록" ? "내용" : targetReview.subTitle}
                 </p>
               </div>
             </div>
@@ -648,7 +961,7 @@ export default function Reviews() {
                     />
                   </div>
                 ))}
-                {images.length < 5 && (
+                {images.length < 3 && (
                   <div
                     onClick={() => imgRef.current.click()}
                     style={{

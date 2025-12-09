@@ -15,7 +15,7 @@ export default function CategorySelector({ categories, selectedCategory, setSele
             {/* 상위 카테고리 */}
             <div>
                 {categories.map((cat) => (
-                    <FormGroup key={cat.categoryIdx} check inline>
+                    <FormGroup key={cat.categoryIdx} check inline className="mt-2">
                         <Label check>
                             <Input type="radio" name="productCategory" value={cat.categoryIdx} checked={String(selectedCategory) === String(cat.categoryIdx)} onChange={(e) => setSelectedCategory(e.target.value)} />
                             {cat.name}

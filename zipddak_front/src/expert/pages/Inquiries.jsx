@@ -1,54 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
 export function Inquiries() {
+  const [inquiryList, setInquiryList] = useState([]);
   const [openRowId, setOpenRowId] = useState(null);
+  const [pageBtn, setPageBtn] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
 
   const navigate = useNavigate();
 
+  // 내 문의내역 조회
+  const getInquiryList = (page) => {
+    axios
+      .get(
+        "http://localhost:8080" +
+          `/inquiryList?username=test@kosta.com&page=${page}`
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .then((data) => {
+        setInquiryList(data.inquiryList);
+        return data.pageInfo;
+      })
+      .then((pageData) => {
+        setPageInfo(pageData);
+        let pageBtns = [];
+        for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+          pageBtns.push(i);
+        }
+        setPageBtn([...pageBtns]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 행 토글
   const toggleRow = (id) => {
     if (openRowId === id) setOpenRowId(null);
     else setOpenRowId(id);
   };
 
-  const inquiryList = [
-    {
-      inquiryId: "INQ-20250101-0001",
-      inquiryType: "상품",
-      content: "문의내용이 여기에 들어갑니다. 제품에 대한 질문이 있습니다.",
-      createdAt: "2025-08-02",
-      status: "ANSWERED",
-      answerContent:
-        "답변이 여기에 작성됩니다. 클릭하면 상세가 보이는 형태로 표시됩니다.",
-      answeredAt: "2025-08-03",
-      orderId: "PRD-001",
-    },
-    {
-      inquiryId: "INQ-20250101-0002",
-      inquiryType: "상품",
-      content: "문의내용이 여기에 들어갑니다. 제품에 대한 질문이 있습니다.",
-      createdAt: "2025-08-02",
-      status: "ANSWERED",
-      answerContent:
-        "답변이 여기에 작성됩니다. 클릭하면 상세가 보이는 형태로 표시됩니다.",
-      answeredAt: "2025-08-03",
-      image1: "https://via.placeholder.com/80",
-      orderId: "PRD-001",
-    },
-    {
-      inquiryId: "INQ-20250101-0003",
-      inquiryType: "상품",
-      content: "문의내용이 여기에 들어갑니다. 제품에 대한 질문이 있습니다.",
-      createdAt: "2025-08-02",
-      status: "ANSWERED",
-      answerContent:
-        "답변이 여기에 작성됩니다. 클릭하면 상세가 보이는 형태로 표시됩니다.",
-      answeredAt: "2025-08-03",
-      image1: "https://via.placeholder.com/80",
-      orderId: "PRD-001",
-    },
-  ];
+  // 타입 매핑
+  const inquiryTypeMap = {
+    PAYMENT: "결제",
+    SHIPPING: "배송",
+    ORDER_ISSUE: "취소/교환/반품",
+    RENTAL: "대여",
+    EXPERT_MATCHING: "전문가 매칭",
+    USER_MATCHING: "사용자 매칭",
+    ACCOUNT: "계정",
+    SETTLEMENT: "정산",
+    SUGGESTION: "제안",
+    MEMBERSHIP: "멤버십",
+    SYSTEM: "시스템",
+    PRODUCT: "상품",
+    ETC: "기타",
+  };
+  const getInquiryTypeLabel = (type) => {
+    return inquiryTypeMap[type] || "기타";
+  };
+
+  useEffect(() => {
+    getInquiryList(1);
+  }, []);
 
   return (
     <div className="mypage-layout">
@@ -62,7 +85,7 @@ export function Inquiries() {
         <button
           className="primary-button"
           style={{ width: "100px", height: "33px" }}
-          onClick={() => navigate("/expert/mypage/inquiries/wrtie")}
+          onClick={() => navigate("/expert/mypage/inquiries/write")}
         >
           1:1문의하기
         </button>
@@ -74,6 +97,7 @@ export function Inquiries() {
             <td>문의유형</td>
             <td>문의내용</td>
             <td>작성일</td>
+            <td>답변일</td>
             <td>답변상태</td>
           </tr>
         </thead>
@@ -81,18 +105,21 @@ export function Inquiries() {
           {inquiryList.map((inquiry) => (
             <>
               <tr
-                key={inquiry.inquiryId}
-                onClick={() => toggleRow(inquiry.inquiryId)}
+                key={inquiry.inquiryIdx}
+                onClick={() => toggleRow(inquiry.inquiryIdx)}
               >
-                <td style={{ width: "140px" }}>{inquiry.inquiryType}</td>
-                <td style={{ textAlign: "left", width: "498px" }}>
-                  {inquiry.content}
+                <td style={{ width: "120px", fontWeight: "500" }}>
+                  {getInquiryTypeLabel(inquiry.type)}
                 </td>
-                <td style={{ width: "150px" }}>{inquiry.createdAt}</td>
-                <td style={{ width: "130px" }}>{inquiry.status}</td>
+                <td style={{ textAlign: "left" }}>{inquiry.content}</td>
+                <td style={{ width: "110px" }}>{inquiry.writeAt}</td>
+                <td style={{ width: "110px" }}>{inquiry.answerAt}</td>
+                <td style={{ width: "90px", fontWeight: "500" }}>
+                  {inquiry.answer !== null ? "답변완료" : "답변예정"}
+                </td>
               </tr>
 
-              {openRowId === inquiry.inquiryId && (
+              {openRowId === inquiry.inquiryIdx && (
                 <tr>
                   <td colSpan="4" style={{ background: "#FDFDFD" }}>
                     <div
@@ -124,13 +151,7 @@ export function Inquiries() {
                               marginTop: "14px",
                             }}
                           >
-                            {[
-                              inquiry.image1,
-                              inquiry.image2,
-                              inquiry.image3,
-                              inquiry.image4,
-                              inquiry.image5,
-                            ]
+                            {[inquiry.image1, inquiry.image2, inquiry.image3]
                               .filter((img) => img)
                               .map((img, idx) => (
                                 <img
@@ -144,27 +165,29 @@ export function Inquiries() {
                         )}
                       </div>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        padding: "20px 60px 0",
-                        alignItems: "center",
-                        gap: "56px",
-                      }}
-                    >
-                      <span
+                    {inquiry.answer && (
+                      <div
                         style={{
-                          color: "#FF5833",
-                          fontSize: "32px",
-                          fontStyle: "normal",
-                          fontWeight: "500",
-                          lineHeight: "150%",
+                          display: "flex",
+                          padding: "20px 60px 0",
+                          alignItems: "center",
+                          gap: "56px",
                         }}
                       >
-                        A
-                      </span>
-                      <p>{inquiry.answerContent}</p>
-                    </div>
+                        <span
+                          style={{
+                            color: "#FF5833",
+                            fontSize: "32px",
+                            fontStyle: "normal",
+                            fontWeight: "500",
+                            lineHeight: "150%",
+                          }}
+                        >
+                          A
+                        </span>
+                        <p>{inquiry.answer}</p>
+                      </div>
+                    )}
                   </td>
                 </tr>
               )}
@@ -174,15 +197,13 @@ export function Inquiries() {
       </table>
 
       <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
+        {pageBtn.map((b) => (
+          <PaginationItem key={b} active={b === pageInfo.curPage}>
+            <PaginationLink onClick={() => getInquiryList(b)}>
+              {b}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
       </Pagination>
     </div>
   );

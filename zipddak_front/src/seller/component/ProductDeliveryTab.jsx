@@ -2,22 +2,25 @@
 import product from "../css/productRegist.module.css";
 
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
+import { useState } from "react";
 
-const DeliveryTab = ({ register, errors }) => {
+const DeliveryTab = ({ data, onChange }) => {
+    const { postType, shippingFee } = data;
+
     return (
         <div className={[product.deli_frame, "ps-3"].join(" ")}>
             {/* 묶음/개별 배송 */}
             <div className="position-relative">
                 <FormGroup check inline>
                     <Label check>
-                        <Input type="radio" value="bundle" {...register("delivery.shippingType")} />
+                        <Input type="radio" name="postType" value="bundle" checked={postType === "bundle"} onChange={(e) => onChange({ ...data, postType: e.target.value })} />
                         묶음 배송
                     </Label>
                 </FormGroup>
 
                 <FormGroup check inline>
                     <Label check>
-                        <Input type="radio" value="single" {...register("delivery.shippingType")} />
+                        <Input type="radio" name="postType" value="single" checked={postType === "single"} onChange={(e) => onChange({ ...data, postType: e.target.value })} />
                         개별 배송
                     </Label>
                 </FormGroup>
@@ -30,17 +33,9 @@ const DeliveryTab = ({ register, errors }) => {
                 </Label>
 
                 <div className="unit_set">
-                    <Input
-                        className=" unit"
-                        {...register("delivery.shippingFee", {
-                            required: "배송비를 입력하세요.",
-                            validate: (v) => /^[0-9]+$/.test(v) || "숫자만 입력하세요.",
-                        })}
-                    />
+                    <Input className="unit me-3" type="number" name="postCharge" value={shippingFee} onChange={(e) => onChange({ ...data, shippingFee: e.target.value })} />
                     <span>원</span>
                 </div>
-
-                {errors.delivery?.shippingFee && <p style={{ color: "red", fontSize: 13 }}>{errors.delivery.shippingFee.message}</p>}
             </div>
         </div>
     );
