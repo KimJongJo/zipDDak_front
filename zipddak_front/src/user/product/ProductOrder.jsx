@@ -1,6 +1,6 @@
 import "../css/ProductOrder.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "reactstrap";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { orderListAtom } from "./productAtom";
@@ -18,6 +18,8 @@ export default function ProductOrder() {
     // 주문에 쓰일 데이터
     const [orderData, setOrderData] = useState({});
 
+    const [brand, setBrand] = useState([]);
+
     const [orderList, setOrderList] = useAtom(orderListAtom);
     const [options, setOptions] = useState({});
 
@@ -27,6 +29,24 @@ export default function ProductOrder() {
     const [productTotalPrice, setProductTotalPrice] = useState(0);
     // 총 결제 금액
     const [totalPrice, setTotalPrice] = useState(0);
+    // 총 배송 금액
+    const [postChargeTotal, setPostChargeTotal] = useState(0);
+
+    const totalPostChargeAllBrands = brand.reduce((sumBrand, b) => {
+        const singlePostCharge = b.orderList.filter((o) => o.postType === "single").reduce((sum, o) => sum + o.postCharge, 0);
+
+        const bundleOptions = b.orderList.filter((o) => o.postType === "bundle");
+        const bundleTotalPrice = bundleOptions.reduce((sum, o) => sum + o.price * o.count, 0);
+
+        let bundlePostCharge = 0;
+        if (bundleOptions.length > 0) {
+            bundlePostCharge = bundleTotalPrice >= b.freeChargeAmount ? 0 : b.basicPostCharge;
+        }
+
+        const totalPostCharge = singlePostCharge + bundlePostCharge;
+
+        return sumBrand + totalPostCharge;
+    }, 0);
 
     const [user, setUser] = useState({
         name: "",
@@ -67,59 +87,58 @@ export default function ProductOrder() {
     };
 
     // 수량 증가
-    const increaseCount = (index) => {
-        setProductInfo((prev) => {
-            const newArr = [...prev];
-            newArr[index] = {
-                ...newArr[index],
-                count: newArr[index].count + 1,
-            };
-            return newArr;
-        });
+    const increaseCount = (sellerIdx, productId, optionId) => {
+        setBrand((prevBrands) =>
+            prevBrands.map((brand) => {
+                if (brand.sellerIdx === sellerIdx) {
+                    return {
+                        ...brand,
+                        orderList: brand.orderList.map((option) => (option.optionId === optionId ? { ...option, count: option.count + 1 } : option)),
+                    };
+                }
+                return brand;
+            })
+        );
+
+        // 2. Atom 업데이트
+        setOrderList((prevOrders) => prevOrders.map((order) => (order.productId === productId && order.optionId === optionId ? { ...order, count: order.count + 1 } : order)));
     };
 
     // 수량 감소
-    const decreaseCount = (index) => {
-        setProductInfo((prev) => {
-            const newArr = [...prev];
+    const decreaseCount = (sellerIdx, productId, optionId) => {
+        // 1. brand 업데이트
+        setBrand((prevBrands) =>
+            prevBrands.map((brand) => {
+                if (brand.sellerIdx === sellerIdx) {
+                    return {
+                        ...brand,
+                        orderList: brand.orderList
+                            .map((option) => (option.productId === productId && option.optionId === optionId ? { ...option, count: option.count - 1 } : option))
+                            .filter((option) => option.count > 0),
+                    };
+                }
+                return brand;
+            })
+        );
 
-            // 배열 길이가 1이고, 해당 상품 수량이 1이면 아무 작업도 하지 않음
-            if (newArr.length === 1 && newArr[index].count === 1) {
-                setModal(true);
-                return newArr;
-            }
-
-            // 수량이 1이면 삭제
-            if (newArr[index].count === 1) {
-                newArr.splice(index, 1);
-            } else {
-                // 수량이 1보다 크면 1 감소
-                newArr[index] = {
-                    ...newArr[index],
-                    count: newArr[index].count - 1,
-                };
-            }
-
-            return newArr;
-        });
+        // 2. Atom 업데이트
+        setOrderList((prevOrders) =>
+            prevOrders.map((order) => (order.productId === productId && order.optionId === optionId ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0)
+        );
     };
 
     // 구매 목록에서 상품 삭제
-    // -> index 번째 상품을 삭제
-    const removeProduct = (index) => {
-        if (productInfo.length <= 1) {
-            // 모달 오픈?
-            setModal(true);
-            return;
-        }
-        setProductInfo((prev) =>
-            // prev: 이전 productInfo 배열
-            prev.filter(
-                (_, i) =>
-                    //  _ 의미 : Python에서 배운 것처럼 매개변수는 받지만 쓰지 않는 것을 의미
-                    // i: 현재 요소의 index
-                    i !== index // 클릭한 index가 아닌 요소만 남긴다
-            )
+    const removeProduct = (sellerIdx, optionId) => {
+        setBrand((prevBrands) =>
+            prevBrands.map((brand) => {
+                if (brand.sellerIdx === sellerIdx) {
+                    return {
+                        ...brand,
+                        orderList: brand.orderList.filter((option) => option.optionId !== optionId),
+                    };
+                }
+                return brand;
+            })
         );
     };
 
@@ -130,23 +149,25 @@ export default function ProductOrder() {
 
     useEffect(() => {
         let total = 0;
-        productInfo.map((product) => {
-            total += product.count * (product.price + options.salePrice);
+        brand.map((option) => {
+            option.orderList.map((order) => {
+                total += order.count * (order.price + order.salePrice);
+            });
         });
-        setProductTotalPrice(total);
-        total += options.postCharge;
 
+        setPostChargeTotal(totalPostChargeAllBrands);
+        setProductTotalPrice(total);
+        total += postChargeTotal;
         setTotalPrice(total);
-    }, [productInfo]);
+    }, [brand]);
 
     useEffect(() => {
-        console.log(orderList);
-
         if (orderList.length > 0) {
-            axios.post(`${baseUrl}/orderListProduct`, { orderList, username: "rlawhdwh" }).then((res) => {
+            axios.post(`${baseUrl}/orderListProduct2`, { orderList, username: "rlawhdwh" }).then((res) => {
                 console.log(res.data);
-                setOptions(res.data);
-                setProductInfo(res.data.orderList);
+                // setOptions(res.data);
+                setBrand(res.data.brandDto);
+                // setProductInfo(res.data.orderList);
                 setUser({ name: res.data.userInfo.name, tel: res.data.userInfo.phone });
             });
         }
@@ -158,9 +179,7 @@ export default function ProductOrder() {
 
         const res = await axios.post(`${baseUrl}/payment/product`, {
             username: username,
-            productId: options.productId,
-            orderList: productInfo,
-            postCharge: options.postCharge,
+            brandList: brand,
             recvUser: recvUser,
         });
 
@@ -193,53 +212,71 @@ export default function ProductOrder() {
                             <div>
                                 <span className="product-order-check-span">주문 상품</span>
                                 {/* 업체이름 div */}
-                                <div className="product-order-check-store-div">
-                                    <span className="font-15">{options.brandName}</span>
-                                    {options.postCharge !== 0 ? <span className="font-15">배송비: {options.postCharge?.toLocaleString()}원</span> : <span className="font-15">무료배송</span>}
-                                </div>
-                                {/* 상품 정보 */}
-                                {/* 구매 목록 반복문으로 돌림 */}
-                                {/* 가져온 옵션 데이터에 orderList가 있고, 그게 1 이상일대 */}
-                                {productInfo.map((option, index) => (
-                                    <div className="product-order-check-detail" key={option.optionId}>
-                                        <div className="product-order-check-img-div">
-                                            <img className="product-order-check-img" src={options.img} />
-                                        </div>
+                                {brand.map((brand) => {
+                                    // 1. single 배송비 누적
+                                    let singlePostCharge = brand.orderList.filter((o) => o.postType === "single").reduce((sum, o) => sum + o.postCharge, 0);
 
-                                        <div className="product-order-check-buy-info">
-                                            <div className="product-order-check-info">
-                                                <span className="font-16">{options.productName}</span>
-                                                <span className="font-14">
-                                                    {option.name} / {option.value}
-                                                </span>
+                                    // 2. bundle 합계
+                                    const bundleOptions = brand.orderList.filter((o) => o.postType === "bundle");
+                                    const bundleTotalPrice = bundleOptions.reduce((sum, o) => sum + o.price * o.count, 0);
 
-                                                {/* 개수 조절 */}
-                                                <div className="detail-append-button">
-                                                    <button className="count-button-style" onClick={() => decreaseCount(index)}>
-                                                        <i className="bi bi-dash-lg append-button-son"></i>
-                                                    </button>
+                                    // 3. bundle 배송비 계산
+                                    let bundlePostCharge = 0;
+                                    if (bundleOptions.length > 0) {
+                                        bundlePostCharge = bundleTotalPrice >= brand.freeChargeAmount ? 0 : brand.basicPostCharge;
+                                    }
 
-                                                    <span className="font-14">{option.count}</span>
+                                    // 4. 브랜드 전체 배송비
+                                    const totalPostCharge = singlePostCharge + bundlePostCharge;
 
-                                                    <button className="count-button-style" onClick={() => increaseCount(index)}>
-                                                        <i className="bi bi-plus-lg append-button-son"></i>
-                                                    </button>
+                                    return (
+                                        <React.Fragment key={brand.sellerIdx}>
+                                            <div className="product-order-check-store-div">
+                                                <span className="font-15">{brand.brandName}</span>
+                                                {totalPostCharge !== 0 ? <span className="font-15">배송비: {totalPostCharge.toLocaleString()}원</span> : <span className="font-15">무료배송</span>}
+                                            </div>
+
+                                            {brand.orderList.map((option, index) => (
+                                                <div className="product-order-check-detail" key={option.optionId}>
+                                                    <div className="product-order-check-img-div">
+                                                        <img className="product-order-check-img" src={option.imgStoragePath + "" + option.productImg} />
+                                                    </div>
+
+                                                    <div className="product-order-check-buy-info">
+                                                        <div className="product-order-check-info">
+                                                            <span className="font-16">{option.productName}</span>
+                                                            <span className="font-14">
+                                                                {option.name} / {option.value}
+                                                            </span>
+
+                                                            <div className="detail-append-button">
+                                                                <button className="count-button-style" onClick={() => decreaseCount(brand.sellerIdx, option.productId, option.optionId)}>
+                                                                    <i className="bi bi-dash-lg append-button-son"></i>
+                                                                </button>
+
+                                                                <span className="font-14">{option.count}</span>
+
+                                                                <button className="count-button-style" onClick={() => increaseCount(brand.sellerIdx, option.productId, option.optionId)}>
+                                                                    <i className="bi bi-plus-lg append-button-son"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="product-order-check-buy-right">
+                                                            <button onClick={() => removeProduct(brand.sellerIdx, option.optionId)} className="count-button-style">
+                                                                <i className="bi bi-x-lg detail-x-button"></i>
+                                                            </button>
+                                                            <span className="font-14">
+                                                                {((option.price + option.salePrice) * option.count).toLocaleString()}
+                                                                <span>원</span>
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-
-                                            {/* 삭제 + 가격 */}
-                                            <div className="product-order-check-buy-right">
-                                                <button onClick={() => removeProduct(index)} className="count-button-style">
-                                                    <i className="bi bi-x-lg detail-x-button"></i>
-                                                </button>
-                                                <span className="font-14">
-                                                    {((option.price + options.salePrice) * option.count).toLocaleString()}
-                                                    <span>원</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
+                                            ))}
+                                        </React.Fragment>
+                                    );
+                                })}
                             </div>
 
                             {/* 주문자 */}
@@ -406,7 +443,7 @@ export default function ProductOrder() {
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-15">배송비</span>
-                                        <span className="font-14">{options.postCharge?.toLocaleString()}원</span>
+                                        <span className="font-14">{postChargeTotal.toLocaleString()}원</span>
                                     </div>
                                     <div className="product-order-form-second">
                                         <span className="font-16 semibold">최종 결제 금액</span>

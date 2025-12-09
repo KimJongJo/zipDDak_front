@@ -5,9 +5,13 @@ import { baseUrl } from "../../config";
 import { useAtom } from "jotai";
 import { orderListAtom } from "./productAtom";
 import { useNavigate } from "react-router";
+import { Modal } from "reactstrap";
 
 export default function Cart() {
     const navigate = useNavigate();
+
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
 
     const [checkedItems, setCheckedItems] = useState({});
     const [groupedCart, setGroupedCart] = useState([]);
@@ -115,11 +119,11 @@ export default function Cart() {
                 // 모두선택 ON일 때만 orderList 채움
                 if (isChecked) {
                     newOrderList.push({
-                        product: product.productIdx,
+                        productId: product.productIdx,
                         optionId: product.optionIdx,
                         name: product.optionName,
                         value: product.optionValue,
-                        price: product.productSalePrice + product.optionPrice,
+                        price: product.optionPrice,
                         count: product.quantity,
                     });
                 }
@@ -137,31 +141,38 @@ export default function Cart() {
         }
     };
 
-    const increaseCount = (cartIdx) => {
+    const increaseCount = (cartIdx, productIdx, optionIdx) => {
+        // 1. groupedCart 업데이트
         setGroupedCart((prev) =>
             prev.map((store) => ({
                 ...store,
                 productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity + 1 } : product)),
             }))
         );
+        // 2. orderListAtom 업데이트
+        setOrderList((prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count + 1 } : order)));
 
-        // db에 카트 수량을 증가
-        axios.post(`${baseUrl}/cartList/increaseCount`, { cartIdx: cartIdx });
+        // 3. DB에 카트 수량 증가 요청
+        axios.post(`${baseUrl}/cartList/increaseCount`, { cartIdx });
     };
 
-    const decreaseCount = (cartIdx) => {
+    const decreaseCount = (cartIdx, productIdx, optionIdx) => {
+        // 1. groupedCart 업데이트
         setGroupedCart((prev) =>
             prev
                 .map((store) => ({
                     ...store,
-                    productList: store.productList
-                        .map((product) => (product.cartIdx === cartIdx && product.quantity >= 1 ? { ...product, quantity: product.quantity - 1 } : product))
-                        .filter((product) => product.quantity > 0),
+                    productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity - 1 } : product)).filter((product) => product.quantity > 0), // 0이면 삭제
                 }))
-                .filter((seller) => seller.productList.length > 0)
+                .filter((store) => store.productList.length > 0)
         );
 
-        // db에 카트 수량을 감소
+        // 2. orderListAtom 업데이트
+        setOrderList(
+            (prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0) // 0이면 삭제
+        );
+
+        // 3. db에 카트 수량 감소
         axios.post(`${baseUrl}/cartList/decreaseCount`, { cartIdx: cartIdx });
     };
 
@@ -268,18 +279,18 @@ export default function Cart() {
                                                                             setOrderList((prev) => [
                                                                                 ...prev,
                                                                                 {
-                                                                                    product: product.productIdx,
+                                                                                    productId: product.productIdx,
                                                                                     optionId: product.optionIdx,
                                                                                     name: product.optionName,
                                                                                     value: product.optionValue,
-                                                                                    price: product.productSalePrice + product.optionPrice,
+                                                                                    price: product.optionPrice,
                                                                                     count: product.quantity,
                                                                                 },
                                                                             ]);
                                                                         } else {
                                                                             // 체크 OFF → 삭제
                                                                             setOrderList((prev) =>
-                                                                                prev.filter((item) => !(item.product === product.productIdx && item.optionId === product.optionIdx))
+                                                                                prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx))
                                                                             );
                                                                         }
                                                                     }}
@@ -301,11 +312,11 @@ export default function Cart() {
                                                             <td>
                                                                 <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
                                                                     <div className="detail-append-button">
-                                                                        <button className="count-button-style" onClick={() => decreaseCount(product.cartIdx)}>
+                                                                        <button className="count-button-style" onClick={() => decreaseCount(product.cartIdx, product.productIdx, product.optionIdx)}>
                                                                             <i className="bi bi-dash-lg append-button-son"></i>
                                                                         </button>
                                                                         <span className="font-14">{product.quantity}</span>
-                                                                        <button className="count-button-style" onClick={() => increaseCount(product.cartIdx)}>
+                                                                        <button className="count-button-style" onClick={() => increaseCount(product.cartIdx, product.productIdx, product.optionIdx)}>
                                                                             <i className="bi bi-plus-lg append-button-son"></i>
                                                                         </button>
                                                                     </div>
@@ -373,6 +384,10 @@ export default function Cart() {
                     {/* 수량 들어가야함 */}
                     <button
                         onClick={() => {
+                            if (orderList.length === 0) {
+                                toggle();
+                                return;
+                            }
                             navigate("/zipddak/productOrder");
                         }}
                         className="cart-pay-box-bottom-button font-16 semibold"
@@ -380,6 +395,16 @@ export default function Cart() {
                         1개 상품 구매하기
                     </button>
                 </div>
+                <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                    <div className="ask-modal-body">
+                        <div>1개 이상의 상품을 선택하셔야 합니다.</div>
+                        <div className="ask-modal-body-button-div">
+                            <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                                확인
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
             </div>
         </div>
     );
