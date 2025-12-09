@@ -10,6 +10,7 @@ export default function ProductList() {
     const [middleCateNo, setMiddleCateNo] = useState(1);
     const [filterNo, setFilterNo] = useState(1);
 
+    let username = "rlawhdwh";
     const [productList, setProductList] = useState([]);
 
     const [page, setPage] = useState(1); // 현재 페이지
@@ -63,7 +64,8 @@ export default function ProductList() {
         searchKeyword = value === undefined ? keyword : value;
 
         try {
-            const res = await axios.get(`${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}`);
+            // 테스트용으로 뒤에 username을 붙임
+            const res = await axios.get(`${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=rlawhdwh`);
 
             if (res.data.length === 0) {
                 setHasMore(false); // 더 이상 데이터 없음
@@ -102,6 +104,16 @@ export default function ProductList() {
         },
         [loading, hasMore]
     );
+
+    const toggleFavorite = async (productIdx) => {
+        try {
+            await axios.post(`${baseUrl}/favoriteToggle`, { productIdx, username });
+
+            setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     // 카테고리/정렬 변경 시 초기화 + 첫 페이지 데이터 가져오기
     useEffect(() => {
@@ -197,7 +209,7 @@ export default function ProductList() {
                             }}
                             ref={productList.length === index + 1 ? lastProductRef : null}
                         >
-                            <Product product={product} />
+                            <Product product={product} toggleFavorite={() => toggleFavorite(product.productIdx)} />
                         </div>
                     ))}
                 </div>

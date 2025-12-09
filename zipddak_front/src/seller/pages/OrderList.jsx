@@ -2,6 +2,7 @@
 import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
+import { priceFormat } from "../js/priceFormat.jsx";
 
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom"; //페이지 이동
@@ -13,6 +14,7 @@ export default function OrderList() {
     const navigate = useNavigate();
 
     const [myOrderList, setMyOrderList] = useState([]);
+    const [myOrderCount, setmyOrderCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
 
@@ -30,7 +32,10 @@ export default function OrderList() {
         const checked = e.target.checked;
 
         if (value === "all") {
-            setSelectedStatus([]);
+            if (checked) {
+                // 전체 선택하면 필터 초기화
+                setSelectedStatus([]);
+            }
             return;
         }
 
@@ -41,16 +46,27 @@ export default function OrderList() {
         }
     };
 
+    //날짜 변경 시 자동 검색
+    useEffect(() => {
+        submit(1);
+    }, [searchDate]);
+    // 필터 변경 시 자동 submit
+    useEffect(() => {
+        submit(1);
+    }, [selectedStatus]);
+
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
-        const orderListUrl =
-            `/seller/order/myOrderList` +
-            `?sellerId=test` +
-            `&page=${page - 1}` + // 스프링 PageRequest는 0부터 시작
-            `&size=10` +
-            `&keyword=${keyword}` +
-            `&searchDate=${searchDate}` +
-            `&stateList=${selectedStatus.join(",")}`;
+        const params = new URLSearchParams();
+
+        params.append("sellerId", "test");
+        params.append("page", page);
+
+        if (keyword) params.append("keyword", keyword);
+        if (searchDate) params.append("searchDate", searchDate);
+        if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
+
+        const orderListUrl = `/seller/order/myOrderList?${params.toString()}`;
 
         myAxios()
             .get(orderListUrl)
@@ -58,6 +74,7 @@ export default function OrderList() {
                 const data = res.data;
 
                 setMyOrderList(data.myOrderList);
+                setmyOrderCount(data.myOrderCount);
 
                 const pageData = {
                     curPage: data.curPage,
@@ -80,11 +97,6 @@ export default function OrderList() {
     useEffect(() => {
         submit(1);
     }, []);
-
-    // 필터 변경 시 자동 submit
-    useEffect(() => {
-        submit(1);
-    }, [selectedStatus]);
 
     return (
         <>
@@ -116,7 +128,7 @@ export default function OrderList() {
                                     <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" value="all" onChange={onChangeStatus} />
+                                                <Input type="checkbox" value="all" checked={selectedStatus.length === 0} onChange={onChangeStatus} />
                                                 전체
                                             </Label>
                                         </FormGroup>
@@ -135,7 +147,7 @@ export default function OrderList() {
 
                             {/* 테이블 영역 */}
                             <div className={table.tableArea}>
-                                <div>
+                                <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
                                             <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
@@ -157,15 +169,6 @@ export default function OrderList() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {/* <tr>
-                                                    <td>251107-12345</td>
-                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지...외 3건</td>
-                                                    <td>lmh1231@naver.com</td>
-                                                    <td className={table.price_cell}>578,000</td>
-                                                    <td>[상품준비중]</td>
-                                                    <td>2025-11-07 11:25:30</td>
-                                                </tr> */}
-
                                                 {myOrderList.length === 0 ? (
                                                     <tr>
                                                         <td colSpan="6" className={table.noData} style={{ textAlign: "center" }}>
@@ -175,11 +178,13 @@ export default function OrderList() {
                                                 ) : (
                                                     myOrderList.map((myOrder) => (
                                                         <tr key={myOrder.orderIdx} onClick={() => navigate(`/orderDetail/${myOrder.orderIdx}`)}>
-                                                            <td>{myOrder.orderNumber}</td>
-                                                            <td className={table.title_cell}>{myOrder.productName}</td>
-                                                            <td>{myOrder.buyerEmail}</td>
-                                                            <td className={table.price_cell}>{myOrder.paymentAmount}</td>
-                                                            <td>{myOrder.status}</td>
+                                                            <td>{myOrder.orderCode}</td>
+                                                            <td className={table.title_cell}>
+                                                                <span className={table.title_cell}>{myOrder.productName}</span> 포함 총 {myOrder.itemCount} 건
+                                                            </td>
+                                                            <td>{myOrder.customerUsername}</td>
+                                                            <td className={table.price_cell}>{priceFormat(myOrder.totalAmount)}</td>
+                                                            <td>{myOrder.orderStatus}</td>
                                                             <td>{myOrder.createdAt}</td>
                                                         </tr>
                                                     ))
@@ -187,9 +192,12 @@ export default function OrderList() {
                                             </tbody>
                                         </table>
                                     </div>
+                                    <div className={table.totalCnt}>
+                                        <p>[총 주문 건수: {myOrderCount}]</p>
+                                    </div>
                                 </div>
                                 <div className="pagination_part">
-                                    <Pagination className={table.pagination}>
+                                    <Pagination className={table.my_pagination}>
                                         <PaginationItem>
                                             <PaginationLink previous onClick={() => submit(pageInfo.curPage - 1)} />
                                         </PaginationItem>
