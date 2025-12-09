@@ -20,7 +20,7 @@ export default function SignUser() {
     const navigate = useNavigate();
 
     //테스트용 axios
-    const signUpapi = myAxios(null,null);
+    const signUpapi = myAxios(null, null);
 
     const changeInput = (e) => {
         setUser({ ...user, [e.target.name]: e.target.value })
@@ -30,7 +30,7 @@ export default function SignUser() {
     const [idValid, setIdValid] = useState(null);
 
     useEffect(() => {
-        console.log("api:",signUpapi)
+        console.log("api:", signUpapi)
         if (!user.username) {
             setIdValid(null);
             return;
@@ -38,8 +38,8 @@ export default function SignUser() {
         const timer = setTimeout(() => {
             signUpapi.post('/checkDoubleId', { username: user.username })
                 .then(res => {
-                    console.log("res:",res);
-                    console.log("res.data:",res.data);
+                    console.log("res:", res);
+                    console.log("res.data:", res.data);
 
                     if (res.data === true) {
                         setIdValid(false);
@@ -110,7 +110,9 @@ export default function SignUser() {
         setUser({
             ...user,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address
+            addr1: data.roadAddress?.trim()
+                ? data.roadAddress
+                : data.address
         });
     }
 
@@ -462,7 +464,7 @@ export default function SignUser() {
                             </div>
                         </div>
                     </Form>
-                    
+
 
                     <div className="loginFooter">
                         <div className="input_detail">이미 아이디가 있으신가요?</div>
@@ -474,12 +476,12 @@ export default function SignUser() {
                 </div>
 
                 <Modal isOpen={modal}>
-                        <ModalHeader>회원가입</ModalHeader>
-                        <ModalBody>
-                            {message}
-                        </ModalBody>
-                        <Button color="primary" onClick={() => setModal(false)} >확인</Button>
-                    </Modal>
+                    <ModalHeader>회원가입</ModalHeader>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                    <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                </Modal>
             </div>
 
             {
