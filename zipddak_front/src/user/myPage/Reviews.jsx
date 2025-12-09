@@ -363,7 +363,7 @@ export default function Reviews() {
       });
   };
 
-  // 리뷰 이미지 업로드
+  // 후기 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
