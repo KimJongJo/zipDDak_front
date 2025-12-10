@@ -13,10 +13,9 @@ export default function ProductList() {
     const navigate = useNavigate();
 
     const [myProductList, setMyProductList] = useState([]);
+    const [myProductCount, setmyProductCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
-    const [keyword, setKeyword] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState([]);
 
     //(필터) 셀러가 등록한 상품의 카테고리만 출력
     const [categories, setCategories] = useState([]);
@@ -35,33 +34,97 @@ export default function ProductList() {
             .catch((err) => console.error(err));
     }, []);
 
-    //(필터) 카테고리 선택
+    // 필터 상태값
+    const [selectedStatus, setSelectedStatus] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState([]);
+    const [keyword, setKeyword] = useState("");
+    //통합 필터 함수 형태 (API 호출)
+    const fetchFilteredProducts = (page = 1) => {
+        const category = selectedCategory.join(",");
+        const status = selectedStatus.join(",");
+
+        myAxios()
+            .get("/seller/product/myProductList", {
+                params: {
+                    sellerId: "test",
+                    page,
+                    category: category || null,
+                    status: status || null,
+                    keyword: keyword || null,
+                },
+            })
+            .then((res) => {
+                const data = res.data;
+
+                setMyProductList(data.myProductList);
+                setmyProductCount(data.myProductCount);
+
+                setPageInfo({
+                    curPage: data.curPage,
+                    allPage: data.allPage,
+                    startPage: data.startPage,
+                    endPage: data.endPage,
+                });
+
+                const btns = [];
+                for (let i = data.startPage; i <= data.endPage; i++) btns.push(i);
+                setPageBtn(btns);
+            })
+            .catch((err) => console.error(err));
+    };
+
+    // (필터) 판매상태 선택
+    const onChangeStatus = (e) => {
+        const value = e.target.value;
+
+        if (value === "all") {
+            setSelectedStatus([]);
+            return fetchFilteredProducts(1);
+        }
+
+        let newList;
+
+        if (e.target.checked) {
+            newList = [...selectedStatus, value];
+        } else {
+            newList = selectedStatus.filter((v) => v !== value);
+        }
+
+        setSelectedStatus(newList);
+        fetchFilteredProducts();
+    };
+
+    // (필터) 카테고리 선택
     const onChangeCategory = (e) => {
         const value = e.target.value;
 
-        // 전체 선택일 경우
         if (value === "all") {
             setSelectedCategory([]);
-            return;
+            return fetchFilteredProducts(); // 통합 API 호출
         }
+
+        let newList;
 
         if (e.target.checked) {
-            setSelectedCategory((prev) => [...prev, value]);
+            newList = [...selectedCategory, Number(value)];
         } else {
-            setSelectedCategory((prev) => prev.filter((v) => v !== value));
+            newList = selectedCategory.filter((v) => v !== Number(value));
         }
+
+        setSelectedCategory(newList);
+        fetchFilteredProducts();
     };
 
-    const submit = (page) => {
-        const productListUrl = `/seller/product/myProductList?sellerId=test&page=${page}&category=${selectedCategory}&keyword=${keyword}`;
+    // 검색/페이징 공통 함수
+    const submit = (page = 1) => {
+        const productListUrl = `/seller/product/myProductList` + `?sellerId=test` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
         myAxios()
             .get(productListUrl)
             .then((res) => {
-                console.log(res.data);
-                return res.data;
-            })
-            .then((data) => {
-                setMyProductList(data.myproductsList);
+                const data = res.data;
+
+                setMyProductList(data.myProductList);
+                setmyProductCount(data.myProductCount);
 
                 const pageData = {
                     curPage: data.curPage,
@@ -71,22 +134,24 @@ export default function ProductList() {
                 };
                 setPageInfo(pageData);
 
-                // 페이지 버튼 생성
-                let pageBtns = [];
+                const btns = [];
                 for (let i = pageData.startPage; i <= pageData.endPage; i++) {
-                    pageBtns.push(i);
+                    btns.push(i);
                 }
-                setPageBtn(pageBtns);
+                setPageBtn(btns);
             })
-            .catch((err) => {
-                console.log(err);
-            });
+            .catch((err) => console.log(err));
     };
 
+    // 최초 1회 로딩
     useEffect(() => {
         submit(1);
     }, []);
 
+    // 필터 변경 시 자동 submit
+    useEffect(() => {
+        submit(1);
+    }, [selectedCategory, selectedStatus]);
     return (
         <>
             {/* 페이지 탭 타이틀 */}
@@ -108,28 +173,28 @@ export default function ProductList() {
                                     <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="all" checked={selectedStatus.length === 0} onChange={onChangeStatus} />
                                                 전체
                                             </Label>
                                         </FormGroup>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="1" checked={selectedStatus.includes("1")} onChange={onChangeStatus} />
                                                 판매중
                                             </Label>
                                         </FormGroup>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="0" checked={selectedStatus.includes("0")} onChange={onChangeStatus} />
                                                 비공개
                                             </Label>
                                         </FormGroup>
-                                        <FormGroup check inline>
+                                        {/* <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="soldout" checked={selectedStatus.includes("soldout")} onChange={onChangeStatus} />
                                                 품절
                                             </Label>
-                                        </FormGroup>
+                                        </FormGroup> */}
                                     </div>
                                 </div>
                                 <div className={table.filterColumn}>
@@ -138,7 +203,7 @@ export default function ProductList() {
                                         {/* 전체 체크박스 */}
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" value="all" />
+                                                <Input type="checkbox" value="all" checked={selectedCategory.length === 0} onChange={onChangeCategory} />
                                                 전체
                                             </Label>
                                         </FormGroup>
@@ -147,7 +212,7 @@ export default function ProductList() {
                                         {categories.map((c) => (
                                             <FormGroup check inline key={c.categoryIdx}>
                                                 <Label check>
-                                                    <Input type="checkbox" value={c.categoryIdx} onChange={onChangeCategory} />
+                                                    <Input type="checkbox" value={c.categoryIdx} checked={selectedCategory.includes(c.categoryIdx)} onChange={onChangeCategory} />
                                                     {c.name}
                                                 </Label>
                                             </FormGroup>
@@ -158,7 +223,7 @@ export default function ProductList() {
 
                             {/* 테이블 영역 */}
                             <div className={table.tableArea}>
-                                <div>
+                                <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
                                             <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
@@ -187,27 +252,38 @@ export default function ProductList() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {myProductList.map((myProduct) => (
-                                                    <tr key={myProduct.productIdx} onClick={() => navigate(`/productDetail/${myProduct.productIdx}`)}>
-                                                        <td style={{ padding: "0" }}>
-                                                            <img src="/no_img.svg" style={{ width: "100%" }} />
+                                                {myProductList.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan="8" className={table.noData} style={{ textAlign: "center" }}>
+                                                            등록된 상품이 없습니다.
                                                         </td>
-                                                        <td className={table.title_cell}> {myProduct.name}</td>
-                                                        <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
-                                                        <td>{myProduct.price}</td>
-                                                        <td>리뷰수</td>
-                                                        <td>리뷰평점</td>
-                                                        <td>{myProduct.visibleYn ? "판매중" : "비공개"}</td>
-                                                        <td>{myProduct.createdAt}</td>
                                                     </tr>
-                                                ))}
+                                                ) : (
+                                                    myProductList.map((myProduct) => (
+                                                        <tr key={myProduct.productIdx} onClick={() => navigate(`/productDetail/${myProduct.productIdx}`)}>
+                                                            <td style={{ padding: "0" }}>
+                                                                <img src="/no_img.svg" style={{ width: "100%" }} />
+                                                            </td>
+                                                            <td className={table.title_cell}> {myProduct.name}</td>
+                                                            <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
+                                                            <td>{myProduct.price}</td>
+                                                            <td>리뷰수</td>
+                                                            <td>리뷰평점</td>
+                                                            <td>{myProduct.visibleYn ? "판매중" : "비공개"}</td>
+                                                            <td>{myProduct.createdAt}</td>
+                                                        </tr>
+                                                    ))
+                                                )}
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div className={table.totalCnt}>
+                                        <p>[총 등록 상품 수: {myProductCount}]</p>
                                     </div>
                                 </div>
 
                                 <div className="pagination_part">
-                                    <Pagination className={table.pagination}>
+                                    <Pagination className={table.my_pagination}>
                                         <PaginationItem>
                                             <PaginationLink previous onClick={() => submit(pageInfo.curPage - 1)} />
                                         </PaginationItem>

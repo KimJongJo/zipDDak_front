@@ -36,6 +36,7 @@ export default function MarketOrders() {
   const [modalType, setModalType] = useState(""); // 취소 | 후기
 
   const [targetReview, setTargetReview] = useState({});
+  const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
@@ -103,12 +104,47 @@ export default function MarketOrders() {
       });
   };
 
-  // 후기작성 시 이미지 업로드
+  // 구매 후기 등록
+  const submitProductReview = () => {
+    const formData = new FormData();
+
+    formData.append("score", rating);
+    formData.append("content", content);
+    formData.append("writer", "test@kosta.com");
+    formData.append("productIdx", targetReview.productIdx);
+    formData.append("orderItemIdx", targetReview.orderItemIdx);
+
+    // 파일 업로드
+    files.forEach((file) => {
+      formData.append("reviewImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/review/write/product", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          setTargetReview({});
+          setRating(0);
+          setImages([]);
+          setFiles([]);
+          getOrders(pageInfo.curPage, selectDate.startDate, selectDate.endDate);
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 후기 이미지 업로드
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setImages((prev) => [...prev, URL.createObjectURL(file)]);
+    const localUrl = URL.createObjectURL(file);
+
+    setImages((prev) => [...prev, { url: localUrl, idx: null, isLocal: true }]);
+
     setFiles((prev) => [...prev, file]);
   };
 
@@ -121,6 +157,10 @@ export default function MarketOrders() {
   useEffect(() => {
     setCheckedItems({});
     setSelectedDeliveryGroups([]);
+    setContent("");
+    setRating(0);
+    setImages([]);
+    setFiles([]);
   }, [orders]);
 
   return (
@@ -725,21 +765,23 @@ export default function MarketOrders() {
                                 invoice={item.trackingNo}
                               />
                             )}
-                            {item.orderStatus === "배송완료" && (
-                              <button
-                                className="primary-button"
-                                style={{
-                                  width: "68px",
-                                  height: "33px",
-                                }}
-                                onClick={() => {
-                                  setTargetReview(item);
-                                  setIsModalOpen(true);
-                                }}
-                              >
-                                후기작성
-                              </button>
-                            )}
+                            {item.orderStatus === "배송완료" &&
+                              item.reviewAvailable && (
+                                <button
+                                  className="primary-button"
+                                  style={{
+                                    width: "68px",
+                                    height: "33px",
+                                  }}
+                                  onClick={() => {
+                                    setTargetReview(item);
+                                    setModalType("후기");
+                                    setIsModalOpen(true);
+                                  }}
+                                >
+                                  후기작성
+                                </button>
+                              )}
                           </div>
                         </td>
                         {idx === 0 && (
@@ -793,16 +835,6 @@ export default function MarketOrders() {
       </div>
 
       <Pagination className="my-pagination">
-        {/* <PaginationItem disabled={pageInfo.curPage < 2}>
-          <PaginationLink
-            previous
-            onClick={
-              pageInfo.curPage > 1
-                ? () => getOrders(pageInfo.curPage - 1)
-                : undefined
-            }
-          />
-        </PaginationItem> */}
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
             <PaginationLink
@@ -815,16 +847,6 @@ export default function MarketOrders() {
             </PaginationLink>
           </PaginationItem>
         ))}
-        {/* <PaginationItem disabled={pageInfo.curPage > pageInfo.endPage - 1}>
-          <PaginationLink
-            next
-            onClick={
-              pageInfo.curPage < pageInfo.endPage
-                ? () => getOrders(pageInfo.curPage + 1)
-                : undefined
-            }
-          />
-        </PaginationItem> */}
       </Pagination>
 
       {modalType === "후기" && (
@@ -845,7 +867,11 @@ export default function MarketOrders() {
                 gap: "10px",
               }}
             >
-              <img src="" width="80px" height="80px" />
+              <img
+                src={`http://localhost:8080/imageView?type=product&filename=${targetReview.thumbnail}`}
+                width="80px"
+                height="80px"
+              />
               <div
                 style={{
                   display: "flex",
@@ -884,6 +910,7 @@ export default function MarketOrders() {
               <Input
                 type="textarea"
                 placeholder="상품에 대해 만족스러웠던 점이나, 디자인, 팁 등을 남겨주세요."
+                onChange={(e) => setContent(e.target.value)}
               ></Input>
             </div>
 
@@ -897,7 +924,7 @@ export default function MarketOrders() {
               >
                 {images.map((img, idx) => (
                   <div style={{ position: "relative" }}>
-                    <img key={idx} src={img} width="60px" height="60px" />
+                    <img key={idx} src={img.url} width="60px" height="60px" />
                     <i
                       class="bi bi-x-circle-fill"
                       style={{
@@ -909,13 +936,20 @@ export default function MarketOrders() {
                         cursor: "pointer",
                       }}
                       onClick={() => {
-                        setImages((prev) => prev.filter((_, i) => i !== idx));
-                        setFiles((prev) => prev.filter((_, i) => i !== idx));
+                        setImages((prev) => {
+                          const newArr = prev.filter((_, i) => i !== idx); // idx 삭제
+                          return [...newArr]; // 자동으로 앞으로 땡겨짐
+                        });
+
+                        setFiles((prev) => {
+                          const newArr = prev.filter((_, i) => i !== idx); // 같은 idx 삭제
+                          return [...newArr];
+                        });
                       }}
                     />
                   </div>
                 ))}
-                {images.length < 5 && (
+                {images.length < 3 && (
                   <div
                     onClick={() => imgRef.current.click()}
                     style={{
@@ -950,6 +984,7 @@ export default function MarketOrders() {
             <button
               className="primary-button"
               style={{ width: "100%", height: "40px", fontSize: "14px" }}
+              onClick={() => submitProductReview()}
             >
               후기 등록하기
             </button>

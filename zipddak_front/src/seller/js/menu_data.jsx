@@ -53,6 +53,7 @@ export const NAV_MENUS = [
             { label: "반품내역상세", icon: "bi bi-newspaper", href: "/seller/returnDetail" },
             { label: "교환내역상세", icon: "bi bi-newspaper", href: "/seller/exchangeDetail" },
             { label: "정산내역상세", icon: "bi bi-newspaper", href: "/seller/settleDetail" },
+            { label: "상품상세", icon: "bi bi-newspaper", href: "/seller/productDetailSeller" },
         ],
     },
 ];

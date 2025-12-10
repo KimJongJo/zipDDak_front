@@ -1,8 +1,8 @@
-import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, AccordionHeader, AccordionBody, AccordionItem, FormFeedback } from "reactstrap";
+import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, AccordionHeader, AccordionBody, AccordionItem, FormFeedback, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import "../css/Signup.css";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config";
-import { Await, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import DaumPostcode from 'react-daum-postcode';
 import { Modal as AddrModal } from 'antd'
 import qs from 'qs';
@@ -11,8 +11,8 @@ export default function SignExpert() {
 
     const [expert, setExpert] = useState({
         userUsername: 'uu@email.com', activityName: '', zonecode: '', addr1: '', addr2: '',
-        employeeCount: 'null', businessLicense: '', businessLicensePdfId: 'null', settleBank: '', settleAccount: '', settleHost: '',
-        createdAt: '', providedServiceIdx: ''
+        employeeCount: 0, businessLicense: '', businessLicensePdfId: null, settleBank: '', settleAccount: '', settleHost: '',
+        createdAt: null, providedServiceIdx: ''
     })
 
     const [modal, setModal] = useState(false);
@@ -52,6 +52,7 @@ export default function SignExpert() {
         interior3: []
     });
 
+    const [counselCategory, setCounselCategory] = useState();
 
     const ranOnceRef = useRef(false); // StrictMode 이중실행 방지용
 
@@ -62,6 +63,10 @@ export default function SignExpert() {
             ...prev,
             [name]: checked
         }));
+
+        if (name === 'majorCategory1' && !checked) {
+            setCounselCategory("75");
+        }
 
         if (name === 'majorCategory2' && !checked) {
             setRepairCategory({ repair1: [], repair2: [], repair3: [] });
@@ -83,7 +88,7 @@ export default function SignExpert() {
         const preload = async () => {
             try {
                 const repair = await signUpapi.get("/signUpExpertCategory", {
-                    params: { parentIdx: [24, 31, 37], type: "expert" },
+                    params: { parentIdx: [23, 44, 74] },
                     paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" })
                 });
 
@@ -94,23 +99,15 @@ export default function SignExpert() {
                         repair2: repair.data["31"] || [],
                         repair3: repair.data["37"] || []
                     });
+
+                    setInteriorCategory({
+                        interior1: repair.data["45"] || [],
+                        interior2: repair.data["55"] || [],
+                        interior3: repair.data["65"] || []
+                    });
                 } else {
                     // 안전히 빈배열로 초기화
                     setRepairCategory({ repair1: [], repair2: [], repair3: [] });
-                }
-
-                const interior = await signUpapi.get("/signUpExpertCategory", {
-                    params: { parentIdx: [45, 55, 65], type: "expert" },
-                    paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" })
-                });
-
-                if (interior && interior.data) {
-                    setInteriorCategory({
-                        interior1: interior.data["45"] || [],
-                        interior2: interior.data["55"] || [],
-                        interior3: interior.data["65"] || []
-                    });
-                } else {
                     setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
                 }
 
@@ -155,11 +152,8 @@ export default function SignExpert() {
 
     //파일
     const fileRef = useRef(null);
-    const imgRef = useRef(null);
-
     const [file, setFile] = useState();
     const [fileName, setFileName] = useState();
-    const [imgFile, setImgFile] = useState();
 
 
     //활동명
@@ -192,7 +186,9 @@ export default function SignExpert() {
         setExpert({
             ...expert,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address
+            addr1: data.roadAddress?.trim()
+                ? data.roadAddress
+                : data.address
         });
     }
 
@@ -246,12 +242,9 @@ export default function SignExpert() {
     const submit = (e) => {
         e.preventDefault();
 
-        //db에 문자열로 저장
-        const providedServiceIdx = makeProvidedServiceIdx();
-        const sendExpert = {
-            ...expert,
-            providedServiceIdx: providedServiceIdx
-        };
+        //선택한 카테고리를 db에 문자열로 저장
+        const providedServiceIdx = makeProvidedServiceIdx()
+        setExpert({ ...expert, providedServiceIdx: providedServiceIdx })
 
         if (!expert.activityName?.trim()) {
             alert("활동명을 입력해주세요.");
@@ -265,7 +258,7 @@ export default function SignExpert() {
         } else if (!expert.addr1?.trim()) {
             alert("주소를 입력해주세요")
             return;
-        } else if (!sendExpert.providedServiceIdx?.trim()) {
+        } else if (!providedServiceIdx?.trim()) {
 
             alert("제공서비스는 최소 한가지 이상 선택해주세요");
             return;
@@ -280,22 +273,25 @@ export default function SignExpert() {
         const formData = new FormData();
 
         formData.append("businessLicenseFile", file);
+        formData.append("userUsername", expert.userUsername);
+        formData.append("activityName", expert.activityName);
+        formData.append("zonecode", expert.zonecode);
+        formData.append("addr1", expert.addr1);
+        formData.append("addr2", expert.addr2);
+        formData.append("employeeCount", +expert.employeeCount);
+        formData.append("settleBank", expert.settleBank);
+        formData.append("settleAccount", expert.settleAccount);
+        formData.append("settleHost", expert.settleHost);
+        formData.append("providedServiceIdx", providedServiceIdx);
+        formData.append("businessLicense", expert.businessLicense);
 
-        formData.append(
-            "expert",
-            new Blob([JSON.stringify({
-                ...sendExpert,
-                businessLicensePdfId: null
-            })], { type: "application/json" })
-        );
-
-        console.log(formData);
 
         try {
             signUpapi.post('/joinExpert', formData,
                 { headers: { "Content-Type": "multipart/form-data" } })
                 .then(res => {
                     if (res.data == true) {
+                        console.log(res);
                         setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.")
                         navigate(`/zipddak/login`);
                     } else {
@@ -339,7 +335,13 @@ export default function SignExpert() {
 
                             <div className="experts_category">
                                 <FormGroup check>
-                                    <Input type="checkbox" name="majorCategory1" checked={majorservice.majorCategory1} onChange={checkMajor} /> <Label check>시공견적 컨설팅</Label>
+                                    <Input
+
+                                        type="checkbox"
+                                        name="majorCategory1"
+                                        checked={majorservice.majorCategory1}
+                                        onChange={checkMajor} />
+                                    <Label check>시공견적 컨설팅</Label>
                                 </FormGroup>
                                 <div className="line"></div>
                                 <span>컨설팅 전문가</span>
@@ -728,6 +730,15 @@ export default function SignExpert() {
                     </div>
                     <div className="loginFooter"></div>
                 </div>
+                <Modal isOpen={modal}>
+                    <ModalHeader >회원가입</ModalHeader>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                    </ModalFooter>
+                </Modal>
             </div>
 
             {
