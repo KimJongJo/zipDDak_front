@@ -2,14 +2,101 @@
 import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
-
+//library
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
-import Tippy from "@tippyjs/react";
-
+import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
+import { myAxios } from "../../config/config.jsx";
 
 export default function ShippingList() {
     const pageTitle = usePageTitle("주문관리 > 배송 관리");
+
+    const navigate = useNavigate();
+
+    const [myShippingList, setMyShippingList] = useState([]);
+    const [myShippingCount, setMyShippingCount] = useState(0);
+    const [pageBtn, setPageBtn] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
+
+    // 필터 상태값
+    const [searchDate, setSearchDate] = useState(""); //주문일자
+    const [selectedStatus, setSelectedStatus] = useState([]); //주문상태
+    const [keyword, setKeyword] = useState(""); //검색어
+
+    // 주문 상태 체크박스 value 고정
+    const ORDER_STATUS = ["배송중", "배송완료", "교환", "환불"];
+
+    // 주문 상태 체크박스 변경
+    const onChangeStatus = (e) => {
+        const value = e.target.value;
+        const checked = e.target.checked;
+
+        if (value === "all") {
+            if (checked) {
+                // 전체 선택하면 필터 초기화
+                setSelectedStatus([]);
+            }
+            return;
+        }
+
+        if (checked) {
+            setSelectedStatus((prev) => [...prev, value]);
+        } else {
+            setSelectedStatus((prev) => prev.filter((v) => v !== value));
+        }
+    };
+
+    //날짜 변경 시 자동 검색
+    useEffect(() => {
+        submit(1);
+    }, [searchDate]);
+    // 필터 변경 시 자동 submit
+    useEffect(() => {
+        submit(1);
+    }, [selectedStatus]);
+
+    // 검색/페이징 공통 함수
+    const submit = (page = 1) => {
+        const params = new URLSearchParams();
+
+        params.append("sellerId", "test");
+        params.append("page", page);
+
+        if (keyword) params.append("keyword", keyword);
+        if (searchDate) params.append("searchDate", searchDate);
+        if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
+
+        const shippingListUrl = `/seller/shipping/myShippingList?${params.toString()}`;
+
+        myAxios()
+            .get(shippingListUrl)
+            .then((res) => {
+                const data = res.data;
+
+                setMyShippingList(data.myShippingList);
+                setMyShippingCount(data.myShippingCount);
+
+                const pageData = {
+                    curPage: data.curPage,
+                    allPage: data.allPage,
+                    startPage: data.startPage,
+                    endPage: data.endPage,
+                };
+                setPageInfo(pageData);
+
+                const btns = [];
+                for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+                    btns.push(i);
+                }
+                setPageBtn(btns);
+            })
+            .catch((err) => console.log(err));
+    };
+
+    // 최초 1회 로딩
+    useEffect(() => {
+        submit(1);
+    }, []);
 
     return (
         <>
@@ -20,7 +107,7 @@ export default function ShippingList() {
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
                         <i className="bi bi-truck"></i>
-                        <span>주문 내역 조회</span>
+                        <span>배송 내역</span>
                     </div>
 
                     <div className="bodyFrame">
@@ -29,61 +116,37 @@ export default function ShippingList() {
                             <div className={table.filterArea}>
                                 <div className={table.filterColumn}>
                                     <div className={table.filterTitle}>주문일자</div>
-                                    <div>
-                                        <FormGroup>
-                                            <Input id="exampleDate" name="date" placeholder="date placeholder" type="date" />
-                                        </FormGroup>
-                                    </div>
+                                    <FormGroup>
+                                        <Input type="date" value={searchDate} onChange={(e) => setSearchDate(e.target.value)} />
+                                    </FormGroup>
                                 </div>
                                 <div className={table.filterColumn}>
                                     <div className={table.filterTitle}>주문 상태</div>
                                     <div className={table.filterBody}>
                                         <FormGroup check inline>
                                             <Label check>
-                                                <Input type="checkbox" />
+                                                <Input type="checkbox" value="all" checked={selectedStatus.length === 0} onChange={onChangeStatus} />
                                                 전체
                                             </Label>
                                         </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                상품준비중
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                배송중
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                배송완료
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                교환
-                                            </Label>
-                                        </FormGroup>
-                                        <FormGroup check inline>
-                                            <Label check>
-                                                <Input type="checkbox" />
-                                                환불
-                                            </Label>
-                                        </FormGroup>
+                                        {ORDER_STATUS.map((status) => (
+                                            <FormGroup check inline key={status}>
+                                                <Label check>
+                                                    <Input type="checkbox" value={status} checked={selectedStatus.includes(status)} onChange={onChangeStatus} />
+                                                    {status}
+                                                </Label>
+                                            </FormGroup>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
 
                             {/* 테이블 영역 */}
                             <div className={table.tableArea}>
-                                <div>
+                                <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
+                                            <Input name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
                                             <button type="button" className="small-button">
                                                 검색
                                             </button>
@@ -103,20 +166,47 @@ export default function ShippingList() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>251107-12345</td>
-                                                    <td className="title_cell">시트지[예림 인테리어 필름] 우드HW...외 3건</td>
-                                                    <td>2025-11-08 12:25:16</td>
-                                                    <td>12345678901234</td>
-                                                    <td>대한통운</td>
-                                                    <td>[배송중]</td>
-                                                    <td>2025-11-07 11:25:30</td>
-                                                </tr>
+                                                {myShippingList.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan="7" className={table.noData} style={{ textAlign: "center" }}>
+                                                            현재 배송 진행 건이 없습니다.
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    myShippingList.map((myShipping) => (
+                                                        <tr key={myShipping.trackingNo} onClick={() => navigate(`/orderDetail/${myShipping.orderIdx}`)}>
+                                                            <td>{myShipping.orderCode}</td>
+                                                            <td className={table.title_cell}>
+                                                                <span className={table.title_cell}>{myShipping.shippingProductName}</span> 포함 총 {myShipping.itemCount} 건
+                                                            </td>
+                                                            <td>{myShipping.firstSendDate}</td>
+                                                            <td>{myShipping.trackingNo}</td>
+                                                            <td>{myShipping.orderStatus}</td>
+                                                            <td>{myShipping.orderDate}</td>
+                                                        </tr>
+                                                    ))
+                                                )}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-                                <div className="pagination"></div>
+                                <div className="pagination_part">
+                                    <Pagination className={table.my_pagination}>
+                                        <PaginationItem>
+                                            <PaginationLink previous onClick={() => submit(pageInfo.curPage - 1)} />
+                                        </PaginationItem>
+
+                                        {pageBtn.map((p) => (
+                                            <PaginationItem key={p} active={pageInfo.curPage === p}>
+                                                <PaginationLink onClick={() => submit(p)}>{p}</PaginationLink>
+                                            </PaginationItem>
+                                        ))}
+
+                                        <PaginationItem>
+                                            <PaginationLink next onClick={() => submit(pageInfo.curPage + 1)} />
+                                        </PaginationItem>
+                                    </Pagination>
+                                </div>
                             </div>
                         </div>
                     </div>
