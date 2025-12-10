@@ -136,7 +136,7 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
                 <Route path="productOrderComplate" element={<ProductOrderComplate />} />
-                <Route path="seller/:sellerIdx" element={<StoreInfo />} />
+                <Route path="storeInfo" element={<StoreInfo />} />
 
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
@@ -158,8 +158,8 @@ function App() {
                     <Route path="reviews" element={<Reviews />} />
                     <Route path="market/orders" element={<MarketOrders />} />
                     <Route path="market/returns" element={<MarketReturns />} />
-                    <Route path="market/detail/:orderId" element={<MarketOrderDetail />} />
-                    <Route path="market/exchange/:orderId" element={<MarketExchangeForm />} />
+                    <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
+                    <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
                     <Route path="tool" element={<MyTool />} />
                     <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
                     <Route path="tool/lent" element={<ToolLent />} />
