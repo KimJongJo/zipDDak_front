@@ -55,6 +55,7 @@ export default function FindExpert() {
             { text: "추가 요청사항이 있으면 알려주세요", key: "additionalRequest", type: "text" },
         ],
         수리: [
+            { text: "예산은 어느 정도로 생각하시나요?", key: "budget", type: "text" },
             { text: "작업 희망일을 선택해주세요(변동될 수 있습니다.)", key: "preferredDate", type: "date" },
             { text: "작업할 장소는 어딘가요?", key: "location", type: "text" },
             { text: "추가 요청사항이 있으면 알려주세요", key: "additionalRequest", type: "text" },
