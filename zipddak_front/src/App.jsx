@@ -103,6 +103,7 @@ import SettleDetail from "./seller/pages/SettleDetail.jsx";
 import Token from "./Token.jsx";
 import SellerPdDetail from "./seller/pages/ProductDetail.jsx";
 
+
 function App() {
   return (
     <Routes>
