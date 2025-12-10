@@ -1,7 +1,23 @@
 import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import "../css/Signup.css";
+import { baseUrl } from "../../config";
+import { useNavigate } from "react-router";
+import { useState } from "react";
+
 
 export default function Login() {
+
+    const [username, setUsername] = useState();
+    const [password, setPassword] = useState();
+    const [token, setToken] = useState();
+
+    const navigate = useNavigate();
+
+    const submit = () => {
+
+    }
+
+
     return (
         <>
             <div className="signUp-box">
@@ -18,9 +34,15 @@ export default function Login() {
                             <div className="sns_line"></div>
                         </div>
                         <div className="sns_icons">
-                            <img src="/naver_r.png" alt="" style={{ width: 56, height: 56 }} />
-                            <img src="/kakao_r.png" alt="" style={{ width: 56, height: 56 }} />
-                            <img src="/google_r.png" alt="" style={{ width: 56, height: 56 }} />
+                            <a href={`${baseUrl}/oauth2/authorization/naver`}>
+                                <img src="/naver_r.png" alt="naver" style={{ width: 56, height: 56 }} />
+                            </a>
+                            <a href={`${baseUrl}/oauth2/authorization/kakao`}>
+                                <img src="/kakao_r.png" alt="kakao" style={{ width: 56, height: 56 }} />
+                            </a>
+                            <a href={`${baseUrl}/oauth2/authorization/google`}>
+                                <img src="/google_r.png" alt="google" style={{ width: 56, height: 56 }} />
+                            </a>
                         </div>
                     </div>
 
