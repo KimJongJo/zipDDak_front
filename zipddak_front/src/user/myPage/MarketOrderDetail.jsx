@@ -1,9 +1,8 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAtomValue } from "jotai";
 import { deliveryGroupsAtom } from "./orderAtoms";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Input, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 
 export default function MarketOrderDetail() {
   const { orderIdx } = useParams();
@@ -11,15 +10,9 @@ export default function MarketOrderDetail() {
   const type = searchParams.get("type");
 
   const [orderDetail, setOrderDetail] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetReview, setTargetReview] = useState(null);
-  const [rating, setRating] = useState(0);
-  const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
-  const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
 
   const deliveryGroups = useAtomValue(deliveryGroupsAtom);
 
-  const imgRef = useRef(null);
   const navigate = useNavigate();
 
   // 주문 상세 조회
@@ -33,15 +26,6 @@ export default function MarketOrderDetail() {
       .catch((err) => {
         console.log(err);
       });
-  };
-
-  // 후기작성 시 이미지 업로드
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setImages((prev) => [...prev, URL.createObjectURL(file)]);
-    setFiles((prev) => [...prev, file]);
   };
 
   useEffect(() => {
@@ -501,110 +485,6 @@ export default function MarketOrderDetail() {
           목록
         </button>
       </div>
-      {targetReview && (
-        <Modal
-          isOpen={isModalOpen}
-          toggle={() => setIsModalOpen(false)}
-          className="mypage-modal"
-          style={{ width: "460px" }}
-        >
-          <ModalHeader toggle={() => setIsModalOpen(false)}>
-            후기 작성
-          </ModalHeader>
-          <ModalBody>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-              }}
-            >
-              <img src="" width="80px" height="80px" />
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                  fontSize: "14px",
-                }}
-              >
-                <p style={{ fontWeight: "600" }}>{targetReview.brandName}</p>
-                <p style={{ fontWeight: "500" }}>{targetReview.productName}</p>
-                {targetReview.optionName && (
-                  <p style={{ color: "#6A7685" }}>{targetReview.optionName}</p>
-                )}
-              </div>
-            </div>
-            <div className="label-wrapper">
-              <label>구매한 상품은 어떠셨나요?</label>
-              <div className="review-star">
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <i
-                    key={num}
-                    class={`bi ${rating >= num ? "bi-star-fill" : "bi-star"}`}
-                    style={{
-                      fontSize: "20px",
-                      cursor: "pointer",
-                      color: "rgba(247, 196, 68, 1)",
-                    }}
-                    onClick={() => setRating(num)}
-                  ></i>
-                ))}
-              </div>
-            </div>
-
-            <div className="label-wrapper">
-              <label>상품 후기를 적어주세요</label>
-              <Input
-                type="textarea"
-                placeholder="상품에 대해 만족스러웠던 점이나, 디자인, 팁 등을 남겨주세요."
-              ></Input>
-            </div>
-
-            <div className="label-wrapper">
-              <label>사진 첨부</label>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                }}
-              >
-                {images.map((img, idx) => (
-                  <img key={idx} src={img} width="60px" height="60px" />
-                ))}
-                {images.length < 5 && (
-                  <div
-                    onClick={() => imgRef.current.click()}
-                    style={{
-                      width: "60px",
-                      height: "60px",
-                      background: "#000",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <img
-                      src="/Plus.svg"
-                      style={{ width: "20px", height: "20px" }}
-                    />
-                    <input type="file" hidden ref={imgRef} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <button
-              className="primary-button"
-              style={{ width: "100%", height: "40px", fontSize: "14px" }}
-            >
-              후기 등록하기
-            </button>
-          </ModalFooter>
-        </Modal>
-      )}
     </div>
   );
 }

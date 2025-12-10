@@ -3,14 +3,11 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
     const now = new Date();
     const date = new Date(sqlDateString);
 
-    const diffMs = now - date;
-    const diffMin = Math.floor(diffMs / (1000 * 60));
-    const diffHour = Math.floor(diffMs / (1000 * 60 * 60));
+    // 날짜만 비교
+    const diffMs = now.setHours(0, 0, 0, 0) - date.setHours(0, 0, 0, 0);
     const diffDay = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-    if (diffMin < 1) return "방금 전";
-    if (diffMin < 60) return `${diffMin}분 전`;
-    if (diffHour < 24) return `${diffHour}시간 전`;
+    if (diffDay < 1) return "오늘";
     return `${diffDay}일 전`;
   }
 
@@ -40,6 +37,7 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
         <span
           style={{
             width: "fit-content",
+            height: "20px",
             display: "flex",
             padding: "5px 10px",
             justifyContent: "center",
@@ -52,7 +50,7 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
             fontWeight: "500",
           }}
         >
-          {request.status === "OPEN" ? "모집 중" : ""}
+          모집 중
         </span>
         <div
           style={{
@@ -72,7 +70,7 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
             }}
           >
             <img
-              src=""
+              src={`http://localhost:8080/imageView?type=profile&filename=${request.requesterProfile}`}
               width="24px"
               height="24px"
               style={{ borderRadius: "24px" }}
@@ -116,10 +114,11 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
               class="bi bi-geo-alt"
               style={{ fontSize: "13px", marginRight: "2px" }}
             ></i>
-            {request.region}
+            {request.location}
           </p>
           <p>
-            {request.workType} · {request.budget} · {request.preferredDate}
+            {Number(request.budget).toLocaleString()}만원 ·{" "}
+            {request.preferredDate}
           </p>
         </div>
       </div>
