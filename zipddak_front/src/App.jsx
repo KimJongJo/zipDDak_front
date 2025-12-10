@@ -100,10 +100,12 @@ import ShippingDetail from "./seller/pages/ShippingDetail.jsx";
 import ReturnDetail from "./seller/pages/ReturnDetail.jsx";
 import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
+import Token from "./Token.jsx";
 
 function App() {
   return (
     <Routes>
+      <Route path="/auth/token" element={<Token />} />
       <Route path="/zipddak/*" element={<UserLayout />}>
         {/* 일반사용자 로그인 */}
         <Route path="login" element={<Login />} />
