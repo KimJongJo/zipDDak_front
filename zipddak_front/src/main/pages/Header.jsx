@@ -61,7 +61,7 @@ export default function Header() {
             <Bell size={20} />
           </a>
 
-          <a href="login" className="loginSign">
+          <a href="/zipddak/login" className="loginSign">
             <CircleUserRound size={20} />
             <span className="te">로그인/회원가입</span>
           </a>
