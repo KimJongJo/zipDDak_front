@@ -159,11 +159,11 @@ function App() {
           <Route path="market/orders" element={<MarketOrders />} />
           <Route path="market/returns" element={<MarketReturns />} />
           <Route
-            path="market/detail/:orderId"
+            path="market/detail/:orderIdx"
             element={<MarketOrderDetail />}
           />
           <Route
-            path="market/exchange/:orderId"
+            path="market/exchange/:orderIdx"
             element={<MarketExchangeForm />}
           />
           <Route path="tool" element={<MyTool />} />
