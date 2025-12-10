@@ -7,6 +7,7 @@ import { baseUrl } from "../../config";
 
 export default function Experts() {
     const [selectMajor, setSelectMajor] = useState(1);
+    const [expertList, setExpertList] = useState([]);
 
     const expertMajor = [
         { majorId: 1, major: "수리 전문가" },
@@ -54,8 +55,9 @@ export default function Experts() {
     useEffect(() => {
         axios.get(`${baseUrl}/experts`).then((res) => {
             console.log(res.data);
+            setExpertList(res.data.experts);
         });
-    });
+    }, []);
 
     return (
         <div className="body-div">
@@ -92,9 +94,21 @@ export default function Experts() {
                     </div>
 
                     {/* 광고 전문가 프로필 3개 */}
-                    <div className="experts-add-expert-list">
-                        {experts.map((expert) => (
-                            <Expert expert={expert} />
+                    <div
+                        className="experts-add-expert-list"
+                        style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "space-between",
+                            rowGap: "50px", // 줄 간격
+                        }}
+                    >
+                        {experts.map((expert, index) => (
+                            <Expert
+                                key={index}
+                                expert={expert}
+                                style={{ flex: "0 0 32%", boxSizing: "border-box" }} // Expert 컴포넌트 안에서 style prop 받도록 수정 필요
+                            />
                         ))}
                     </div>
 
@@ -110,9 +124,21 @@ export default function Experts() {
                     </div>
 
                     {/* 전문가 프로필 3개씩 N줄 */}
-                    <div className="experts-add-expert-list">
-                        {experts.map((expert) => (
-                            <Expert expert={expert} />
+                    <div
+                        className="experts-add-expert-list"
+                        style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "space-between",
+                            rowGap: "50px", // 줄 간격
+                        }}
+                    >
+                        {expertList.map((expert, index) => (
+                            <Expert
+                                key={expert.expertIdx}
+                                expert={expert}
+                                style={{ flex: "0 0 32%", boxSizing: "border-box" }} // Expert 컴포넌트 안에서 style prop 받도록 수정 필요
+                            />
                         ))}
                     </div>
                 </div>
