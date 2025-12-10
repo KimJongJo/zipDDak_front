@@ -48,8 +48,8 @@
     justify-content: flex-start;
     align-items: center; */
 }
-.tableArea > div {
-    margin: 0 auto;
+.tableArea > .wholeTable {
+    margin: 0 auto 20px;
 }
 .tableHeader {
     width: 100%;
@@ -88,7 +88,7 @@ table.inquire_table {
     border-collapse: collapse;
     white-space: nowrap; /* 열 줄바꿈 방지 */
 
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 table.detail_info_table {
@@ -218,15 +218,29 @@ tr.single_deli:not(:has(+ tr.single_deli)) td {
     border-bottom: 1px solid #303441;
 }
 
+.totalCnt {
+    width: 100%;
+    text-align: right;
+    margin-top: 5px;
+}
+
+table.list_table tbody tr:hover td.noData:not(:has(img)) {
+    background-color: transparent;
+    cursor: default;
+}
 /* ****************************************
     페이지네이션 
 ***************************************** */
-.pagination {
+.my_pagination {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 4px;
 }
-.pagination .page-link {
+.my_pagination :global(.page-item) {
+    margin: 0 4px; /* 좌우 4px 간격 */
+}
+.my_pagination :global(.page-link) {
+    border-radius: 8px !important;
     background: transparent;
     border: none;
     color: #a4aec1;
@@ -243,18 +257,18 @@ tr.single_deli:not(:has(+ tr.single_deli)) td {
     outline: none !important;
     box-shadow: none !important;
 }
-.pagination .page-item.active .page-link {
+.my_pagination :global(.page-item.active .page-link) {
     background: #303441;
     color: #ffffff;
     border: none;
     font-weight: 600;
 }
-.pagination .page-link:hover {
+.my_pagination :global(.page-link:hover) {
     color: #ffffff;
     background: rgba(48, 52, 65, 0.3);
 }
-.pagination .page-link:focus,
-.pagination .page-item.active .page-link:focus {
+.my_pagination :global(.page-link:focus),
+.my_pagination :global(.page-item.active .page-link:focus) {
     outline: none !important;
     box-shadow: none !important;
 }

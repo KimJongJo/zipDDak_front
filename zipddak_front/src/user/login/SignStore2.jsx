@@ -524,6 +524,7 @@ export default function SignStore2() {
                                         />
                                     </div>
                                 </div>
+                                <div className="input_detail">사업자 등록증의 법인명 또는 상호명을 입력하세요</div>
                             </div>
                         </div>
 
