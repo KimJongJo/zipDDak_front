@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/Experts.css";
 import { Input } from "reactstrap";
 import Expert from "./Expert";
+import axios from "axios";
+import { baseUrl } from "../../config";
 
 export default function Experts() {
     const [selectMajor, setSelectMajor] = useState(1);
@@ -47,6 +49,13 @@ export default function Experts() {
             intro: "대충 한마디 설명 어쩌구 저쩌구 저쩌구 ...",
         },
     ];
+
+    // 첫 화면을 불러올때
+    useEffect(() => {
+        axios.get(`${baseUrl}/experts`).then((res) => {
+            console.log(res.data);
+        });
+    });
 
     return (
         <div className="body-div">
