@@ -177,7 +177,7 @@ export default function OrderList() {
                                                     </tr>
                                                 ) : (
                                                     myOrderList.map((myOrder) => (
-                                                        <tr key={myOrder.orderIdx} onClick={() => navigate(`/orderDetail/${myOrder.orderIdx}`)}>
+                                                        <tr key={myOrder.orderIdx} onClick={() => navigate(`/seller/orderDetail/${myOrder.orderIdx}`)}>
                                                             <td>{myOrder.orderCode}</td>
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myOrder.productName}</span> 포함 총 {myOrder.itemCount} 건

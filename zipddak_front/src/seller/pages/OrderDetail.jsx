@@ -6,12 +6,44 @@ import acco from "../css/accordion.module.css";
 import usePageTitle from "../js/usePageTitle.jsx";
 
 import { FormGroup, Input, Label } from "reactstrap";
-import Tippy from "@tippyjs/react";
-
 import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import Tippy from "@tippyjs/react";
 
 export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 상세조회");
+
+    const { orderIdx } = useParams();
+    const [orderDetail, setOrderDetail] = useState(null);
+
+    const getMyOrderDetail = () => {
+        const params = new URLSearchParams();
+        params.append("sellerId", "test");
+        params.append("num", orderIdx);
+
+        const orderDetailUrl = `/seller/order/myOrderDetail?${params.toString()}`;
+
+        myAxios()
+            .get(orderDetailUrl)
+            .then((res) => {
+                console.log("orderDetail :", res.data);
+
+                setOrderDetail(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
+
+    useEffect(() => {
+        getMyOrderDetail();
+    }, []);
+
+    // 데이터 로딩 전에는 렌더링 막기
+    if (!orderDetail) return <div>Loading...</div>;
+
+    const order = orderDetail.orderData;
+    const items = orderDetail.myOrderItemList;
 
     return (
         <>
@@ -37,11 +69,11 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 번호 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 일자 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
@@ -50,7 +82,7 @@ export default function OrderList() {
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">결제 수단 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                     {/* <div className={detail.info_column}>
@@ -62,7 +94,7 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">최종 결제 금액 </span>
-                                            <Input className="" readOnly style={{ color: "red" }} />
+                                            <Input value={order.orderCode} readOnly style={{ color: "red" }} />
                                         </div>
                                         <div className={detail.info_cell}></div>
                                     </div>
@@ -78,21 +110,21 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문자 아이디 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문자명 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 횟수</span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                 </div>
@@ -107,11 +139,11 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">수령인 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
-                                            <Input className="" readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
@@ -119,11 +151,11 @@ export default function OrderList() {
                                             <span className="sub_title">배송지 </span>
                                             <div style={{ width: "100%" }}>
                                                 <div className="addr_column mb-2">
-                                                    <Input className="" style={{ width: "30%" }} placeholder="우편번호" readOnly />
-                                                    <Input style={{ width: "70%" }} placeholder="도로명주소" readOnly />
+                                                    <Input className="" style={{ width: "30%" }} placeholder="우편번호" value={order.orderCode} readOnly />
+                                                    <Input style={{ width: "70%" }} placeholder="도로명주소" value={order.orderCode} readOnly />
                                                 </div>
                                                 <div className="addr_column2 ">
-                                                    <Input type="text" placeholder="상세주소" readOnly />
+                                                    <Input type="text" placeholder="상세주소" value={order.orderCode} readOnly />
                                                 </div>
                                             </div>
                                         </div>
@@ -131,7 +163,7 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_line}>
                                             <span className="sub_title">배송 메모</span>
-                                            <Input readOnly />
+                                            <Input value={order.orderCode} readOnly />
                                         </div>
                                     </div>
                                 </div>
@@ -166,100 +198,15 @@ export default function OrderList() {
                                             {/* {bundleList.map((item, idx) => (
                                             <tr className={`bundle_deli ${idx === bundleList.length - 1 ? "bundle_last" : ""}`}></tr>
                                         ))} */}
-                                            <tr className={table.bundle_deli}>
-                                                <td>
-                                                    <Input type="checkbox" />
-                                                </td>
-                                                <td>10</td>
-                                                <td style={{ padding: "0" }}>
-                                                    <img src="/no_img.svg" style={{ width: "60px" }} />
-                                                </td>
-                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                <td>색상 : 브라운</td>
-                                                <td>1</td>
-                                                <td>12,300</td>
-                                                <td>[상품준비중]</td>
-                                                <td className={table.shipCharge_cell} rowSpan={2}>
-                                                    <span>3,000원</span>
-                                                    <br />
-                                                    <span style={{ fontSize: "10px" }}>15만원 이상 무료</span>
-                                                </td>
-                                                <td>-</td>
-                                                <td>
-                                                    <i class="bi bi-three-dots-vertical pointer"></i>
-                                                </td>
-                                            </tr>
-
-                                            <tr className={table.bundle_deli}>
-                                                <td>
-                                                    <Input type="checkbox" />
-                                                </td>
-                                                <td>10</td>
-                                                <td style={{ padding: "0" }}>
-                                                    <img src="/no_img.svg" style={{ width: "60px" }} />
-                                                </td>
-                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                <td>색상 : 브라운</td>
-                                                <td>1</td>
-                                                <td>12,300</td>
-                                                <td>[상품준비중]</td>
-                                                {/* <td>
-                                                <span>3,000원</span>
-                                                <br />
-                                                <span style={{ fontSize: "10px" }}>15만원 이상 무료</span>
-                                            </td> */}
-                                                <td>-</td>
-                                                <td>
-                                                    <i class="bi bi-three-dots-vertical pointer"></i>
-                                                </td>
-                                            </tr>
-                                            <tr className={table.single_deli}>
-                                                <td>
-                                                    <Input type="checkbox" />
-                                                </td>
-                                                <td>10</td>
-                                                <td style={{ padding: "0" }}>
-                                                    <img src="/no_img.svg" style={{ width: "60px" }} />
-                                                </td>
-                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                <td>색상 : 브라운</td>
-                                                <td>1</td>
-                                                <td>12,300</td>
-                                                <td>[상품준비중]</td>
-                                                <td>
-                                                    <span>3,000원</span>
-                                                    <br />
-                                                    <span style={{ fontSize: "10px" }}>1개당 부과</span>
-                                                </td>
-                                                <td>-</td>
-                                                <td>
-                                                    <i class="bi bi-three-dots-vertical pointer"></i>
-                                                </td>
-                                            </tr>
-
-                                            <tr className={table.single_deli}>
-                                                <td>
-                                                    <Input type="checkbox" />
-                                                </td>
-                                                <td>10</td>
-                                                <td style={{ padding: "0" }}>
-                                                    <img src="/no_img.svg" style={{ width: "60px" }} />
-                                                </td>
-                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                <td>색상 : 브라운</td>
-                                                <td>1</td>
-                                                <td>12,300</td>
-                                                <td>[상품준비중]</td>
-                                                <td>
-                                                    <span>3,000원</span>
-                                                    <br />
-                                                    <span style={{ fontSize: "10px" }}>1개당 부과</span>
-                                                </td>
-                                                <td>-</td>
-                                                <td>
-                                                    <i class="bi bi-three-dots-vertical pointer"></i>
-                                                </td>
-                                            </tr>
+                                            {items.map((it, idx) => (
+                                                <tr key={idx}>
+                                                    <td>{it.orderItemIdx}</td>
+                                                    <td>{it.productName}</td>
+                                                    <td>{it.quantity}</td>
+                                                    <td>{it.unitPrice}</td>
+                                                    <td>{it.orderStatus}</td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                         <tfoot>
                                             <td colSpan={5}>합계</td>

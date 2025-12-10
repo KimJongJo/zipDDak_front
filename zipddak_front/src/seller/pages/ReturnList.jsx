@@ -123,7 +123,7 @@ export default function ReturnList() {
                                     <div className={table.filterTitle}>주문일자</div>
                                     <div>
                                         <FormGroup>
-                                            <Input id="" name="date" placeholder="date placeholder" type="date" />
+                                            <Input type="date" value={searchOrderDate} onChange={(e) => setSearchOrderDate(e.target.value)} />
                                         </FormGroup>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@ export default function ReturnList() {
                                     <div className={table.filterTitle}>반품요청일</div>
                                     <div>
                                         <FormGroup>
-                                            <Input id="" name="date" placeholder="date placeholder" type="date" />
+                                            <Input type="date" value={searchRequestDate} onChange={(e) => setSearchRequestDate(e.target.value)} />
                                         </FormGroup>
                                     </div>
                                 </div>
@@ -161,8 +161,8 @@ export default function ReturnList() {
                                 <div className={table.wholeTable}>
                                     <div className={table.tableHeader}>
                                         <div className={table.totalSearchBox}>
-                                            <Input id="exampleSearch" name="search" placeholder="통합검색" type="search" className={table.searchInput} />
-                                            <button type="button" className="small-button">
+                                            <Input name="search" placeholder="통합검색" type="search" className={table.searchInput} onChange={(e) => setKeyword(e.target.value)} />
+                                            <button type="button" className="small-button" onClick={() => submit(1)}>
                                                 검색
                                             </button>
                                         </div>
@@ -182,17 +182,6 @@ export default function ReturnList() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {/* <tr>
-                                                    <td>2025-11-07</td>
-                                                    <td>251107-12345</td>
-                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW...외 3건</td>
-                                                    <td>lmh1231@naver.com</td>
-                                                    <td>대한통운</td>
-                                                    <td>12345678901234</td>
-                                                    <td>[반품요청]</td>
-                                                    <td>2025-11-10 11:25:30</td>
-                                                </tr> */}
-
                                                 {myRefundList.length === 0 ? (
                                                     <tr>
                                                         <td colSpan="8" className={table.noData} style={{ textAlign: "center" }}>
@@ -203,6 +192,7 @@ export default function ReturnList() {
                                                     myRefundList.map((myRefund) => (
                                                         <tr key={myRefund.refundIdx} onClick={() => navigate(`/returnDetail/${myRefund.refundIdx}`)}>
                                                             <td>{myRefund.orderDate}</td>
+                                                            <td>{myRefund.orderCode}</td>
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myRefund.refundProductName}</span> 포함 총 {myRefund.refundItemCount} 건
                                                             </td>
@@ -216,6 +206,9 @@ export default function ReturnList() {
                                                 )}
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div className={table.totalCnt}>
+                                        <p>[총 반품 건수: {myRefundCount}]</p>
                                     </div>
                                 </div>
                                 <div className="pagination_part">
