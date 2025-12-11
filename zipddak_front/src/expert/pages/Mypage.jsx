@@ -230,7 +230,7 @@ export function Mypage() {
                   : "white",
               })}
             >
-              개인정보 관리
+              정산계좌 관리
             </NavLink>
           </div>
         </nav>
