@@ -13,8 +13,33 @@ import {
   ShoppingCart,
   Archive,
 } from "lucide-react";
+import {
+  Dropdown,
+  DropdownItem,
+  DropdownToggle,
+  DropdownMenu
+} from "reactstrap";
+import { useState } from "react";
+import { useAtom, useSetAtom } from "jotai/react";
+import { initUser, tokenAtom, userAtom } from "../../atoms";
+import PropTypes from "prop-type";
 
-export default function Header() {
+export default function Header({ direction, ...args }) {
+
+  const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+  // const [viewAlarm, setviewAlarm] = useState(false);
+  // const setAlarms = useSetAtom(alarmsAtom);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const toggle = () => setDropdownOpen((prevState) => !prevState);
+
+  const logout = () => {
+    setUser(initUser)
+    setToken(null);
+    useSetAtom([]);
+  }
+
   return (
     <>
       <div className="Userheader">
@@ -66,10 +91,24 @@ export default function Header() {
             <span className="te">로그인/회원가입</span>
           </a>
 
-          <a href="mypage/*" className="profile">
+          <a href="mypage/*" className="profile"></a>
+            
+            <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
             <div className="profile-img"></div>
             <ChevronDown size={20} />
-          </a>
+            <DropdownToggle caret>Dropdown</DropdownToggle>
+              <DropdownMenu {...args}>
+                <DropdownItem header>내 계정</DropdownItem>
+                <DropdownItem>프로필 관리</DropdownItem>
+                <DropdownItem>마이페이지</DropdownItem>
+                <DropdownItem divider />
+                {}
+                <DropdownItem>고객전환</DropdownItem>
+                <DropdownItem>전문가 전환</DropdownItem>
+                <DropdownItem>로그아웃</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          
         </div>
       </div>
 
