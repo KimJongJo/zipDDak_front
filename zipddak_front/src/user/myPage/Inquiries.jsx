@@ -156,7 +156,7 @@ export default function Inquiries() {
                               .map((img, idx) => (
                                 <img
                                   key={idx}
-                                  src={img}
+                                  src={`http://localhost:8080/imageView?type=inquiry&filename=${img}`}
                                   width="50px"
                                   height="50px"
                                 />
