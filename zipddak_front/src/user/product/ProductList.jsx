@@ -59,6 +59,7 @@ export default function ProductList() {
 
     const fetchProducts = async (value) => {
         setLoading(true);
+        console.log(page);
 
         let searchKeyword;
         searchKeyword = value === undefined ? keyword : value;

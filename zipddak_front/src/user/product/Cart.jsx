@@ -243,7 +243,7 @@ export default function Cart() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href={"/zipddak/seller/" + store.brandId} className="font-14 cart-store-info-a">
+                                                <a href={"/zipddak/storeInfo/" + store.brandId} className="font-14 cart-store-info-a">
                                                     <span>업체 정보</span> <i className="bi bi-chevron-right" style={{ fontSize: "12px" }}></i>
                                                 </a>
                                             </td>

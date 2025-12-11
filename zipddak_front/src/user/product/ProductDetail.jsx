@@ -26,6 +26,9 @@ export default function ProductDetail() {
     const [inquiryCount, setInquiryCount] = useState(0);
     const [product, setProduct] = useState({});
 
+    const [files, setFiles] = useState([]);
+    const [inquireContent, setInquireContent] = useState("");
+
     // 관심 유무
     const [favorite, setFavorite] = useState(false);
     // 리뷰 현재 페이지
@@ -131,6 +134,32 @@ export default function ProductDetail() {
                 },
             ]);
         }
+    };
+
+    const writeInquire = () => {
+        const username = "rlawhdwh";
+
+        const formData = new FormData();
+
+        formData.append("content", inquireContent);
+
+        formData.append("productIdx", product.productIdx);
+
+        formData.append("username", "rlawhdwh");
+
+        files.forEach((file) => {
+            formData.append("files", file);
+        });
+
+        axios
+            .post(`${baseUrl}/writeInquire`, formData, {
+                headers: {
+                    "Content-Type": "multipary/form-data",
+                },
+            })
+            .then((res) => {
+                console.log(res.data);
+            });
     };
 
     // 리뷰 더보기
@@ -628,15 +657,51 @@ export default function ProductDetail() {
                                         <span className="ask-title">문의하기</span>
                                     </ModalHeader>
                                     <div className="ask-modal-body">
-                                        <Input style={{ fontSize: "14px" }} className="ask-modal-body-input" type="textarea" placeholder="문의하실 내용을 입력해주세요" rows={5} />
+                                        <Input
+                                            onChange={(e) => setInquireContent(e.target.value)}
+                                            style={{ fontSize: "14px" }}
+                                            className="ask-modal-body-input"
+                                            type="textarea"
+                                            placeholder="문의하실 내용을 입력해주세요"
+                                            rows={5}
+                                        />
+                                        <div>
+                                            <div style={{ margin: "15px 0" }}>
+                                                <span>첨부 이미지 파일은 최대 3장입니다.</span>
+                                            </div>
+                                            <div style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+                                                <Input
+                                                    accept="image/*"
+                                                    onChange={(e) => {
+                                                        const files = Array.from(e.target.files);
 
-                                        <div className="ask-modal-body-button-div">
-                                            <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
-                                                취소
-                                            </button>
-                                            <button className="ask-modal-write ask-modal-button" type="button" onClick={toggle}>
-                                                등록하기
-                                            </button>
+                                                        if (files.length > 3) {
+                                                            e.target.value = ""; // 초기화
+                                                            return;
+                                                        }
+
+                                                        setFiles(files);
+                                                    }}
+                                                    multiple
+                                                    type="file"
+                                                    style={{ height: "33.5px" }}
+                                                />
+                                            </div>
+                                            <div className="ask-modal-body-button-div">
+                                                <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                                                    취소
+                                                </button>
+                                                <button
+                                                    className="ask-modal-write ask-modal-button"
+                                                    type="button"
+                                                    onClick={() => {
+                                                        writeInquire();
+                                                        toggle();
+                                                    }}
+                                                >
+                                                    등록하기
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </Modal>

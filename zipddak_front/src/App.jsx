@@ -139,7 +139,7 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
                 <Route path="productOrderComplate" element={<ProductOrderComplate />} />
-                <Route path="storeInfo" element={<StoreInfo />} />
+                <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
