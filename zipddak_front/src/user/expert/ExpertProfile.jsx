@@ -2,9 +2,14 @@ import { useState, useRef, useEffect } from "react";
 import "../css/ExpertProfile.css";
 import ExpertReviewCard from "./ExpertReviewCard";
 import ExpertQuestion from "./ExpertQuestion";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { baseUrl } from "../../config";
 
 export default function ExpertProfile() {
     const [selectInfoCateNo, setSelectInfoCateNo] = useState(1);
+
+    const { expertIdx } = useParams();
 
     const expert = {
         nickname: "전문가 활동명",
@@ -31,6 +36,12 @@ export default function ExpertProfile() {
         const top = item.ref.current.getBoundingClientRect().top + window.scrollY;
         window.scrollTo({ top: top, behavior: "instant" });
     };
+
+    useEffect(() => {
+        axios.get(`${baseUrl}/expertProfile?expertIdx=${expertIdx}`).then((res) => {
+            console.log(res.data);
+        });
+    }, []);
 
     useEffect(() => {
         const options = {

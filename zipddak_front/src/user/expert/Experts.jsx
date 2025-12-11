@@ -4,10 +4,14 @@ import { Input } from "reactstrap";
 import Expert from "./Expert";
 import axios from "axios";
 import { baseUrl } from "../../config";
+import { useNavigate } from "react-router";
 
 export default function Experts() {
-    const [selectMajor, setSelectMajor] = useState(1);
+    const navigate = useNavigate();
+
+    const [selectMajor, setSelectMajor] = useState(23);
     const [expertList, setExpertList] = useState([]);
+    const [addExpertList, setAddExpertList] = useState([]);
 
     const [sort, setSort] = useState("popular");
     const [page, setPage] = useState(1); // 현재 페이지
@@ -20,67 +24,40 @@ export default function Experts() {
     const [keyword, setKeyword] = useState("");
 
     const expertMajor = [
-        { majorId: 1, major: "수리 전문가" },
-        { majorId: 2, major: "인테리어 전문가" },
-        { majorId: 3, major: "컨설팅 전문가" },
-    ];
-
-    const experts = [
-        {
-            img: "/images/기본회원프로필.jpg",
-            name: "전문가명",
-            major: "대표 전문가 서비스",
-            reviewScore: 5.0,
-            reviewCount: 10,
-            address: "서울 금천구 가산동",
-            career: 10,
-            matching: 20,
-            intro: "대충 한마디 설명 어쩌구 저쩌구 저쩌구 ...",
-        },
-        {
-            img: "/images/기본회원프로필.jpg",
-            name: "전문가명",
-            major: "대표 전문가 서비스",
-            reviewScore: 5.0,
-            reviewCount: 10,
-            address: "서울 금천구 가산동",
-            career: 10,
-            matching: 20,
-            intro: "대충 한마디 설명 어쩌구 저쩌구 저쩌구 ...",
-        },
-        {
-            img: "/images/기본회원프로필.jpg",
-            name: "전문가명",
-            major: "대표 전문가 서비스",
-            reviewScore: 5.0,
-            reviewCount: 10,
-            address: "서울 금천구 가산동",
-            career: 10,
-            matching: 20,
-            intro: "대충 한마디 설명 어쩌구 저쩌구 저쩌구 ...",
-        },
+        { majorId: 23, major: "수리 전문가" },
+        { majorId: 44, major: "인테리어 전문가" },
+        { majorId: 74, major: "컨설팅 전문가" },
     ];
 
     const fetchProducts = async (value) => {
         setLoading(true);
-        console.log(page);
 
         let searchKeyword;
         searchKeyword = value === undefined ? keyword : value;
 
         try {
             // 테스트용으로 뒤에 username을 붙임
-            const res = await axios.get(`${baseUrl}/experts?page=${page}&cateNo=${selectMajor}&sort=${sort}`);
+            const res = await axios.get(`${baseUrl}/experts?page=${page}&cateNo=${selectMajor}&sort=${sort}&keyword=${keyword}`);
+
+            console.log(res.data);
             if (res.data.length === 0) {
                 setHasMore(false); // 더 이상 데이터 없음
             } else {
-                setExpertList((prev) => [...prev, ...res.data.experts]); // 기존 데이터에 추가
+                setExpertList((prev) => [...prev, ...res.data]); // 기존 데이터에 추가
             }
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
         }
+    };
+
+    const keywordSearch = async () => {
+        const value = inputRef.current.value === undefined ? keyword : inputRef.current.value;
+        setKeyword(value);
+        // 검색버튼 클릭시 새 배열로 초기화
+        reset();
+        fetchProducts(value);
     };
 
     const lastProductRef = useCallback(
@@ -99,13 +76,27 @@ export default function Experts() {
         [loading, hasMore]
     );
 
+    // 정보 초기화
+    const reset = () => {
+        setExpertList([]);
+        setAddExpertList([]);
+        setPage(1);
+        setHasMore(true);
+    };
+
     // 첫 화면을 불러올때
+
+    useEffect(() => {
+        axios.get(`${baseUrl}/addExperts?cateNo=${selectMajor}`).then((res) => {
+            setAddExpertList(res.data);
+        });
+    }, [selectMajor]);
 
     useEffect(() => {
         if (!hasMore) return;
 
         fetchProducts();
-    }, [page, hasMore, selectMajor]);
+    }, [page, hasMore, selectMajor, sort]);
 
     return (
         <div className="body-div">
@@ -115,7 +106,14 @@ export default function Experts() {
                     <span className="font-22 semibold experts-cate-select-span">전문가 목록</span>
                     <div className="experts-cate-select-button-div">
                         {expertMajor.map((expert) => (
-                            <button key={expert.majorId} onClick={() => setSelectMajor(expert.majorId)} className={expert.majorId === selectMajor ? "experts-select-major" : "experts-default-major"}>
+                            <button
+                                key={expert.majorId}
+                                onClick={() => {
+                                    setSelectMajor(expert.majorId);
+                                    reset();
+                                }}
+                                className={expert.majorId === selectMajor ? "experts-select-major" : "experts-default-major"}
+                            >
                                 {expert.major}
                             </button>
                         ))}
@@ -125,8 +123,8 @@ export default function Experts() {
                 <div className="experts-search-expert-div">
                     {/* 검색바 */}
                     <div className="experts-search-bar-div">
-                        <Input placeholder="위치 및 전문가 명을 검색해주세요" className="experts-search-bar-input font-14" />
-                        <button className="experts-search-bar-button">
+                        <Input onChange={(e) => setKeyword(e.target.value)} ref={inputRef} placeholder="위치 및 전문가 명을 검색해주세요" className="experts-search-bar-input font-14" />
+                        <button onClick={keywordSearch} className="experts-search-bar-button">
                             <i className="bi bi-search "></i>
                         </button>
                     </div>
@@ -136,7 +134,7 @@ export default function Experts() {
                         <span className="font-18 semibold add-experts-span">
                             추천 전문가<span className="font-14 semibold add">(광고)</span>
                         </span>
-                        <button type="button" className="experts-request-button font-14 semibold">
+                        <button onClick={() => navigate("/zipddak/findExpert")} type="button" className="experts-request-button font-14 semibold">
                             견적 요청
                         </button>
                     </div>
@@ -151,7 +149,7 @@ export default function Experts() {
                             rowGap: "50px", // 줄 간격
                         }}
                     >
-                        {experts.map((expert, index) => (
+                        {addExpertList.map((expert, index) => (
                             <Expert
                                 key={index}
                                 expert={expert}
@@ -163,7 +161,15 @@ export default function Experts() {
                     {/* 전문가 + 정렬 필터 */}
                     <div className="experts-search-expert-sort">
                         <span className="font-18 semibold">전문가</span>
-                        <select onChange={(e) => setSort(e.target.value)} className="experts-search-sort" name="" id="">
+                        <select
+                            onChange={(e) => {
+                                setSort(e.target.value);
+                                reset();
+                            }}
+                            className="experts-search-sort"
+                            name=""
+                            id=""
+                        >
                             <option value="popular">인기순</option>
                             <option value="rating">평점순</option>
                             <option value="career">경력순</option>
