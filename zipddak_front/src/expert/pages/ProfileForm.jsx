@@ -1,39 +1,341 @@
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import axios from "axios";
 import DaumPostcode from "react-daum-postcode";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../css/expertProfile.css";
 
 export default function ProfileForm() {
-  const [step, setStep] = useState({ 1: true, 2: false, 3: false, 4: false });
-  const [profileImage, setProfileImage] = useState(null);
-  const [certificateImages, setCertificateImages] = useState([]); // 이미지 미리보기 URL 배열
-  const [certificateFiles, setCertificateFiles] = useState([]); // 실제 업로드용 이미지 File 배열
-  const [portfolioImages, setPortfolioImages] = useState([]); // 이미지 미리보기 URL 배열
-  const [portfolioFiles, setPortfolioFiles] = useState([]); // 실제 업로드용 이미지 File 배열
+  const [expert, setExpert] = useState({}); // 전문가 상세 정보
+  const [address, setAddress] = useState({ zonecode: "", addr1: "" }); // 우편번호 및 도로명주소
+  const [externalLinkInput, setExternalLinkInput] = useState(""); // 외부링크 입력값
+  const [externalLinks, setExternalLinks] = useState([]); // 외부링크 목록
+  const [serviceSelect, setServiceSelect] = useState(""); // 현재 선택된 제공서비스 옵션값
+  const [providedServices, setProvidedServices] = useState([]); // 제공서비스 목록
+  const [career, setCareer] = useState({
+    title: "",
+    startDate: "",
+    endDate: "",
+    description: "",
+    isCurrent: false,
+  }); // 경력 입력값
+  const [careerList, setCareerList] = useState([]); // 경력 목록
+  const [portfolio, setPortfolio] = useState({
+    title: "",
+    serviceIdx: null,
+    region: "",
+    price: "",
+    workTimeType: "",
+    workTimeValue: "",
+    description: "",
+  }); // 포트폴리오 입력값
+  const [portfolioThumbnails, setPortfolioThumbnails] = useState([]); // 포트폴리오 썸네일 목록
+  const [questionAnswers, setQuestionAnswers] = useState([]); // 질문답변 목록
+  const [startTime, setStartTime] = useState(""); // 연락가능 시작시간
+  const [endTime, setEndTime] = useState(""); // 연락가능 종료시간
+
+  const [step, setStep] = useState({ 1: true, 2: false, 3: false, 4: false }); // 좌측 step
+
+  const [profileImage, setProfileImage] = useState(null); // 프로필 이미지 미리보기
+  const [profileFile, setProfileFile] = useState(null); // 프로필 이미지 파일
+  const [certificateImages, setCertificateImages] = useState([]); // 자격증 및 기타서류 이미지 미리보기
+  const [certificateFiles, setCertificateFiles] = useState([]); // 자격증 및 기타서류 이미지 파일
+  const [portfolioImages, setPortfolioImages] = useState([]); // 포트폴리오 이미지 미리보기
+  const [portfolioFiles, setPortfolioFiles] = useState([]); // 포트폴리오 이미지 파일
+  const [businessImage, setBusinessImage] = useState(null); // 사업자등록증 이미지 미리보기
+  const [businessFile, setBusinessFile] = useState(null); // 사업자등록증 이미지 파일
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // 경력 | 포트폴리오 | 질문 | 주소
   const [durationUnitChip, setDurationUnitChip] = useState(""); // HOUR | DAY | WEEK | MONTH
 
-  /* 이미지 업로드를 위한 ref */
-  const fileRef = useRef(null); // 숨겨진 <Input type="file" />을 대신 클릭하기 위한 ref
-  const imgRef = useRef(null); // 이미지 미리보기용 <img> 태그의 src를 변경하기 위한 ref
-  const certificateImgRef = useRef(null);
-  const portfolioImgRef = useRef(null);
-  const businessFileRef = useRef(null);
-  const businessImgRef = useRef(null);
-  /* 시점 이동을 위한 ref */
+  const profileImgRef = useRef(null); // 프로필 input 클릭
+  const certificateImgRef = useRef(null); // 자격증 및 기타서류 input 클릭
+  const portfolioImgRef = useRef(null); // 포트폴리오 input 클릭
+  const businessFileRef = useRef(null); // 사업자등록증 input 클릭
+
+  // 시점 이동을 위한 ref
   const basicRef = useRef(null);
   const infoRef = useRef(null);
   const portfolioRef = useRef(null);
   const qaRef = useRef(null);
 
-  /* 주소 이벤트 */
-  const handleComplate = (data) => {
-    // let { zonecode, address } = data;
-    // setUser({ ...user, postcode: zonecode, address1: address });
+  // 전문가 카테고리 목록
+  const expertCategoryList = [
+    { categoryIdx: 25, name: "냉장고 수리" },
+    { categoryIdx: 26, name: "식기세척기 수리" },
+    { categoryIdx: 27, name: "인덕션 수리" },
+    { categoryIdx: 28, name: "세탁기 수리" },
+    { categoryIdx: 29, name: "에어컨 수리" },
+    { categoryIdx: 30, name: "기타 전자제품 수리" },
+    { categoryIdx: 32, name: "도어락 수리" },
+    { categoryIdx: 33, name: "도어 수리" },
+    { categoryIdx: 34, name: "방범창 수리" },
+    { categoryIdx: 35, name: "방충망 수리" },
+    { categoryIdx: 36, name: "샷시 수리" },
+    { categoryIdx: 38, name: "싱크대 수리" },
+    { categoryIdx: 39, name: "보일러 수리" },
+    { categoryIdx: 40, name: "온수기 수리" },
+    { categoryIdx: 41, name: "수도 관련 수리" },
+    { categoryIdx: 42, name: "화장실 누수 수리" },
+    { categoryIdx: 43, name: "전기배선 수리" },
+
+    { categoryIdx: 46, name: "도어 시공" },
+    { categoryIdx: 47, name: "중문 시공" },
+    { categoryIdx: 48, name: "샷시 설치" },
+    { categoryIdx: 49, name: "신발장 시공" },
+    { categoryIdx: 50, name: "싱크대 교체" },
+    { categoryIdx: 51, name: "욕실/화장실 리모델링" },
+    { categoryIdx: 52, name: "주방 리모델링" },
+    { categoryIdx: 53, name: "블라인드/커튼 시공" },
+    { categoryIdx: 54, name: "줄눈 시공" },
+
+    { categoryIdx: 56, name: "단열필름 시공" },
+    { categoryIdx: 57, name: "도배 시공" },
+    { categoryIdx: 58, name: "몰딩 시공" },
+    { categoryIdx: 59, name: "방음 시공" },
+    { categoryIdx: 60, name: "아트월 시공" },
+    { categoryIdx: 61, name: "외풍차단/틈막이 시공" },
+    { categoryIdx: 62, name: "유리필름/시트 시공" },
+    { categoryIdx: 63, name: "인테리어필름 시공" },
+    { categoryIdx: 64, name: "페인트 시공" },
+
+    { categoryIdx: 66, name: "마루 보수" },
+    { categoryIdx: 67, name: "마루 시공" },
+    { categoryIdx: 68, name: "바닥재 시공" },
+    { categoryIdx: 69, name: "에폭시바닥 시공" },
+    { categoryIdx: 70, name: "장판 시공" },
+    { categoryIdx: 71, name: "층간소음매트 시공" },
+    { categoryIdx: 72, name: "카페트 시공" },
+    { categoryIdx: 73, name: "타일 시공" },
+
+    // depth 2
+    { categoryIdx: 75, name: "컨설팅 전문가" },
+  ];
+
+  // 서비스 문자열 -> idx
+  const convertServicesToIdxList = (services) => {
+    return services
+      .map((serviceName) => {
+        const found = expertCategoryList.find((c) => c.name === serviceName);
+        return found ? found.categoryIdx : null;
+      })
+      .filter(Boolean);
   };
-  const handleClose = (state) => {
-    if (state == "COMPLETE_CLOSE") setIsModalOpen(false);
+
+  // Time 포멧팅
+  const formatTimeForServer = (time) => {
+    if (!time) return "";
+    return time.length === 5 ? `${time}:00` : time; // HH:mm → HH:mm:00
+  };
+
+  // 전문가 상세 조회
+  const getExpert = () => {
+    axios
+      .get("http://localhost:8080" + `/profile/detail?username=test@kosta.com`)
+      .then((res) => {
+        setExpert(res.data);
+
+        // 지역 세팅
+        setAddress({ zonecode: res.data.zonecode, addr1: res.data.addr1 });
+
+        // 외부링크 세팅
+        const links = [
+          res.data.externalLink1,
+          res.data.externalLink2,
+          res.data.externalLink3,
+        ].filter(Boolean);
+        setExternalLinks(links);
+
+        // 제공서비스 세팅
+        if (res.data.providedService) {
+          setProvidedServices(res.data.providedService);
+        }
+
+        // 경력 세팅
+        if (res.data.careerList) {
+          setCareerList(res.data.careerList);
+        }
+
+        // 자격증및기타서류 이미지 세팅
+        setCertificateImages(
+          [
+            res.data.certImage1
+              ? {
+                  url: res.data.certImage1,
+                  idx: res.data.certImageIdx1,
+                  isLocal: false,
+                }
+              : null,
+            res.data.certImage2
+              ? {
+                  url: res.data.certImage2,
+                  idx: res.data.certImageIdx2,
+                  isLocal: false,
+                }
+              : null,
+            res.data.certImage3
+              ? {
+                  url: res.data.certImage3,
+                  idx: res.data.certImageIdx3,
+                  isLocal: false,
+                }
+              : null,
+          ].filter(Boolean)
+        );
+
+        // 질문답변 세팅
+        setQuestionAnswers([
+          res.data.questionAnswer1 ? res.data.questionAnswer1 : null,
+          res.data.questionAnswer2 ? res.data.questionAnswer2 : null,
+          res.data.questionAnswer3 ? res.data.questionAnswer3 : null,
+        ]);
+
+        // 포트폴리오 썸네일 세팅
+        setPortfolioThumbnails(
+          res.data.portfolioList?.map((p) => p.image1) || []
+        );
+
+        // 연락가능시간 세팅
+        setStartTime(
+          res.data.contactStartTime ? res.data.contactStartTime : "00:00:00"
+        );
+        setEndTime(
+          res.data.contactEndTime ? res.data.contactEndTime : "00:00:00"
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 전문가 수정
+  const modifyExpert = () => {
+    const formData = new FormData();
+
+    formData.append("expertIdx", expert.expertIdx);
+    formData.append("activityName", expert.activityName);
+    formData.append("introduction", expert.introduction);
+    formData.append("mainServiceIdx", expert.mainServiceIdx);
+    formData.append("zonecode", address.zonecode);
+    formData.append("addr1", address.addr1);
+    formData.append("addr2", expert.addr2);
+    formData.append("employeeCount", expert.employeeCount);
+    formData.append("contactStartTime", formatTimeForServer(startTime));
+    formData.append("contactEndTime", formatTimeForServer(endTime));
+    if (externalLinks[0] !== undefined)
+      formData.append("externalLink1", externalLinks[0]);
+    if (externalLinks[1] !== undefined)
+      formData.append("externalLink2", externalLinks[1]);
+    if (externalLinks[2] !== undefined)
+      formData.append("externalLink3", externalLinks[2]);
+    const serviceIdxString =
+      convertServicesToIdxList(providedServices).join(",");
+    formData.append("providedServiceIdx", serviceIdxString);
+    formData.append("providedServiceDesc", expert.providedServiceDesc);
+    if (questionAnswers[0] !== null)
+      formData.append("questionAnswer1", questionAnswers[0]);
+    if (questionAnswers[1] !== null)
+      formData.append("questionAnswer2", questionAnswers[1]);
+    if (questionAnswers[2] !== null)
+      formData.append("questionAnswer3", questionAnswers[2]);
+
+    // 이미지 - 프로필
+    if (profileFile) {
+      formData.append("profileImage", profileFile);
+    }
+
+    // 이미지 - 사업자등록증
+    if (businessFile) {
+      formData.append("businessImage", businessFile);
+    }
+
+    // 이미지 - 자격증 배열
+    certificateFiles.forEach((file) => {
+      formData.append("certificateImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/profile/modify", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          getExpert();
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 포트폴리오 추가
+  const submitPortfolio = () => {
+    const formData = new FormData();
+
+    formData.append("expertIdx", expert.expertIdx);
+    formData.append("title", portfolio.title);
+    formData.append("serviceIdx", portfolio.serviceIdx);
+    formData.append("region", portfolio.region);
+    formData.append("price", portfolio.price);
+    formData.append("workTimeType", portfolio.workTimeType);
+    formData.append("workTimeValue", portfolio.workTimeValue);
+    formData.append("description", portfolio.description);
+
+    // 파일 업로드
+    portfolioFiles.forEach((file) => {
+      formData.append("portfolioImages", file);
+    });
+
+    axios
+      .post("http://localhost:8080" + "/portfolio/write", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          setPortfolioThumbnails((prev) => [...prev, res.data]);
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 포트폴리오 삭제
+  const deletePortfolio = (portfolioIdx) => {
+    axios
+      .post("http://localhost:8080" + "/portfolio/delete", {
+        portfolioIdx: portfolioIdx,
+      })
+      .then(() => {})
+      .catch((err) => console.error(err));
+  };
+
+  // 경력 추가
+  const submitCareer = () => {
+    const formData = new FormData();
+
+    formData.append("expertIdx", expert.expertIdx);
+    formData.append("title", career.title);
+    formData.append("startDate", `${career.startDate}-01`);
+    formData.append("endDate", `${career.endDate}-01`);
+    formData.append("description", career.description);
+
+    axios
+      .post("http://localhost:8080" + "/career/write", formData)
+      .then((res) => {
+        if (res.data) {
+          setCareerList([...careerList, career]);
+          setIsModalOpen(false);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 경력 삭제
+  const deleteCareer = (careerIdx) => {
+    axios
+      .post("http://localhost:8080" + "/career/delete", {
+        careerIdx: careerIdx,
+      })
+      .then(() => {})
+      .catch((err) => console.error(err));
   };
 
   // 지역 목록
@@ -56,159 +358,106 @@ export default function ProfileForm() {
     "경남",
     "제주",
   ];
-  // mock
-  const expert = {
-    profileImage: "https://via.placeholder.com/200x200",
 
-    displayName: "하우스닥터 인테리어",
-    shortIntroduction: "15년 경력의 전문가가 직접 시공합니다.",
-
-    mainServiceId: "SRV-102",
-    mainServiceName: "도배 시공",
-
-    activityArea: {
-      postcode: "06236",
-      address1: "서울특별시 강남구 테헤란로 120",
-      address2: "12층 1205호",
-    },
-
-    employeeCount: 5,
-
-    availableStartTime: "09:00",
-    availableEndTime: "18:00",
-
-    externalLinks: [
-      "https://instagram.com/example_profile",
-      "https://blog.naver.com/example",
-      "https://www.youtube.com/@example",
-    ],
-
-    serviceList: [
-      { categoryId: "SRV-101", categoryName: "도어시공" },
-      { categoryId: "SRV-102", categoryName: "도배 시공" },
-      { categoryId: "SRV-103", categoryName: "바닥 시공" },
-    ],
-
-    serviceDescription:
-      "고객 만족을 최우선으로 시공해드리며, 프리미엄 자재와 체계적인 프로세스로 완성도 높은 결과물을 제공합니다. " +
-      "무료 방문견적 및 상담이 가능하며, 모든 작업은 직접 시공합니다.",
-
-    certificates: [
-      "https://via.placeholder.com/300x200?cert1",
-      "https://via.placeholder.com/300x200?cert2",
-      "https://via.placeholder.com/300x200?cert3",
-    ],
-
-    businessRegistrationImage: "https://via.placeholder.com/400x300?bizReg",
-    qaList: [
-      {
-        question: "방문 견적 가능한가요?",
-        answer:
-          "네, 서울/경기 지역은 무료 방문 견적이 가능합니다.네, 서울/경기 지역은 무료 방문 견적이 가능합니다.네, 서울/경기 지역은 무료 방문 견적이 가능합니다.네, 서울/경기 지역은 무료 방문 견적이 가능합니다.네, 서울/경기 지역은 무료 방문 견적이 가능합니다.",
-      },
-      {
-        question: "AS 기간은 어떻게 되나요?",
-        answer: "시공 후 1년간 무상 AS를 제공합니다.",
-      },
-      {
-        question: "사용하는 자재는 어떻게 되나요?",
-        answer:
-          "친환경 인증 자재만 사용하며, 고객 요청 시 브랜드 선택도 가능합니다.",
-      },
-    ],
+  // 주소 이벤트
+  const handleComplate = (data) => {
+    let { zonecode, address } = data;
+    setAddress({ zonecode: zonecode, addr1: address });
   };
-  const expertServiceList = [
-    { serviceId: "SRV-001", serviceName: "냉장고 수리" },
-    { serviceId: "SRV-002", serviceName: "식기세척기 수리" },
-    { serviceId: "SRV-003", serviceName: "인덕션 수리" },
-    { serviceId: "SRV-004", serviceName: "세탁기 수리" },
-    { serviceId: "SRV-005", serviceName: "에어컨 수리" },
-    { serviceId: "SRV-006", serviceName: "기타 전자제품 수리" },
-    { serviceId: "SRV-007", serviceName: "도어락 수리" },
-    { serviceId: "SRV-008", serviceName: "도어 수리" },
-    { serviceId: "SRV-009", serviceName: "방범창 수리" },
-    { serviceId: "SRV-010", serviceName: "방충망 수리" },
-    { serviceId: "SRV-011", serviceName: "샷시 수리" },
-    { serviceId: "SRV-012", serviceName: "싱크대 수리" },
-    { serviceId: "SRV-013", serviceName: "보일러 수리" },
-    { serviceId: "SRV-014", serviceName: "온수기 수리" },
-    { serviceId: "SRV-015", serviceName: "수도 관련 수리" },
-    { serviceId: "SRV-016", serviceName: "화장실 누수 수리" },
-    { serviceId: "SRV-017", serviceName: "전기배선 수리" },
-    { serviceId: "SRV-018", serviceName: "도어 시공" },
-    { serviceId: "SRV-019", serviceName: "중문 시공" },
-    { serviceId: "SRV-020", serviceName: "샷시 설치" },
-    { serviceId: "SRV-021", serviceName: "신발장 시공" },
-    { serviceId: "SRV-022", serviceName: "싱크대 교체" },
-    { serviceId: "SRV-023", serviceName: "욕실/화장실 리모델링" },
-    { serviceId: "SRV-024", serviceName: "주방 리모델링" },
-    { serviceId: "SRV-025", serviceName: "블라인드/커튼 시공" },
-    { serviceId: "SRV-026", serviceName: "줄눈 시공" },
-    { serviceId: "SRV-027", serviceName: "단열필름 시공" },
-    { serviceId: "SRV-028", serviceName: "도배 시공" },
-    { serviceId: "SRV-029", serviceName: "몰딩 시공" },
-    { serviceId: "SRV-030", serviceName: "방음 시공" },
-    { serviceId: "SRV-031", serviceName: "아트월 시공" },
-    { serviceId: "SRV-032", serviceName: "외풍차단/틈막이 시공" },
-    { serviceId: "SRV-033", serviceName: "유리필름/시트 시공" },
-    { serviceId: "SRV-034", serviceName: "인테리어필름 시공" },
-    { serviceId: "SRV-035", serviceName: "페인트 시공" },
-    { serviceId: "SRV-036", serviceName: "마루 보수" },
-    { serviceId: "SRV-037", serviceName: "마루 시공" },
-    { serviceId: "SRV-038", serviceName: "바닥재 시공" },
-    { serviceId: "SRV-039", serviceName: "에폭시바닥 시공" },
-    { serviceId: "SRV-040", serviceName: "장판 시공" },
-    { serviceId: "SRV-041", serviceName: "층간소음매트 시공" },
-    { serviceId: "SRV-042", serviceName: "카페트 시공" },
-    { serviceId: "SRV-043", serviceName: "타일 시공" },
-  ];
-  const careers = [
-    {
-      title: "하우스닥터 인테리어 대표",
-      description: "15년간 인테리어 시공 전문",
-      startDate: "2010-03-01",
-      endDate: "2025-03-01",
-    },
-    {
-      title: "대한인테리어협회 등록 전문가",
-      description: "도배·바닥재 전문 시공 자격 인증",
-      startDate: "2013-05-01",
-      endDate: "2025-03-01",
-    },
-  ];
-  const portfolioList = [
-    {
-      title: "강남구 30평 아파트 도배 시공",
-      serviceCategoryId: "SRV-102",
-      serviceCategoryName: "도배 시공",
-      area: "서울시 강남구",
-      servicePrice: 1200000,
-      durationUnit: "DAY",
-      durationValue: 3,
-      description:
-        "전체 벽지 교체 및 하자 보수 작업을 진행했습니다. 친환경 벽지를 사용해 고객 만족도가 높았습니다.",
-      images: [
-        "https://via.placeholder.com/400x300?port1",
-        "https://via.placeholder.com/400x300?port2",
-        "https://via.placeholder.com/400x300?port3",
-      ],
-    },
-    {
-      title: "송파구 오피스텔 부분 도배 시공",
-      serviceCategoryId: "SRV-102",
-      serviceCategoryName: "도배 시공",
-      area: "서울시 송파구",
-      servicePrice: 350000,
-      durationUnit: "HOUR",
-      durationValue: 5,
-      description:
-        "부분 벽면만 깔끔하게 보수한 프로젝트로, 빠르고 정확한 시공이 특징입니다.",
-      images: [
-        "https://via.placeholder.com/400x300?port4",
-        "https://via.placeholder.com/400x300?port5",
-      ],
-    },
-  ];
+  const handleClose = (state) => {
+    if (state == "COMPLETE_CLOSE") setIsModalOpen(false);
+  };
+
+  // 현재 연도-월 구하기
+  const getCurrentYearMonth = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    return `${year}-${month}`;
+  };
+
+  // 개월 수 차이 계산
+  const diffInMonths = (start, end) => {
+    const [sy, sm] = start.split("-").map(Number);
+    const [ey, em] = end.split("-").map(Number);
+
+    return (ey - sy) * 12 + (em - sm);
+  };
+
+  // 총 경력 계산
+  const calcTotalCareer = (careerList) => {
+    let totalMonths = 0;
+
+    careerList.forEach((c) => {
+      const start = c.startDate;
+      const end = c.isCurrent ? getCurrentYearMonth() : c.endDate;
+
+      if (!start || !end) return;
+
+      totalMonths += diffInMonths(start, end);
+    });
+
+    const years = Math.floor(totalMonths / 12);
+    const months = totalMonths % 12;
+
+    return { years, months };
+  };
+  const { years, months } = calcTotalCareer(careerList);
+
+  useEffect(() => {
+    getExpert();
+  }, []);
+
+  // 모달 안 데이터 초기화
+  useEffect(() => {
+    if (modalType === "포트폴리오") {
+      setPortfolio({
+        title: "",
+        serviceIdx: expertCategoryList[0]?.categoryIdx || null,
+        region: regions[0],
+        price: "",
+        workTimeType: "DAY",
+        workTimeValue: "",
+        description: "",
+      });
+      setPortfolioImages([]);
+      setPortfolioFiles([]);
+    } else if (modalType === "경력") {
+      setCareer({
+        title: "",
+        startDate: "",
+        endDate: "",
+        isCurrent: false,
+        description: "",
+      });
+    }
+  }, [modalType]);
+
+  // 현재 위치에 따라 step 색상 변경
+  useEffect(() => {
+    const handleScroll = () => {
+      const basicTop = basicRef.current?.offsetTop || 0;
+      const infoTop = infoRef.current?.offsetTop || 0;
+      const portfolioTop = portfolioRef.current?.offsetTop || 0;
+      const qaTop = qaRef.current?.offsetTop || 0;
+
+      const scrollY = window.scrollY + 200;
+      const offset = 300;
+
+      if (scrollY >= qaTop - offset) {
+        setStep({ 1: false, 2: false, 3: false, 4: true });
+      } else if (scrollY >= portfolioTop - offset) {
+        setStep({ 1: false, 2: false, 3: true, 4: false });
+      } else if (scrollY >= infoTop - offset) {
+        setStep({ 1: false, 2: true, 3: false, 4: false });
+      } else {
+        setStep({ 1: true, 2: false, 3: false, 4: false });
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="expert-profile-wrapper">
@@ -281,33 +530,44 @@ export default function ProfileForm() {
                 }}
               >
                 <img
-                  src={expert.profileImage}
+                  src={
+                    profileImage
+                      ? profileImage
+                      : expert.profileImage
+                      ? `http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}`
+                      : "/default-profile.png"
+                  }
                   width="72px"
                   height="72px"
-                  ref={imgRef}
                   style={{ borderRadius: "12px" }}
                 />
                 <input
                   type="file"
                   hidden
-                  ref={fileRef}
+                  ref={profileImgRef}
                   onChange={(e) => {
-                    setProfileImage(e.target.files[0]);
-                    imgRef.current.src = URL.createObjectURL(e.target.files[0]);
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    setProfileFile(file);
+                    setProfileImage(URL.createObjectURL(file));
                   }}
                 />
                 <div style={{ display: "flex", gap: "4px" }}>
                   <button
                     className="secondary-button"
                     style={{ width: "66px", height: "33px" }}
-                    onClick={() => fileRef.current.click()}
+                    onClick={() => profileImgRef.current.click()}
                   >
                     변경
                   </button>
                   <button
                     className="secondary-button"
                     style={{ width: "66px", height: "33px" }}
-                    onClick={() => (imgRef.current.src = "")}
+                    onClick={() => {
+                      setProfileImage(null); // 미리보기 제거
+                      setExpert((prev) => ({ ...prev, profileImage: null })); // 서버 이미지 삭제
+                      setProfileFile(null); // 신규 업로드 파일 제거
+                    }}
                   >
                     삭제
                   </button>
@@ -316,14 +576,22 @@ export default function ProfileForm() {
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>전문가 활동명</label>
-              <Input value={expert.displayName} />
+              <Input
+                value={expert.activityName}
+                onChange={(e) =>
+                  setExpert({ ...expert, activityName: e.target.value })
+                }
+              />
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>한 줄 소개</label>
               <Input
-                value={expert.shortIntroduction}
+                value={expert.introduction}
                 type="textarea"
                 style={{ height: "72px" }}
+                onChange={(e) =>
+                  setExpert({ ...expert, introduction: e.target.value })
+                }
               />
             </div>
             <div className="labelInput-wrapper">
@@ -331,15 +599,17 @@ export default function ProfileForm() {
               <Input
                 type="select"
                 style={{ width: "200px", height: "37px" }}
-                required
+                value={expert.mainServiceIdx || ""}
+                onChange={(e) =>
+                  setExpert((prev) => ({
+                    ...prev,
+                    mainServiceIdx: Number(e.target.value),
+                  }))
+                }
               >
-                {expertServiceList.map((s) => (
-                  <option
-                    key={s.serviceId}
-                    value={s.serviceId}
-                    selected={s.serviceId === expert.mainServiceId}
-                  >
-                    {s.serviceName}
+                {expertCategoryList.map((c) => (
+                  <option key={c.categoryIdx} value={c.categoryIdx}>
+                    {c.name}
                   </option>
                 ))}
               </Input>
@@ -356,7 +626,7 @@ export default function ProfileForm() {
                   gap: "40px",
                 }}
               >
-                <p>{expert.activityArea.postcode}</p>
+                <p>{address.zonecode}</p>
                 <button
                   className="secondary-button"
                   style={{ width: "100px", height: "33px" }}
@@ -374,14 +644,19 @@ export default function ProfileForm() {
               style={{ borderBottom: "none" }}
             >
               <label style={{ width: "160px" }}>도로명 주소</label>
-              <p>{expert.activityArea.address1}</p>
+              <p>{address.addr1}</p>
             </div>
             <div
               className="labelInput-wrapper"
               style={{ padding: "8px 0 16px 0" }}
             >
               <label style={{ width: "160px" }}>상세 주소</label>
-              <Input value={expert.activityArea.address2} />
+              <Input
+                value={expert.addr2}
+                onChange={(e) =>
+                  setExpert({ ...expert, addr2: e.target.value })
+                }
+              />
               <span
                 style={{
                   color: "#A0A0A0",
@@ -400,35 +675,64 @@ export default function ProfileForm() {
             <h3 className="mypage-sectionTitle">전문가 정보</h3>
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>직원수</label>
-              <Input value={expert.employeeCount} />
+              <Input
+                value={expert.employeeCount}
+                onChange={(e) =>
+                  setExpert({ ...expert, employeeCount: e.target.value })
+                }
+              />
             </div>
             <div className="labelInput-wrapper time">
               <label style={{ width: "160px" }}>연락가능시간</label>
-              <Input type="time" value={expert.availableStartTime} />
+              <Input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+              />
               <span>~</span>
-              <Input type="time" value={expert.availableEndTime} />
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+              />
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>외부링크</label>
               <div className="add">
                 <div className="expert-profile-add-input">
-                  <Input />
+                  <Input
+                    value={externalLinkInput}
+                    onChange={(e) => setExternalLinkInput(e.target.value)}
+                  />
                   <button
                     className="secondary-button"
                     style={{ width: "66px", height: "37px" }}
-                    onClick={() => {}}
+                    onClick={() => {
+                      if (!externalLinkInput.trim()) return;
+
+                      setExternalLinks((prev) => [
+                        ...prev,
+                        externalLinkInput.trim(),
+                      ]);
+                      setExternalLinkInput("");
+                    }}
+                    disabled={externalLinks.length >= 3}
                   >
                     추가
                   </button>
                 </div>
                 <div className="expert-profile-add-wrapper">
-                  {expert.externalLinks.map((link) => (
-                    <div>
+                  {externalLinks.map((link) => (
+                    <div key={link}>
                       <p>{link}</p>
                       <button
                         className="secondary-button"
                         style={{ width: "66px", height: "33px" }}
-                        onClick={() => {}}
+                        onClick={() => {
+                          setExternalLinks((prev) =>
+                            prev.filter((l) => l !== link)
+                          );
+                        }}
                       >
                         삭제
                       </button>
@@ -438,37 +742,51 @@ export default function ProfileForm() {
               </div>
             </div>
             <div className="labelInput-wrapper">
-              <label style={{ width: "160px" }}>제공 서비스</label>
+              <label style={{ minWidth: "160px" }}>제공 서비스</label>
               <div className="add">
                 <div className="expert-profile-add-input">
                   <Input
                     type="select"
                     style={{ width: "348px", height: "37px" }}
+                    value={serviceSelect}
+                    onChange={(e) => setServiceSelect(e.target.value)}
                     required
                   >
-                    {expertServiceList.map((s) => (
-                      <option
-                        key={s.serviceId}
-                        value={s.serviceId}
-                        selected={s.serviceId === expert.mainServiceId}
-                      >
-                        {s.serviceName}
+                    <option value="">서비스 선택</option>
+                    {expertCategoryList.map((c) => (
+                      <option key={c.categoryIdx} value={c.name}>
+                        {c.name}
                       </option>
                     ))}
                   </Input>
                   <button
                     className="secondary-button"
                     style={{ width: "66px", height: "37px" }}
-                    onClick={() => {}}
+                    onClick={() => {
+                      if (!serviceSelect) return;
+
+                      // 중복 방지
+                      if (providedServices.includes(serviceSelect)) return;
+
+                      setProvidedServices((prev) => [...prev, serviceSelect]);
+                      setServiceSelect("");
+                    }}
                   >
                     추가
                   </button>
                 </div>
                 <div className="expert-profile-chip-wrapper">
-                  {expert.serviceList.map((service) => (
-                    <span className="expert-profile-chip">
-                      {service.categoryName}
-                      <i class="bi bi-x-circle"></i>
+                  {providedServices?.map((service) => (
+                    <span className="expert-profile-chip" key={service}>
+                      {service}
+                      <i
+                        class="bi bi-x-circle"
+                        onClick={() =>
+                          setProvidedServices((prev) =>
+                            prev.filter((item) => item !== service)
+                          )
+                        }
+                      ></i>
                     </span>
                   ))}
                 </div>
@@ -477,19 +795,42 @@ export default function ProfileForm() {
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>경력</label>
               <div className="add">
-                <button
-                  className="secondary-button"
-                  style={{ width: "66px", height: "37px" }}
-                  onClick={() => {
-                    setModalType("경력");
-                    setIsModalOpen(true);
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "20px",
                   }}
                 >
-                  추가
-                </button>
+                  <span
+                    style={{
+                      color: "#FF5833",
+                      fontWeight: "600",
+                    }}
+                  >
+                    {years === 0
+                      ? months === 0
+                        ? "경력 없음"
+                        : `총 경력 ${months}개월`
+                      : `총 경력 ${years}년 ${months}개월`}
+                  </span>
+                  <button
+                    className="secondary-button"
+                    style={{ width: "66px", height: "37px" }}
+                    onClick={() => {
+                      setModalType("경력");
+                      setIsModalOpen(true);
+                    }}
+                  >
+                    추가
+                  </button>
+                </div>
                 <div className="expert-profile-card-wrapper">
-                  {careers.map((career) => (
-                    <div className="expert-profile-careerCard">
+                  {careerList?.map((career) => (
+                    <div
+                      className="expert-profile-careerCard"
+                      key={career.careerIdx}
+                    >
                       <div>
                         <span
                           style={{
@@ -508,7 +849,12 @@ export default function ProfileForm() {
                       <button
                         className="secondary-button"
                         style={{ width: "66px", height: "33px" }}
-                        onClick={() => {}}
+                        onClick={() => {
+                          deleteCareer(career.careerIdx);
+                          setCareerList((prev) =>
+                            prev.filter((c) => c.careerIdx !== career.careerIdx)
+                          );
+                        }}
                       >
                         삭제
                       </button>
@@ -520,9 +866,12 @@ export default function ProfileForm() {
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>서비스 상세설명</label>
               <Input
-                value={expert.serviceDescription}
+                value={expert.providedServiceDesc}
                 type="textarea"
                 style={{ height: "158px" }}
+                onChange={(e) =>
+                  setExpert({ ...expert, providedServiceDesc: e.target.value })
+                }
               />
             </div>
             <div className="labelInput-wrapper">
@@ -551,20 +900,27 @@ export default function ProfileForm() {
                     const file = e.target.files[0];
                     if (!file) return;
 
+                    const localUrl = URL.createObjectURL(file);
+
                     setCertificateImages((prev) => [
                       ...prev,
-                      URL.createObjectURL(file),
+                      { url: localUrl, idx: null, isLocal: true },
                     ]);
+
                     setCertificateFiles((prev) => [...prev, file]);
                   }}
                 />
                 {certificateImages.length !== 0 && (
                   <div style={{ display: "flex", gap: "8px" }}>
-                    {certificateImages.map((certificate, idx) => (
+                    {certificateImages?.map((certificate, idx) => (
                       <div style={{ position: "relative" }}>
                         <img
                           key={idx}
-                          src={certificate}
+                          src={
+                            certificate.isLocal
+                              ? certificate.url
+                              : `http://localhost:8080/imageView?type=expert&filename=${certificate.url}`
+                          }
                           width="120px"
                           height="175px"
                           style={{ borderRadius: "8px" }}
@@ -580,12 +936,14 @@ export default function ProfileForm() {
                             cursor: "pointer",
                           }}
                           onClick={() => {
-                            setCertificateImages((prev) =>
-                              prev.filter((_, i) => i !== idx)
-                            );
-                            setCertificateFiles((prev) =>
-                              prev.filter((_, i) => i !== idx)
-                            );
+                            setCertificateImages((prev) => {
+                              const newArr = prev.filter((_, i) => i !== idx); // idx 삭제
+                              return [...newArr]; // 자동으로 앞으로 땡겨짐
+                            });
+                            setCertificateFiles((prev) => {
+                              const newArr = prev.filter((_, i) => i !== idx); // 같은 idx 삭제
+                              return [...newArr];
+                            });
                           }}
                         />
                       </div>
@@ -596,23 +954,52 @@ export default function ProfileForm() {
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>사업자등록증</label>
-              <img
-                src={expert.usinessRegistrationImage}
-                width="120px"
-                height="175px"
-                style={{ borderRadius: "8px" }}
-                ref={businessImgRef}
-                onClick={() => businessFileRef.current.click()}
-              />
+              <div style={{ position: "relative" }}>
+                <img
+                  src={
+                    businessImage
+                      ? businessImage
+                      : expert.businessLicensePdf
+                      ? `http://localhost:8080/imageView?type=expert&filename=${expert.businessLicensePdf}`
+                      : "/default-businessFile.png"
+                  }
+                  width="120px"
+                  height="175px"
+                  style={{ borderRadius: "8px" }}
+                  onClick={() => businessFileRef.current.click()}
+                />
+                {(businessImage || expert.businessLicensePdf) && (
+                  <i
+                    class="bi bi-x-circle-fill"
+                    style={{
+                      fontSize: "20px",
+                      width: "20px",
+                      height: "16px",
+                      position: "absolute",
+                      top: "-4px",
+                      right: "-4px",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      setBusinessImage(null); // 미리보기 제거
+                      setExpert((prev) => ({
+                        ...prev,
+                        businessLicensePdf: null,
+                      })); // 서버 이미지 삭제
+                      setBusinessFile(null);
+                    }}
+                  />
+                )}
+              </div>
               <input
                 type="file"
                 hidden
                 ref={businessFileRef}
                 onChange={(e) => {
-                  // setProfileImage(e.target.files[0]);
-                  businessImgRef.current.src = URL.createObjectURL(
-                    e.target.files[0]
-                  );
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  setBusinessFile(file);
+                  setBusinessImage(URL.createObjectURL(file));
                 }}
               />
             </div>
@@ -638,9 +1025,10 @@ export default function ProfileForm() {
                   추가
                 </button>
                 <div style={{ display: "flex", gap: "8px" }}>
-                  {portfolioList.map((portfolio) => (
+                  {portfolioThumbnails?.map((thumb, idx) => (
                     <img
-                      src={portfolio.images[0]}
+                      key={idx}
+                      src={`http://localhost:8080/imageView?type=expert&filename=${thumb}`}
                       width="150px"
                       height="150px"
                       style={{ borderRadius: "8px" }}
@@ -668,44 +1056,104 @@ export default function ProfileForm() {
                     setIsModalOpen(true);
                   }}
                 >
-                  추가
+                  수정
                 </button>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "30px",
-                  }}
-                >
-                  {expert.qaList.map((qa) => (
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                      }}
-                    >
-                      <p
+                {(questionAnswers[0] ||
+                  questionAnswers[1] ||
+                  questionAnswers[2]) && (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "30px",
+                    }}
+                  >
+                    {questionAnswers[0] && (
+                      <div
                         style={{
-                          margin: "0",
-                          fontWeight: "500",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
                         }}
                       >
-                        {qa.question}
-                      </p>
-                      <p
+                        <p
+                          style={{
+                            margin: "0",
+                            fontWeight: "500",
+                          }}
+                        >
+                          서비스가 시작되기 전 어떤 절차로 진행하나요?
+                        </p>
+                        <p
+                          style={{
+                            margin: "0",
+                            color: "#6A7685",
+                            lineHeight: "22px",
+                            width: "424px",
+                          }}
+                        >
+                          {questionAnswers[0]}
+                        </p>
+                      </div>
+                    )}
+                    {questionAnswers[1] && (
+                      <div
                         style={{
-                          margin: "0",
-                          color: "#6A7685",
-                          lineHeight: "22px",
-                          width: "424px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
                         }}
                       >
-                        {qa.answer}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                        <p
+                          style={{
+                            margin: "0",
+                            fontWeight: "500",
+                          }}
+                        >
+                          서비스의 견적은 어떤 방식으로 산정 되나요?
+                        </p>
+                        <p
+                          style={{
+                            margin: "0",
+                            color: "#6A7685",
+                            lineHeight: "22px",
+                            width: "424px",
+                          }}
+                        >
+                          {questionAnswers[1]}
+                        </p>
+                      </div>
+                    )}
+                    {questionAnswers[2] && (
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "10px",
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: "0",
+                            fontWeight: "500",
+                          }}
+                        >
+                          A/S 또는 환불 규정은 어떻게 되나요?
+                        </p>
+                        <p
+                          style={{
+                            margin: "0",
+                            color: "#6A7685",
+                            lineHeight: "22px",
+                            width: "424px",
+                          }}
+                        >
+                          {questionAnswers[2]}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -721,6 +1169,7 @@ export default function ProfileForm() {
             <button
               className="primary-button"
               style={{ width: "200px", height: "40px", fontSize: "14px" }}
+              onClick={() => modifyExpert()}
             >
               완료
             </button>
@@ -761,7 +1210,12 @@ export default function ProfileForm() {
                   *
                 </span>
               </label>
-              <Input placeholder="ex) 회사명" />
+              <Input
+                placeholder="ex) 회사명"
+                onChange={(e) =>
+                  setCareer({ ...career, title: e.target.value })
+                }
+              />
             </div>
             <div className="label-wrapper">
               <label>
@@ -777,7 +1231,12 @@ export default function ProfileForm() {
                   *
                 </span>
               </label>
-              <Input type="month" />
+              <Input
+                type="month"
+                onChange={(e) =>
+                  setCareer({ ...career, startDate: e.target.value })
+                }
+              />
             </div>
             <div className="label-wrapper">
               <label>
@@ -803,6 +1262,21 @@ export default function ProfileForm() {
                 <Input
                   type="checkbox"
                   style={{ width: "18px", height: "18px" }}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setCareer((prev) => ({
+                        ...prev,
+                        isCurrent: true,
+                        endDate: getCurrentYearMonth(),
+                      }));
+                    } else {
+                      setCareer((prev) => ({
+                        ...prev,
+                        isCurrent: false,
+                        endDate: "",
+                      }));
+                    }
+                  }}
                 />
                 <span
                   style={{
@@ -814,13 +1288,23 @@ export default function ProfileForm() {
                   현재 진행 중
                 </span>
               </div>
-              <Input type="month" />
+              <Input
+                type="month"
+                disabled={career.isCurrent}
+                value={career.endDate}
+                onChange={(e) =>
+                  setCareer({ ...career, endDate: e.target.value })
+                }
+              />
             </div>
             <div className="label-wrapper">
               <label>상세 설명</label>
               <Input
                 type="textarea"
                 placeholder="해당 경력에 대한 상세한 설명을 작성해주세요."
+                onChange={(e) =>
+                  setCareer({ ...career, description: e.target.value })
+                }
               />
             </div>
           </ModalBody>
@@ -828,6 +1312,7 @@ export default function ProfileForm() {
             <button
               className="primary-button"
               style={{ width: "100%", height: "40px", fontSize: "14px" }}
+              onClick={() => submitCareer()}
             >
               경력 추가하기
             </button>
@@ -859,7 +1344,12 @@ export default function ProfileForm() {
                   *
                 </span>
               </label>
-              <Input placeholder="포트폴리오 제목을 작성해주세요" />
+              <Input
+                placeholder="포트폴리오 제목을 작성해주세요"
+                onChange={(e) =>
+                  setPortfolio({ ...portfolio, title: e.target.value })
+                }
+              />
             </div>
             <div className="label-wrapper">
               <label>
@@ -878,11 +1368,16 @@ export default function ProfileForm() {
               <Input
                 type="select"
                 style={{ height: "37px", fontSize: "14px" }}
-                required
+                onChange={(e) =>
+                  setPortfolio((prev) => ({
+                    ...prev,
+                    serviceIdx: Number(e.target.value),
+                  }))
+                }
               >
-                {expertServiceList.map((s) => (
-                  <option key={s.serviceId} value={s.serviceId}>
-                    {s.serviceName}
+                {expertCategoryList.map((c) => (
+                  <option key={c.categoryIdx} value={c.categoryIdx}>
+                    {c.name}
                   </option>
                 ))}
               </Input>
@@ -904,7 +1399,9 @@ export default function ProfileForm() {
               <Input
                 type="select"
                 style={{ height: "37px", fontSize: "14px" }}
-                required
+                onChange={(e) =>
+                  setPortfolio((prev) => ({ ...prev, region: e.target.value }))
+                }
               >
                 {regions.map((r) => (
                   <option key={r} value={r}>
@@ -927,7 +1424,15 @@ export default function ProfileForm() {
                   *
                 </span>
               </label>
-              <Input placeholder="서비스 금액을 입력해 주세요" />
+              <Input
+                placeholder="서비스 금액을 입력해 주세요"
+                onChange={(e) =>
+                  setPortfolio((prev) => ({
+                    ...prev,
+                    price: Number(e.target.value),
+                  }))
+                }
+              />
             </div>
             <div className="label-wrapper">
               <label>
@@ -947,30 +1452,62 @@ export default function ProfileForm() {
                 <div className="mypage-chipList" style={{ paddingTop: "8px" }}>
                   <div
                     className={durationUnitChip === "HOUR" ? "isActive" : ""}
-                    onClick={() => setDurationUnitChip("HOUR")}
+                    onClick={() => {
+                      setDurationUnitChip("HOUR");
+                      setPortfolio((prev) => ({
+                        ...prev,
+                        workTimeType: "HOUR",
+                      }));
+                    }}
                   >
                     시간
                   </div>
                   <div
                     className={durationUnitChip === "DAY" ? "isActive" : ""}
-                    onClick={() => setDurationUnitChip("DAY")}
+                    onClick={() => {
+                      setDurationUnitChip("DAY");
+                      setPortfolio((prev) => ({
+                        ...prev,
+                        workTimeType: "DAY",
+                      }));
+                    }}
                   >
                     일
                   </div>
                   <div
                     className={durationUnitChip === "WEEK" ? "isActive" : ""}
-                    onClick={() => setDurationUnitChip("WEEK")}
+                    onClick={() => {
+                      setDurationUnitChip("WEEK");
+                      setPortfolio((prev) => ({
+                        ...prev,
+                        workTimeType: "WEEK",
+                      }));
+                    }}
                   >
                     주
                   </div>
                   <div
                     className={durationUnitChip === "MONTH" ? "isActive" : ""}
-                    onClick={() => setDurationUnitChip("MONTH")}
+                    onClick={() => {
+                      setDurationUnitChip("MONTH");
+                      setPortfolio((prev) => ({
+                        ...prev,
+                        workTimeType: "MONTH",
+                      }));
+                    }}
                   >
                     개월
                   </div>
                 </div>
-                <Input placeholder="작업기간을 입력해주세요" />
+                <Input
+                  placeholder="작업기간을 입력해주세요"
+                  onChange={(e) =>
+                    setPortfolio((prev) => ({
+                      ...prev,
+                      workTimeValue: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
             </div>
             <div className="label-wrapper">
@@ -978,6 +1515,9 @@ export default function ProfileForm() {
               <Input
                 type="textarea"
                 placeholder="해당 작업에 대한 상세한 설명을 작성해주세요."
+                onChange={(e) =>
+                  setPortfolio({ ...portfolio, description: e.target.value })
+                }
               />
             </div>
             <div className="label-wrapper">
@@ -1000,9 +1540,14 @@ export default function ProfileForm() {
                   gap: "8px",
                 }}
               >
-                {portfolioImages.map((img, idx) => (
+                {portfolioImages.map((portfolioImage, idx) => (
                   <div style={{ position: "relative" }}>
-                    <img key={idx} src={img} width="60px" height="60px" />
+                    <img
+                      key={idx}
+                      src={portfolioImage}
+                      width="60px"
+                      height="60px"
+                    />
                     <i
                       class="bi bi-x-circle-fill"
                       style={{
@@ -1024,7 +1569,7 @@ export default function ProfileForm() {
                     />
                   </div>
                 ))}
-                {portfolioImages.length < 5 && (
+                {portfolioImages.length < 3 && (
                   <div
                     onClick={() => portfolioImgRef.current.click()}
                     style={{
@@ -1068,6 +1613,9 @@ export default function ProfileForm() {
             <button
               className="primary-button"
               style={{ width: "100%", height: "40px", fontSize: "14px" }}
+              onClick={() => {
+                submitPortfolio();
+              }}
             >
               포트폴리오 등록하기
             </button>
@@ -1091,6 +1639,14 @@ export default function ProfileForm() {
                 type="textarea"
                 placeholder="상담,예약, 서비스 진행, 대금 납부까지 어떻게 진행하는지 자세히 적어주세요."
                 style={{ height: "100px" }}
+                value={questionAnswers[0]}
+                onChange={(e) =>
+                  setQuestionAnswers((prev) => {
+                    const copy = [...prev];
+                    copy[0] = e.target.value;
+                    return copy;
+                  })
+                }
               />
             </div>
             <div className="label-wrapper">
@@ -1099,6 +1655,14 @@ export default function ProfileForm() {
                 type="textarea"
                 placeholder="답변을 추가해주세요."
                 style={{ height: "100px" }}
+                value={questionAnswers[1]}
+                onChange={(e) =>
+                  setQuestionAnswers((prev) => {
+                    const copy = [...prev];
+                    copy[1] = e.target.value;
+                    return copy;
+                  })
+                }
               />
             </div>
             <div className="label-wrapper">
@@ -1107,6 +1671,14 @@ export default function ProfileForm() {
                 type="textarea"
                 placeholder="답변을 추가해주세요."
                 style={{ height: "100px" }}
+                value={questionAnswers[2]}
+                onChange={(e) =>
+                  setQuestionAnswers((prev) => {
+                    const copy = [...prev];
+                    copy[2] = e.target.value;
+                    return copy;
+                  })
+                }
               />
             </div>
           </ModalBody>
@@ -1114,6 +1686,7 @@ export default function ProfileForm() {
             <button
               className="primary-button"
               style={{ width: "100%", height: "40px", fontSize: "14px" }}
+              onClick={() => setIsModalOpen(false)}
             >
               질문답변 등록하기
             </button>

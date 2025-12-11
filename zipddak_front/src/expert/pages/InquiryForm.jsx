@@ -39,7 +39,7 @@ export function InquiryForm() {
           setIsModalOpen(true);
 
           setTimeout(() => {
-            navigate("/zipddak/mypage/inquiries");
+            navigate("/expert/mypage/inquiries");
           }, 1500);
         }
       })
