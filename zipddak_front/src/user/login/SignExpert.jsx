@@ -10,7 +10,7 @@ import qs from 'qs';
 export default function SignExpert() {
 
     const [expert, setExpert] = useState({
-        userUsername: 'uu@email.com', activityName: '', zonecode: '', addr1: '', addr2: '',
+        userUsername: '', activityName: '', zonecode: '', addr1: '', addr2: '',
         employeeCount: 0, businessLicense: '', businessLicensePdfId: null, settleBank: '', settleAccount: '', settleHost: '',
         createdAt: null, providedServiceIdx: ''
     })

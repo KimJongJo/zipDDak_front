@@ -24,7 +24,7 @@ export default function SignStore2() {
         setSeller({ ...seller, [e.target.name]: e.target.value })
     }
 
-    //테스트용 axios
+    //최초회원가입 axios
     const signUpapi = myAxios(null, null);
 
     //중복 아이디 체크
