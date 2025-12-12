@@ -11,6 +11,11 @@ export default function ExpertProfile() {
 
     const { expertIdx } = useParams();
 
+    const [career, setCareer] = useState({});
+    const [categoryList, setCategoryList] = useState([]);
+    const [expertProfile, setExpertProfile] = useState({});
+    const [portfolio, setportfolio] = useState([]);
+
     const expert = {
         nickname: "전문가 활동명",
         major: "도어 시공",
@@ -37,9 +42,27 @@ export default function ExpertProfile() {
         window.scrollTo({ top: top, behavior: "instant" });
     };
 
+    function formatTimeToAmPm(timeStr) {
+        if (!timeStr) return ""; // null/undefined 안전 처리
+
+        const [hours, minutes] = timeStr.split(":");
+        let h = parseInt(hours, 10);
+        const m = parseInt(minutes, 10);
+
+        const ampm = h >= 12 ? "오후" : "오전";
+        if (h === 0) h = 12; // 0시는 12시 오전
+        else if (h > 12) h -= 12; // 13~23시는 1~11시 오후
+
+        return m === 0 ? `${ampm} ${h}시` : `${ampm} ${h}시 ${m}분`;
+    }
+
     useEffect(() => {
-        axios.get(`${baseUrl}/expertProfile?expertIdx=${expertIdx}`).then((res) => {
+        axios.get(`${baseUrl}/expertProfile?expertIdx=${expertIdx}&username=rlawhdwh`).then((res) => {
             console.log(res.data);
+            setCareer(res.data.careerDto);
+            setCategoryList(res.data.categoryList);
+            setExpertProfile(res.data.expertProfile);
+            setportfolio(res.data.protFolioDtoList);
         });
     }, []);
 
@@ -120,16 +143,16 @@ export default function ExpertProfile() {
                     </div>
                     <div>
                         {/* 전문가 활동명 */}
-                        <span className="font-22 semibold">{expert.nickname}</span>
+                        <span className="font-22 semibold">{expertProfile.activityName}</span>
                     </div>
                     <div>
                         {/* 전문 분야 */}
-                        <span className="font-15 semibold">{expert.major}</span>
+                        <span className="font-15 semibold">{expertProfile.mainServiceName}</span>
                         {/* 소개글 */}
-                        <div className="font-15">{expert.intro}</div>
+                        <div className="font-15">{expertProfile.introduction}</div>
                         <span className="font-14">
                             <i className="bi bi-geo-alt font-15"></i>
-                            {expert.address}
+                            {expertProfile.addr1 + " " + expertProfile.addr2}
                         </span>
                     </div>
                 </div>
@@ -159,37 +182,68 @@ export default function ExpertProfile() {
                                 <i className="bi bi-building font-15"></i>
                                 <span className="font-14 margin-left-5">직원수</span>
                                 {/* 직원수 */}
-                                <span className="font-14 margin-left-5">20명</span>
+                                <span className="font-14 margin-left-5">{expertProfile.employeeCount} 명</span>
                             </div>
                             <div>
                                 <i className="bi bi-clock font-15"></i>
                                 <span className="font-14 margin-left-5">연락 가능 시간:</span>
                                 {/* 연락 가능 시간 */}
-                                <span className="font-14 margin-left-5">오전 9시 ~ 오후 9시</span>
+                                <span className="font-14 margin-left-5">
+                                    {/* 오전 시간 */}
+                                    {formatTimeToAmPm(expertProfile.contactStartTime)} ~ {/* 오흐 시간 */}
+                                    {formatTimeToAmPm(expertProfile.contactEndTime)}
+                                </span>
                             </div>
-                            <div>
-                                <i className="bi bi-globe font-15"></i>
-                                {/* 홈페이지 링크 */}
-                                <a className="expertProfile-homepage-link margin-left-5 font-14 medium" href="https://www.naver.com/">
-                                    https://www.naver.com/
-                                </a>
-                            </div>
+                            {expertProfile.externalLink1 && (
+                                <div className="expertProfile-links">
+                                    <div>
+                                        <i className="bi bi-globe font-15"></i>
+                                        <a className="expertProfile-homepage-link margin-left-5 font-14 medium" href={expertProfile.externalLink1} target="_blank" rel="noopener noreferrer">
+                                            {expertProfile.externalLink1}
+                                        </a>
+                                    </div>
+
+                                    {expertProfile.externalLink2 && (
+                                        <div>
+                                            <i className="bi bi-globe font-15"></i>
+                                            <a className="expertProfile-homepage-link margin-left-5 font-14 medium" href={expertProfile.externalLink2} target="_blank" rel="noopener noreferrer">
+                                                {expertProfile.externalLink2}
+                                            </a>
+                                        </div>
+                                    )}
+
+                                    {expertProfile.externalLink3 && (
+                                        <div>
+                                            <i className="bi bi-globe font-15"></i>
+                                            <a className="expertProfile-homepage-link margin-left-5 font-14 medium" href={expertProfile.externalLink3} target="_blank" rel="noopener noreferrer">
+                                                {expertProfile.externalLink3}
+                                            </a>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* 제공 서비스div */}
                         <div className="expertProfile-provide-service">
                             <span className="font-18 semibold">제공 서비스</span>
                             {/* 제공 서비스 뱃지 */}
-                            <div>
-                                <div className="expertProfile-cate-badge">
-                                    <span className="font-14 medium">전문가 카테고리</span>
-                                </div>
-                                <div className="expertProfile-cate-badge">
-                                    <span className="font-14 medium">전문가 카테고리</span>
-                                </div>
-                                <div className="expertProfile-cate-badge">
-                                    <span className="font-14 medium">전문가 카테고리</span>
-                                </div>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                                {categoryList.map((category) => (
+                                    <div
+                                        style={{
+                                            padding: "0 20px",
+                                            border: "1px solid #e0e5eb",
+                                            height: "30px",
+                                            display: "flex",
+                                            justifyContent: "content",
+                                            alignItems: "center",
+                                            borderRadius: "15px",
+                                        }}
+                                    >
+                                        <span className="font-14 medium">{category.name}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -198,21 +252,40 @@ export default function ExpertProfile() {
                             {/* 경력 */}
                             <div className="expertProfile-info-career">
                                 <span className="font-18 semibold">경력</span>
-                                <span className="font-15 medium mainColor">총 경력 6년</span>
+                                <span className="font-15 medium mainColor">
+                                    <span className="font-15 medium mainColor">
+                                        총 경력{" "}
+                                        {career.career <= 0
+                                            ? "경력 없음"
+                                            : career.career < 1
+                                            ? "1개월 미만"
+                                            : career.career < 12
+                                            ? `${career.career}개월`
+                                            : `${Math.floor(career.career / 12)}년 ${career.career % 12 > 0 ? (career.career % 12) + "개월" : ""}`}
+                                    </span>
+                                </span>
                             </div>
 
                             {/* 경력 타이틀 div */}
                             <div>
-                                <div>
-                                    {/* 경력 타이틀 */}
-                                    <span className="font-15 medium">경력 타이틀</span>
-                                    <div className="expertProfile-info-career-content">
-                                        {/* 경력 기간 */}
-                                        <span className="font-14">2025.01.01 ~ 2025.07.31</span>
-                                        {/* 경력 내용 */}
-                                        <span className="font-14">해당 경력 관련 추가 설명</span>
-                                    </div>
-                                </div>
+                                {career.career !== 0 ? (
+                                    career.careerList?.map((c) => (
+                                        <div>
+                                            {/* 경력 타이틀 */}
+                                            <span className="font-15 medium">{c.title}</span>
+                                            <div className="expertProfile-info-career-content">
+                                                {/* 경력 기간 */}
+                                                <span className="font-14">
+                                                    {c.startDate.replaceAll("-", ".")} ~ {c.endDate.replaceAll("-", ".")}
+                                                </span>
+                                                {/* 경력 내용 */}
+                                                <span className="font-14">{c.description}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <></>
+                                )}
                             </div>
                         </div>
 
@@ -220,7 +293,7 @@ export default function ExpertProfile() {
                         <div className="expertProfile-service-detail">
                             <span className="font-18 semibold">서비스 상세 설명</span>
                             {/* 상세 설명 내용 */}
-                            <div className="font-15">서비스 상세 설명에 대한 내용</div>
+                            <div className="font-15">{expertProfile.providedServiceDesc}</div>
                         </div>
 
                         {/* 자격증 및 기타 서류 div */}
