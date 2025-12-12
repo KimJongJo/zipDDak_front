@@ -19,7 +19,7 @@ export default function Token() {
     useEffect(()=> {
         let formData = new FormData();
         formData.append('fcmToken', fcmToken);
-        token && myAxios(token, setToken).post("/user", formData)
+        token && myAxios(token, setToken).post("/zipddak", formData)
         .then(res=> {
             setUser(res.data)
             navigate("/zipddak/main")
