@@ -4,18 +4,29 @@ import detail from "../css/detail.module.css";
 import acco from "../css/accordion.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
+import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
+import { priceFormat } from "../js/priceFormat.jsx";
+//component
+import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
+import ModalRefund from "../component/ModalRefund.jsx";
+import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
-import { FormGroup, Input, Label } from "reactstrap";
-import { useState, useEffect, useRef } from "react";
+import { myAxios } from "../../config/config.jsx";
+import { FormGroup, Input, Label, Spinner, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Tippy from "@tippyjs/react";
 
-export default function OrderList() {
+export default function OrderDetail() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 상세조회");
-
     const { orderIdx } = useParams();
-    const [orderDetail, setOrderDetail] = useState(null);
+    const [order, setOrder] = useState(null); //주문정보
+    const [items, setItems] = useState(null); //주문아이템 정보
+    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false); //환불처리 모달 상태
+    const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
+    const [selectedItem, setSelectedItem] = useState(null);
 
+    //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
         const params = new URLSearchParams();
         params.append("sellerId", "test");
@@ -28,22 +39,78 @@ export default function OrderList() {
             .then((res) => {
                 console.log("orderDetail :", res.data);
 
-                setOrderDetail(res.data);
+                setOrder(res.data.orderData);
+                setItems(res.data.myOrderItemList);
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
+    //초기화면 로딩
     useEffect(() => {
         getMyOrderDetail();
     }, []);
 
-    // 데이터 로딩 전에는 렌더링 막기
-    if (!orderDetail) return <div>Loading...</div>;
+    //처리아이콘 클릭시 드롭다운 오픈
+    const [openDropdown, setOpenDropdown] = useState(null);
+    const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 });
+    // 토글 로직 (중복 클릭 -> 닫힘)
+    const toggleDropdown = (itemIdx) => {
+        setOpenDropdown((prev) => (prev === itemIdx ? null : itemIdx));
+    };
+    // 클릭 위치 기준으로 드롭다운 좌표 계산
+    const handleDropdownClick = (e, itemIdx) => {
+        e.stopPropagation();
+        const rect = e.target.getBoundingClientRect();
 
-    const order = orderDetail.orderData;
-    const items = orderDetail.myOrderItemList;
+        // 아이콘 바로 아래에 붙도록
+        setDropdownPos({
+            x: rect.left,
+            y: rect.bottom + 4,
+        });
+        toggleDropdown(itemIdx);
+    };
+
+    //테이블 체크박스 상태 초기화
+    const {
+        allChecked,
+        checkedItems,
+
+        handleAllCheck,
+        handleItemCheck,
+
+        getSelected,
+        requireSelected,
+
+        resetChecked,
+    } = useSelectCheckbox();
+
+    // 데이터 로딩 전에는 렌더링 막기
+    if (!order) {
+        return (
+            <div style={{ textAlign: "center", padding: "350px" }}>
+                <Spinner style={{ color: "#ff5733" }}>Loading...</Spinner>
+            </div>
+        );
+    }
+
+    //배송방법별로 테이블 섹션 나누기
+    const bundleItems = items.filter((it) => it.postType == "bundle");
+    const singleItems = items.filter((it) => it.postType == "single");
+
+    //주문상품 테이블에 번호 매기기
+    const allItems = [...bundleItems, ...singleItems];
+    allItems.forEach((item, idx) => (item.rowNumber = idx + 1));
+
+    // 묶음 + 개별 합치기
+    // 수량 합
+    const totalQuantity = allItems.reduce((acc, cur) => acc + cur.quantity, 0);
+    // 단가 합
+    const totalUnitPrice = allItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
+    // 배송비 합
+    const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, ""));
+    const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
 
     return (
         <>
@@ -53,7 +120,7 @@ export default function OrderList() {
             <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
-                        <i class="bi bi-newspaper"></i>
+                        <i className="bi bi-newspaper"></i>
                         <span>주문 내역 상세조회</span>
                     </div>
 
@@ -61,9 +128,7 @@ export default function OrderList() {
                         <div className={detail.base_info}>
                             {/* 주문 정보 */}
                             <div className="position-relative mb-4">
-                                <Label for="examplePassword" className="input_title">
-                                    주문 정보
-                                </Label>
+                                <Label className="input_title">주문 정보</Label>
 
                                 <div className={detail.detailFrame}>
                                     <div className={detail.info_column}>
@@ -73,28 +138,23 @@ export default function OrderList() {
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 일자 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.createdAt} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 상태 </span>
+                                            <span>주문 상태 </span>
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">결제 수단 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value="결제수단" readOnly />
                                         </div>
                                     </div>
-                                    {/* <div className={detail.info_column}>
-                                    <div className="info_cell ">
-                                        <span className="sub_title">총 금액 </span>
-                                        <Input className="" readOnly />
-                                    </div>
-                                </div> */}
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">최종 결제 금액 </span>
-                                            <Input value={order.orderCode} readOnly style={{ color: "red" }} />
+                                            <Input value={priceFormat(order.totalAmount)} style={{ color: "red", marginRight: "5px" }} readOnly />원
                                         </div>
                                         <div className={detail.info_cell}></div>
                                     </div>
@@ -103,24 +163,22 @@ export default function OrderList() {
 
                             {/* 고객 정보 */}
                             <div className="position-relative mb-4">
-                                <Label for="examplePassword" className="input_title">
-                                    고객 정보
-                                </Label>
+                                <Label className="input_title">고객 정보</Label>
                                 <div className={detail.detailFrame}>
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문자 아이디 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.customerUsername} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문자명 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.customerName} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.customerPhone} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 횟수</span>
@@ -132,18 +190,16 @@ export default function OrderList() {
 
                             {/* 배송지 정보 */}
                             <div className="position-relative mb-4">
-                                <Label for="examplePassword" className="input_title">
-                                    배송지 정보
-                                </Label>
+                                <Label className="input_title">배송지 정보</Label>
                                 <div className={detail.detailFrame}>
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">수령인 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.postRecipient} readOnly />
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">연락처 </span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.phone} readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
@@ -151,11 +207,11 @@ export default function OrderList() {
                                             <span className="sub_title">배송지 </span>
                                             <div style={{ width: "100%" }}>
                                                 <div className="addr_column mb-2">
-                                                    <Input className="" style={{ width: "30%" }} placeholder="우편번호" value={order.orderCode} readOnly />
-                                                    <Input style={{ width: "70%" }} placeholder="도로명주소" value={order.orderCode} readOnly />
+                                                    <Input className="" style={{ width: "30%" }} value={order.postZonecode} readOnly />
+                                                    <Input style={{ width: "70%" }} value={order.postAddr1} readOnly />
                                                 </div>
                                                 <div className="addr_column2 ">
-                                                    <Input type="text" placeholder="상세주소" value={order.orderCode} readOnly />
+                                                    <Input type="text" value={order.postAddr2} readOnly />
                                                 </div>
                                             </div>
                                         </div>
@@ -163,7 +219,7 @@ export default function OrderList() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_line}>
                                             <span className="sub_title">배송 메모</span>
-                                            <Input value={order.orderCode} readOnly />
+                                            <Input value={order.postNote} readOnly />
                                         </div>
                                     </div>
                                 </div>
@@ -171,167 +227,230 @@ export default function OrderList() {
                         </div>
 
                         <div className={detail.pd_list_table}>
-                            <Label for="examplePassword" className="input_title">
-                                주문 상품 리스트
-                            </Label>
+                            <Label className="input_title">주문 상품 리스트</Label>
                             <div className={detail.product_list}>
                                 <div className={table.tableBody}>
                                     <table className={table.detail_table}>
                                         <thead>
                                             <tr>
-                                                <th style={{ width: "5%" }}>
-                                                    <Input type="checkbox" />
+                                                <th style={{ width: "auto" }}>
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={allChecked}
+                                                        onChange={(e) => {
+                                                            const allIds = [...bundleItems.map((it) => it.orderItemIdx), ...singleItems.map((it) => it.orderItemIdx)];
+                                                            handleAllCheck(allIds, e.target.checked);
+                                                        }}
+                                                    />
                                                 </th>
-                                                <th style={{ width: "5%" }}>#</th>
-                                                <th style={{ width: "5%" }}>Img</th>
-                                                <th style={{ width: "15%" }}>상품명</th>
-                                                <th style={{ width: "20%" }}>옵션</th>
-                                                <th style={{ width: "5%" }}>수량</th>
-                                                <th style={{ width: "10%" }}>금액</th>
-                                                <th style={{ width: "10%" }}>주문상태</th>
-                                                <th style={{ width: "10%" }}>배송비</th>
-                                                <th style={{ width: "10%" }}>운송장번호</th>
-                                                <th style={{ width: "5%" }}>처리</th>
+                                                <th style={{ width: "auto" }}>#</th>
+                                                <th style={{ width: "auto" }}>Img</th>
+                                                <th style={{ width: "20%" }}>상품명</th>
+                                                <th style={{ width: "auto" }}>옵션</th>
+                                                <th style={{ width: "auto" }}>수량</th>
+                                                <th style={{ width: "auto" }}>금액</th>
+                                                <th style={{ width: "auto" }}>주문상태</th>
+                                                <th style={{ width: "auto" }}>배송비</th>
+                                                <th style={{ width: "auto" }}>운송장번호</th>
+                                                <th style={{ width: "auto" }}>처리</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {/* {bundleList.map((item, idx) => (
-                                            <tr className={`bundle_deli ${idx === bundleList.length - 1 ? "bundle_last" : ""}`}></tr>
-                                        ))} */}
-                                            {items.map((it, idx) => (
-                                                <tr key={idx}>
-                                                    <td>{it.orderItemIdx}</td>
+                                            {/* 묶음 배송 */}
+                                            {bundleItems.length > 0 &&
+                                                bundleItems.map((it, idx) => (
+                                                    <tr key={it.orderItemIdx} className={`${table.bundle_deli} ${idx === bundleItems.length - 1 ? "last-of-bundle" : ""}`}>
+                                                        <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
+                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo} />
+                                                        </td>
+                                                        <td>{it.rowNumber}</td>
+                                                        <td style={{ padding: "0" }}>
+                                                            <img src="/no_img.svg" style={{ width: "60px" }} />
+                                                        </td>
+                                                        <td className={table.title_cell}>{it.productName}</td>
+                                                        <td className={table.option_cell}>
+                                                            {it.productOptionIdx ? (
+                                                                <span>
+                                                                    {it.optionName} : {it.optionValue}
+                                                                </span>
+                                                            ) : (
+                                                                "옵션없음"
+                                                            )}
+                                                        </td>
+                                                        <td className="quantity_cell">{it.quantity}</td>
+                                                        <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
+                                                        <td>{it.orderStatus}</td>
+
+                                                        {idx === 0 && (
+                                                            <td rowSpan={bundleItems.length} className={`${table.shipCharge_cell} ${"last-of-bundle-cell"}`}>
+                                                                <span style={{ fontSize: "16px" }}>
+                                                                    <span>{bundleItems[0].postCharge}</span>원
+                                                                </span>
+                                                                <br />
+                                                                <span style={{ fontSize: "10px" }}>
+                                                                    <span>5만</span>원 이상 무료
+                                                                </span>
+                                                            </td>
+                                                        )}
+
+                                                        <td>{it.trackingNo ? `${it.postComp} ${it.trackingNo}` : "-"}</td>
+                                                        <td className="dropdown-wrapper" style={{ position: "relative" }}>
+                                                            <i
+                                                                className={`bi bi-three-dots-vertical ${it.trackingNo ? "disabled_icon" : "pointer"}`}
+                                                                onClick={(e) => {
+                                                                    if (it.trackingNo) return;
+                                                                    handleDropdownClick(e, it.orderItemIdx);
+                                                                }}
+                                                            ></i>
+                                                        </td>
+
+                                                        {openDropdown === it.orderItemIdx && (
+                                                            <ActionDropdownPortal
+                                                                pos={{ x: dropdownPos.x, y: dropdownPos.y }}
+                                                                onClose={() => setOpenDropdown(null)}
+                                                                menuItems={[
+                                                                    {
+                                                                        label: "운송장 등록",
+                                                                        onClick: () => {
+                                                                            setSelectedItem(it.orderItemIdx);
+                                                                            setIsTrackingModalOpen(true); //모달 오픈
+                                                                            setOpenDropdown(null); // 드롭다운 닫기
+                                                                            console.log("운송장 등록", it.orderItemIdx);
+                                                                        },
+                                                                    },
+                                                                    {
+                                                                        label: "환불 처리",
+                                                                        onClick: () => {
+                                                                            setSelectedItem(it.orderItemIdx);
+                                                                            setIsRefundModalOpen(true); //모달 오픈
+                                                                            setOpenDropdown(null); // 드롭다운 닫기
+                                                                            console.log("환불 처리", it.orderItemIdx);
+                                                                        },
+                                                                    },
+                                                                ]}
+                                                            />
+                                                        )}
+                                                    </tr>
+                                                ))}
+                                            {/* 개별 배송 */}
+                                            {singleItems.map((it) => (
+                                                <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
+                                                    <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
+                                                        <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
+                                                    </td>
+                                                    <td>{it.rowNumber}</td>
+                                                    <td>
+                                                        <img src="/no_img.svg" style={{ width: "60px" }} />
+                                                    </td>
                                                     <td>{it.productName}</td>
-                                                    <td>{it.quantity}</td>
-                                                    <td>{it.unitPrice}</td>
+                                                    <td className={table.option_cell}>
+                                                        {it.productOptionIdx ? (
+                                                            <span>
+                                                                {it.optionName} : {it.optionValue}
+                                                            </span>
+                                                        ) : (
+                                                            "옵션없음"
+                                                        )}
+                                                    </td>
+                                                    <td className="quantity_cell">{it.quantity}</td>
+                                                    <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
                                                     <td>{it.orderStatus}</td>
+                                                    <td className="postCharge_cell">
+                                                        <span>
+                                                            <span>{it.postCharge}</span>원
+                                                        </span>
+                                                        <br />
+                                                        <span style={{ fontSize: "10px" }}>1개당 부과</span>
+                                                    </td>
+                                                    <td>{it.trackingNumber ? it.trackingNumber : "-"}</td>
+                                                    <td className="dropdown-wrapper" style={{ position: "relative" }}>
+                                                        <i className="bi bi-three-dots-vertical pointer" onClick={(e) => handleDropdownClick(e, it.orderItemIdx)}></i>
+                                                    </td>
+
+                                                    {openDropdown === it.orderItemIdx && (
+                                                        <ActionDropdownPortal
+                                                            pos={{ x: dropdownPos.x, y: dropdownPos.y }}
+                                                            onClose={() => setOpenDropdown(null)}
+                                                            menuItems={[
+                                                                {
+                                                                    label: "운송장 등록",
+                                                                    onClick: () => {
+                                                                        setIsTrackingModalOpen(true); //모달 오픈
+                                                                        setOpenDropdown(null); // 드롭다운 닫기
+                                                                        console.log("운송장 등록", it.orderItemIdx);
+                                                                    },
+                                                                },
+                                                                {
+                                                                    label: "환불 처리",
+                                                                    onClick: () => {
+                                                                        setIsRefundModalOpen(true); //모달 오픈
+                                                                        setOpenDropdown(null); // 드롭다운 닫기
+                                                                        console.log("환불 처리", it.orderItemIdx);
+                                                                    },
+                                                                },
+                                                            ]}
+                                                        />
+                                                    )}
                                                 </tr>
                                             ))}
                                         </tbody>
+                                        {/* 합계 파트 */}
                                         <tfoot>
-                                            <td colSpan={5}>합계</td>
-                                            <td>4</td>
-                                            <td>49,200</td>
-                                            <td></td>
-                                            <td>9,000</td>
-                                            <td colSpan={2} style={{ color: "red", textAlign: "right" }}>
-                                                58,200
-                                            </td>
+                                            <tr>
+                                                <td colSpan={5}>합계</td>
+                                                <td className="quantity_total">{totalQuantity}</td>
+                                                <td className="unitPrice_total">{priceFormat(totalUnitPrice)}</td>
+                                                <td></td>
+                                                <td className="postCharge_total">{priceFormat(totalPostCharge)}</td>
+                                                <td></td>
+                                                <td style={{ color: "red", textAlign: "right" }}>{priceFormat(totalUnitPrice + totalPostCharge)}</td>
+                                            </tr>
                                         </tfoot>
                                     </table>
                                 </div>
                                 <div className="btn_part">
                                     <div className="btn_group">
-                                        <button type="button" className="sub-button">
+                                        <button
+                                            type="button"
+                                            className="sub-button"
+                                            onClick={() => {
+                                                const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                if (!selected) return;
+                                                // const selected = getSelected();
+                                                // if (selected.length === 0) {
+                                                //     alert("환불 처리할 상품을 선택하세요");
+                                                //     return;
+                                                // }
+                                                setIsRefundModalOpen(true);
+                                            }}
+                                        >
                                             환불처리
                                         </button>
-                                        <button type="button" className="primary-button">
+                                        <button
+                                            type="button"
+                                            className="primary-button"
+                                            onClick={() => {
+                                                const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                if (!selected) return;
+                                                // const selected = getSelected();
+                                                // if (selected.length === 0) {
+                                                //     alert("출고 처리할 상품을 선택하세요");
+                                                //     return;
+                                                // }
+                                                setIsTrackingModalOpen(true);
+                                            }}
+                                        >
                                             운송장번호 등록
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} />
+                        <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} />
 
-                        <div className="position-relative mt-4">
-                            <Label className="input_title">클레임 내역</Label>
-                            <div className={detail.claimHistory}>
-                                <div className={acco.accordionToggleBox}>
-                                    <div className={[acco.accordion_header, "pointer"].join(" ")}>
-                                        <p>
-                                            요청 일자 : <span>2025-11-10 12:25:30</span>
-                                            <span>[교환]</span>
-                                        </p>
-                                        <span className="accordion_toggle_icon">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className={acco.accordionToggleBox}>
-                                    <div className={[acco.accordion_header, acco.accordion_opened, "pointer"].join(" ")}>
-                                        <p>
-                                            요청 일자 : <span>2025-11-10 12:25:30</span>
-                                            <span>[반품]</span>
-                                        </p>
-                                        <span className="accordion_toggle_icon">
-                                            <i class="bi bi-chevron-up"></i>
-                                        </span>
-                                    </div>
-
-                                    <div className={acco.accordion_body}>
-                                        <div className={detail.content_section}>
-                                            <div className={detail.pd_list_table}>
-                                                <Label className="sub_title">반품 상품</Label>
-                                                <div className={detail.product_list}>
-                                                    <div className={[table.tableBody, table.table_border].join(" ")}>
-                                                        <table className={table.claim_table}>
-                                                            <thead>
-                                                                <tr>
-                                                                    <th style={{ width: "5%" }}>#</th>
-                                                                    <th style={{ width: "5%" }}>Img</th>
-                                                                    <th style={{ width: "10%" }}>상품번호</th>
-                                                                    <th style={{ width: "20%" }}>상품명</th>
-                                                                    <th style={{ width: "25%" }}>옵션</th>
-                                                                    <th style={{ width: "10%" }}>수량</th>
-                                                                    <th style={{ width: "10%" }}>처리상태</th>
-                                                                    <th style={{ width: "10%" }}>처리사유</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>10</td>
-                                                                    <td style={{ padding: "0" }}>
-                                                                        <img src="/no_img.svg" style={{ width: "40px" }} />
-                                                                    </td>
-                                                                    <td>P123456</td>
-                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                                    <td>색상 : 브라운</td>
-                                                                    <td>1 / 1</td>
-                                                                    <td>[반품완료]</td>
-                                                                    <td>수거, 검수완료</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className={detail.info_list_section}>
-                                                <div className={detail.info_column}>
-                                                    <div className={detail.info_line}>
-                                                        <Label for="" className="sub_title">
-                                                            요청사항
-                                                        </Label>
-                                                        <Input className="" style={{ width: "50%" }} placeholder="반품요청" readOnly />
-                                                    </div>
-                                                </div>
-
-                                                <div className={detail.info_column}>
-                                                    <div className={detail.info_line}>
-                                                        <Label className="sub_title">수거 송장번호 </Label>
-                                                        <div className={detail.flexParts} style={{ width: "50%" }}>
-                                                            <Input className="" style={{ width: "30%" }} placeholder="택배사" readOnly />
-                                                            <Input style={{ width: "50%" }} placeholder="송장번호" readOnly />
-                                                            <button type="button" className="sub-button" style={{ width: "20%", padding: "8px" }}>
-                                                                {/* 조회  */}
-                                                                <i class="bi bi-search"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className={detail.info_column}>
-                                                    <div className={detail.info_line}>
-                                                        <Label className="sub_title">클레임 종료일</Label>
-                                                        <Input className="" style={{ width: "50%" }} placeholder="2025-11-12" readOnly />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {/* 클레임 내역 사항 */}
+                        <div className="position-relative mt-4"></div>
                     </div>
                 </div>
             </main>

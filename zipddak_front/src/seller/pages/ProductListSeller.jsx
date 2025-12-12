@@ -2,6 +2,7 @@
 import table from "../css/table.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
+import { priceFormat } from "../js/priceFormat.jsx";
 // library
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
@@ -266,7 +267,7 @@ export default function ProductList() {
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
-                                                            <td>{myProduct.price}</td>
+                                                            <td>{priceFormat(myProduct.price)}</td>
                                                             <td>리뷰수</td>
                                                             <td>리뷰평점</td>
                                                             <td>{myProduct.visibleYn ? "판매중" : "비공개"}</td>
