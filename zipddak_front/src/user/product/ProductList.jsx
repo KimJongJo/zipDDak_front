@@ -119,7 +119,7 @@ export default function ProductList() {
 
     const toggleFavorite = async (productIdx) => {
         try {
-            await axios.post(`${baseUrl}/favoriteToggle`, { productIdx, username });
+            await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, { productIdx: productIdx, username: user.username });
 
             setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
         } catch (error) {
@@ -137,10 +137,9 @@ export default function ProductList() {
     // 데이터 가져오기 (페이지 단위)
     useEffect(() => {
         if (!hasMore) return;
+        if (user?.username == null) return;
 
-        if (user?.username !== undefined) {
-            fetchProducts();
-        }
+        fetchProducts();
     }, [page, pCateNo, middleCateNo, filterNo, hasMore, user]);
 
     return (
