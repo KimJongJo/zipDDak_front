@@ -67,14 +67,15 @@
   align-items: center;
   gap: 10px;
   border-radius: 16px;
-  border: 1px solid #e0e5eb;
+  border: 1px solid #e1e4ed;
   background: #fff;
+  color: #303441;
   font-size: 14px;
   font-weight: 500;
   line-height: 18px;
 }
 .expert-profile-chip i {
-  color: #6a7685;
+  color: #dee2e6;
   cursor: pointer;
 }
 
@@ -135,6 +136,7 @@
 .expert-profile-chip-wrapper {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
 }
 .expert-profile-add-wrapper div {
   width: 100%;
