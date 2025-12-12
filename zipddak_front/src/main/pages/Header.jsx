@@ -164,7 +164,7 @@ export default function Header({ direction, ...args }) {
                 <a href="/zipddak/main" className="navitem active">
                     홈
                 </a>
-                <a href="/zipddak/findExpert" className="navitem">
+                <a href="/zipddak" className="navitem">
                     견적요청
                 </a>
                 <a href="/zipddak/experts" className="navitem">

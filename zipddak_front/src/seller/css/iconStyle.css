@@ -14,3 +14,8 @@
 .main .bi-plus-square {
     margin: 0 5px;
 }
+
+.disabled_icon {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

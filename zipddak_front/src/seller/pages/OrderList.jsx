@@ -7,7 +7,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 리스트");
