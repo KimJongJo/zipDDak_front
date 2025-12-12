@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { Eye, MessageCircle, Heart } from "lucide-react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { myAxios } from "../../config";
 
 export default function Likes() {
   const [tab, setTab] = useState("공구");
@@ -19,12 +21,15 @@ export default function Likes() {
     startPage: 1,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 관심 상품목록 조회
   const getProductLikes = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/likeList/product?username=test@kosta.com&page=${page}`
+          `/likeList/product?username=${user.username}&page=${page}`
       )
       .then((res) => {
         setProductLikes(res.data.favoriteProductList);
@@ -45,10 +50,10 @@ export default function Likes() {
 
   // 상품 좋아요 토글
   const toggleProductLike = (productIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/like/product?username=test@kosta.com&productIdx=${productIdx}`
+          `/like/product?username=${user.username}&productIdx=${productIdx}`
       )
       .then(() => {
         getProductLikes();
@@ -60,10 +65,10 @@ export default function Likes() {
 
   // 관심 공구목록 조회
   const getToolLikes = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/likeList/tool?username=test@kosta.com&page=${page}`
+          `/likeList/tool?username=${user.username}&page=${page}`
       )
       .then((res) => {
         setToolLikes(res.data.favoriteToolList);
@@ -84,10 +89,10 @@ export default function Likes() {
 
   // 공구 좋아요 토글
   const toggleToolLike = (toolIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/like/tool?username=test@kosta.com&toolIdx=${toolIdx}`
+          `/like/tool?username=${user.username}&toolIdx=${toolIdx}`
       )
       .then(() => {
         getToolLikes();
@@ -99,10 +104,10 @@ export default function Likes() {
 
   // 관심 전문가목록 조회
   const getExpertLikes = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/likeList/expert?username=test@kosta.com&page=${page}`
+          `/likeList/expert?username=${user.username}&page=${page}`
       )
       .then((res) => {
         setExpertLikes(res.data.favoriteExpertList);
@@ -123,10 +128,10 @@ export default function Likes() {
 
   // 전문가 좋아요 토글
   const toggleExpertLike = (expertIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/like/expert?username=test@kosta.com&expertIdx=${expertIdx}`
+          `/like/expert?username=${user.username}&expertIdx=${expertIdx}`
       )
       .then(() => {
         getExpertLikes();
@@ -138,10 +143,10 @@ export default function Likes() {
 
   // 관심 커뮤니티목록 조회
   const getCommunityLikes = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/likeList/community?username=test@kosta.com&page=${page}`
+          `/likeList/community?username=${user.username}&page=${page}`
       )
       .then((res) => {
         setCommunityLikes(res.data.favoriteCommunityList);
@@ -162,10 +167,10 @@ export default function Likes() {
 
   // 커뮤니티 좋아요 토글
   const toggleCommunityLike = (communityIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/like/community?username=test@kosta.com&communityIdx=${communityIdx}`
+          `/like/community?username=${user.username}&communityIdx=${communityIdx}`
       )
       .then(() => {
         getCommunityLikes();

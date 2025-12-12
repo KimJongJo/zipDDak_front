@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { deliveryGroupsAtom } from "./orderAtoms";
 import DeliveryButton from "./DeliveryButton";
 import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationItem, PaginationLink, Input } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function MarketReturns() {
   const [orders, setOrders] = useState([]);
@@ -20,16 +21,18 @@ export default function MarketReturns() {
     endDate: null,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
   const setDeliveryGroups = useSetAtom(deliveryGroupsAtom);
 
   const navigate = useNavigate();
 
   // 취소교환반품 목록 조회
   const getOrders = (page, startDate, endDate) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/market/returnList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
+          `/market/returnList?username=${user.username}&page=${page}&startDate=${startDate}&endDate=${endDate}`
       )
       .then((res) => {
         return res.data;

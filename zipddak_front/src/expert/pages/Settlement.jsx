@@ -1,6 +1,8 @@
-import axios from "axios";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Input, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export function Settlement() {
   const [settlements, setSettlements] = useState({});
@@ -16,12 +18,15 @@ export function Settlement() {
     endDate: null,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 정산목록 조회
   const getSettlements = (page, startDate, endDate) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/settlementList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
+          `/settlementList?username=${user.username}&page=${page}&startDate=${startDate}&endDate=${endDate}`
       )
       .then((res) => {
         setSettlements(res.data.settlements);
