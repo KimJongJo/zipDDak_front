@@ -19,7 +19,7 @@ export default function Login() {
         formData.append('password', password)
         formData.append('fcmToken', fcmToken)
 
-        myAxios(null, setToken).post(`/login`, formData)
+        myAxios(null, setToken).post(`/zipddak`, formData)
         .then (res=> {
             console.log(res.headers.authorization) //token
             console.log(res)

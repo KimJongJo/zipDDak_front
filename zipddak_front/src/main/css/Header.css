@@ -27,10 +27,14 @@ body {
 }
 
 .profile-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background-color: blueviolet;
+    background-color: #eff1f5;
+    overflow: hidden;
 }
 
 .Headericon {
@@ -92,4 +96,37 @@ body {
 .te {
     font-size: 14px;
     font-weight: 500;
+}
+.profileDropDown {
+    display: flex;
+}
+
+.Header-nickname {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.myDropDown,
+.myDropDown:hover,
+.myDropDown.navitem:active,
+.myDropDown.navitem.active
+ {
+    background-color: #ffff !important;
+    border: none !important;
+}
+
+.dropmenu-center {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.dropdown-item {
+    padding:12px;
 }
