@@ -1,81 +1,48 @@
-import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Input, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
 export function Settlement() {
-  const navigate = useNavigate();
+  const [settlements, setSettlements] = useState({});
+  const [pageBtn, setPageBtn] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
+  const [selectDate, setSelectDate] = useState({
+    startDate: null,
+    endDate: null,
+  });
 
-  const settlementList = {
-    expectedSettlementDate: "2025-11-20",
-    expectedSettlementAmount: 1400000,
-    totalSalesCount: 20,
-    totalSalesAmount: 1400000,
-
-    settlements: [
-      {
-        settlementId: "SET-001",
-        serviceName: "도어시공",
-        customerPayment: 100000,
-        platformFee: 10000,
-        settlementAmount: 90000,
-
-        workStartDate: "2025-01-02",
-        workEndDate: "2025-01-03",
-        workDays: 2,
-
-        settlementStatus: "PENDING",
-        settlementCompletedDate: null,
-        comment: "홍길동",
-      },
-
-      {
-        settlementId: "SET-002",
-        serviceName: "도어시공",
-        customerPayment: 100000,
-        platformFee: 10000,
-        settlementAmount: 90000,
-
-        workStartDate: "2025-01-02",
-        workEndDate: "2025-01-02",
-        workDays: 1,
-
-        settlementStatus: "COMPLETED",
-        settlementCompletedDate: "2025-01-02",
-        comment: "홍길동",
-      },
-
-      {
-        settlementId: "SET-003",
-        serviceName: "싱크대 교체",
-        customerPayment: 180000,
-        platformFee: 18000,
-        settlementAmount: 162000,
-
-        workStartDate: "2025-01-10",
-        workEndDate: "2025-01-11",
-        workDays: 2,
-
-        settlementStatus: "PENDING",
-        settlementCompletedDate: null,
-        comment: null,
-      },
-
-      {
-        settlementId: "SET-004",
-        serviceName: "욕실 리모델링",
-        customerPayment: 500000,
-        platformFee: 50000,
-        settlementAmount: 450000,
-
-        workStartDate: "2025-01-04",
-        workEndDate: "2025-01-07",
-        workDays: 4,
-
-        settlementStatus: "COMPLETED",
-        settlementCompletedDate: "2025-01-08",
-        comment: "정산 완료 처리",
-      },
-    ],
+  // 정산목록 조회
+  const getSettlements = (page, startDate, endDate) => {
+    axios
+      .get(
+        "http://localhost:8080" +
+          `/settlementList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((res) => {
+        setSettlements(res.data.settlements);
+        return res.data.pageInfo;
+      })
+      .then((pageData) => {
+        setPageInfo(pageData);
+        let pageBtns = [];
+        for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+          pageBtns.push(i);
+        }
+        setPageBtn([...pageBtns]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
+  useEffect(() => {
+    getSettlements(1, selectDate.startDate, selectDate.endDate);
+  }, []);
 
   return (
     <div className="mypage-layout">
@@ -98,110 +65,82 @@ export function Settlement() {
               gap: "10px",
             }}
           >
-            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input> -{" "}
-            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input>
+            <Input
+              type="date"
+              bsSize="sm"
+              style={{ width: "140px", height: "32px" }}
+              onChange={(e) => {
+                setSelectDate({ ...selectDate, startDate: e.target.value });
+                setSettlements([]);
+                getSettlements(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.endDate
+                );
+              }}
+            ></Input>{" "}
+            -{" "}
+            <Input
+              type="date"
+              bsSize="sm"
+              style={{ width: "140px", height: "32px" }}
+              onChange={(e) => {
+                setSelectDate({ ...selectDate, endDate: e.target.value });
+                setSettlements([]);
+                getSettlements(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.endDate
+                );
+              }}
+            ></Input>
           </div>
 
           {/* 요약 카드 */}
           <div
             style={{
               display: "flex",
-              gap: "10px",
+              width: "250px",
+              padding: "20px",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              borderRadius: "8px",
+              border: "1px solid #EFF1F5",
             }}
           >
-            <div
+            <p
               style={{
-                display: "flex",
-                width: "250px",
-                padding: "20px",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                borderRadius: "8px",
-                border: "1px solid #EFF1F5",
+                color: "#6A7685",
+                fontSize: "12px",
+                fontWeight: "400",
+                whiteSpace: "nowrap",
               }}
             >
-              <p
-                style={{
-                  color: "#6A7685",
-                  fontSize: "12px",
-                  fontWeight: "400",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                정산 예정일 {settlementList.expectedSettlementDate}
-              </p>
-              <p
-                style={{
-                  color: "#303441",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  whiteSpace: "nowrap",
-                  margin: "6px 0 16px 0",
-                }}
-              >
-                다음 정산 예정 금액
-              </p>
-              <p
-                style={{
-                  color: "#303441",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  whiteSpace: "nowrap",
-                  textAlign: "right",
-                  width: "100%",
-                }}
-              >
-                {Number(
-                  settlementList.expectedSettlementAmount
-                ).toLocaleString()}
-                원
-              </p>
-            </div>
-            <div
+              매출 건 수 {settlements.totalSalesCount}건
+            </p>
+            <p
               style={{
-                display: "flex",
-                width: "250px",
-                padding: "20px",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                borderRadius: "8px",
-                border: "1px solid #EFF1F5",
+                color: "#303441",
+                fontSize: "14px",
+                fontWeight: "500",
+                whiteSpace: "nowrap",
+                margin: "6px 0 16px 0",
               }}
             >
-              <p
-                style={{
-                  color: "#6A7685",
-                  fontSize: "12px",
-                  fontWeight: "400",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                매출 건 수 {settlementList.totalSalesCount}건
-              </p>
-              <p
-                style={{
-                  color: "#303441",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                  whiteSpace: "nowrap",
-                  margin: "6px 0 16px 0",
-                }}
-              >
-                이번 달 총 매출금액
-              </p>
-              <p
-                style={{
-                  color: "#303441",
-                  fontSize: "16px",
-                  fontWeight: "600",
-                  whiteSpace: "nowrap",
-                  textAlign: "right",
-                  width: "100%",
-                }}
-              >
-                {Number(settlementList.totalSalesAmount).toLocaleString()}원
-              </p>
-            </div>
+              이번 달 총 매출금액
+            </p>
+            <p
+              style={{
+                color: "#303441",
+                fontSize: "16px",
+                fontWeight: "600",
+                whiteSpace: "nowrap",
+                textAlign: "right",
+                width: "100%",
+              }}
+            >
+              {Number(settlements.totalSalesAmountInteger).toLocaleString()}원
+            </p>
           </div>
         </div>
 
@@ -218,7 +157,7 @@ export function Settlement() {
             </tr>
           </thead>
           <tbody>
-            {settlementList.settlements.map((settlement) => (
+            {settlements?.settlementItems?.map((settlement) => (
               <>
                 <tr>
                   <td>{settlement.serviceName}</td>
@@ -231,13 +170,18 @@ export function Settlement() {
                   <td style={{ fontWeight: "500" }}>
                     {Number(settlement.settlementAmount).toLocaleString()}원
                   </td>
-                  <td>
-                    {settlement.workStartDate} - {settlement.workEndDate}(
-                    <span style={{ color: "#FF5833" }}>
-                      {settlement.workDays}
-                    </span>
-                    )
-                  </td>
+                  {settlement.workStartDate !== null ? (
+                    <td>
+                      {settlement.workStartDate} - {settlement.workEndDate}(
+                      <span style={{ color: "#FF5833" }}>
+                        {settlement.workDays}
+                      </span>
+                      )
+                    </td>
+                  ) : (
+                    <td></td>
+                  )}
+
                   <td
                     style={{
                       display: "flex",
@@ -248,17 +192,17 @@ export function Settlement() {
                   >
                     <span
                       style={
-                        settlement.settlementStatus === "COMPLETED"
+                        settlement.state === "COMPLETED"
                           ? { fontWeight: "500" }
                           : { color: "#FF5833", fontWeight: "600" }
                       }
                     >
-                      {settlement.settlementStatus === "COMPLETED"
+                      {settlement.state === "COMPLETED"
                         ? "정산완료"
                         : "정산예정"}
                     </span>
                     <span style={{ fontSize: "11px" }}>
-                      {settlement.settlementCompletedDate}
+                      {settlement.completedAt}
                     </span>
                   </td>
                   <td>{settlement.comment}</td>
@@ -270,15 +214,18 @@ export function Settlement() {
       </div>
 
       <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
+        {pageBtn.map((b) => (
+          <PaginationItem key={b} active={b === pageInfo.curPage}>
+            <PaginationLink
+              onClick={() => {
+                setSettlements([]);
+                getSettlements(b, selectDate.startDate, selectDate.endDate);
+              }}
+            >
+              {b}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
       </Pagination>
     </div>
   );

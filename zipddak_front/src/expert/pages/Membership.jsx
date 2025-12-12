@@ -1,56 +1,121 @@
-import {
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "reactstrap";
+import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import MembershipInfoCard from "../component/MembershipInfoCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
+import { Modal, ModalBody } from "reactstrap";
+import { useLocation } from "react-router-dom";
 
 export function Membership() {
+  const [membership, setMembership] = useState({});
+  const [pageBtn, setPageBtn] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const user = { hasMembership: true };
+  const location = useLocation();
 
-  const membership = {
-    nextPaymentDate: "2025.09.29",
-    totalMembershipMonths: 29,
+  // 멤버십 결제
+  const startMembershipPayment = async () => {
+    try {
+      // 1) orderId 생성
+      const res = await axios.get("http://localhost:8080/make/orderId");
+      const orderId = res.data;
 
-    payments: [
-      {
-        paymentId: "PAY-001",
-        paymentDate: "2025.09.29",
-        paymentTitle: "집닥 멤버십 정기결제",
-        usagePeriodStart: "2025.09.29",
-        usagePeriodEnd: "2025.10.28",
+      // 2) 토스 SDK 로딩
+      const tossPayments = await loadTossPayments(
+        "test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD"
+      );
+
+      // 3) 결제창 호출
+      await tossPayments.requestPayment({
+        method: "CARD",
         amount: 30000,
-        paymentMethod: "토스페이",
-      },
-      {
-        paymentId: "PAY-002",
-        paymentDate: "2025.08.29",
-        paymentTitle: "집닥 멤버십 정기결제",
-        usagePeriodStart: "2025.08.29",
-        usagePeriodEnd: "2025.09.28",
-        amount: 30000,
-        paymentMethod: "토스페이",
-      },
-      {
-        paymentId: "PAY-003",
-        paymentDate: "2025.07.29",
-        paymentTitle: "집닥 멤버십 정기결제",
-        usagePeriodStart: "2025.07.29",
-        usagePeriodEnd: "2025.08.28",
-        amount: 30000,
-        paymentMethod: "토스페이",
-      },
-    ],
+        orderId: orderId,
+        orderName: "집딱 멤버십 결제",
+        successUrl: `http://localhost:8080/membership/success?username=test@kosta.com`,
+        failUrl: "http://localhost:5173/expert/membership",
+      });
+    } catch (e) {
+      console.error("결제 오류:", e);
+    }
   };
 
-  return user.hasMembership ? (
+  // 멤버십 목록 조회
+  const getMembership = (page) => {
+    axios
+      .get(
+        "http://localhost:8080" +
+          `/membershipList?username=test@kosta.com&page=${page}`
+      )
+      .then((res) => {
+        return res.data;
+      })
+      .then((data) => {
+        setMembership(data.membershipList);
+        return data.pageInfo;
+      })
+      .then((pageData) => {
+        setPageInfo(pageData);
+        let pageBtns = [];
+        for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+          pageBtns.push(i);
+        }
+        setPageBtn([...pageBtns]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // Timestamp 포멧팅
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "";
+
+    const date = new Date(timestamp);
+    return date.toISOString().split("T")[0];
+  };
+
+  // 오늘 날짜 계산
+  const today = new Date();
+  const startDate = today.toISOString().split("T")[0];
+
+  const endDateObj = new Date(today);
+  endDateObj.setDate(endDateObj.getDate() + 30);
+  const endDate = endDateObj.toISOString().split("T")[0];
+
+  useEffect(() => {
+    getMembership(1);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const isSuccess = params.get("success");
+
+    if (isSuccess === "true") {
+      setTimeout(() => {
+        setIsModalOpen(true);
+      }, 0);
+
+      const timer = setTimeout(() => {
+        setIsModalOpen(false);
+        window.history.replaceState(
+          {},
+          document.title,
+          "/expert/mypage/membership"
+        );
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
+
+  return membership.isActiveMembership ? (
     <div className="mypage-layout">
       <h1 className="mypage-title">내 멤버십</h1>
       <div
@@ -77,14 +142,18 @@ export function Membership() {
           }}
         >
           <p>
-            다음 결제일{" "}
-            <span style={{ marginLeft: "20px" }}>
-              {membership.nextPaymentDate}
-            </span>
+            멤버십 종료일{" "}
+            <span style={{ marginLeft: "20px" }}>{membership.finishDate}</span>
           </p>
           <p>
             총 가입기간{" "}
-            <span style={{ marginLeft: "20px", color: "#FF5833" }}>
+            <span
+              style={{
+                marginLeft: "20px",
+                color: "#FF5833",
+                fontWeight: "500",
+              }}
+            >
               {membership.totalMembershipMonths}개월
             </span>
           </p>
@@ -100,55 +169,53 @@ export function Membership() {
               <td>이용기간</td>
               <td>결제금액</td>
               <td>결제방법</td>
+              <td>결제영수증</td>
             </tr>
           </thead>
           <tbody>
             {membership.payments.map((payment) => (
               <tr>
-                <td style={{ fontWeight: "500" }}>{payment.paymentDate}</td>
-                <td>{payment.paymentTitle}</td>
+                <td style={{ fontWeight: "500" }}>
+                  {formatDate(payment.paymentDate)}
+                </td>
+                <td>{payment.paymentName}</td>
                 <td>
                   {payment.usagePeriodStart} - {payment.usagePeriodEnd}
                 </td>
                 <td>{Number(payment.amount).toLocaleString()}원</td>
                 <td>{payment.paymentMethod}</td>
+                <td>
+                  <span
+                    onClick={() => window.open(payment.receiptUrl, "_blank")}
+                  >
+                    영수증
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p
-        style={{
-          color: "#ADADAD",
-          fontSize: "14px",
-          fontWeight: "400",
-          cursor: "pointer",
-        }}
-        onClick={() => setIsModalOpen(true)}
-      >
-        해지하기
-      </p>
       <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
+        {pageBtn.map((b) => (
+          <PaginationItem key={b} active={b === pageInfo.curPage}>
+            <PaginationLink
+              onClick={() => {
+                setMembership([]);
+                getMembership(b);
+              }}
+            >
+              {b}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
       </Pagination>
 
       <Modal
         isOpen={isModalOpen}
-        toggle={() => setIsModalOpen(false)}
         className="mypage-modal"
         style={{ width: "380px" }}
       >
-        <ModalHeader toggle={() => setIsModalOpen(false)}>
-          멤버십을 해지하시겠어요?
-        </ModalHeader>
         <ModalBody>
           <div
             style={{
@@ -161,34 +228,9 @@ export function Membership() {
               fontSize: "14px",
             }}
           >
-            <p>해지 시 다음 결제일부터 멤버십 혜택이 제공되지 않습니다.</p>
-            <p>이미 결제된 기간은 만료일까지 이용할 수 있습니다.</p>
+            <p>성공적으로 가입되었습니다!</p>
           </div>
         </ModalBody>
-        <ModalFooter>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
-          >
-            <button
-              className="secondary-button"
-              style={{ width: "100%", height: "33px" }}
-              onClick={() => setIsModalOpen(false)}
-            >
-              취소
-            </button>
-            <button
-              className="primary-button"
-              style={{ width: "100%", height: "33px" }}
-            >
-              해지하기
-            </button>
-          </div>
-        </ModalFooter>
       </Modal>
     </div>
   ) : (
@@ -215,11 +257,11 @@ export function Membership() {
             <h3 className="mypage-sectionTitle">고객정보</h3>
             <div className="labelInput-wrapper">
               <label style={{ width: "100px" }}>이름</label>
-              <p>{user.name}</p>
+              <p>이름 가져와야함</p>
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "100px" }}>휴대폰 번호</label>
-              <p>{user.phoneNumber}</p>
+              <p>번호 가져와야함</p>
             </div>
           </div>
 
@@ -230,18 +272,19 @@ export function Membership() {
               <p>30,000</p>
             </div>
             <div className="labelInput-wrapper">
-              <label style={{ width: "100px" }}>자동 결제일</label>
-              <p>매월 29일</p>
+              <label style={{ width: "100px" }}>멤버십 시작일</label>
+              <p>{startDate}</p>
             </div>
             <div className="labelInput-wrapper">
-              <label style={{ width: "100px" }}>다음 결제일</label>
-              <p>{membership.nextPaymentDate}</p>
+              <label style={{ width: "100px" }}>멤버십 종료일</label>
+              <p>{endDate}</p>
             </div>
           </div>
 
           <button
             className="primary-button"
             style={{ width: "200px", height: "40px", fontSize: "14px" }}
+            onClick={() => startMembershipPayment()}
           >
             멤버십 가입하기
           </button>

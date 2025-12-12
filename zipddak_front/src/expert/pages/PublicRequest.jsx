@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Input } from "reactstrap";
+import { useNavigate } from "react-router-dom";
 import PublicRequestCard from "../component/PublicRequestCard";
 
 export default function PublicRequest() {
@@ -13,6 +14,8 @@ export default function PublicRequest() {
 
   const [targetRequest, setTargetRequest] = useState(); // 선택한 요청서
   const [isCustomSelected, setIsCustomSelected] = useState(false); // "맞춤견적" 선택 여부
+
+  const navigate = useNavigate();
 
   // 공개 요청서 목록 조회
   const getRequestList = async (lastId, size) => {
@@ -234,6 +237,18 @@ export default function PublicRequest() {
               <button
                 className="primary-button"
                 style={{ width: "100px", height: "33px" }}
+                onClick={() =>
+                  navigate(
+                    `/expert/requests/detail/${requestDetail.requestIdx}`,
+                    {
+                      state: {
+                        largeServiceIdx: requestDetail.largeServiceIdx,
+                        midServiceIdx: requestDetail.midServiceIdx,
+                        smallServiceIdx: requestDetail.smallServiceIdx,
+                      },
+                    }
+                  )
+                }
               >
                 견적 보내기
               </button>

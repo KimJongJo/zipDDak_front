@@ -676,6 +676,7 @@ export default function ProfileForm() {
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>직원수</label>
               <Input
+                type="number"
                 value={expert.employeeCount}
                 onChange={(e) =>
                   setExpert({ ...expert, employeeCount: e.target.value })

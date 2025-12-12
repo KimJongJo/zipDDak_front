@@ -1,37 +1,79 @@
 import { Input, Modal, ModalBody } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from "axios";
 
 export default function Account() {
-  // const [user, setUser] = useState({});
-  const [profileImage, setProfileImage] = useState(null);
-  const [modal, setModal] = useState(false);
+  const [user, setUser] = useState({});
+  const [address, setAddress] = useState({ zonecode: "", addr1: "" }); // 우편번호 및 도로명주소
+  const [profileImage, setProfileImage] = useState(null); // 프로필 이미지 파일
 
-  const fileRef = useRef(null); // 숨겨진 <Input type="file" />을 대신 클릭하기 위한 ref
-  const imgRef = useRef(null); // 이미지 미리보기용 <img> 태그의 src를 변경하기 위한 ref
+  const [modalType, setModalType] = useState(""); // 주소, 안내
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const fileRef = useRef(null); // 프로필 이미지 input 클릭
+
+  // 유저 정보 조회
+  const getAccount = () => {
+    axios
+      .get("http://localhost:8080" + `/account/detail?username=test@kosta.com`)
+      .then((res) => {
+        setUser(res.data);
+
+        // 지역 세팅
+        setAddress({ zonecode: res.data.zonecode, addr1: res.data.addr1 });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 유저 정보 수정
+  const modifyAccount = () => {
+    const formData = new FormData();
+
+    formData.append("username", "test@kosta.com");
+    formData.append("nickname", user.nickname);
+    formData.append("password", user.password);
+    formData.append("name", user.name);
+    formData.append("phone", user.phone);
+    formData.append("zonecode", address.zonecode);
+    formData.append("addr1", address.addr1);
+    formData.append("addr2", user.addr2);
+    formData.append("settleBank", user.settleBank);
+    formData.append("settleAccount", user.settleAccount);
+    formData.append("settleHost", user.settleHost);
+    formData.append("profileImage", profileImage);
+
+    axios
+      .post("http://localhost:8080" + "/account/modify", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((res) => {
+        if (res.data) {
+          setModalType("안내");
+          setIsModalOpen(true);
+
+          setTimeout(() => {
+            setIsModalOpen(false);
+          }, 1500);
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // 우편번호 설정
   const handleComplate = (data) => {
     let { zonecode, address } = data;
-    // setUser({ ...user, postcode: zonecode, address1: address });
+    setAddress({ zonecode: zonecode, addr1: address });
   };
-
   const handleClose = (state) => {
-    if (state == "COMPLETE_CLOSE") setModal(false);
+    if (state == "COMPLETE_CLOSE") setIsModalOpen(false);
   };
 
-  const user = {
-    profileImage: "https://via.placeholder.com/150",
-    nickname: "han_dev",
-    username: "han1234",
-    password: "Test1234!",
-    name: "한경은",
-    phoneNumber: "010-1234-5678",
-    birthDate: "1994-07-15",
-    gender: "F",
-    postcode: "06236",
-    address1: "서울특별시 강남구 테헤란로 152",
-    address2: "12층 1205호",
-  };
+  useEffect(() => {
+    getAccount();
+  }, []);
 
   return (
     <div className="mypage-layout">
@@ -50,10 +92,15 @@ export default function Account() {
             }}
           >
             <img
-              src={user.profileImage}
+              src={
+                profileImage
+                  ? URL.createObjectURL(profileImage)
+                  : user.profile
+                  ? `http://localhost:8080/imageView?type=profile&filename=${user.profile}`
+                  : "/default-profile.png"
+              }
               width="72px"
               height="72px"
-              ref={imgRef}
               style={{ borderRadius: "999px" }}
             />
             <input
@@ -61,8 +108,10 @@ export default function Account() {
               hidden
               ref={fileRef}
               onChange={(e) => {
-                setProfileImage(e.target.files[0]);
-                imgRef.current.src = URL.createObjectURL(e.target.files[0]);
+                const file = e.target.files[0];
+                if (!file) return;
+
+                setProfileImage(file); // 새 이미지 파일 저장
               }}
             />
             <div style={{ display: "flex", gap: "4px" }}>
@@ -76,7 +125,13 @@ export default function Account() {
               <button
                 className="secondary-button"
                 style={{ width: "66px", height: "33px" }}
-                onClick={() => (imgRef.current.src = "")}
+                onClick={() => {
+                  // 새 업로드 이미지 제거
+                  setProfileImage(null);
+
+                  // 서버 이미지도 제거
+                  setUser((prev) => ({ ...prev, profile: null }));
+                }}
               >
                 삭제
               </button>
@@ -85,7 +140,10 @@ export default function Account() {
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>닉네임</label>
-          <Input value={user.nickname} />
+          <Input
+            value={user.nickname}
+            onChange={(e) => setUser({ ...user, nickname: e.target.value })}
+          />
         </div>
       </div>
       <div>
@@ -96,23 +154,25 @@ export default function Account() {
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>비밀번호</label>
-          <Input type="password" />
+          <Input
+            type="password"
+            value={user.password}
+            onChange={(e) => setUser({ ...user, password: e.target.value })}
+          />
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>이름</label>
-          <Input value={user.name} />
+          <Input
+            value={user.name}
+            onChange={(e) => setUser({ ...user, name: e.target.value })}
+          />
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>휴대폰 번호</label>
-          <Input value={user.phoneNumber} />
-        </div>
-        <div className="labelInput-wrapper">
-          <label style={{ width: "120px" }}>생년월일</label>
-          <Input type="date" value={user.birthDate} />
-        </div>
-        <div className="labelInput-wrapper">
-          <label style={{ width: "120px" }}>성별</label>
-          <p>{user.gender}</p>
+          <Input
+            value={user.phone}
+            onChange={(e) => setUser({ ...user, phone: e.target.value })}
+          />
         </div>
       </div>
       <div>
@@ -126,11 +186,14 @@ export default function Account() {
               gap: "40px",
             }}
           >
-            <p>{user.postcode}</p>
+            <p>{address.zonecode}</p>
             <button
               className="secondary-button"
               style={{ width: "100px", height: "33px" }}
-              onClick={() => setModal(!modal)}
+              onClick={() => {
+                setModalType("주소");
+                setIsModalOpen(!isModalOpen);
+              }}
             >
               우편번호 검색
             </button>
@@ -138,35 +201,66 @@ export default function Account() {
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>도로명 주소</label>
-          <p>{user.address1}</p>
+          <p>{address.addr1}</p>
         </div>
         <div className="labelInput-wrapper">
           <label style={{ width: "120px" }}>상세 주소</label>
-          <Input value={user.address2} />
+          <Input
+            value={user.addr2}
+            onChange={(e) => setUser({ ...user, addr2: e.target.value })}
+          />
+        </div>
+      </div>
+      <div>
+        <h3 className="mypage-sectionTitle">계좌 정보</h3>
+        <div className="labelInput-wrapper">
+          <label style={{ width: "120px" }}>예금주</label>
+          <Input
+            value={user.settleHost}
+            onChange={(e) => setUser({ ...user, settleHost: e.target.value })}
+          />
+        </div>
+        <div className="labelInput-wrapper">
+          <label style={{ width: "120px" }}>은행명</label>
+          <Input
+            type="select"
+            style={{ width: "200px" }}
+            value={user.settleBank}
+            onChange={(e) => setUser({ ...user, settleBank: e.target.value })}
+          >
+            <option value="">은행 선택</option>
+            <option value="국민은행">국민은행</option>
+            <option value="신한은행">신한은행</option>
+            <option value="우리은행">우리은행</option>
+            <option value="하나은행">하나은행</option>
+            <option value="농협은행">농협은행</option>
+            <option value="기업은행">기업은행</option>
+            <option value="SC제일은행">SC제일은행</option>
+          </Input>
+        </div>
+        <div className="labelInput-wrapper">
+          <label style={{ width: "120px" }}>계좌번호</label>
+          <Input
+            type="number"
+            value={user.settleAccount}
+            onChange={(e) =>
+              setUser({ ...user, settleAccount: e.target.value })
+            }
+          />
         </div>
       </div>
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
           width: "100%",
         }}
       >
-        <p
-          style={{
-            color: "#ADADAD",
-            fontSize: "14px",
-            fontStyle: "normal",
-            fontWeight: "400",
-            lineHeight: "18px",
-          }}
-        >
-          회원탈퇴
-        </p>
         <button
           className="primary-button"
           style={{ width: "200px", height: "40px", fontSize: "14px" }}
+          onClick={() => modifyAccount()}
         >
           완료
         </button>
@@ -174,11 +268,37 @@ export default function Account() {
       </div>
 
       {/* 다음 주소 모달 */}
-      <Modal isOpen={modal} toggle={() => setModal(!modal)}>
-        <ModalBody>
-          <DaumPostcode onComplete={handleComplate} onClose={handleClose} />
-        </ModalBody>
-      </Modal>
+      {modalType === "주소" && (
+        <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(!isModalOpen)}>
+          <ModalBody>
+            <DaumPostcode onComplete={handleComplate} onClose={handleClose} />
+          </ModalBody>
+        </Modal>
+      )}
+
+      {modalType === "안내" && (
+        <Modal
+          isOpen={isModalOpen}
+          className="mypage-modal"
+          style={{ width: "380px" }}
+        >
+          <ModalBody>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "8px",
+                whiteSpace: "nowrap",
+                fontSize: "14px",
+              }}
+            >
+              <p>문의가 접수되었습니다.</p>
+            </div>
+          </ModalBody>
+        </Modal>
+      )}
     </div>
   );
 }
