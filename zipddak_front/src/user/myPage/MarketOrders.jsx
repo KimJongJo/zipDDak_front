@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import axios from "axios";
-import { useSetAtom, useAtom } from "jotai";
+import { useSetAtom, useAtom, useAtomValue } from "jotai";
 import { deliveryGroupsAtom, selectedDeliveryGroupsAtom } from "./orderAtoms";
 import { useNavigate } from "react-router-dom";
 import DeliveryButton from "./DeliveryButton";
@@ -14,6 +13,8 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function MarketOrders() {
   const [orders, setOrders] = useState([]);
@@ -46,15 +47,18 @@ export default function MarketOrders() {
     selectedDeliveryGroupsAtom
   );
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
   // 주문 목록 조회
   const getOrders = (page, startDate, endDate) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/market/orderList?username=test@kosta.com&page=${page}&startDate=${startDate}&endDate=${endDate}`
+          `/market/orderList?username=${user.username}&page=${page}&startDate=${startDate}&endDate=${endDate}`
       )
       .then((res) => {
         setOrders(res.data.orderListDtoList);
@@ -75,7 +79,7 @@ export default function MarketOrders() {
 
   // 주문 취소
   const cancelOrderItems = (orderIdx) => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080/market/cancel", checkedItems[orderIdx])
       .then((res) => {
         if (res.data) {
@@ -92,9 +96,9 @@ export default function MarketOrders() {
 
   // 상품주문상태 써머리
   const getOrderStatusSummary = () => {
-    axios
+    myAxios(token, setToken)
       .get(
-        "http://localhost:8080/market/orderStatusSummary?username=test@kosta.com"
+        `http://localhost:8080/market/orderStatusSummary?username=${user.username}`
       )
       .then((res) => {
         setOrderStatusSummary(res.data.orderStatusSummary);
@@ -110,7 +114,7 @@ export default function MarketOrders() {
 
     formData.append("score", rating);
     formData.append("content", content);
-    formData.append("writer", "test@kosta.com");
+    formData.append("writer", user.username);
     formData.append("productIdx", targetReview.productIdx);
     formData.append("orderItemIdx", targetReview.orderItemIdx);
 
@@ -119,7 +123,7 @@ export default function MarketOrders() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/write/product", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })

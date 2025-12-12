@@ -1,7 +1,9 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import axios from "axios";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export function InquiryForm() {
   const [type, setType] = useState("");
@@ -15,13 +17,16 @@ export function InquiryForm() {
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 문의 작성
   const submitInquiry = () => {
     const formData = new FormData();
 
     formData.append("type", type);
     formData.append("content", content);
-    formData.append("writerUsername", "test@kosta.com");
+    formData.append("writerUsername", user.username);
     formData.append("writerType", "EXPERT");
     formData.append("answererType", "ADMIN");
 
@@ -30,7 +35,7 @@ export function InquiryForm() {
       formData.append("inquiriyImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/inquiry/write", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })

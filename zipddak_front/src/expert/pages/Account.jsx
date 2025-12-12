@@ -1,16 +1,22 @@
-import axios from "axios";
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export function Account() {
   const [account, setAccount] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 정산계좌 조회
   const getAccount = () => {
-    axios
+    myAxios(token, setToken)
       .get(
-        "http://localhost:8080" + `/expertSettle/detail?username=test@kosta.com`
+        "http://localhost:8080" +
+          `/expertSettle/detail?username=${user.username}`
       )
       .then((res) => {
         setAccount(res.data);
@@ -23,7 +29,7 @@ export function Account() {
   // 정산계좌 수정
   const modifyAccount = () => {
     const body = {
-      username: "test@kosta.com",
+      username: user.username,
       expertSettleDto: {
         settleBank: account.settleBank,
         settleAccount: account.settleAccount,
@@ -31,7 +37,7 @@ export function Account() {
       },
     };
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/expertSettle/modify", body)
       .then((res) => {
         if (res.data) {
@@ -49,9 +55,9 @@ export function Account() {
 
   // 전문가 활동상태 수정
   const toggleActivityStatus = () => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/activityStatus", {
-        username: "test@kosta.com",
+        username: user.username,
       })
       .then((res) => {
         if (res.data) {

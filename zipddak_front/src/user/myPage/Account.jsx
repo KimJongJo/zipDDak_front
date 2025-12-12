@@ -1,7 +1,9 @@
 import { Input, Modal, ModalBody } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function Account() {
   const [user, setUser] = useState({});
@@ -11,12 +13,18 @@ export default function Account() {
   const [modalType, setModalType] = useState(""); // 주소, 안내
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const userValue = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const fileRef = useRef(null); // 프로필 이미지 input 클릭
 
   // 유저 정보 조회
   const getAccount = () => {
-    axios
-      .get("http://localhost:8080" + `/account/detail?username=test@kosta.com`)
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" +
+          `/account/detail?username=${userValue.username}`
+      )
       .then((res) => {
         setUser(res.data);
 
@@ -45,7 +53,7 @@ export default function Account() {
     formData.append("settleHost", user.settleHost);
     formData.append("profileImage", profileImage);
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/account/modify", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })

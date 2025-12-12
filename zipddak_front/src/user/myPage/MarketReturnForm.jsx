@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function MarketReturnForm() {
   const { orderIdx } = useParams();
@@ -21,6 +23,9 @@ export default function MarketReturnForm() {
   const [returnShippingFee, setReturnShippingFee] = useState(0);
   const [finalRefundAmount, setFinalRefundAmount] = useState(0);
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
@@ -35,7 +40,7 @@ export default function MarketReturnForm() {
 
   // 주문 상세 조회
   const getOrder = () => {
-    axios
+    myAxios(token, setToken)
       .get("http://localhost:8080" + `/market/orderInfo?orderIdx=${orderIdx}`)
       .then((res) => {
         setOrder(res.data);
@@ -66,7 +71,7 @@ export default function MarketReturnForm() {
       formData.append("returnImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/market/return", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
