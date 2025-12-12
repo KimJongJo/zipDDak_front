@@ -4,32 +4,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Header.css";
 import "../../css/common.css";
 
-<<<<<<< HEAD
 import { ChevronDown, Rocket, CircleUserRound, MessageCircleMore, Bell, ShoppingCart, Archive, UserRound } from "lucide-react";
-import { Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Button } from "reactstrap";
-=======
-import {
-  ChevronDown,
-  Rocket,
-  CircleUserRound,
-  MessageCircleMore,
-  Bell,
-  ShoppingCart,
-  Archive,
-  UserRound,
-} from "lucide-react";
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownToggle,
-  DropdownMenu,
-  Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter
-} from "reactstrap";
->>>>>>> main
+import { Dropdown, DropdownItem, DropdownToggle, DropdownMenu, Button, Modal, ModalBody, ModalHeader, ModalFooter } from "reactstrap";
 import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai/react";
 import { initUser, tokenAtom, userAtom } from "../../atoms";
@@ -40,20 +16,12 @@ import { baseUrl, myAxios } from "../../config";
 export default function Header({ direction, ...args }) {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-    const [profileImg, setProfileImg] = useState({});
     // const [viewAlarm, setviewAlarm] = useState(false);
     // const setAlarms = useSetAtom(alarmsAtom);
 
-<<<<<<< HEAD
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const toggle = () => setDropdownOpen((prevState) => !prevState);
     const navigate = useNavigate();
-=======
-  const [user, setUser] = useAtom(userAtom);
-  const [token, setToken] = useAtom(tokenAtom);
-  // const [viewAlarm, setviewAlarm] = useState(false);
-  // const setAlarms = useSetAtom(alarmsAtom);
->>>>>>> main
 
     const logout = () => {
         setUser(initUser);
@@ -63,64 +31,30 @@ export default function Header({ direction, ...args }) {
     };
 
     const [modal, setModal] = useState();
+    const [message, setMessage] = useState();
 
-<<<<<<< HEAD
     const expertToggle = () => {
         myAxios(token, setToken)
-            .post(`/expertYn?username=${user.username}`)
+            .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
             .then((res) => {
                 setUser(res.data);
-                setProfileImg({ rename: res.data.profile, type: res.data.role });
-                console.log(res.data);
+
+                if (user.type == "USER") {
+                    setMessage("전문가 회원가입으로 이동합니다.");
+                    setModal(true);
+                }
             })
             .catch((err) => {
                 console.log(err);
             });
-=======
-  const [modal, setModal] = useState();
-  const [message, setMessage] = useState();
->>>>>>> main
-
-        if (user.expert) {
-        } else {
-            setModal(true);
-            console.log("왜 안돼");
-            // navigate("/zipddak/signUp/expert")
-        }
     };
 
-<<<<<<< HEAD
-    // useEffect(()=> {
-    //   setUser({...user, expert:!user.expert})
-    // },[user.expert])
+    const goToExpertmodal = () => {
+        setModal(false);
+        navigate("/zipddak/signUp/expert");
+    };
 
     return (
-=======
-    myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`, )
-      .then(res => {
-        setUser(res.data);
-
-        if (user.type == "USER") {
-          setMessage("전문가 회원가입으로 이동합니다.")
-          setModal(true);
-        }
-
-      })
-      .catch(err => {
-        console.log(err);
-      })
-
-  }
-
-  const goToExpertmodal = () => {
-    setModal(false);
-    navigate("/zipddak/signUp/expert")
-  }
-
-  return (
-    <>
-      <div className="Userheader">
->>>>>>> main
         <>
             <div className="Userheader">
                 <>
@@ -166,8 +100,18 @@ export default function Header({ direction, ...args }) {
                                 {/* 드롭다운 */}
                                 <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
                                     <a href="/zipddak/mypage">
-                                        <div className="profile-img">{profileImg.rename ? <img src={`${baseUrl}/imageView?type=${profileImg.type}&filename=${profileImg.rename}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <UserRound color="#303441" />}</div>
+                                        <div className="profile-img">
+                                            {user.profile != null && user.profile != "" ? (
+                                                <img
+                                                    src={`${baseUrl}/imageView?type=${user.expert ? "EXPERT" : "USER"}&filename=${user.profile}`}
+                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                />
+                                            ) : (
+                                                <UserRound color="#303441" />
+                                            )}
+                                        </div>
                                     </a>
+
                                     <DropdownToggle className="myDropDown">
                                         <ChevronDown size={20} color="#303441" />
                                     </DropdownToggle>
@@ -188,7 +132,6 @@ export default function Header({ direction, ...args }) {
 
                                         <DropdownItem divider />
 
-<<<<<<< HEAD
                                         {user.expert ? (
                                             <DropdownItem className="" onClick={expertToggle}>
                                                 고객전환
@@ -199,31 +142,6 @@ export default function Header({ direction, ...args }) {
                                             </DropdownItem>
                                         )}
                                         <DropdownItem divider />
-=======
-                    <a href="/zipddak/mypage"><div className="profile-img">
-                      {user.profile !=null && user.profile != '' ?
-
-                        <img src={`${baseUrl}/imageView?type=${user.expert?'EXPERT':'USER'}&filename=${user.profile}`}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", }} />
-                        :
-                        <UserRound color="#303441" />
-                      }
-                    </div></a>
-                    
-                    <DropdownToggle className="myDropDown">
-                      <ChevronDown size={20} color="#303441" />
-                    </DropdownToggle>
-                    <DropdownMenu {...args}>
-                      <DropdownItem header className="myDropDown-item">
-                        <div className="Header-nickname">
-                          <span>{user.nickname}</span>
-                          <span className="te">님</span>
-                        </div>
-                      </DropdownItem>
-                      <DropdownItem>
-                        <a href="/zipddak/mypage/account">프로필 관리</a>
-                      </DropdownItem>
->>>>>>> main
 
                                         <DropdownItem onClick={logout}>
                                             <span className="dropmenu-center">로그아웃</span>
@@ -265,45 +183,14 @@ export default function Header({ direction, ...args }) {
                     커뮤니티
                 </a>
             </div>
+
+            <Modal isOpen={modal}>
+                <ModalHeader>전문가 회원가입하기</ModalHeader>
+                <ModalBody>{message}</ModalBody>
+                <Button color="primary" onClick={goToExpertmodal}>
+                    확인
+                </Button>
+            </Modal>
         </>
-<<<<<<< HEAD
     );
-=======
-      </div >
-
-      <div className="navigation">
-        <a href="/zipddak/main" className="navitem active">
-          홈
-        </a>
-        <a href="/zipddak" className="navitem">
-          견적요청
-        </a>
-        <a href="/zipddak/experts" className="navitem">
-          전문가찾기
-        </a>
-        <a href="/zipddak/tool" className="navitem">
-          공구대여
-        </a>
-        <a href="/zipddak/productList" className="navitem">
-          자재마켓
-        </a>
-        <a href="/zipddak/best" className="navitem">
-          자재 100
-        </a>
-        <a href="/zipddak/community" className="navitem">
-          커뮤니티
-        </a>
-      </div>
-
-      <Modal isOpen={modal}>
-        <ModalHeader>전문가 회원가입하기</ModalHeader>
-        <ModalBody>
-          {message}
-        </ModalBody>
-        <Button color="primary" onClick={goToExpertmodal} >확인</Button>
-      </Modal>
-    </>
-
-  );
->>>>>>> main
 }
