@@ -71,6 +71,7 @@ export default function ShippingList() {
             .get(shippingListUrl)
             .then((res) => {
                 const data = res.data;
+                console.log(data);
 
                 setMyShippingList(data.myShippingList);
                 setMyShippingCount(data.myShippingCount);
@@ -178,7 +179,7 @@ export default function ShippingList() {
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myShipping.shippingProductName}</span> 포함 총 {myShipping.itemCount} 건
                                                             </td>
-                                                            <td>{myShipping.firstSendDate}</td>
+                                                            <td>{myShipping.firstShipDate}</td>
                                                             <td>{myShipping.trackingNo}</td>
                                                             <td>{myShipping.postComp}</td>
                                                             <td>{myShipping.orderStatus}</td>

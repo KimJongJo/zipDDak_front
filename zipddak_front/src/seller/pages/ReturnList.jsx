@@ -77,7 +77,6 @@ export default function ReturnList() {
             .get(refundListUrl)
             .then((res) => {
                 const data = res.data;
-
                 setMyRefundList(data.myRefundList);
                 setMyRefundCount(data.myRefundCount);
 

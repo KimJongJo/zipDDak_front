@@ -260,8 +260,8 @@ export default function OrderDetail() {
                                             {bundleItems.length > 0 &&
                                                 bundleItems.map((it, idx) => (
                                                     <tr key={it.orderItemIdx} className={`${table.bundle_deli} ${idx === bundleItems.length - 1 ? "last-of-bundle" : ""}`}>
-                                                        <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
-                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo} />
+                                                        <td>
+                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo || it.orderStatus === "반품완료"} />
                                                         </td>
                                                         <td>{it.rowNumber}</td>
                                                         <td style={{ padding: "0" }}>
@@ -296,9 +296,9 @@ export default function OrderDetail() {
                                                         <td>{it.trackingNo ? `${it.postComp} ${it.trackingNo}` : "-"}</td>
                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                             <i
-                                                                className={`bi bi-three-dots-vertical ${it.trackingNo ? "disabled_icon" : "pointer"}`}
+                                                                className={`bi bi-three-dots-vertical ${it.trackingNo || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
                                                                 onClick={(e) => {
-                                                                    if (it.trackingNo) return;
+                                                                    if (it.trackingNo || it.orderStatus === "반품완료") return;
                                                                     handleDropdownClick(e, it.orderItemIdx);
                                                                 }}
                                                             ></i>
@@ -318,15 +318,15 @@ export default function OrderDetail() {
                                                                             console.log("운송장 등록", it.orderItemIdx);
                                                                         },
                                                                     },
-                                                                    {
-                                                                        label: "환불 처리",
-                                                                        onClick: () => {
-                                                                            setSelectedItem(it.orderItemIdx);
-                                                                            setIsRefundModalOpen(true); //모달 오픈
-                                                                            setOpenDropdown(null); // 드롭다운 닫기
-                                                                            console.log("환불 처리", it.orderItemIdx);
-                                                                        },
-                                                                    },
+                                                                    // {
+                                                                    //     label: "환불 처리",
+                                                                    //     onClick: () => {
+                                                                    //         setSelectedItem(it.orderItemIdx);
+                                                                    //         setIsRefundModalOpen(true); //모달 오픈
+                                                                    //         setOpenDropdown(null); // 드롭다운 닫기
+                                                                    //         console.log("환불 처리", it.orderItemIdx);
+                                                                    //     },
+                                                                    // },
                                                                 ]}
                                                             />
                                                         )}
@@ -335,7 +335,7 @@ export default function OrderDetail() {
                                             {/* 개별 배송 */}
                                             {singleItems.map((it) => (
                                                 <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
-                                                    <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
+                                                    <td>
                                                         <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
                                                     </td>
                                                     <td>{it.rowNumber}</td>
@@ -380,14 +380,14 @@ export default function OrderDetail() {
                                                                         console.log("운송장 등록", it.orderItemIdx);
                                                                     },
                                                                 },
-                                                                {
-                                                                    label: "환불 처리",
-                                                                    onClick: () => {
-                                                                        setIsRefundModalOpen(true); //모달 오픈
-                                                                        setOpenDropdown(null); // 드롭다운 닫기
-                                                                        console.log("환불 처리", it.orderItemIdx);
-                                                                    },
-                                                                },
+                                                                // {
+                                                                //     label: "환불 처리",
+                                                                //     onClick: () => {
+                                                                //         setIsRefundModalOpen(true); //모달 오픈
+                                                                //         setOpenDropdown(null); // 드롭다운 닫기
+                                                                //         console.log("환불 처리", it.orderItemIdx);
+                                                                //     },
+                                                                // },
                                                             ]}
                                                         />
                                                     )}
@@ -410,7 +410,7 @@ export default function OrderDetail() {
                                 </div>
                                 <div className="btn_part">
                                     <div className="btn_group">
-                                        <button
+                                        {/* <button
                                             type="button"
                                             className="sub-button"
                                             onClick={() => {
@@ -425,18 +425,13 @@ export default function OrderDetail() {
                                             }}
                                         >
                                             환불처리
-                                        </button>
+                                        </button> */}
                                         <button
                                             type="button"
                                             className="primary-button"
                                             onClick={() => {
                                                 const selected = requireSelected(); //선택항목 없을경우 알럿
                                                 if (!selected) return;
-                                                // const selected = getSelected();
-                                                // if (selected.length === 0) {
-                                                //     alert("출고 처리할 상품을 선택하세요");
-                                                //     return;
-                                                // }
                                                 setIsTrackingModalOpen(true);
                                             }}
                                         >

@@ -101,14 +101,7 @@ export default function Header({ direction, ...args }) {
                                 <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
                                     <a href="/zipddak/mypage">
                                         <div className="profile-img">
-                                            {user.profile != null && user.profile != "" ? (
-                                                <img
-                                                    src={`${baseUrl}/imageView?type=${user.expert ? "EXPERT" : "USER"}&filename=${user.profile}`}
-                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                />
-                                            ) : (
-                                                <UserRound color="#303441" />
-                                            )}
+                                            {user.profile != null && user.profile != "" ? <img src={`${baseUrl}/imageView?type=${user.expert ? "EXPERT" : "USER"}&filename=${user.profile}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <UserRound color="#303441" />}
                                         </div>
                                     </a>
 

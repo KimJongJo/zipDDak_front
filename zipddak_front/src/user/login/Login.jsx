@@ -1,6 +1,6 @@
 import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import "../css/Signup.css";
-import { baseUrl } from "../../config";
+import { myAxios, baseUrl } from "../../config";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ export default function Login() {
         let formData = new FormData();
         formData.append("username", username);
         formData.append("password", password);
-        formData.append("fcmToken", fcmToken);
+        formData.append("fcmToken", "fcmToken");
 
         myAxios(null, setToken)
             .post(`/zipddak`, formData)

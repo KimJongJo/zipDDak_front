@@ -8,6 +8,8 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 리스트");
@@ -17,6 +19,7 @@ export default function OrderList() {
     const [myOrderCount, setMyOrderCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
+    const [token, setToken] = useAtom(tokenAtom);
 
     // 필터 상태값
     const [selectedStatus, setSelectedStatus] = useState([]);
@@ -68,11 +71,10 @@ export default function OrderList() {
 
         const orderListUrl = `/seller/order/myOrderList?${params.toString()}`;
 
-        myAxios()
+        myAxios(token, setToken)
             .get(orderListUrl)
             .then((res) => {
                 const data = res.data;
-
                 setMyOrderList(data.myOrderList);
                 setMyOrderCount(data.myOrderCount);
 
