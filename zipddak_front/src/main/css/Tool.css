@@ -86,9 +86,12 @@
 }
 
 .tool-info-m {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     margin-top: 5px;
     margin-left: 8px;
+    gap: 5px;
 }
 
 .tool-address-m {
@@ -96,7 +99,7 @@
 }
 
 .tool-name-m {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
 }
 .oneday-m {

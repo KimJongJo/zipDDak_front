@@ -1,8 +1,15 @@
 import { Button } from 'reactstrap'
 import { ArrowRight } from 'lucide-react'
-import { Product } from '../component/Product'
+import Product from '../../user/product/Product';
+import { useAtom, useSetAtom } from "jotai/react";
+import { initUser, tokenAtom, userAtom } from "../../atoms";
+
 
 export default function Best() {
+
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     return (
         <>
             <div className='Main-container'>
@@ -26,16 +33,16 @@ export default function Best() {
                     </div>
 
                     <div className='Best-cards'>
-                        <Product/>
+                        {/* <Product/>
                         <Product />
-                        <Product />
+                        <Product /> */}
                     </div>
 
                     <div className='cards'>
+                        {/* <Product />
                         <Product />
                         <Product />
-                        <Product />
-                        <Product />
+                        <Product /> */}
                     </div>
                 </div>
             </div>
