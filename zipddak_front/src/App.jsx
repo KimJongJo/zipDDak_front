@@ -139,7 +139,8 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
                 <Route path="productOrderComplate" element={<ProductOrderComplate />} />
-                <Route path="storeInfo" element={<StoreInfo />} />
+
+                <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
@@ -208,7 +209,6 @@ function App() {
 
                 <Route path="ask" element={<AskToManager />} />
                 <Route path="productModify/:productIdx" element={<ProductModify />} />
-
                 <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
                 <Route path="shippingDetail" element={<ShippingDetail />} />
                 <Route path="returnDetail" element={<ReturnDetail />} />

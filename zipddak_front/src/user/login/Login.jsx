@@ -4,9 +4,7 @@ import { baseUrl } from "../../config";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 
-
 export default function Login() {
-
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
     const [token, setToken] = useState();
@@ -14,9 +12,35 @@ export default function Login() {
     const navigate = useNavigate();
 
     const submit = () => {
+        let formData = new FormData();
+        formData.append("username", username);
+        formData.append("password", password);
+        formData.append("fcmToken", fcmToken);
 
-    }
+        myAxios(null, setToken)
+            .post(`/zipddak`, formData)
+            .then((res) => {
+                console.log(res.headers.authorization); //token
+                console.log(res);
 
+                if (res) {
+                    setUser(res.data);
+                    // myAxios(res.headers.authorization,setToken).post(`/user/alarms`)
+                    // .then(res=> {
+                    //     console.log(res)
+                    //     console.log(res.data)
+                    //     setAlarms(res.data);
+                    //     navigate("/")
+                    // })
+                }
+
+                navigate("/zipddak/main");
+            })
+            .catch((err) => {
+                console.log(err);
+                alert(err.response.data.message);
+            });
+    };
 
     return (
         <>
@@ -47,7 +71,7 @@ export default function Login() {
                     </div>
 
                     <div className="line1"></div>
-                    
+
                     <div className="input_form">
                         <div className="input_parts">
                             <div className="input_label">이메일</div>
@@ -60,25 +84,26 @@ export default function Login() {
                         </div>
 
                         <div className="col-cm">
-                        <div className="login_options">
-                            <FormGroup check>
-                                <Input type="checkbox" /> <Label check>로그인 유지</Label>
-                            </FormGroup>
-                            <a href="">
-                                <span>아이디/비밀번호 찾기</span>
-                            </a>
-                        </div>
+                            <div className="login_options">
+                                <FormGroup check>
+                                    <Input type="checkbox" /> <Label check>로그인 유지</Label>
+                                </FormGroup>
+                                <a href="">
+                                    <span>아이디/비밀번호 찾기</span>
+                                </a>
+                            </div>
 
-                        <div className="mainButton loginStep">
-                            <Button className="primary-button long-button">로그인</Button>
+                            <div className="mainButton loginStep">
+                                <Button className="primary-button long-button" onClick={submit}>
+                                    로그인
+                                </Button>
+                            </div>
                         </div>
-                        </div>
-
                     </div>
 
                     <div className="loginFooter">
                         <div className="input_detail">아직 회원이 아니신가요?</div>
-                        <a>
+                        <a href="/zipddak/signUp/user">
                             <div className="input_detail2">회원가입</div>
                         </a>
                     </div>

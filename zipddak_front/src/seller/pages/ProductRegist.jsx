@@ -13,7 +13,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function ProductRegist() {
     //탭 타이틀 설정

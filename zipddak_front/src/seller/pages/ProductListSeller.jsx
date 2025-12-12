@@ -7,7 +7,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function ProductList() {
     const pageTitle = usePageTitle("상품 조회 리스트");

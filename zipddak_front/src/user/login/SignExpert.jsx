@@ -6,11 +6,16 @@ import { useNavigate } from 'react-router-dom'
 import DaumPostcode from 'react-daum-postcode';
 import { Modal as AddrModal } from 'antd'
 import qs from 'qs';
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
 
 export default function SignExpert() {
 
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const [expert, setExpert] = useState({
-        userUsername: 'uu@email.com', activityName: '', zonecode: '', addr1: '', addr2: '',
+        username: '', activityName: '', zonecode: '', addr1: '', addr2: '',
         employeeCount: 0, businessLicense: '', businessLicensePdfId: null, settleBank: '', settleAccount: '', settleHost: '',
         createdAt: null, providedServiceIdx: ''
     })
@@ -273,7 +278,7 @@ export default function SignExpert() {
         const formData = new FormData();
 
         formData.append("businessLicenseFile", file);
-        formData.append("userUsername", expert.userUsername);
+        formData.append("username", user.username);
         formData.append("activityName", expert.activityName);
         formData.append("zonecode", expert.zonecode);
         formData.append("addr1", expert.addr1);
@@ -287,7 +292,7 @@ export default function SignExpert() {
 
 
         try {
-            signUpapi.post('/joinExpert', formData,
+            myAxios(token,setToken).post('/joinExpert', formData,
                 { headers: { "Content-Type": "multipart/form-data" } })
                 .then(res => {
                     if (res.data == true) {

@@ -11,7 +11,7 @@ import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalRefund from "../component/ModalRefund.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 import { FormGroup, Input, Label, Spinner, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";

@@ -6,7 +6,7 @@ import usePageTitle from "../js/usePageTitle.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function ShippingList() {
     const pageTitle = usePageTitle("주문관리 > 배송 관리");

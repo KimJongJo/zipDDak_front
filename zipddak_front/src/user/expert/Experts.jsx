@@ -1,10 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import "../css/Experts.css";
 import { Input } from "reactstrap";
 import Expert from "./Expert";
+import axios from "axios";
+import { baseUrl } from "../../config";
 
 export default function Experts() {
     const [selectMajor, setSelectMajor] = useState(1);
+    const [expertList, setExpertList] = useState([]);
+
+    const [sort, setSort] = useState("popular");
+    const [page, setPage] = useState(1); // 현재 페이지
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true); // 더 불러올 데이터 존재 여부
+    const observer = useRef();
+
+    // 검색창에 있는 text 가져오기
+    const inputRef = useRef(null);
+    const [keyword, setKeyword] = useState("");
 
     const expertMajor = [
         { majorId: 1, major: "수리 전문가" },
@@ -48,6 +61,52 @@ export default function Experts() {
         },
     ];
 
+    const fetchProducts = async (value) => {
+        setLoading(true);
+        console.log(page);
+
+        let searchKeyword;
+        searchKeyword = value === undefined ? keyword : value;
+
+        try {
+            // 테스트용으로 뒤에 username을 붙임
+            const res = await axios.get(`${baseUrl}/experts?page=${page}&cateNo=${selectMajor}&sort=${sort}`);
+            if (res.data.length === 0) {
+                setHasMore(false); // 더 이상 데이터 없음
+            } else {
+                setExpertList((prev) => [...prev, ...res.data.experts]); // 기존 데이터에 추가
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const lastProductRef = useCallback(
+        (node) => {
+            if (loading) return;
+            if (observer.current) observer.current.disconnect();
+
+            observer.current = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && hasMore) {
+                    setPage((prev) => prev + 1); // 마지막 아이템이 화면에 보이면 페이지 증가
+                }
+            });
+
+            if (node) observer.current.observe(node);
+        },
+        [loading, hasMore]
+    );
+
+    // 첫 화면을 불러올때
+
+    useEffect(() => {
+        if (!hasMore) return;
+
+        fetchProducts();
+    }, [page, hasMore, selectMajor]);
+
     return (
         <div className="body-div">
             <div className="experts-main-div">
@@ -83,27 +142,51 @@ export default function Experts() {
                     </div>
 
                     {/* 광고 전문가 프로필 3개 */}
-                    <div className="experts-add-expert-list">
-                        {experts.map((expert) => (
-                            <Expert expert={expert} />
+                    <div
+                        className="experts-add-expert-list"
+                        style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "space-between",
+                            rowGap: "50px", // 줄 간격
+                        }}
+                    >
+                        {experts.map((expert, index) => (
+                            <Expert
+                                key={index}
+                                expert={expert}
+                                style={{ flex: "0 0 32%", boxSizing: "border-box" }} // Expert 컴포넌트 안에서 style prop 받도록 수정 필요
+                            />
                         ))}
                     </div>
 
                     {/* 전문가 + 정렬 필터 */}
                     <div className="experts-search-expert-sort">
                         <span className="font-18 semibold">전문가</span>
-                        <select className="experts-search-sort" name="" id="" defaultValue={"none"}>
-                            <option value="none" hidden>
-                                정렬
-                            </option>
-                            <option value="">인기순</option>
+                        <select onChange={(e) => setSort(e.target.value)} className="experts-search-sort" name="" id="">
+                            <option value="popular">인기순</option>
+                            <option value="rating">평점순</option>
+                            <option value="career">경력순</option>
                         </select>
                     </div>
 
                     {/* 전문가 프로필 3개씩 N줄 */}
-                    <div className="experts-add-expert-list">
-                        {experts.map((expert) => (
-                            <Expert expert={expert} />
+                    <div
+                        className="experts-add-expert-list"
+                        style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "space-between",
+                            rowGap: "50px", // 줄 간격
+                        }}
+                    >
+                        {expertList.map((expert, index) => (
+                            <div key={expert.expertIdx} ref={expertList.length === index + 1 ? lastProductRef : null}>
+                                <Expert
+                                    expert={expert}
+                                    style={{ flex: "0 0 32%", boxSizing: "border-box" }} // Expert 컴포넌트 안에서 style prop 받도록 수정 필요
+                                />
+                            </div>
                         ))}
                     </div>
                 </div>

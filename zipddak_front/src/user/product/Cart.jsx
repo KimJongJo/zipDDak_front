@@ -147,7 +147,7 @@ export default function Cart() {
             prev.map((store) => ({
                 ...store,
                 productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity + 1 } : product)),
-            }))
+            })),
         );
         // 2. orderListAtom 업데이트
         setOrderList((prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count + 1 } : order)));
@@ -164,12 +164,12 @@ export default function Cart() {
                     ...store,
                     productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity - 1 } : product)).filter((product) => product.quantity > 0), // 0이면 삭제
                 }))
-                .filter((store) => store.productList.length > 0)
+                .filter((store) => store.productList.length > 0),
         );
 
         // 2. orderListAtom 업데이트
         setOrderList(
-            (prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0) // 0이면 삭제
+            (prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0), // 0이면 삭제
         );
 
         // 3. db에 카트 수량 감소
@@ -186,13 +186,7 @@ export default function Cart() {
                     </div>
                     <div className="cart-top-selectAll-div">
                         <div className="cart-top-selectAll-left-div">
-                            <input
-                                type="checkbox"
-                                id="cartSelectAll"
-                                className="cart-selectAll-input"
-                                onChange={handleSelectAll}
-                                checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)}
-                            />
+                            <input type="checkbox" id="cartSelectAll" className="cart-selectAll-input" onChange={handleSelectAll} checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)} />
                             <label htmlFor="cartSelectAll" className="font-14 medium">
                                 모두선택
                             </label>
@@ -243,7 +237,7 @@ export default function Cart() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <a href={"/zipddak/seller/" + store.brandId} className="font-14 cart-store-info-a">
+                                                <a href={"/zipddak/storeInfo/" + store.brandId} className="font-14 cart-store-info-a">
                                                     <span>업체 정보</span> <i className="bi bi-chevron-right" style={{ fontSize: "12px" }}></i>
                                                 </a>
                                             </td>
@@ -252,7 +246,6 @@ export default function Cart() {
                                         {/* 배송단위별 그룹 */}
                                         {Object.entries(groupedByUnit).map(([unit, items], groupIdx, arr) => {
                                             const isLastGroup = groupIdx === arr.length - 1;
-
                                             return (
                                                 <React.Fragment key={unit}>
                                                     {items.map((product, idx) => (
@@ -289,9 +282,7 @@ export default function Cart() {
                                                                             ]);
                                                                         } else {
                                                                             // 체크 OFF → 삭제
-                                                                            setOrderList((prev) =>
-                                                                                prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx))
-                                                                            );
+                                                                            setOrderList((prev) => prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx)));
                                                                         }
                                                                     }}
                                                                 />

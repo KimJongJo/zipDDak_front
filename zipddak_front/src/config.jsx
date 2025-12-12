@@ -33,14 +33,11 @@ export const myAxios = (token, setToken) => {
     )
 
     //토큰이 있으면 헤더에 토큰을 삽입하여 요청
-    //토큰 없이 테스트하려고 막아둠
-    if(token){
     token && instance.interceptors.request.use((config)=> {
         config.headers.authorization = token;
         return config;
     })
     
-}
 
     return instance;
     

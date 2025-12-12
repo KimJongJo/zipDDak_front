@@ -1,6 +1,6 @@
 import { Input, Modal, ModalHeader, ModalBody } from "reactstrap";
 import modal from "../css/modal.module.css";
-import { myAxios } from "../../config/config";
+import { myAxios } from "../../config.jsx";
 
 export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selectedItems, targetItemIdx, orderIdx, refresh, resetChecked }) {
     const handleSave = async () => {

@@ -19,7 +19,7 @@ export default function SignUser() {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    //테스트용 axios
+    //최초회원가입 axios
     const signUpapi = myAxios(null, null);
 
     const changeInput = (e) => {

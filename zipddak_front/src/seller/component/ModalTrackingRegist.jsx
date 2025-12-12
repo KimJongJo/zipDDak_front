@@ -1,6 +1,6 @@
 import { Input, Modal, ModalHeader, ModalBody } from "reactstrap";
 import { useState } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
 
 export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModalOpen, selectedItems, targetItemIdx, orderIdx, refresh, resetChecked }) {

@@ -18,7 +18,7 @@ export default function Main() {
               type="text"
               placeholder="통합검색"
             />
-            <Button>
+            <Button className="primary-button">
               <div className="sbutton">
                 <Search size={18} />
                 <span className="btxt">검색</span>

@@ -6,7 +6,7 @@ import usePageTitle from "../js/usePageTitle.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function ProductRegist() {
     const pageTitle = usePageTitle("주문관리 > 교환 관리");
