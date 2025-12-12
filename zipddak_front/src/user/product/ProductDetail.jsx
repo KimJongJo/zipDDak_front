@@ -5,11 +5,16 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
 import axios from "axios";
 import { baseUrl } from "../../config";
 import { useParams } from "react-router";
-import { useAtom } from "jotai";
 import { orderListAtom } from "./productAtom";
 import { useNavigate } from "react-router";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { myAxios } from "../../config";
 
 export default function ProductDetail() {
+    const user = useAtomValue(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const navigate = useNavigate();
 
     const [bottomSelect, setBottomSelect] = useState(1);
@@ -137,15 +142,13 @@ export default function ProductDetail() {
     };
 
     const writeInquire = () => {
-        const username = "rlawhdwh";
-
         const formData = new FormData();
 
         formData.append("content", inquireContent);
 
         formData.append("productIdx", product.productIdx);
 
-        formData.append("username", "rlawhdwh");
+        formData.append("username", user.username);
 
         files.forEach((file) => {
             formData.append("files", file);
@@ -272,25 +275,27 @@ export default function ProductDetail() {
     }, []);
 
     useEffect(() => {
-        axios.get(`${baseUrl}/product?productId=${productId}&username=rlawhdwh`).then((res) => {
-            const data = res.data;
-            console.log(data);
-            setAvgScore(data.avgScore);
-            setReviewCount(data.reviewCount);
-            setInquiries(data.productInquiries);
-            setReviews(data.productReviews);
-            setProduct(data.productDetailDto);
-            setProductOption(data.productOption);
-            setInquiryCount(data.inquiryCount);
-            setFavorite(data.favorite);
+        myAxios(token, setToken)
+            .get(`${baseUrl}/product?productId=${productId}&username=${user.username}`)
+            .then((res) => {
+                const data = res.data;
+                console.log(data);
+                setAvgScore(data.avgScore);
+                setReviewCount(data.reviewCount);
+                setInquiries(data.productInquiries);
+                setReviews(data.productReviews);
+                setProduct(data.productDetailDto);
+                setProductOption(data.productOption);
+                setInquiryCount(data.inquiryCount);
+                setFavorite(data.favorite);
 
-            // 리뷰 페이지, 문의 페이지 1페이지로 초기화
-            setReviewPage(1);
-            setInquiryPage(1);
+                // 리뷰 페이지, 문의 페이지 1페이지로 초기화
+                setReviewPage(1);
+                setInquiryPage(1);
 
-            // 구매 목록 초기화
-            setOrderList([]);
-        });
+                // 구매 목록 초기화
+                setOrderList([]);
+            });
     }, []);
 
     return (

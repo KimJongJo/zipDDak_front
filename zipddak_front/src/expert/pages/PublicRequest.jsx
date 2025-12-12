@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Input } from "reactstrap";
+import { useNavigate } from "react-router-dom";
 import PublicRequestCard from "../component/PublicRequestCard";
+import { useAtom } from "jotai";
+import { tokenAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function PublicRequest() {
   const [requestList, setRequestList] = useState([]);
@@ -13,6 +16,9 @@ export default function PublicRequest() {
 
   const [targetRequest, setTargetRequest] = useState(); // 선택한 요청서
   const [isCustomSelected, setIsCustomSelected] = useState(false); // "맞춤견적" 선택 여부
+  const [token, setToken] = useAtom(tokenAtom);
+
+  const navigate = useNavigate();
 
   // 공개 요청서 목록 조회
   const getRequestList = async (lastId, size) => {
@@ -21,7 +27,7 @@ export default function PublicRequest() {
     setIsLoading(true);
 
     try {
-      const res = await axios.get(
+      const res = await myAxios(token, setToken).get(
         `http://localhost:8080/publicRequestsList?size=${size}` +
           (lastId ? `&lastId=${lastId}` : "")
       );
@@ -49,7 +55,7 @@ export default function PublicRequest() {
 
   // 공개 요청서 상세 조회
   const getRequestDetail = (requestIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
           `/publicRequestsDetail?requestIdx=${requestIdx}`
@@ -234,6 +240,18 @@ export default function PublicRequest() {
               <button
                 className="primary-button"
                 style={{ width: "100px", height: "33px" }}
+                onClick={() =>
+                  navigate(
+                    `/expert/requests/detail/${requestDetail.requestIdx}`,
+                    {
+                      state: {
+                        largeServiceIdx: requestDetail.largeServiceIdx,
+                        midServiceIdx: requestDetail.midServiceIdx,
+                        smallServiceIdx: requestDetail.smallServiceIdx,
+                      },
+                    }
+                  )
+                }
               >
                 견적 보내기
               </button>

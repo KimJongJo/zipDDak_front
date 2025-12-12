@@ -1,8 +1,10 @@
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
-import axios from "axios";
 import DaumPostcode from "react-daum-postcode";
 import { useEffect, useRef, useState } from "react";
 import "../css/expertProfile.css";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function ProfileForm() {
   const [expert, setExpert] = useState({}); // 전문가 상세 정보
@@ -58,6 +60,9 @@ export default function ProfileForm() {
   const infoRef = useRef(null);
   const portfolioRef = useRef(null);
   const qaRef = useRef(null);
+
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
 
   // 전문가 카테고리 목록
   const expertCategoryList = [
@@ -130,8 +135,10 @@ export default function ProfileForm() {
 
   // 전문가 상세 조회
   const getExpert = () => {
-    axios
-      .get("http://localhost:8080" + `/profile/detail?username=test@kosta.com`)
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" + `/profile/detail?username=${user.username}`
+      )
       .then((res) => {
         setExpert(res.data);
 
@@ -254,7 +261,7 @@ export default function ProfileForm() {
       formData.append("certificateImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/profile/modify", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -284,7 +291,7 @@ export default function ProfileForm() {
       formData.append("portfolioImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/portfolio/write", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -299,7 +306,7 @@ export default function ProfileForm() {
 
   // 포트폴리오 삭제
   const deletePortfolio = (portfolioIdx) => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/portfolio/delete", {
         portfolioIdx: portfolioIdx,
       })
@@ -317,7 +324,7 @@ export default function ProfileForm() {
     formData.append("endDate", `${career.endDate}-01`);
     formData.append("description", career.description);
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/career/write", formData)
       .then((res) => {
         if (res.data) {
@@ -330,7 +337,7 @@ export default function ProfileForm() {
 
   // 경력 삭제
   const deleteCareer = (careerIdx) => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/career/delete", {
         careerIdx: careerIdx,
       })
@@ -676,6 +683,7 @@ export default function ProfileForm() {
             <div className="labelInput-wrapper">
               <label style={{ width: "160px" }}>직원수</label>
               <Input
+                type="number"
                 value={expert.employeeCount}
                 onChange={(e) =>
                   setExpert({ ...expert, employeeCount: e.target.value })

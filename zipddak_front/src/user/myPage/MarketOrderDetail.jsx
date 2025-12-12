@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useAtom } from "jotai";
+import { tokenAtom } from "../../atoms";
 import { deliveryGroupsAtom } from "./orderAtoms";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { myAxios } from "../../config";
 
 export default function MarketOrderDetail() {
   const { orderIdx } = useParams();
@@ -12,12 +13,13 @@ export default function MarketOrderDetail() {
   const [orderDetail, setOrderDetail] = useState(null);
 
   const deliveryGroups = useAtomValue(deliveryGroupsAtom);
+  const [token, setToken] = useAtom(tokenAtom);
 
   const navigate = useNavigate();
 
   // 주문 상세 조회
   const getOrderDetail = () => {
-    axios
+    myAxios(token, setToken)
       .get("http://localhost:8080" + `/market/detail?orderIdx=${orderIdx}`)
       .then((res) => {
         console.log(res.data);

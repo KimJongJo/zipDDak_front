@@ -2,7 +2,6 @@ import "../css/ProductOrder.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import React, { useEffect, useState } from "react";
 import { Input } from "reactstrap";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { orderListAtom } from "./productAtom";
 import { baseUrl } from "../../config";
 import axios from "axios";
@@ -10,8 +9,15 @@ import { Modal } from "reactstrap";
 import { Modal as AddrModal } from "antd";
 import DaumPostcode from "react-daum-postcode";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { myAxios } from "../../config";
 
 export default function ProductOrder() {
+    // const user = useAtomValue(userAtom);
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
 
@@ -47,11 +53,6 @@ export default function ProductOrder() {
 
         return sumBrand + totalPostCharge;
     }, 0);
-
-    const [user, setUser] = useState({
-        name: "",
-        tel: "",
-    });
 
     const [recvUser, setRecvUser] = useState({
         sender: "",
@@ -163,22 +164,22 @@ export default function ProductOrder() {
 
     useEffect(() => {
         if (orderList.length > 0) {
-            axios.post(`${baseUrl}/orderListProduct2`, { orderList, username: "rlawhdwh" }).then((res) => {
-                console.log(res.data);
-                // setOptions(res.data);
-                setBrand(res.data.brandDto);
-                // setProductInfo(res.data.orderList);
-                setUser({ name: res.data.userInfo.name, tel: res.data.userInfo.phone });
-            });
+            myAxios(token, setToken)
+                .post(`${baseUrl}/orderListProduct2`, { orderList, username: user.username })
+                .then((res) => {
+                    console.log(res.data);
+                    // setOptions(res.data);
+                    setBrand(res.data.brandDto);
+                    // setProductInfo(res.data.orderList);
+                    setUser({ ...user, name: res.data.userInfo.name, tel: res.data.userInfo.phone });
+                });
         }
     }, [orderList]);
 
     // 토스 페이먼츠 결제 요청 시작
     const requestTossPaymentApi = async () => {
-        const username = "rlawhdwh";
-
         const res = await axios.post(`${baseUrl}/payment/product`, {
-            username: username,
+            username: user.username,
             brandList: brand,
             recvUser: recvUser,
         });
@@ -196,7 +197,7 @@ export default function ProductOrder() {
             amount: amount,
             orderId: orderId,
             orderName: orderName,
-            successUrl: `http://localhost:8080/payment/complate?productId=${options.productId}&orderName=${encodedOrderName}&username=${username}`, // 성공시 서버쪽으로 보냄
+            successUrl: `http://localhost:8080/payment/complate?productId=${options.productId}&orderName=${encodedOrderName}&username=${user.username}`, // 성공시 서버쪽으로 보냄
             failUrl: "http://localhost:5173/zipddak/productOrder",
         });
     };
