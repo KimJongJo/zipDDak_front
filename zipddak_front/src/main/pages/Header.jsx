@@ -90,7 +90,7 @@ export default function Header({ direction, ...args }) {
                 <>
                   {/* 견적요청 or 받은견적 */}
                   {user.expert ? (
-                    <a href="" className="estimate">
+                    <a href="/zipddak/mypage/requests" className="estimate">
                       <Archive size={20} />
                       <span className="te">받은요청</span>
                     </a>
@@ -103,7 +103,7 @@ export default function Header({ direction, ...args }) {
 
                   {/* 멤버십 or 장바구니 */}
                   {user.expert ? (
-                    <a href="" className="icon">
+                    <a href="/zipddakmypage/membership" className="icon">
                       <Rocket size={20} />
                     </a>
                   ) : (
@@ -132,7 +132,7 @@ export default function Header({ direction, ...args }) {
                         <UserRound color="#303441" />
                       }
                     </div></a>
-                    
+
                     <DropdownToggle className="myDropDown">
                       <ChevronDown size={20} color="#303441" />
                     </DropdownToggle>
@@ -181,7 +181,7 @@ export default function Header({ direction, ...args }) {
         <a href="/zipddak/main" className="navitem active">
           홈
         </a>
-        <a href="/zipddak" className="navitem">
+        <a href="/zipddak/expert/requests" className="navitem">
           견적요청
         </a>
         <a href="/zipddak/experts" className="navitem">
