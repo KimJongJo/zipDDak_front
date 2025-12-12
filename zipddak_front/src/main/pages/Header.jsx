@@ -23,14 +23,6 @@ export default function Header({ direction, ...args }) {
     const toggle = () => setDropdownOpen((prevState) => !prevState);
     const navigate = useNavigate();
 
-    const logout = () => {
-        setUser(initUser);
-        setToken(null);
-        // useSetAtom([]);
-        navigate("/zipddak/main");
-    };
-
-<<<<<<< HEAD
   const logout = () => {
     setUser(initUser)
     setToken(null);
@@ -39,28 +31,9 @@ export default function Header({ direction, ...args }) {
   }
 
   const [modal, setModal] = useState();
-=======
-    const [modal, setModal] = useState();
-    const [message, setMessage] = useState();
 
-    const expertToggle = () => {
-        myAxios(token, setToken)
-            .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
-            .then((res) => {
-                setUser(res.data);
->>>>>>> 13beaefd02991a1c5af9b4e60490ec323db218e5
+  const expertToggle = () => {
 
-                if (user.type == "USER") {
-                    setMessage("전문가 회원가입으로 이동합니다.");
-                    setModal(true);
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    };
-
-<<<<<<< HEAD
     myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`,)
       .then(res => {
         setUser(res.data);
@@ -72,22 +45,12 @@ export default function Header({ direction, ...args }) {
 
   }
 
-  const goToExpertmodal = () => {
-    setModal(false);
-    navigate("/zipddak/signUp/expert")
-  }
-
-  return (
-    <>
-      <div className="Userheader">
-=======
     const goToExpertmodal = () => {
         setModal(false);
         navigate("/zipddak/signUp/expert");
     };
 
     return (
->>>>>>> 13beaefd02991a1c5af9b4e60490ec323db218e5
         <>
             <div className="Userheader">
                 <>
@@ -121,33 +84,25 @@ export default function Header({ direction, ...args }) {
                                     </a>
                                 )}
 
-                                {/* 공통 아이콘 */}
-                                <a href="" className="icon">
-                                    <MessageCircleMore size={20} />
-                                </a>
-                                <div className="icon">
-                                    <Bell size={20} />
-                                </div>
-                                <a href="mypage/*" className="profile"></a>
+                  {/* 공통 아이콘 */}
+                  <a href="" className="icon"><MessageCircleMore size={20} /></a>
+                  <div className="icon"><Bell size={20} />
 
-<<<<<<< HEAD
                   </div>
                   <a href="mypage/*" className="profile"></a>
-=======
-                                {/* 드롭다운 */}
-                                <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
-                                    <a href="/zipddak/mypage">
-                                        <div className="profile-img">
-                                            {user.profile != null && user.profile != "" ? (
-                                                <img
-                                                    src={`${baseUrl}/imageView?type=${user.expert ? "EXPERT" : "USER"}&filename=${user.profile}`}
-                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                />
-                                            ) : (
-                                                <UserRound color="#303441" />
-                                            )}
-                                        </div>
-                                    </a>
+
+                  {/* 드롭다운 */}
+                  <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
+
+                    <a href="/zipddak/mypage"><div className="profile-img">
+                      {user.profile != null && user.profile != '' ?
+
+                        <img src={`${baseUrl}/imageView?type=${user.expert ? 'EXPERT' : 'USER'}&filename=${user.profile}`}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", }} />
+                        :
+                        <UserRound color="#303441" />
+                      }
+                    </div></a>
 
                                     <DropdownToggle className="myDropDown">
                                         <ChevronDown size={20} color="#303441" />
@@ -162,40 +117,10 @@ export default function Header({ direction, ...args }) {
                                         <DropdownItem>
                                             <a href="/zipddak/mypage/account">프로필 관리</a>
                                         </DropdownItem>
->>>>>>> 13beaefd02991a1c5af9b4e60490ec323db218e5
 
                                         <DropdownItem>
                                             <a href="/zipddak/mypage">마이페이지</a>
                                         </DropdownItem>
-
-<<<<<<< HEAD
-                    <a href="/zipddak/mypage"><div className="profile-img">
-                      {user.profile != null && user.profile != '' ?
-
-                        <img src={`${baseUrl}/imageView?type=${user.expert ? 'EXPERT' : 'USER'}&filename=${user.profile}`}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", }} />
-                        :
-                        <UserRound color="#303441" />
-                      }
-                    </div></a>
-
-                    <DropdownToggle className="myDropDown">
-                      <ChevronDown size={20} color="#303441" />
-                    </DropdownToggle>
-                    <DropdownMenu {...args}>
-                      <DropdownItem header className="myDropDown-item">
-                        <div className="Header-nickname">
-                          <span>{user.nickname}</span>
-                          <span className="te">님</span>
-                        </div>
-                      </DropdownItem>
-                      <DropdownItem>
-                        <a href="/zipddak/mypage/account">프로필 관리</a>
-                      </DropdownItem>
-
-                      <DropdownItem>
-                        <a href="/zipddak/mypage">마이페이지</a>
-                      </DropdownItem>
 
                       <DropdownItem divider />
                       {
@@ -213,23 +138,6 @@ export default function Header({ direction, ...args }) {
 
                       <DropdownItem divider />
 
-                      <DropdownItem onClick={logout}><span className="dropmenu-center">로그아웃</span></DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-=======
-                                        <DropdownItem divider />
-
-                                        {user.expert ? (
-                                            <DropdownItem className="" onClick={expertToggle}>
-                                                고객전환
-                                            </DropdownItem>
-                                        ) : (
-                                            <DropdownItem className="" onClick={expertToggle}>
-                                                전문가전환
-                                            </DropdownItem>
-                                        )}
-                                        <DropdownItem divider />
-
                                         <DropdownItem onClick={logout}>
                                             <span className="dropmenu-center">로그아웃</span>
                                         </DropdownItem>
@@ -244,7 +152,6 @@ export default function Header({ direction, ...args }) {
                             </a>
                         )}
                     </div>
->>>>>>> 13beaefd02991a1c5af9b4e60490ec323db218e5
                 </>
             </div>
 
@@ -272,41 +179,6 @@ export default function Header({ direction, ...args }) {
                 </a>
             </div>
 
-            <Modal isOpen={modal}>
-                <ModalHeader>전문가 회원가입하기</ModalHeader>
-                <ModalBody>{message}</ModalBody>
-                <Button color="primary" onClick={goToExpertmodal}>
-                    확인
-                </Button>
-            </Modal>
-        </>
-<<<<<<< HEAD
-      </div >
-
-      <div className="navigation">
-        <a href="/zipddak/main" className="navitem active">
-          홈
-        </a>
-        <a href="/zipddak/expert/requests" className="navitem">
-          견적요청
-        </a>
-        <a href="/zipddak/experts" className="navitem">
-          전문가찾기
-        </a>
-        <a href="/zipddak/tool" className="navitem">
-          공구대여
-        </a>
-        <a href="/zipddak/productList" className="navitem">
-          자재마켓
-        </a>
-        <a href="/zipddak/best" className="navitem">
-          자재 100
-        </a>
-        <a href="/zipddak/community" className="navitem">
-          커뮤니티
-        </a>
-      </div>
-
       <Modal isOpen={modal}>
         <ModalHeader>전문가 가입</ModalHeader>
         <ModalBody>
@@ -322,7 +194,4 @@ export default function Header({ direction, ...args }) {
     </>
 
   );
-=======
-    );
->>>>>>> 13beaefd02991a1c5af9b4e60490ec323db218e5
 }
