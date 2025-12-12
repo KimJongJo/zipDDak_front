@@ -65,6 +65,7 @@ export default function ProductList() {
     const fetchProducts = async (value) => {
         setLoading(true);
 
+        console.log(page);
         // const url = `${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=${username}`;
 
         let searchKeyword;
@@ -140,7 +141,7 @@ export default function ProductList() {
         if (user?.username == null) return;
 
         fetchProducts();
-    }, [page, pCateNo, middleCateNo, filterNo, hasMore, user]);
+    }, [page]);
 
     return (
         <div className="body-div">
