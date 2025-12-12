@@ -47,22 +47,16 @@ export default function Header({ direction, ...args }) {
     setUser(initUser)
     setToken(null);
     // useSetAtom([]);
-    navigate("/zipddak/main");
+    navigate("/zipddak/login");
   }
 
   const [modal, setModal] = useState();
-  const [message, setMessage] = useState();
 
   const expertToggle = () => {
 
-    myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`, )
+    myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`,)
       .then(res => {
         setUser(res.data);
-
-        if (user.type == "USER") {
-          setMessage("전문가 회원가입으로 이동합니다.")
-          setModal(true);
-        }
 
       })
       .catch(err => {
@@ -116,7 +110,6 @@ export default function Header({ direction, ...args }) {
                   <a href="" className="icon"><MessageCircleMore size={20} /></a>
                   <div className="icon"><Bell size={20} />
 
-
                   </div>
                   <a href="mypage/*" className="profile"></a>
 
@@ -124,9 +117,9 @@ export default function Header({ direction, ...args }) {
                   <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
 
                     <a href="/zipddak/mypage"><div className="profile-img">
-                      {user.profile !=null && user.profile != '' ?
+                      {user.profile != null && user.profile != '' ?
 
-                        <img src={`${baseUrl}/imageView?type=${user.expert?'EXPERT':'USER'}&filename=${user.profile}`}
+                        <img src={`${baseUrl}/imageView?type=${user.expert ? 'EXPERT' : 'USER'}&filename=${user.profile}`}
                           style={{ width: "100%", height: "100%", objectFit: "cover", }} />
                         :
                         <UserRound color="#303441" />
@@ -152,12 +145,19 @@ export default function Header({ direction, ...args }) {
                       </DropdownItem>
 
                       <DropdownItem divider />
-
-                      {user.expert ?
-                        <DropdownItem className="" onClick={expertToggle}>고객전환</DropdownItem>
-                        :
-                        <DropdownItem className="" onClick={expertToggle}>전문가전환</DropdownItem>
+                      {
+                        // 1. user.role이 "USER"인 경우
+                        user.role === "USER" ? (
+                          <DropdownItem onClick={()=>setModal(true)}>전문가 가입</DropdownItem>
+                        ) : (
+                          user.expert ? (
+                            <DropdownItem onClick={expertToggle}>고객전환</DropdownItem>
+                          ) : (
+                            <DropdownItem onClick={expertToggle}>전문가전환</DropdownItem>
+                          )
+                        )
                       }
+
                       <DropdownItem divider />
 
                       <DropdownItem onClick={logout}><span className="dropmenu-center">로그아웃</span></DropdownItem>
@@ -202,11 +202,16 @@ export default function Header({ direction, ...args }) {
       </div>
 
       <Modal isOpen={modal}>
-        <ModalHeader>전문가 회원가입하기</ModalHeader>
+        <ModalHeader>전문가 가입</ModalHeader>
         <ModalBody>
-          {message}
+          <div>전문가 회원가입을 진행하시겠습니까?</div>
+          <div className="space-px"> </div>
+          <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div>
         </ModalBody>
-        <Button color="primary" onClick={goToExpertmodal} >확인</Button>
+        <div className="row-cm header-modal-button">
+        <Button className="primary-button" onClick={()=> setModal(false)} >취소</Button>
+        <Button className="primary-button" onClick={goToExpertmodal} >확인</Button>
+        </div>
       </Modal>
     </>
 

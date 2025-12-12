@@ -4,8 +4,8 @@ import { Button } from "reactstrap";
 import { Search, CirclePlus, MapPin, ArrowRight } from "lucide-react";
 import Expertmain from "../component/Expert";
 import { Toolmain } from "../component/Tool";
-import { Product } from "../component/Product";
 import { Community } from "../component/Community";
+import Product from '../../user/product/Product';
 
 export default function Main() {
   return (
