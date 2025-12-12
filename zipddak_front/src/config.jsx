@@ -24,7 +24,7 @@ export const myAxios = (token, setToken) => {
             if(error.response && error.response.status){
                 switch(error.response.status){
                     case 401:   //401,403 은 인증오류, 로그인 다시시도
-                    case 403: window.location.href = `${reactUrl}/login`; break;
+                    case 403: window.location.href = `${reactUrl}/zipddak`; break;
                     default : return Promise.reject(error);
                 }
                 return Promise.reject(error);
