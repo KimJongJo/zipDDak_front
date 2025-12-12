@@ -13,7 +13,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 // 파일 미리보기 용 헬퍼
 const fileToUrl = (file) => (file ? URL.createObjectURL(file) : "");

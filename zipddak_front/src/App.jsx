@@ -100,6 +100,7 @@ import ShippingDetail from "./seller/pages/ShippingDetail.jsx";
 import ReturnDetail from "./seller/pages/ReturnDetail.jsx";
 import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
+
 import Token from "./Token.jsx";
 import SellerPdDetail from "./seller/pages/ProductDetail.jsx";
 
@@ -138,6 +139,7 @@ function App() {
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
                 <Route path="productOrderComplate" element={<ProductOrderComplate />} />
+
                 <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
                 {/* 일반사용자 장바구니 */}
@@ -207,8 +209,7 @@ function App() {
 
                 <Route path="ask" element={<AskToManager />} />
                 <Route path="productModify/:productIdx" element={<ProductModify />} />
-
-                <Route path="orderDetail" element={<OrderDetail />} />
+                <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
                 <Route path="shippingDetail" element={<ShippingDetail />} />
                 <Route path="returnDetail" element={<ReturnDetail />} />
                 <Route path="exchangeDetail" element={<ExchangeDetail />} />

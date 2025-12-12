@@ -4,7 +4,7 @@ import "../css/FindExpert.css";
 import { Modal as AddrModal } from "antd";
 import { Modal } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
-import { baseUrl } from "../../config/config";
+import { baseUrl } from "../../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -421,12 +421,7 @@ export default function FindExpert() {
                                 // 추가 요청 사항이 있으면 알려주세요?
                                 <div>
                                     <div style={{ marginTop: "14px", width: "663px" }}>
-                                        <Input
-                                            className="font-14"
-                                            type="textarea"
-                                            style={{ width: "100%", height: "162px", resize: "none" }}
-                                            onChange={(e) => setRequestForm({ ...requestForm, additionalRequest: e.target.value })}
-                                        />
+                                        <Input className="font-14" type="textarea" style={{ width: "100%", height: "162px", resize: "none" }} onChange={(e) => setRequestForm({ ...requestForm, additionalRequest: e.target.value })} />
                                     </div>
                                     <div style={{ margin: "15px 0" }}>
                                         <span>첨부 이미지 파일은 최대 3장입니다.</span>
