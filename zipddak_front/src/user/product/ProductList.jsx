@@ -3,14 +3,19 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import "../css/ProductList.css";
 import Product from "./Product";
-import { baseUrl } from "../../config";
+import { baseUrl, myAxios } from "../../config";
+import { userAtom } from "../../atoms";
+import { tokenAtom } from "../../atoms";
+import { useAtomValue, useAtom } from "jotai/react";
 
 export default function ProductList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const [pCateNo, setpCateNo] = useState(1);
     const [middleCateNo, setMiddleCateNo] = useState(1);
     const [filterNo, setFilterNo] = useState(1);
 
-    let username = "rlawhdwh";
     const [productList, setProductList] = useState([]);
 
     const [page, setPage] = useState(1); // 현재 페이지
@@ -59,20 +64,26 @@ export default function ProductList() {
 
     const fetchProducts = async (value) => {
         setLoading(true);
-        console.log(page);
+
+        // const url = `${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=${username}`;
 
         let searchKeyword;
         searchKeyword = value === undefined ? keyword : value;
 
         try {
-            // 테스트용으로 뒤에 username을 붙임
-            const res = await axios.get(`${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=rlawhdwh`);
+            const url = `${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=${user.username}`;
 
-            if (res.data.length === 0) {
-                setHasMore(false); // 더 이상 데이터 없음
-            } else {
-                setProductList((prev) => [...prev, ...res.data]); // 기존 데이터에 추가
-            }
+            myAxios(token, setToken)
+                .get(url)
+                .then((res) => {
+                    if (res.data.length === 0) {
+                        setHasMore(false); // 더 이상 데이터 없음
+                    } else {
+                        setProductList((prev) => [...prev, ...res.data]); // 기존 데이터에 추가
+                    }
+                });
+
+            // const res = await axios.get(`${baseUrl}/productList/?keyword=${searchKeyword}&cate1=${pCateNo}&cate2=${middleCateNo}&sortId=${filterNo}&page=${page}&username=${user.username}`);
         } catch (err) {
             console.error(err);
         } finally {
@@ -103,12 +114,12 @@ export default function ProductList() {
 
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore],
+        [loading, hasMore]
     );
 
     const toggleFavorite = async (productIdx) => {
         try {
-            await axios.post(`${baseUrl}/favoriteToggle`, { productIdx, username });
+            await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, { productIdx: productIdx, username: user.username });
 
             setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
         } catch (error) {
@@ -126,9 +137,10 @@ export default function ProductList() {
     // 데이터 가져오기 (페이지 단위)
     useEffect(() => {
         if (!hasMore) return;
+        if (user?.username == null) return;
 
         fetchProducts();
-    }, [page, pCateNo, middleCateNo, filterNo, hasMore]);
+    }, [page, pCateNo, middleCateNo, filterNo, hasMore, user]);
 
     return (
         <div className="body-div">
