@@ -191,19 +191,14 @@ table.list_table tbody tr:hover td:not(:has(img)) {
     cursor: pointer;
 }
 
-/* tr.bundle_deli.bundle_last td {
-    border-bottom: 1px solid #303441;
-} */
-tr.bundle_deli:not(:has(+ tr.bundle_deli)) td {
-    border-bottom: 1px solid #303441;
-}
-
-tr.single_deli:not(:has(+ tr.single_deli)) td {
+tr.last-of-bundle td,
+tr.last-of-single td,
+.last-of-bundle-cell {
     border-bottom: 1px solid #303441;
 }
 
 .title_cell {
-    text-align: left;
+    text-align: left !important;
     /* 셀 안에 텍스트 내용 길어질 경우 말줄임표 처리*/
     white-space: nowrap;
     overflow: hidden;
@@ -214,10 +209,9 @@ tr.single_deli:not(:has(+ tr.single_deli)) td {
     text-align: right;
 }
 
-.shipCharge_cell {
-    border-bottom: 1px solid #303441;
-}
-
+/* .option_cell {
+    text-align: left !important;
+} */
 .totalCnt {
     width: 100%;
     text-align: right;

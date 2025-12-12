@@ -1,8 +1,26 @@
 import "../css/Expert.css";
+import { useNavigate } from "react-router";
 
 export default function Expert({ expert }) {
+    const navigate = useNavigate();
+
     return (
-        <a href="#" className="expert-div">
+        <div
+            style={{ cursor: "pointer" }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.zIndex = 10;
+                e.currentTarget.style.transform = "scale(1.03)";
+                e.currentTarget.style.transitionDuration = "0.1s";
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.zIndex = 1;
+                e.currentTarget.style.transform = "scale(1)";
+            }}
+            onClick={() => {
+                navigate(`/zipddak/expertProfile/${expert.expertIdx}`);
+            }}
+            className="expert-div"
+        >
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
@@ -35,7 +53,8 @@ export default function Expert({ expert }) {
                 <div className="expert-career-div">
                     {/* 경력 */}
                     <span className="font-13">
-                        <i className="bi bi-award font-11"></i>경력{expert.career}년
+                        <i className="bi bi-award font-11"></i>
+                        {expert.career < 12 ? "1년 미만" : `${Math.floor(expert.career / 12)}년`}
                     </span>
                     <i className="bi bi-dot font-11"></i>
                     {/* 고용 */}
@@ -47,6 +66,6 @@ export default function Expert({ expert }) {
 
             {/* 소개글 */}
             <div className="font-14 expert-intro">{expert.introduction}</div>
-        </a>
+        </div>
     );
 }
