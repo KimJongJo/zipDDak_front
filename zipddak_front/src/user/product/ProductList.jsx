@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import "../css/ProductList.css";
 import Product from "./Product";
-import { baseUrl } from "../../config/config";
+import { baseUrl } from "../../config";
 
 export default function ProductList() {
     const [pCateNo, setpCateNo] = useState(1);
@@ -103,7 +103,7 @@ export default function ProductList() {
 
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore]
+        [loading, hasMore],
     );
 
     const toggleFavorite = async (productIdx) => {

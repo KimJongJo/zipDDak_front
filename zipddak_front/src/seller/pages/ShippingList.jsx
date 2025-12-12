@@ -6,11 +6,10 @@ import usePageTitle from "../js/usePageTitle.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config/config.jsx";
+import { myAxios } from "../../config.jsx";
 
 export default function ShippingList() {
     const pageTitle = usePageTitle("주문관리 > 배송 관리");
-
     const navigate = useNavigate();
 
     const [myShippingList, setMyShippingList] = useState([]);
@@ -174,13 +173,14 @@ export default function ShippingList() {
                                                     </tr>
                                                 ) : (
                                                     myShippingList.map((myShipping) => (
-                                                        <tr key={myShipping.trackingNo} onClick={() => navigate(`/orderDetail/${myShipping.orderIdx}`)}>
+                                                        <tr key={myShipping.trackingNo} onClick={() => navigate(`/seller/shippingDetail/${myShipping.orderIdx}`)}>
                                                             <td>{myShipping.orderCode}</td>
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myShipping.shippingProductName}</span> 포함 총 {myShipping.itemCount} 건
                                                             </td>
                                                             <td>{myShipping.firstSendDate}</td>
                                                             <td>{myShipping.trackingNo}</td>
+                                                            <td>{myShipping.postComp}</td>
                                                             <td>{myShipping.orderStatus}</td>
                                                             <td>{myShipping.orderDate}</td>
                                                         </tr>
@@ -188,6 +188,9 @@ export default function ShippingList() {
                                                 )}
                                             </tbody>
                                         </table>
+                                    </div>
+                                    <div className={table.totalCnt}>
+                                        <p>[총 배송 건수: {myShippingCount}]</p>
                                     </div>
                                 </div>
                                 <div className="pagination_part">
