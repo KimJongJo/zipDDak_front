@@ -1,8 +1,10 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "react-router";
 import "../css/expertEstimate.css";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function PublicRequestDetail() {
   const { requestIdx } = useParams();
@@ -13,9 +15,12 @@ export default function PublicRequestDetail() {
 
   const [requestDetail, setRequestDetail] = useState(null);
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 공개 요청서 상세 조회
   const getRequestDetail = () => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
           `/publicRequestsDetail?requestIdx=${requestIdx}`

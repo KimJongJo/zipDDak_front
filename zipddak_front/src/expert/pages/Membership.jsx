@@ -1,10 +1,12 @@
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import MembershipInfoCard from "../component/MembershipInfoCard";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { Modal, ModalBody } from "reactstrap";
 import { useLocation } from "react-router-dom";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export function Membership() {
   const [membership, setMembership] = useState({});
@@ -16,6 +18,9 @@ export function Membership() {
     startPage: 1,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const location = useLocation();
@@ -24,7 +29,9 @@ export function Membership() {
   const startMembershipPayment = async () => {
     try {
       // 1) orderId 생성
-      const res = await axios.get("http://localhost:8080/make/orderId");
+      const res = await myAxios(token, setToken).get(
+        "http://localhost:8080/make/orderId"
+      );
       const orderId = res.data;
 
       // 2) 토스 SDK 로딩
@@ -38,7 +45,7 @@ export function Membership() {
         amount: 30000,
         orderId: orderId,
         orderName: "집딱 멤버십 결제",
-        successUrl: `http://localhost:8080/membership/success?username=test@kosta.com`,
+        successUrl: `http://localhost:8080/membership/success?username=${user.username}`,
         failUrl: "http://localhost:5173/expert/membership",
       });
     } catch (e) {
@@ -48,10 +55,10 @@ export function Membership() {
 
   // 멤버십 목록 조회
   const getMembership = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/membershipList?username=test@kosta.com&page=${page}`
+          `/membershipList?username=${user.username}&page=${page}`
       )
       .then((res) => {
         return res.data;
