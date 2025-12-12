@@ -19,7 +19,11 @@ import {
   DropdownItem,
   DropdownToggle,
   DropdownMenu,
-  Button
+  Button,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalFooter
 } from "reactstrap";
 import { useEffect, useState } from "react";
 import { useAtom, useSetAtom } from "jotai/react";
@@ -32,7 +36,6 @@ export default function Header({ direction, ...args }) {
 
   const [user, setUser] = useAtom(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
-  const [profileImg, setProfileImg] = useState({});
   // const [viewAlarm, setviewAlarm] = useState(false);
   // const setAlarms = useSetAtom(alarmsAtom);
 
@@ -48,34 +51,30 @@ export default function Header({ direction, ...args }) {
   }
 
   const [modal, setModal] = useState();
+  const [message, setMessage] = useState();
 
   const expertToggle = () => {
 
-     myAxios(token, setToken).post(`/expertYn?username=${user.username}`)
+    myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`, )
       .then(res => {
         setUser(res.data);
-        setProfileImg({rename: res.data.profile, type: res.data.role});
-        console.log(res.data);
+
+        if (user.type == "USER") {
+          setMessage("전문가 회원가입으로 이동합니다.")
+          setModal(true);
+        }
+
       })
       .catch(err => {
         console.log(err);
       })
 
-    if (user.expert) {
-
-     
-
-    } else {
-      setModal(true);
-      console.log("왜 안돼");
-      // navigate("/zipddak/signUp/expert")
-    }
-
   }
 
-  // useEffect(()=> {
-  //   setUser({...user, expert:!user.expert})
-  // },[user.expert])
+  const goToExpertmodal = () => {
+    setModal(false);
+    navigate("/zipddak/signUp/expert")
+  }
 
   return (
     <>
@@ -125,15 +124,15 @@ export default function Header({ direction, ...args }) {
                   <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
 
                     <a href="/zipddak/mypage"><div className="profile-img">
-                      {profileImg.rename ?
-                       
-                        <img src={`${baseUrl}/imageView?type=${profileImg.type}&filename=${profileImg.rename}`}
+                      {user.profile !=null && user.profile != '' ?
+
+                        <img src={`${baseUrl}/imageView?type=${user.expert?'EXPERT':'USER'}&filename=${user.profile}`}
                           style={{ width: "100%", height: "100%", objectFit: "cover", }} />
                         :
-                         <UserRound color="#303441"/>
-                        
+                        <UserRound color="#303441" />
                       }
                     </div></a>
+                    
                     <DropdownToggle className="myDropDown">
                       <ChevronDown size={20} color="#303441" />
                     </DropdownToggle>
@@ -201,6 +200,15 @@ export default function Header({ direction, ...args }) {
           커뮤니티
         </a>
       </div>
+
+      <Modal isOpen={modal}>
+        <ModalHeader>전문가 회원가입하기</ModalHeader>
+        <ModalBody>
+          {message}
+        </ModalBody>
+        <Button color="primary" onClick={goToExpertmodal} >확인</Button>
+      </Modal>
     </>
+
   );
 }
