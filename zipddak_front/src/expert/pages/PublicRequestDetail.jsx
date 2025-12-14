@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import "../css/expertEstimate.css";
+import { useNavigate, useParams } from "react-router";
 import { Input, Modal, ModalBody } from "reactstrap";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import "../css/expertEstimate.css";
 
 export default function PublicRequestDetail() {
   const { requestIdx } = useParams();
@@ -36,6 +36,10 @@ export default function PublicRequestDetail() {
   const [stylingDesignCost, setStylingDesignCost] = useState(null); // 스타일링디자인 작업비
   const [threeDImageCost, setThreeDImageCost] = useState(null); // 3D이미지 작업비
   const [reportProductionCost, setReportProductionCost] = useState(null); // 보고서 제작비
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
@@ -113,8 +117,12 @@ export default function PublicRequestDetail() {
     myAxios(token, setToken)
       .post("http://localhost:8080/estimate/write", payload)
       .then((res) => {
-        if (res.data === true) {
-          alert("견적서가 정상적으로 전송되었습니다.");
+        if (res.data) {
+          setIsModalOpen(true);
+
+          setTimeout(() => {
+            navigate("/expert/requests");
+          }, 1500);
         }
       })
       .catch((err) => console.error(err));
@@ -216,6 +224,16 @@ export default function PublicRequestDetail() {
     getRequestDetail();
   }, []);
 
+  // 스크롤 막기
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    // 페이지 벗어날 때 원상복구
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   if (!requestDetail) {
     return <div className="mypage-layout">로딩 중...</div>;
   }
@@ -228,6 +246,8 @@ export default function PublicRequestDetail() {
         width: "1200px",
         padding: "0 16px",
         gap: "30px",
+        height: "100vh",
+        overflow: "hidden",
       }}
     >
       <div
@@ -239,6 +259,11 @@ export default function PublicRequestDetail() {
           flex: 2,
           borderRight: "1px solid #EFF1F5",
           borderLeft: "1px solid #EFF1F5",
+
+          height: "100%",
+          overflowY: "auto",
+          paddingRight: "8px",
+          marginBottom: "100px",
         }}
       >
         <div
@@ -1327,6 +1352,27 @@ export default function PublicRequestDetail() {
           </div>
         </div>
       )}
+      <Modal
+        isOpen={isModalOpen}
+        className="mypage-modal"
+        style={{ width: "380px" }}
+      >
+        <ModalBody>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "8px",
+              whiteSpace: "nowrap",
+              fontSize: "14px",
+            }}
+          >
+            <p>문의가 접수되었습니다.</p>
+          </div>
+        </ModalBody>
+      </Modal>
     </div>
   );
 }
