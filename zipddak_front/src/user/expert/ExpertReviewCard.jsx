@@ -14,14 +14,14 @@ export default function ExpertReviewCard({ expertReview }) {
         <div>
             <div className="expertReview-div">
                 <div className="expertReview-writer-info-div">
-                    <img className="expertReview-writer-img" src={expertReview.profileImg} />
+                    <img className="expertReview-writer-img" src={expertReview.profileImgStoragePath + "/" + expertReview.profileImg} />
                     <div className="expertReview-writer-review-info">
                         <span className="font-13 medium">{expertReview.nickname}</span>
                         <div className="expertReview-review-date">
                             {/* 별 채우는 코드 */}
                             <div style={{ display: "flex", gap: "2px" }}>
                                 {[1, 2, 3, 4, 5].map((i) => {
-                                    const score = expertReview.reviewScore; // 예: 3.7
+                                    const score = expertReview.score; // 예: 3.7
                                     let fillPercent = 0;
 
                                     if (score >= i) {
@@ -91,18 +91,16 @@ export default function ExpertReviewCard({ expertReview }) {
                 </div>
 
                 {/* 이미지가 있는 경우에만 보여주기 */}
-                {expertReview.images.length !== 0 ? (
-                    <div className="expertReview-imgs-div">
-                        {expertReview.images.map((img) => (
-                            <img className="expertReview-imgs" src={img} />
-                        ))}
-                    </div>
-                ) : (
-                    <></>
-                )}
+                <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                    {expertReview.image1 && <img className="review-image" src={`${expertReview.imgStoragePath}/${expertReview.image1}`} alt="review-1" />}
+
+                    {expertReview.image2 && <img className="review-image" src={`${expertReview.imgStoragePath}/${expertReview.image2}`} alt="review-2" />}
+
+                    {expertReview.image3 && <img className="review-image" src={`${expertReview.imgStoragePath}/${expertReview.image3}`} alt="review-3" />}
+                </div>
 
                 {/* 리뷰 내용 */}
-                <div className="font-14">{expertReview.reviewContent}</div>
+                <div className="font-14">{expertReview.content}</div>
             </div>
 
             <hr className="expertReview-hr" />
