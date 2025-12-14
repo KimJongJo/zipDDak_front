@@ -242,14 +242,7 @@ export default function PublicRequest() {
                 style={{ width: "100px", height: "33px" }}
                 onClick={() =>
                   navigate(
-                    `/expert/requests/detail/${requestDetail.requestIdx}`,
-                    {
-                      state: {
-                        largeServiceIdx: requestDetail.largeServiceIdx,
-                        midServiceIdx: requestDetail.midServiceIdx,
-                        smallServiceIdx: requestDetail.smallServiceIdx,
-                      },
-                    }
+                    `/expert/requests/detail/${requestDetail.requestIdx}`
                   )
                 }
               >
