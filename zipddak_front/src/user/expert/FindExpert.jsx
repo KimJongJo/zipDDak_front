@@ -4,14 +4,20 @@ import "../css/FindExpert.css";
 import { Modal as AddrModal } from "antd";
 import { Modal } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
-import { baseUrl } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { expertIdxAtom } from "./expertAtom";
 
 export default function FindExpert() {
     const chatEndRef = useRef(null);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const navigate = useNavigate();
+    const [expertIdx, setExpertIdx] = useAtom(expertIdxAtom);
+    const user = useAtomValue(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     const [modal, setModal] = useState(false);
 
@@ -83,7 +89,9 @@ export default function FindExpert() {
     const writeRequestForm = () => {
         const formData = new FormData();
 
-        formData.append("userUsername", "rlawhdwh");
+        formData.append("userUsername", user.username);
+
+        formData.append("expertIdx", expertIdx);
 
         Object.keys(requestForm).forEach((key) => {
             formData.append(key, requestForm[key]);
@@ -93,8 +101,8 @@ export default function FindExpert() {
             formData.append("files", file);
         });
 
-        axios
-            .post(`${baseUrl}/writeRequest`, formData, {
+        myAxios(token, setToken)
+            .post(`${baseUrl}/user/writeRequest`, formData, {
                 headers: {
                     "Content-Type": "multipary/form-data",
                 },
@@ -104,6 +112,9 @@ export default function FindExpert() {
                     setModal(true);
                 }
             });
+
+        setExpertIdx(null); // 1️⃣ atom 초기화
+        localStorage.removeItem("expertIdx"); // 2️⃣ storage 제거
     };
 
     const [messages, setMessages] = useState([{ id: 1, type: "bot", text: "원하시는 서비스를 선택해주세요", options: serviceOptions }]);
@@ -421,7 +432,12 @@ export default function FindExpert() {
                                 // 추가 요청 사항이 있으면 알려주세요?
                                 <div>
                                     <div style={{ marginTop: "14px", width: "663px" }}>
-                                        <Input className="font-14" type="textarea" style={{ width: "100%", height: "162px", resize: "none" }} onChange={(e) => setRequestForm({ ...requestForm, additionalRequest: e.target.value })} />
+                                        <Input
+                                            className="font-14"
+                                            type="textarea"
+                                            style={{ width: "100%", height: "162px", resize: "none" }}
+                                            onChange={(e) => setRequestForm({ ...requestForm, additionalRequest: e.target.value })}
+                                        />
                                     </div>
                                     <div style={{ margin: "15px 0" }}>
                                         <span>첨부 이미지 파일은 최대 3장입니다.</span>
