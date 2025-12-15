@@ -130,7 +130,7 @@ export function MyWorks() {
               setWorks([]);
               getWorks(
                 pageInfo.curPage,
-                "",
+                status,
                 e.target.value,
                 selectDate.endDate
               );
@@ -146,7 +146,7 @@ export function MyWorks() {
               setWorks([]);
               getWorks(
                 pageInfo.curPage,
-                "",
+                status,
                 selectDate.startDate,
                 e.target.value
               );
@@ -338,7 +338,7 @@ export function MyWorks() {
             <PaginationLink
               onClick={() => {
                 setWorks([]);
-                getWorks(b, selectDate.startDate, selectDate.endDate);
+                getWorks(b, status, selectDate.startDate, selectDate.endDate);
               }}
             >
               {b}
