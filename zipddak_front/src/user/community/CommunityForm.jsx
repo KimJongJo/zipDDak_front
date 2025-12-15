@@ -5,11 +5,14 @@ import { useNavigate } from "react-router";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { baseUrl, myAxios } from "../../config";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Community } from "../../main/component/Community";
 import { Modal } from "reactstrap";
+import { useParams } from "react-router";
 
 export default function ComForm() {
+    const { modifyCommunityId } = useParams();
+
     const user = useAtomValue(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
@@ -101,29 +104,72 @@ export default function ComForm() {
         formData.append("content", content);
         formData.append("username", user.username);
 
-        images.forEach((file) => {
-            formData.append("images", file);
+        // 기존 이미지 ID만 뽑아서 JSON 문자열로 보내기
+        const existingIds = images
+            .filter((img) => img.id) // id가 있으면 기존 이미지
+            .map((img) => img.id);
+        formData.append("existingImageIds", JSON.stringify(existingIds));
+
+        // 새로 업로드한 이미지만 append
+        images.forEach((img) => {
+            if (img instanceof File) {
+                formData.append("images", img);
+            }
         });
 
-        myAxios(token, setToken)
-            .post(`${baseUrl}/user/writeCommunity`, formData, {
-                headers: {
-                    "Content-Type": "multipart-form-data",
-                },
-            })
-            .then((res) => {
-                setCommunityId(res.data);
-                setReason("게시글이 작성되었습니다.");
-                writeToggle();
-            });
+        if (modifyCommunityId) {
+            formData.append("communityId", modifyCommunityId);
+            myAxios(token, setToken)
+                .post(`${baseUrl}/user/modifyCommunity`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                })
+                .then((res) => {
+                    setCommunityId(res.data);
+                    setReason("게시글이 수정되었습니다.");
+                    writeToggle();
+                });
+        } else {
+            myAxios(token, setToken)
+                .post(`${baseUrl}/user/writeCommunity`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" },
+                })
+                .then((res) => {
+                    setCommunityId(res.data);
+                    setReason("게시글이 작성되었습니다.");
+                    writeToggle();
+                });
+        }
     };
+
+    // 수정 할때만 실행
+    useEffect(() => {
+        if (!modifyCommunityId) return;
+
+        myAxios()
+            .get(`${baseUrl}/community/modify?communityId=${modifyCommunityId}`)
+            .then((res) => {
+                console.log(res.data);
+                setCategory(res.data.category);
+                setTitle(res.data.title);
+                setContent(res.data.content);
+
+                const existingImages = [];
+                if (res.data.img1) existingImages.push({ id: res.data.img1id, url: `${baseUrl}/imageView?type=community&filename=${res.data.img1}` });
+                if (res.data.img2) existingImages.push({ id: res.data.img2id, url: `${baseUrl}/imageView?type=community&filename=${res.data.img2}` });
+                if (res.data.img3) existingImages.push({ id: res.data.img3id, url: `${baseUrl}/imageView?type=community&filename=${res.data.img3}` });
+                if (res.data.img4) existingImages.push({ id: res.data.img4id, url: `${baseUrl}/imageView?type=community&filename=${res.data.img4}` });
+                if (res.data.img5) existingImages.push({ id: res.data.img5id, url: `${baseUrl}/imageView?type=community&filename=${res.data.img5}` });
+
+                setImages(existingImages);
+            });
+    }, [modifyCommunityId]);
 
     return (
         <>
             <div className="CommunityForm-container">
                 <div className="col-cm comForm-body">
                     <div className="trade">
-                        <select onChange={(e) => setCategory(e.target.value)} className="trade-select" defaultValue={"none"}>
+                        <select onChange={(e) => setCategory(e.target.value)} className="trade-select" value={category || "none"}>
                             <option value={"none"} disabled>
                                 카테고리
                             </option>
@@ -137,15 +183,19 @@ export default function ComForm() {
                         <ChevronDown className="trade-arrow" />
                     </div>
 
-                    <Input onChange={(e) => setTitle(e.target.value)} type="text" placeholder="제목을 입력해주세요" name="title" />
+                    <Input value={title} onChange={(e) => setTitle(e.target.value)} type="text" placeholder="제목을 입력해주세요" name="title" />
 
-                    <Input onChange={(e) => setContent(e.target.value)} type="textarea" placeholder="내용을 입력해주세요" name="content" className="community-input-content" />
+                    <Input value={content} onChange={(e) => setContent(e.target.value)} type="textarea" placeholder="내용을 입력해주세요" name="content" className="community-input-content" />
 
                     {/* 🔥 이미지 미리보기 영역 */}
                     <div className="row-cm com-write-images">
                         {images.map((img, idx) => (
                             <div key={idx} className="img-preview" onClick={() => changeImage(idx)}>
-                                <img style={{ width: "80px", height: "80px" }} src={URL.createObjectURL(img)} alt="preview" />
+                                <img
+                                    style={{ width: "80px", height: "80px" }}
+                                    src={img instanceof File ? URL.createObjectURL(img) : img.url} // File이면 createObjectURL, 아니면 URL
+                                    alt="preview"
+                                />
                             </div>
                         ))}
 
@@ -168,7 +218,7 @@ export default function ComForm() {
 
                     <Modal className="ask-modal-box" isOpen={writeModal} toggle={writeToggle}>
                         <div className="ask-modal-body">
-                            <div>게시글이 작성되었습니다.</div>
+                            <div>{reason}</div>
                             <div className="ask-modal-body-button-div">
                                 <button
                                     onClick={() => {
