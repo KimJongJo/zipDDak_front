@@ -109,6 +109,7 @@ import MyWorksDetail from "./user/myPage/MyWorksDetail.jsx";
 import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
+import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
 
 function App() {
   return (
@@ -199,6 +200,10 @@ function App() {
           <Route path="works" element={<ExpertMyWorks />} />
           <Route path="works/detail" element={<ExpertMyWorksDetail />} />
           <Route path="sent/estimates" element={<SentEstimates />} />
+          <Route
+            path="sent/estimate/:estimateIdx"
+            element={<SentEstimateDetail />}
+          />
           <Route path="receive/requests" element={<ReceiveRequests />} />
           <Route
             path="receive/request/:requestIdx"

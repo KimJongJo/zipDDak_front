@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function SentEstimates() {
   const [tab, setTab] = useState("진행중인 견적요청");
@@ -16,6 +17,10 @@ export default function SentEstimates() {
     endPage: 0,
     startPage: 1,
   });
+
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
@@ -62,11 +67,11 @@ export default function SentEstimates() {
 
   useEffect(() => {
     if (tab === "진행중인 견적요청") {
-      getEstimates(1, "progress");
+      getEstimates(pageFromUrl, "progress");
     } else if (tab === "지난 견적요청") {
-      getEstimates(1, "finish");
+      getEstimates(pageFromUrl, "finish");
     }
-  }, [tab]);
+  }, [tab, pageFromUrl]);
 
   return (
     <div className="mypage-layout">
@@ -200,7 +205,11 @@ export default function SentEstimates() {
                 color: "#FF5833",
                 backgroundColor: "#fff",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                navigate(
+                  `/expert/mypage/sent/estimate/${estimate.estimateIdx}?page=${pageInfo.curPage}`
+                );
+              }}
             >
               견적 상세 보기
             </button>
