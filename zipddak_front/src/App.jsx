@@ -132,7 +132,8 @@ function App() {
                 {/* 일반사용자 커뮤니티 */}
                 <Route path="community" element={<CommunityList />} />
                 <Route path="community/write" element={<ComForm />} />
-                <Route path="community/:communityIdx" element={<Comdetail />} />
+                <Route path="community/:communityId" element={<Comdetail />} />
+                <Route path="community/modify/:modifyCommunityId" element={<ComForm />} />
 
                 {/* 일반사용자 자재구매 */}
                 <Route path="productList" element={<ProductList />} />
