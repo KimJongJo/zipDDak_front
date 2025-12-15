@@ -51,7 +51,14 @@ export default function CommunityList() {
 
             <div className="d-tab-nav">
                 {cateList.map((cate) => (
-                    <div key={cate.no} onClick={() => setSelectCate(cate.no)} className={selectCate === cate.no ? "d-nav active" : "d-nav"}>
+                    <div
+                        key={cate.no}
+                        onClick={() => {
+                            setPage(1);
+                            setSelectCate(cate.no);
+                        }}
+                        className={selectCate === cate.no ? "d-nav active" : "d-nav"}
+                    >
                         {cate.label}
                     </div>
                 ))}
