@@ -147,7 +147,7 @@ export function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/expert/mypage/requests"
+              to="/expert/mypage/receive/requests"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive

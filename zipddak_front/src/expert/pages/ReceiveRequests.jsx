@@ -4,10 +4,8 @@ import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 
-export default function SentEstimates() {
-  const [tab, setTab] = useState("진행중인 견적요청");
-
-  const [estimates, setEstimates] = useState([]);
+export default function ReceiveRequests() {
+  const [requests, setRequests] = useState([]);
 
   const [pageBtn, setPageBtn] = useState([]);
   const [pageInfo, setPageInfo] = useState({
@@ -20,18 +18,18 @@ export default function SentEstimates() {
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
 
-  // 내 견적서 조회
-  const getEstimates = (page, status) => {
+  // 받은 요청서 조회
+  const getRequests = (page) => {
     myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/sent/estimateList?username=${user.username}&page=${page}&status=${status}`
+          `/receive/requestList?username=${user.username}&page=${page}`
       )
       .then((res) => {
         return res.data;
       })
       .then((data) => {
-        setEstimates(data.estimateList);
+        setRequests(data.requestList);
         return data.pageInfo;
       })
       .then((pageData) => {
@@ -61,30 +59,16 @@ export default function SentEstimates() {
   }
 
   useEffect(() => {
-    if (tab === "진행중인 견적요청") {
-      getEstimates(1, "progress");
-    } else if (tab === "지난 견적요청") {
-      getEstimates(1, "finish");
-    }
-  }, [tab]);
+    getRequests(1);
+  }, []);
 
   return (
     <div className="mypage-layout">
-      <h1 className="mypage-title">보낸 견적서</h1>
-
-      <div className="mypage-tabList">
-        <div
-          className={tab === "진행중인 견적요청" ? "isActive" : ""}
-          onClick={() => setTab("진행중인 견적요청")}
-        >
-          진행중인 견적요청
-        </div>
-        <div
-          className={tab === "지난 견적요청" ? "isActive" : ""}
-          onClick={() => setTab("지난 견적요청")}
-        >
-          지난 견적요청
-        </div>
+      <div>
+        <h1 className="mypage-title">받은 요청서</h1>
+        <p style={{ color: "#6A7685", marginTop: "20px" }}>
+          사용자가 보낸 요청서 중, 견적을 보낼 수 있는 요청만 표시됩니다.
+        </p>
       </div>
 
       <div
@@ -94,7 +78,7 @@ export default function SentEstimates() {
           gap: "20px",
         }}
       >
-        {estimates.map((estimate) => (
+        {requests.map((request) => (
           <div
             style={{
               display: "flex",
@@ -105,7 +89,7 @@ export default function SentEstimates() {
               borderRadius: "16px",
               border: "1px solid #EFF1F5",
             }}
-            key={estimate.estimateIdx}
+            key={request.estimateIdx}
           >
             <div
               style={{
@@ -148,7 +132,7 @@ export default function SentEstimates() {
                     lineHeight: "18px",
                   }}
                 >
-                  {estimate.categoryName}
+                  {request.categoryName}
                 </p>
                 <p
                   style={{
@@ -157,7 +141,7 @@ export default function SentEstimates() {
                     fontWeight: "400",
                   }}
                 >
-                  {timeAgo(estimate.createdAt)}
+                  {timeAgo(request.createdAt)}
                 </p>
               </div>
             </div>
@@ -177,22 +161,13 @@ export default function SentEstimates() {
                   class="bi bi-geo-alt"
                   style={{ fontSize: "13px", marginRight: "2px" }}
                 ></i>
-                {estimate.location}
+                {request.location}
               </p>
               <p>
-                {Number(estimate.budget).toLocaleString()}만원 ·{" "}
-                {estimate.preferredDate}
+                {Number(request.budget).toLocaleString()}만원 ·{" "}
+                {request.preferredDate}
               </p>
             </div>
-            <p
-              style={{
-                fontSize: "16px",
-                fontWeight: "700",
-                textAlign: "right",
-              }}
-            >
-              {Number(estimate.totalCost).toLocaleString()}원
-            </p>
             <button
               className="primary-button"
               style={{
@@ -202,7 +177,7 @@ export default function SentEstimates() {
               }}
               onClick={() => {}}
             >
-              견적 상세 보기
+              요청 상세 보기
             </button>
           </div>
         ))}
@@ -211,17 +186,7 @@ export default function SentEstimates() {
       <Pagination className="my-pagination">
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
-            <PaginationLink
-              onClick={() => {
-                if (tab === "진행중인 견적요청") {
-                  getEstimates(b, "progress");
-                } else if (tab === "지난 견적요청") {
-                  getEstimates(b, "finish");
-                }
-              }}
-            >
-              {b}
-            </PaginationLink>
+            <PaginationLink onClick={() => getRequests(b)}>{b}</PaginationLink>
           </PaginationItem>
         ))}
       </Pagination>
