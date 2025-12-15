@@ -163,7 +163,7 @@ function App() {
         <Route path="mypage/*" element={<Mypage />}>
           <Route path="account" element={<Account />} />
           <Route path="expert/works" element={<MyWorks />} />
-          <Route path="expert/works/detail" element={<MyWorksDetail />} />
+          <Route path="expert/work/:matchingIdx" element={<MyWorksDetail />} />
           <Route path="expert/requests/active" element={<RequestActive />} />
           <Route path="inquiries" element={<Inquiries />} />
           <Route path="inquiries/write" element={<InquiryForm />} />
@@ -198,7 +198,10 @@ function App() {
         {/* 전문가 마이페이지 */}
         <Route path="mypage/*" element={<ExpertMypage />}>
           <Route path="works" element={<ExpertMyWorks />} />
-          <Route path="works/detail" element={<ExpertMyWorksDetail />} />
+          <Route
+            path="works/detail/:matchingIdx"
+            element={<ExpertMyWorksDetail />}
+          />
           <Route path="sent/estimates" element={<SentEstimates />} />
           <Route
             path="sent/estimate/:estimateIdx"

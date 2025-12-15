@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import { useNavigate, useSearchParams } from "react-router";
 
 export function MyWorks() {
   const [works, setWorks] = useState([]);
@@ -29,6 +30,10 @@ export function MyWorks() {
     endPage: 0,
     startPage: 1,
   });
+
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
@@ -80,9 +85,9 @@ export function MyWorks() {
   };
 
   useEffect(() => {
-    getWorks(1, "", selectDate.startDate, selectDate.endDate);
+    getWorks(pageFromUrl, "", selectDate.startDate, selectDate.endDate);
     getMatchingStatusSummary();
-  }, []);
+  }, [pageFromUrl]);
 
   return (
     <div className="mypage-layout">
@@ -271,7 +276,11 @@ export function MyWorks() {
               <tr
                 key={work.matchingIdx}
                 style={{ cursor: "pointer" }}
-                onClick={() => {}}
+                onClick={() => {
+                  navigate(
+                    `/expert/mypage/works/detail/${work.matchingIdx}?page=${pageInfo.curPage}`
+                  );
+                }}
               >
                 <td style={{ textAlign: "left", fontSize: "13px" }}>
                   <p style={{ fontWeight: "600", fontSize: "14px" }}>

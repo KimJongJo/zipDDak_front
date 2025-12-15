@@ -5,8 +5,8 @@ import { tokenAtom } from "../../atoms";
 import { myAxios } from "../../config";
 import { Input } from "reactstrap";
 
-export default function SentEstimateDetail() {
-  const { estimateIdx } = useParams();
+export function MyWorksDetail() {
+  const { matchingIdx } = useParams();
   const [searchParams] = useSearchParams();
   const page = searchParams.get("page") || 1;
 
@@ -17,16 +17,16 @@ export default function SentEstimateDetail() {
 
   const navigate = useNavigate();
 
-  // 보낸 견적서 상세 조회
+  // 작업 상세 조회
   const getEstimates = () => {
     myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/sent/estimateDetail?estimateIdx=${estimateIdx}`
+          `/matching/expertDetail?matchingIdx=${matchingIdx}`
       )
       .then((res) => {
-        setEstimate(res.data.sentEstimateDetail);
-        setCostList(res.data.estimateCostList);
+        setEstimate(res.data.matchingDetail);
+        setCostList(res.data.matchingCostList);
       })
       .catch((err) => {
         console.log(err);
@@ -54,6 +54,21 @@ export default function SentEstimateDetail() {
   const CONSULTING_TYPE_MAPPING = {
     ONLINE: "온라인 (채팅/화상)",
     VISIT: "직접 방문",
+  };
+
+  // 작업상태 매핑
+  const WORK_STATUS_LABEL = {
+    PAYMENT_COMPLETED: "결제 완료",
+    IN_PROGRESS: "작업 중",
+    COMPLETED: "작업 완료",
+    CANCELLED: "취소",
+  };
+
+  // 종료일-시작일
+  const getDiffDays = (start, end) => {
+    const s = new Date(start);
+    const e = new Date(end);
+    return Math.ceil((e - s) / (1000 * 60 * 60 * 24));
   };
 
   // 시공비, 자재비 총액
@@ -102,6 +117,28 @@ export default function SentEstimateDetail() {
       <div>
         <h3 className="mypage-sectionTitle">기본 정보</h3>
         <div className="labelInput-wrapper">
+          <label style={{ width: "150px" }}>작업 상태</label>
+          <span
+            style={{
+              width: "fit-content",
+              height: "20px",
+              display: "flex",
+              padding: "5px 10px",
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: "8px",
+              border: "1px solid rgba(255, 88, 51, 0.50)",
+              background: "rgba(255, 88, 51, 0.05)",
+              color: "#FF5833",
+              fontSize: "12px",
+              fontWeight: "500",
+              marginLeft: "12px",
+            }}
+          >
+            {WORK_STATUS_LABEL[estimate.matchingStatus]}
+          </span>
+        </div>
+        <div className="labelInput-wrapper">
           <label style={{ width: "150px" }}>작업 카테고리</label>
           <p>
             {estimate.largeServiceName} &gt; {estimate.midServiceName} &gt;{" "}
@@ -109,23 +146,15 @@ export default function SentEstimateDetail() {
           </p>
         </div>
         <div className="labelInput-wrapper">
-          <label style={{ width: "150px" }}>요청일</label>
-          <p>{estimate.requestAt}</p>
+          <label style={{ width: "150px" }}>계약일</label>
+          <p>{estimate.matchingAt}</p>
         </div>
         <div className="labelInput-wrapper">
-          <label style={{ width: "150px" }}>예상 작업 기간</label>
-          {estimate.workDurationType === "HOUR" && (
-            <p>{estimate.workDurationValue}시간</p>
-          )}
-          {estimate.workDurationType === "DAY" && (
-            <p>{estimate.workDurationValue}일</p>
-          )}
-          {estimate.workDurationType === "WEEK" && (
-            <p>{estimate.workDurationValue}주</p>
-          )}
-          {estimate.workDurationType === "MONTH" && (
-            <p>{estimate.workDurationValue}개월</p>
-          )}
+          <label style={{ width: "150px" }}>작업 예정일</label>
+          <p>
+            {estimate.workStartDate} ~ {estimate.workEndDate} (
+            {getDiffDays(estimate.workStartDate, estimate.workEndDate)}일)
+          </p>
         </div>
       </div>
 
@@ -444,6 +473,17 @@ export default function SentEstimateDetail() {
               <br /> {estimate.addr1} {estimate.addr2}
             </p>
           </div>
+          <div className="labelInput-wrapper">
+            <label style={{ width: "150px" }}>결제 금액</label>
+            <p
+              style={{
+                color: "#FF5833",
+                fontWeight: "600",
+              }}
+            >
+              {Number(estimate.totalAmount).toLocaleString()}원
+            </p>
+          </div>
         </div>
         <div style={{ flex: 2 }}>
           <h3 className="mypage-sectionTitle">요청 상세 </h3>
@@ -520,7 +560,7 @@ export default function SentEstimateDetail() {
             fontSize: "14px",
           }}
           onClick={() => {
-            navigate(`/expert/mypage/sent/estimates?page=${page}`);
+            navigate(`/expert/mypage/works?page=${page}`);
           }}
         >
           목록

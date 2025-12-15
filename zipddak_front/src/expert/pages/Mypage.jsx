@@ -9,6 +9,8 @@ export function Mypage() {
   const isReceiveActive = location.pathname.startsWith(
     "/expert/mypage/receive"
   );
+  const isSentActive = location.pathname.startsWith("/expert/mypage/sent");
+  const isWorksActive = location.pathname.startsWith("/expert/mypage/works");
 
   const navTitleStyle = {
     display: "flex",
@@ -141,12 +143,12 @@ export function Mypage() {
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/works"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isWorksActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               작업내역
             </NavLink>
@@ -165,12 +167,12 @@ export function Mypage() {
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/sent/estimates"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isSentActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               보낸 견적서
             </NavLink>
