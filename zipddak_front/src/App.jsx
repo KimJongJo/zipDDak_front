@@ -104,7 +104,6 @@ import SettleDetail from "./seller/pages/SettleDetail.jsx";
 
 import Token from "./Token.jsx";
 import SentEstimates from "./expert/pages/SentEstimates.jsx";
-import ToolProfile from "./user/myPage/ToolProfile.jsx";
 import MyWorksDetail from "./user/myPage/MyWorksDetail.jsx";
 import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
@@ -135,7 +134,6 @@ function App() {
         <Route path="tool/:toolId" element={<ToolDetail />} />
         <Route path="tool/regist" element={<RegistTool />} />
         <Route path="tool/apply" element={<ApplyTool />} />
-        <Route path="profile" element={<ToolProfile />} />
 
         {/* 일반사용자 커뮤니티 */}
         <Route path="community" element={<CommunityList />} />
@@ -163,7 +161,10 @@ function App() {
         <Route path="mypage/*" element={<Mypage />}>
           <Route path="account" element={<Account />} />
           <Route path="expert/works" element={<MyWorks />} />
-          <Route path="expert/work/:matchingIdx" element={<MyWorksDetail />} />
+          <Route
+            path="expert/works/detail/:matchingIdx"
+            element={<MyWorksDetail />}
+          />
           <Route path="expert/requests/active" element={<RequestActive />} />
           <Route path="inquiries" element={<Inquiries />} />
           <Route path="inquiries/write" element={<InquiryForm />} />
