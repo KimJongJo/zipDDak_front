@@ -29,7 +29,7 @@ export default function OrderDetail() {
     //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
         const params = new URLSearchParams();
-        params.append("sellerId", "test");
+        params.append("sellerId", "ss123");
         params.append("num", orderIdx);
 
         const orderDetailUrl = `/seller/order/myOrderDetail?${params.toString()}`;
@@ -109,8 +109,10 @@ export default function OrderDetail() {
     // 단가 합
     const totalUnitPrice = allItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
     // 배송비 합
-    const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, ""));
-    const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
+    const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, "")); //숫자만 걸러서 계산
+    // const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
+    const isFreeShipping = totalUnitPrice > 50000; // 무료 배송 조건
+    const totalPostCharge = isFreeShipping ? 0 : (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
 
     return (
         <>
@@ -247,6 +249,7 @@ export default function OrderDetail() {
                                                 <th style={{ width: "auto" }}>Img</th>
                                                 <th style={{ width: "20%" }}>상품명</th>
                                                 <th style={{ width: "auto" }}>옵션</th>
+                                                <th style={{ width: "auto" }}>단가</th>
                                                 <th style={{ width: "auto" }}>수량</th>
                                                 <th style={{ width: "auto" }}>금액</th>
                                                 <th style={{ width: "auto" }}>주문상태</th>
@@ -260,8 +263,8 @@ export default function OrderDetail() {
                                             {bundleItems.length > 0 &&
                                                 bundleItems.map((it, idx) => (
                                                     <tr key={it.orderItemIdx} className={`${table.bundle_deli} ${idx === bundleItems.length - 1 ? "last-of-bundle" : ""}`}>
-                                                        <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
-                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo} />
+                                                        <td>
+                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo || it.orderStatus === "반품완료"} />
                                                         </td>
                                                         <td>{it.rowNumber}</td>
                                                         <td style={{ padding: "0" }}>
@@ -277,14 +280,15 @@ export default function OrderDetail() {
                                                                 "옵션없음"
                                                             )}
                                                         </td>
+                                                        <td className="quantity_cell">{it.unitPrice}</td>
                                                         <td className="quantity_cell">{it.quantity}</td>
-                                                        <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
+                                                        <td className="unitPrice_cell">{priceFormat(it.unitPrice * it.quantity)}</td>
                                                         <td>{it.orderStatus}</td>
 
                                                         {idx === 0 && (
                                                             <td rowSpan={bundleItems.length} className={`${table.shipCharge_cell} ${"last-of-bundle-cell"}`}>
                                                                 <span style={{ fontSize: "16px" }}>
-                                                                    <span>{bundleItems[0].postCharge}</span>원
+                                                                    <span>{isFreeShipping ? "무료배송" : `${bundleItems[0].postCharge} 원 `}</span>
                                                                 </span>
                                                                 <br />
                                                                 <span style={{ fontSize: "10px" }}>
@@ -296,9 +300,9 @@ export default function OrderDetail() {
                                                         <td>{it.trackingNo ? `${it.postComp} ${it.trackingNo}` : "-"}</td>
                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                             <i
-                                                                className={`bi bi-three-dots-vertical ${it.trackingNo ? "disabled_icon" : "pointer"}`}
+                                                                className={`bi bi-three-dots-vertical ${it.trackingNo || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
                                                                 onClick={(e) => {
-                                                                    if (it.trackingNo) return;
+                                                                    if (it.trackingNo || it.orderStatus === "반품완료") return;
                                                                     handleDropdownClick(e, it.orderItemIdx);
                                                                 }}
                                                             ></i>
@@ -318,15 +322,15 @@ export default function OrderDetail() {
                                                                             console.log("운송장 등록", it.orderItemIdx);
                                                                         },
                                                                     },
-                                                                    {
-                                                                        label: "환불 처리",
-                                                                        onClick: () => {
-                                                                            setSelectedItem(it.orderItemIdx);
-                                                                            setIsRefundModalOpen(true); //모달 오픈
-                                                                            setOpenDropdown(null); // 드롭다운 닫기
-                                                                            console.log("환불 처리", it.orderItemIdx);
-                                                                        },
-                                                                    },
+                                                                    // {
+                                                                    //     label: "환불 처리",
+                                                                    //     onClick: () => {
+                                                                    //         setSelectedItem(it.orderItemIdx);
+                                                                    //         setIsRefundModalOpen(true); //모달 오픈
+                                                                    //         setOpenDropdown(null); // 드롭다운 닫기
+                                                                    //         console.log("환불 처리", it.orderItemIdx);
+                                                                    //     },
+                                                                    // },
                                                                 ]}
                                                             />
                                                         )}
@@ -335,7 +339,7 @@ export default function OrderDetail() {
                                             {/* 개별 배송 */}
                                             {singleItems.map((it) => (
                                                 <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
-                                                    <td className={` ${it.trackingNo ? "disabled_icon" : ""}`}>
+                                                    <td>
                                                         <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
                                                     </td>
                                                     <td>{it.rowNumber}</td>
@@ -352,8 +356,9 @@ export default function OrderDetail() {
                                                             "옵션없음"
                                                         )}
                                                     </td>
+                                                    <td className="quantity_cell">{it.unitPrice}</td>
                                                     <td className="quantity_cell">{it.quantity}</td>
-                                                    <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
+                                                    <td className="unitPrice_cell">{priceFormat(it.unitPrice * it.quantity)}</td>
                                                     <td>{it.orderStatus}</td>
                                                     <td className="postCharge_cell">
                                                         <span>
@@ -380,14 +385,14 @@ export default function OrderDetail() {
                                                                         console.log("운송장 등록", it.orderItemIdx);
                                                                     },
                                                                 },
-                                                                {
-                                                                    label: "환불 처리",
-                                                                    onClick: () => {
-                                                                        setIsRefundModalOpen(true); //모달 오픈
-                                                                        setOpenDropdown(null); // 드롭다운 닫기
-                                                                        console.log("환불 처리", it.orderItemIdx);
-                                                                    },
-                                                                },
+                                                                // {
+                                                                //     label: "환불 처리",
+                                                                //     onClick: () => {
+                                                                //         setIsRefundModalOpen(true); //모달 오픈
+                                                                //         setOpenDropdown(null); // 드롭다운 닫기
+                                                                //         console.log("환불 처리", it.orderItemIdx);
+                                                                //     },
+                                                                // },
                                                             ]}
                                                         />
                                                     )}
@@ -397,7 +402,7 @@ export default function OrderDetail() {
                                         {/* 합계 파트 */}
                                         <tfoot>
                                             <tr>
-                                                <td colSpan={5}>합계</td>
+                                                <td colSpan={6}>합계</td>
                                                 <td className="quantity_total">{totalQuantity}</td>
                                                 <td className="unitPrice_total">{priceFormat(totalUnitPrice)}</td>
                                                 <td></td>
@@ -410,7 +415,7 @@ export default function OrderDetail() {
                                 </div>
                                 <div className="btn_part">
                                     <div className="btn_group">
-                                        <button
+                                        {/* <button
                                             type="button"
                                             className="sub-button"
                                             onClick={() => {
@@ -425,18 +430,13 @@ export default function OrderDetail() {
                                             }}
                                         >
                                             환불처리
-                                        </button>
+                                        </button> */}
                                         <button
                                             type="button"
                                             className="primary-button"
                                             onClick={() => {
                                                 const selected = requireSelected(); //선택항목 없을경우 알럿
                                                 if (!selected) return;
-                                                // const selected = getSelected();
-                                                // if (selected.length === 0) {
-                                                //     alert("출고 처리할 상품을 선택하세요");
-                                                //     return;
-                                                // }
                                                 setIsTrackingModalOpen(true);
                                             }}
                                         >

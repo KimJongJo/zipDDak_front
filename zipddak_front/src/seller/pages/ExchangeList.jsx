@@ -63,7 +63,7 @@ export default function ProductRegist() {
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", "test");
+        params.append("sellerId", "ss123");
         params.append("page", page);
 
         if (keyword) params.append("keyword", keyword);

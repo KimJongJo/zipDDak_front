@@ -39,8 +39,9 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
                     }
                 })
                 .catch((err) => {
+                    console.log(err);
                     if (err.response && err.response.data) {
-                        alert(err.response.data.msg); // 예외 메시지 표시
+                        alert(err.response.data); // 예외 메시지 표시
                     } else {
                         alert("알 수 없는 오류 발생");
                     }
@@ -48,7 +49,7 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
         } catch (err) {
             console.error(err);
             if (err.response && err.response.data) {
-                alert(err.response.data.msg); // 예외 메시지 표시
+                alert(err.response.data.message); // 예외 메시지 표시
             } else {
                 alert("알 수 없는 오류 발생");
             }

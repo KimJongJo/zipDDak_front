@@ -1,6 +1,6 @@
 import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import "../css/Signup.css";
-import { baseUrl,myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
 import { useState } from "react";
 import { userAtom, tokenAtom } from "../../atoms";
@@ -13,7 +13,6 @@ export default function Login() {
     const setUser = useSetAtom(userAtom);
 
     const navigate = useNavigate();
-
 
     const submit = () => {
         let formData = new FormData();
@@ -37,17 +36,14 @@ export default function Login() {
                     //     navigate("/")
                     // })
                 }
-                
-                if(res.data.role == "USER" || res.data.type == "EXPERT"){
+
+                if (res.data.role == "USER" || res.data.type == "EXPERT") {
                     navigate("/zipddak/main");
-                }
-                else if(res.data.role == "APPROVAL_SELLER") {
+                } else if (res.data.role == "APPROVAL_SELLER") {
                     navigate("/seller/mainhome");
-                }
-                else if (res.data.role == "ADMIN"){
+                } else if (res.data.role == "ADMIN") {
                     navigate("/admin/userList");
                 }
-                
             })
             .catch((err) => {
                 console.log(err);
@@ -88,12 +84,12 @@ export default function Login() {
                     <div className="input_form">
                         <div className="input_parts">
                             <div className="input_label">이메일</div>
-                            <Input name="username" placeholder="이메일을 입력해주세요." type="email" onChange={(e)=> setUsername(e.target.value)}/>
+                            <Input name="username" placeholder="이메일을 입력해주세요." type="email" onChange={(e) => setUsername(e.target.value)} />
                         </div>
 
                         <div className="input_parts">
                             <div className="input_label">비밀번호</div>
-                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" onChange={(e)=> setPassword(e.target.value)} />
+                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" onChange={(e) => setPassword(e.target.value)} />
                         </div>
 
                         <div className="col-cm">

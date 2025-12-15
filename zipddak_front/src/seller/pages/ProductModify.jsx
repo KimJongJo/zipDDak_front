@@ -1,83 +1,141 @@
 // css
 import product from "../css/ProductRegist.module.css";
 // js
-import useImgUpload from "../js/useImgUpload.jsx";
+import useModifyImgUpload from "../js/useModifyImgUpload.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 import usePriceCalc from "../js/usePriceCalc.jsx";
 import usePdOptionSetting from "../js/usePdOptionSetting.jsx";
 // component
-import DeliveryTab from "../component/ProductDeliveryTab.jsx";
-import PickupTab from "../component/ProductPickupTab.jsx";
+import DeliveryTab from "../component/ProductDeliveryTab";
+import PickupTab from "../component/ProductPickupTab";
 // library
 import { useState, useRef, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios } from "../../config.jsx";
-
-// 파일 미리보기 용 헬퍼
-const fileToUrl = (file) => (file ? URL.createObjectURL(file) : "");
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function ProductModify() {
-    //탭 타이틀 설정
-    const pageTitle = usePageTitle("상품관리 > 상품 수정");
+    const pageTitle = usePageTitle("상품관리 > 상품 수정"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
+    const [token, setToken] = useAtom(tokenAtom);
 
     // -----------------------------
     // 상품 정보 state
     // -----------------------------
+    //상품명 입력
     const [productName, setProductName] = useState("");
-    const [price, setPrice] = useState("");
-    const [salePrice, setSalePrice] = useState("");
-    const [discountRate, setDiscountRate] = useState("");
-    const [categoryIdx, setCategoryIdx] = useState("");
-    const [subCategoryIdx, setSubCategoryIdx] = useState("");
 
-    // 옵션 JSON
-    const [options, setOptions] = useState([]);
+    //이미지
+    const {
+        thumbRef,
+        addRef,
+        detailRef,
 
-    // 이미지 (기존 + 신규)
-    const [thumbPreview, setThumbPreview] = useState("");
-    const [thumbFile, setThumbFile] = useState(null);
-    const [oldThumbIdx, setOldThumbIdx] = useState(null);
+        oldThumb,
+        oldAddImages,
+        oldDetailImages,
 
-    const [addPreviewList, setAddPreviewList] = useState([]); // [{idx,url}]
-    const [addFiles, setAddFiles] = useState([]); // new upload
-    const [deletedAddList, setDeletedAddList] = useState([]);
+        newThumbFile,
+        newAddFiles,
+        newDetailFiles,
 
-    const [detailPreviewList, setDetailPreviewList] = useState([]);
-    const [detailFiles, setDetailFiles] = useState([]);
-    const [deletedDetailList, setDeletedDetailList] = useState([]);
+        deleteThumbIdx,
+        deleteAddIdxList,
+        deleteDetailIdxList,
 
-    // 배송
-    const [postYn, setPostYn] = useState("N");
-    const [pickupYn, setPickupYn] = useState("N");
+        remainAddSlots,
+        remainDetailSlots,
+
+        setOldThumb,
+        setOldAddImages,
+        setOldDetailImages,
+
+        changeThumb,
+        deleteThumb,
+
+        addAddImages,
+        deleteOldAddImage,
+        deleteNewAddImage,
+
+        addDetailImages,
+        deleteOldDetailImage,
+        deleteNewDetailImage,
+
+        validateBeforeSubmit,
+    } = useModifyImgUpload();
+
+    //카테고리 선택
+    const [categories, setCategories] = useState([]); //대분류 로딩
+    const [subCategories, setSubCategories] = useState([]); //소분류로딩
+    const [selectedCategory, setSelectedCategory] = useState(""); //선택한 대분류
+    const [selectedSubCategory, setSelectedSubCategory] = useState(""); //선택한 소분류
+    // 카테고리 세팅
+    useEffect(() => {
+        myAxios()
+            .get("/seller/product/categories/all")
+            .then((res) => res.data)
+            .then((data) => setCategories(data))
+            .catch((err) => console.error("카테고리 로드 실패", err));
+    }, []);
+    // 라디오로 카테고리 선택 시 subCategory 세팅
+    useEffect(() => {
+        if (!selectedCategory) {
+            setSubCategories([]);
+            return;
+        }
+        const category = categories.find((c) => String(c.categoryIdx) === String(selectedCategory));
+        setSubCategories(category?.subCategories || []);
+        setSelectedSubCategory(""); //상위 카테고리 바뀌면 소카테고리 초기화
+    }, [selectedCategory, categories]);
+
+    //가격 입력 + 계산
+    const {
+        price,
+        salePrice,
+        discountRate,
+
+        handlePrice,
+        handleSalePrice,
+        handleDiscountRate,
+
+        setPrice,
+        setSalePrice,
+        setDiscountRate,
+    } = usePriceCalc();
+
+    //옵션 설정
+    const {
+        options,
+        setOptions,
+
+        addOptionColumn,
+        removeOptionColumn,
+
+        addValueLine,
+        removeValueLine,
+    } = usePdOptionSetting();
+
+    //배송정책
+    const [postOK, setPostOK] = useState(""); //택배배송 체크여부
+    const [pickupOK, setPickupOK] = useState(""); //직접 픽업 체크여부
+    //배송방법 탭 체크여부
     const [deliveryData, setDeliveryData] = useState({
-        postType: "bundle",
-        shippingFee: "",
+        postType: "", // bundle | single
+        shippingFee: "", // 숫자
     });
+    //픽업방법 탭 주소지 확인
     const [pickupData, setPickupData] = useState({
         zipcode: "",
         address: "",
         detailAddress: "",
     });
-
-    // 공개
-    const [visible, setVisible] = useState(1);
-
-    // 카테고리 리스트
-    const [categories, setCategories] = useState([]);
-    const [subCategories, setSubCategories] = useState([]);
-    // -----------------------------
-    // 1) 카테고리 로딩
-    // -----------------------------
-    useEffect(() => {
-        myAxios()
-            .get("/seller/product/categories/all")
-            .then((res) => setCategories(res.data))
-            .catch(console.error);
-    }, []);
+    //상품 공개 유무
+    const [visible, setVisible] = useState(0); // hide = 0, open = 1
 
     // -----------------------------
     // 2) 기존 상품 불러오기
@@ -85,124 +143,106 @@ export default function ProductModify() {
     useEffect(() => {
         if (!productIdx) return;
 
-        myAxios()
-            .get(`/seller/product/detail/${productIdx}`)
+        const params = new URLSearchParams();
+        params.append("sellerId", "ss123");
+        params.append("num", productIdx);
+
+        const productDetailUrl = `/seller/product/myProductDetail?${params.toString()}`;
+
+        myAxios(token, setToken)
+            .get(productDetailUrl)
             .then((res) => {
-                const p = res.data;
+                const pdInfo = res.data;
+                console.log(pdInfo);
 
-                // 기본 정보
-                setProductName(p.name);
-                setPrice(p.price);
-                setSalePrice(p.salePrice);
-                setDiscountRate(p.discountRate);
+                // 상품명
+                setProductName(pdInfo.name);
 
-                setCategoryIdx(p.categoryIdx);
-                setSubCategoryIdx(p.subCategoryIdx);
-                setOptions(p.options || []);
-
-                // 이미지 — 썸네일
-                setThumbPreview(p.thumbnailUrl);
-                setOldThumbIdx(p.thumbnailIdx);
-
-                // 추가 이미지
-                setAddPreviewList(
-                    p.addImages.map((img) => ({
-                        idx: img.fileIdx,
+                // 기존 썸네일 이미지
+                setOldThumb({
+                    idx: pdInfo.thumbnailIdx,
+                    url: pdInfo.thumbnailUrl,
+                });
+                // 기존 추가 이미지
+                setOldAddImages(
+                    pdInfo.image1FileIdx.map((img) => ({
+                        idx: img.addFileIdx,
+                        url: img.url,
+                    })),
+                );
+                // 기존 상세 이미지
+                setOldDetailImages(
+                    pdInfo.detail1FileIdx.map((img) => ({
+                        idx: img.detailFileIdx,
                         url: img.url,
                     })),
                 );
 
-                // 상세 이미지
-                setDetailPreviewList(
-                    p.detailImages.map((img) => ({
-                        idx: img.fileIdx,
-                        url: img.url,
-                    })),
-                );
+                //가격정보
+                setPrice(pdInfo.price);
+                //판매가,할인율 있으면 함께 세팅
+                if (salePrice && discountRate) {
+                    setSalePrice(pdInfo.salePrice);
+                    setDiscountRate(pdInfo.discount);
+                }
+
+                //카테고리
+                setSelectedCategory(pdInfo.categoryIdx);
+                //소분류 있으면 함꼐 세팅
+                if (selectedSubCategory) {
+                    setSelectedSubCategory(pdInfo.subCategoryIdx);
+                }
+
+                //옵션
+                if (optionYn == 1) {
+                    setOptions(pdInfo.options || []);
+                }
 
                 // 배송
-                setPostYn(p.postYn === 1 ? "Y" : "N");
-                setPickupYn(p.pickupYn === 1 ? "Y" : "N");
-                setDeliveryData({
-                    postType: p.postType,
-                    shippingFee: p.postCharge,
-                });
-                setPickupData({
-                    zipcode: p.zonecode,
-                    address: p.pickupAddr1,
-                    detailAddress: p.pickupAddr2,
-                });
-
-                setVisible(p.visibleYn);
+                setPostOK(pdInfo.postYn === 1 ? "Y" : "N");
+                setPickupOK(pdInfo.pickupYn === 1 ? "Y" : "N");
+                if (postOK == "Y") {
+                    setDeliveryData({
+                        postType: pdInfo.postType,
+                        shippingFee: pdInfo.postCharge,
+                    });
+                }
+                if (pickupOK == "Y") {
+                    setPickupData({
+                        zipcode: pdInfo.zonecode,
+                        address: pdInfo.pickupAddr1,
+                        detailAddress: pdInfo.pickupAddr2,
+                    });
+                }
+                //상품 공개유무
+                setVisible(pdInfo.visibleYn);
             })
             .catch(console.error);
     }, [productIdx]);
 
     // -----------------------------
-    // 이미지 삭제
+    // 3) 수정 폼 제출
     // -----------------------------
-    const deleteAddImage = (idx) => {
-        setDeletedAddList((prev) => [...prev, idx]);
-        setAddPreviewList((prev) => prev.filter((img) => img.idx !== idx));
-    };
-
-    const deleteDetailImage = (idx) => {
-        setDeletedDetailList((prev) => [...prev, idx]);
-        setDetailPreviewList((prev) => prev.filter((img) => img.idx !== idx));
-    };
-
-    // -----------------------------
-    // 파일 선택 핸들링
-    // -----------------------------
-    const onThumbChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        setThumbFile(file);
-        setThumbPreview(fileToUrl(file));
-    };
-
-    const onAddFilesChange = (e) => {
-        const files = Array.from(e.target.files);
-        setAddFiles((prev) => [...prev, ...files]);
-        setAddPreviewList((prev) => [
-            ...prev,
-            ...files.map((file) => ({
-                idx: null,
-                url: fileToUrl(file),
-            })),
-        ]);
-    };
-
-    const onDetailFilesChange = (e) => {
-        const files = Array.from(e.target.files);
-        setDetailFiles((prev) => [...prev, ...files]);
-        setDetailPreviewList((prev) => [
-            ...prev,
-            ...files.map((file) => ({
-                idx: null,
-                url: fileToUrl(file),
-            })),
-        ]);
-    };
-
-    //폼 제출 start
     const onSubmit = (e) => {
         e.preventDefault();
+
         try {
             const formData = new FormData();
             // 1) 상품명
             formData.append("name", productName);
 
             // 2) 이미지
-            // 기존 이미지 idx
-            formData.append("oldThumbIdx", oldThumbIdx);
-            formData.append("deleteAddImageIdxList", JSON.stringify(deletedAddList));
-            formData.append("deleteDetailImageIdxList", JSON.stringify(deletedDetailList));
+            //유효성 확인
+            if (!validateBeforeSubmit()) return;
+            //기존 이미지 삭제시 백엔드 전달
+            if (deleteThumbIdx) formData.append("deleteThumbIdx", deleteThumbIdx);
+            deleteAddIdxList.forEach((id) => formData.append("deleteAddIdxList", id));
+            deleteDetailIdxList.forEach((id) => formData.append("deleteDetailIdxList", id));
 
-            // 신규 이미지 업로드
-            if (thumbFile) formData.append("thumbnailFile", thumbFile);
-            addFiles.forEach((f) => formData.append("addImageFiles", f));
-            detailFiles.forEach((f) => formData.append("detailImageFiles", f));
+            //새로운 첨부파일
+            if (newThumbFile) formData.append("thumbnailFile", newThumbFile);
+            newAddFiles.forEach((f) => formData.append("addImageFiles", f));
+            newDetailFiles.forEach((f) => formData.append("detailImageFiles", f));
 
             // 3) 카테고리
             formData.append("categoryIdx", selectedCategory); //상위카테고리
@@ -256,7 +296,7 @@ export default function ProductModify() {
                     if (res.data.success === true) {
                         let productIdx = res.data.productIdx;
                         alert(res.data.message);
-                        navigate(`/productDetail/${productIdx}`); //상품 상세 페이지로 이동
+                        navigate(`/seller/productDetail/${productIdx}`); //상품 상세 페이지로 이동
                     } else {
                         alert(res.data.message);
                     }
@@ -266,7 +306,7 @@ export default function ProductModify() {
                 });
         } catch (err) {
             console.error(err);
-            alert("등록 중 오류 발생");
+            alert("수정사항 등록 중 오류 발생");
         }
     };
     //폼 제출 end
@@ -302,48 +342,74 @@ export default function ProductModify() {
                                 <Label className="input_title" style={{ minWidth: "fit-content" }}>
                                     썸네일<span className="required">*</span>
                                 </Label>
-                                <Tippy content="상품 이미지 첨부하기" theme="custom">
+                                <Tippy content="상품 썸네일 이미지를 교체하려면 클릭하세요." theme="custom">
                                     <img src="/Paperclip.svg" className="pointer" onClick={() => thumbRef.current.click()} />
                                 </Tippy>
                                 {/* ↓선택된 파일 갖고있는 용 */}
-                                <Input type="file" name="thumbnailFileIdx" accept="image/*" innerRef={thumbRef} onChange={handleThumbChange} hidden />
+                                <Input type="file" name="thumbnailFileIdx" accept="image/*" innerRef={thumbRef} onChange={changeThumb} hidden />
 
                                 {/* 이미지 미리보기 */}
-                                {thumbPreview && (
-                                    <div id="thumbPreview" className="img_previewBox">
+                                <div className="img_previewBox">
+                                    {/* 기존 첨부된 이미지 미리보기 */}
+                                    {oldThumb && !newThumbFile && (
                                         <div className="preview-wrap">
-                                            <img src={thumbPreview} className="preview-img" />
+                                            <img src={oldThumb.url} className="preview-img" />
+                                        </div>
+                                    )}
+
+                                    {/* 신규 첨부시 이미지 미리보기 */}
+                                    {newThumbFile && (
+                                        <div className="preview-wrap">
+                                            <img src={URL.createObjectURL(newThumbFile)} className="preview-img" />
                                             <button type="button" className="delete-btn" onClick={deleteThumb}>
-                                                <i className="bi bi-x"></i>
+                                                <i className="bi bi-x" />
                                             </button>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </FormGroup>
 
                             {/* 추가 이미지 첨부 */}
                             <FormGroup className="position-relative">
                                 <Label className="input_title">추가이미지 (최대 5장까지)</Label>
-                                <Tippy content="상품의 추가이미지 첨부하기" theme="custom">
-                                    <img src="/Paperclip.svg" className="pointer" onClick={() => addRef.current.click()} />
+                                <Tippy content="상품의 추가이미지를 첨부하려면 클릭하세요." theme="custom">
+                                    <img
+                                        src="/Paperclip.svg"
+                                        className={`pointer ${remainAddSlots === 0 ? "disabled" : ""}`}
+                                        onClick={() => {
+                                            if (remainAddSlots === 0) {
+                                                alert("더이상 첨부 불가합니다.");
+                                                return;
+                                            }
+                                            addRef.current.click();
+                                        }}
+                                    />
                                 </Tippy>
-
+                                <small style={{ color: remainAddSlots === 0 ? "red" : "#666" }}> (추가로 첨부 가능한 이미지 개수: {remainAddSlots}장)</small>
                                 {/* ↓선택된 파일 갖고있는 용 */}
-                                <Input type="file" name="addImageFiles" accept="image/*" innerRef={addRef} onChange={handleAddChange} multiple hidden />
-
+                                <Input type="file" name="addImageFiles" accept="image/*" innerRef={addRef} onChange={(e) => addAddImages(e.target.files)} multiple hidden />
                                 {/* 이미지 미리보기 */}
-                                {addPreviewList.length > 0 && (
-                                    <div className="img_previewBox">
-                                        {addPreviewList.map((img, idx) => (
-                                            <div key={idx} className="preview-wrap">
-                                                <img src={img} className="preview-img" />
-                                                <button className="delete-btn" onClick={() => deleteAddImage(idx)}>
-                                                    <i className="bi bi-x"></i>
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <div className="img_previewBox">
+                                    {/* 기존 첨부된 이미지 미리보기 */}
+                                    {oldAddImages.map((img) => (
+                                        <div key={`old-${img.idx}`} className="preview-wrap">
+                                            <img src={img.url} className="preview-img" />
+                                            <button type="button" className="delete-btn" onClick={() => deleteOldAddImage(img.idx)}>
+                                                <i className="bi bi-x" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* 신규 첨부시 이미지 미리보기 */}
+                                    {newAddFiles.map((file, i) => (
+                                        <div key={`new-${i}`} className="preview-wrap">
+                                            <img src={URL.createObjectURL(file)} className="preview-img" />
+                                            <button type="button" className="delete-btn" onClick={() => deleteNewAddImage(i)}>
+                                                <i className="bi bi-x" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </FormGroup>
 
                             {/* 상세 이미지 첨부 */}
@@ -351,26 +417,44 @@ export default function ProductModify() {
                                 <Label className="input_title">
                                     상세이미지 (최대 2장)<span className="required">*</span>
                                 </Label>
-                                <Tippy content="본문 상세 이미지 첨부하기" theme="custom">
-                                    <img src="/Paperclip.svg" className="pointer" onClick={() => detailRef.current.click()} />
+                                <Tippy content="본문의 상세 이미지를 첨부하려면 클릭하세요." theme="custom">
+                                    <img
+                                        src="/Paperclip.svg"
+                                        className={`pointer ${remainDetailSlots === 0 ? "disabled" : ""}`}
+                                        onClick={() => {
+                                            if (remainDetailSlots === 0) {
+                                                alert("더이상 첨부 불가합니다.");
+                                                return;
+                                            }
+                                            detailRef.current.click();
+                                        }}
+                                    />
                                 </Tippy>
-
+                                <small style={{ color: remainDetailSlots === 0 ? "red" : "#666" }}> (추가로 첨부 가능한 이미지 개수: {remainDetailSlots}장)</small>
                                 {/* ↓선택된 파일 갖고있는 용 */}
-                                <Input type="file" name="detailImageFiles" accept="image/*" innerRef={detailRef} onChange={handleDetailChange} multiple hidden />
-
+                                <Input type="file" name="detailImageFiles" accept="image/*" innerRef={detailRef} onChange={(e) => addDetailImages(e.target.files)} multiple hidden />
                                 {/* 이미지 미리보기 */}
-                                {detailPreviewList.length > 0 && (
-                                    <div className="img_previewBox">
-                                        {detailPreviewList.map((img, idx) => (
-                                            <div key={idx} className="preview-wrap">
-                                                <img src={img} className="preview-img" />
-                                                <button className="delete-btn" onClick={() => deleteDetailImage(idx)}>
-                                                    <i className="bi bi-x"></i>
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <div className="img_previewBox">
+                                    {/* 기존 첨부된 이미지 미리보기 */}
+                                    {oldDetailImages.map((img) => (
+                                        <div key={`old-${img.idx}`} className="preview-wrap">
+                                            <img src={img.url} className="preview-img" />
+                                            <button type="button" className="delete-btn" onClick={() => deleteOldDetailImage(img.idx)}>
+                                                <i className="bi bi-x" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* 신규 첨부시 이미지 미리보기 */}
+                                    {newDetailFiles.map((file, i) => (
+                                        <div key={`new-${i}`} className="preview-wrap">
+                                            <img src={URL.createObjectURL(file)} className="preview-img" />
+                                            <button type="button" className="delete-btn" onClick={() => deleteNewDetailImage(i)}>
+                                                <i className="bi bi-x" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </FormGroup>
 
                             {/* 카테고리 */}
@@ -624,7 +708,10 @@ export default function ProductModify() {
                         {/* 등록 버튼 */}
                         <div className="btn_part">
                             <button type="button" className="primary-button saveBtn" onClick={onSubmit}>
-                                등록 <i className="bi bi-arrow-right-short"></i>
+                                <i class="bi bi-bookmark-check"></i> 저장
+                            </button>
+                            <button type="button" className="sub-button saveBtn">
+                                <i class="bi bi-trash"></i> 삭제
                             </button>
                         </div>
                     </div>

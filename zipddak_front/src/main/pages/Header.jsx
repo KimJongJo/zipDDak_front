@@ -23,27 +23,25 @@ export default function Header({ direction, ...args }) {
     const toggle = () => setDropdownOpen((prevState) => !prevState);
     const navigate = useNavigate();
 
-  const logout = () => {
-    setUser(initUser)
-    setToken(null);
-    // useSetAtom([]);
-    navigate("/zipddak/login");
-  }
+    const logout = () => {
+        setUser(initUser);
+        setToken(null);
+        // useSetAtom([]);
+        navigate("/zipddak/login");
+    };
 
-  const [modal, setModal] = useState();
+    const [modal, setModal] = useState();
 
-  const expertToggle = () => {
-
-    myAxios(token, setToken).get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`,)
-      .then(res => {
-        setUser(res.data);
-
-      })
-      .catch(err => {
-        console.log(err);
-      })
-
-  }
+    const expertToggle = () => {
+        myAxios(token, setToken)
+            .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
+            .then((res) => {
+                setUser(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     const goToExpertmodal = () => {
         setModal(false);
@@ -84,25 +82,22 @@ export default function Header({ direction, ...args }) {
                                     </a>
                                 )}
 
-                  {/* 공통 아이콘 */}
-                  <a href="" className="icon"><MessageCircleMore size={20} /></a>
-                  <div className="icon"><Bell size={20} />
+                                {/* 공통 아이콘 */}
+                                <a href="" className="icon">
+                                    <MessageCircleMore size={20} />
+                                </a>
+                                <div className="icon">
+                                    <Bell size={20} />
+                                </div>
+                                <a href="mypage/*" className="profile"></a>
 
-                  </div>
-                  <a href="mypage/*" className="profile"></a>
-
-                  {/* 드롭다운 */}
-                  <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
-
-                    <a href="/zipddak/mypage"><div className="profile-img">
-                      {user.profile != null && user.profile != '' ?
-
-                        <img src={`${baseUrl}/imageView?type=${user.expert ? 'EXPERT' : 'USER'}&filename=${user.profile}`}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", }} />
-                        :
-                        <UserRound color="#303441" />
-                      }
-                    </div></a>
+                                {/* 드롭다운 */}
+                                <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={direction} className="profileDropDown">
+                                    <a href="/zipddak/mypage">
+                                        <div className="profile-img">
+                                            {user.profile != null && user.profile != "" ? <img src={`${baseUrl}/imageView?type=${user.expert ? "EXPERT" : "USER"}&filename=${user.profile}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <UserRound color="#303441" />}
+                                        </div>
+                                    </a>
 
                                     <DropdownToggle className="myDropDown">
                                         <ChevronDown size={20} color="#303441" />
@@ -122,21 +117,13 @@ export default function Header({ direction, ...args }) {
                                             <a href="/zipddak/mypage">마이페이지</a>
                                         </DropdownItem>
 
-                      <DropdownItem divider />
-                      {
-                        // 1. user.role이 "USER"인 경우
-                        user.role === "USER" ? (
-                          <DropdownItem onClick={()=>setModal(true)}>전문가 가입</DropdownItem>
-                        ) : (
-                          user.expert ? (
-                            <DropdownItem onClick={expertToggle}>고객전환</DropdownItem>
-                          ) : (
-                            <DropdownItem onClick={expertToggle}>전문가전환</DropdownItem>
-                          )
-                        )
-                      }
+                                        <DropdownItem divider />
+                                        {
+                                            // 1. user.role이 "USER"인 경우
+                                            user.role === "USER" ? <DropdownItem onClick={() => setModal(true)}>전문가 가입</DropdownItem> : user.expert ? <DropdownItem onClick={expertToggle}>고객전환</DropdownItem> : <DropdownItem onClick={expertToggle}>전문가전환</DropdownItem>
+                                        }
 
-                      <DropdownItem divider />
+                                        <DropdownItem divider />
 
                                         <DropdownItem onClick={logout}>
                                             <span className="dropmenu-center">로그아웃</span>
@@ -179,19 +166,22 @@ export default function Header({ direction, ...args }) {
                 </a>
             </div>
 
-      <Modal isOpen={modal}>
-        <ModalHeader>전문가 가입</ModalHeader>
-        <ModalBody>
-          <div>전문가 회원가입을 진행하시겠습니까?</div>
-          <div className="space-px"> </div>
-          <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div>
-        </ModalBody>
-        <div className="row-cm header-modal-button">
-        <Button className="primary-button" onClick={()=> setModal(false)} >취소</Button>
-        <Button className="primary-button" onClick={goToExpertmodal} >확인</Button>
-        </div>
-      </Modal>
-    </>
-
-  );
+            <Modal isOpen={modal}>
+                <ModalHeader>전문가 가입</ModalHeader>
+                <ModalBody>
+                    <div>전문가 회원가입을 진행하시겠습니까?</div>
+                    <div className="space-px"> </div>
+                    <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div>
+                </ModalBody>
+                <div className="row-cm header-modal-button">
+                    <Button className="primary-button" onClick={() => setModal(false)}>
+                        취소
+                    </Button>
+                    <Button className="primary-button" onClick={goToExpertmodal}>
+                        확인
+                    </Button>
+                </div>
+            </Modal>
+        </>
+    );
 }

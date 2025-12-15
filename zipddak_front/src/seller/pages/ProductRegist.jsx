@@ -14,11 +14,14 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios } from "../../config.jsx";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function ProductRegist() {
     //탭 타이틀 설정
     const pageTitle = usePageTitle("상품관리 > 상품 등록");
     const navigate = useNavigate();
+    const [token, setToken] = useAtom(tokenAtom);
 
     //상품명 입력
     const [productName, setProductName] = useState("");
