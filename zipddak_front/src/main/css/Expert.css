@@ -10,6 +10,7 @@
     color: unset; /* 부모 색상을 강제로 초기화 */
     text-decoration-line: none;
     gap: 10px;
+    cursor: pointer;
 }
 
 .expert-img {

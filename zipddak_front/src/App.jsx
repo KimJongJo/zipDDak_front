@@ -38,7 +38,7 @@ import SignStore1 from "./user/login/SignStore1";
 import SignStore2 from "./user/login/SignStore2";
 import SignStore3 from "./user/login/SignStore3";
 import Main from "./main/pages/Main.jsx";
-import MainSearch from "./main/pages/Main.jsx";
+import MainSearch from "./main/pages/MainSearch.jsx";
 import MyTool from "./user/myPage/MyTool";
 import ToolBorrowDetail from "./user/myPage/ToolBorrowDetail";
 import ToolLent from "./user/myPage/ToolLent";
@@ -119,20 +119,20 @@ function App() {
 
                 {/* 일반사용자 메인 */}
                 <Route path="main" element={<Main />} />
-                <Route path="search" element={<MainSearch />} />
-                <Route path="best" element={<Best />} />
+                <Route path="main/search" element={<MainSearch />} />
+                <Route path="main/best" element={<Best />} />
                 <Route path="market/return/:orderId" element={<MarketReturnForm />} />
 
                 {/* 일반사용자 공구대여 */}
                 <Route path="tool" element={<ToolMain />} />
-                <Route path="tool/:toolId" element={<ToolDetail />} />
+                <Route path="tool/:toolIdx" element={<ToolDetail />} />
                 <Route path="tool/regist" element={<RegistTool />} />
                 <Route path="tool/apply" element={<ApplyTool />} />
 
                 {/* 일반사용자 커뮤니티 */}
                 <Route path="community" element={<CommunityList />} />
                 <Route path="community/write" element={<ComForm />} />
-                <Route path="community/:communityId" element={<Comdetail />} />
+                <Route path="community/:communityIdx" element={<Comdetail />} />
 
                 {/* 일반사용자 자재구매 */}
                 <Route path="productList" element={<ProductList />} />

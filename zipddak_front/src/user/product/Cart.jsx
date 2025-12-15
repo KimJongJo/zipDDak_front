@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import "../css/Cart.css";
 import axios from "axios";
-import { baseUrl } from "../../config";
-import { useAtom } from "jotai";
+import { baseUrl, myAxios } from "../../config";
 import { orderListAtom } from "./productAtom";
 import { useNavigate } from "react-router";
 import { Modal } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function Cart() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const navigate = useNavigate();
 
     const [modal, setModal] = useState(false);
@@ -25,12 +29,14 @@ export default function Cart() {
     };
 
     useEffect(() => {
-        axios.get(`${baseUrl}/cartList?page=1&username=rlawhdwh`).then((res) => {
-            console.log(res.data);
-            setGroupedCart(res.data);
+        myAxios(token, setToken)
+            .get(`${baseUrl}/user/cartList?page=1&username=${user.username}`)
+            .then((res) => {
+                console.log(res.data);
+                setGroupedCart(res.data);
 
-            setOrderList([]);
-        });
+                setOrderList([]);
+            });
     }, []);
 
     // 선택 상품 삭제
@@ -47,9 +53,14 @@ export default function Cart() {
 
             return updated; // ⭐ 반드시 return 해야 state가 업데이트됨!
         });
-        axios.post(`${baseUrl}/cartList/delete`, { cartIdxs: Object.keys(checkedItems).map(Number) }).then((res) => {
-            console.log(res.data);
-        });
+
+        myAxios(token, setToken)
+            .post(`${baseUrl}/user/cartList/delete`, {
+                cartIdxs: Object.keys(checkedItems).map(Number),
+            })
+            .then((res) => {
+                console.log(res.data);
+            });
     };
 
     const calculateCheckedTotal = () => {
@@ -147,13 +158,15 @@ export default function Cart() {
             prev.map((store) => ({
                 ...store,
                 productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity + 1 } : product)),
-            })),
+            }))
         );
         // 2. orderListAtom 업데이트
         setOrderList((prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count + 1 } : order)));
 
         // 3. DB에 카트 수량 증가 요청
-        axios.post(`${baseUrl}/cartList/increaseCount`, { cartIdx });
+        myAxios(token, setToken).post(`${baseUrl}/user/cartList/increaseCount`, {
+            cartIdx,
+        });
     };
 
     const decreaseCount = (cartIdx, productIdx, optionIdx) => {
@@ -164,16 +177,18 @@ export default function Cart() {
                     ...store,
                     productList: store.productList.map((product) => (product.cartIdx === cartIdx ? { ...product, quantity: product.quantity - 1 } : product)).filter((product) => product.quantity > 0), // 0이면 삭제
                 }))
-                .filter((store) => store.productList.length > 0),
+                .filter((store) => store.productList.length > 0)
         );
 
         // 2. orderListAtom 업데이트
         setOrderList(
-            (prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0), // 0이면 삭제
+            (prev) => prev.map((order) => (order.productId === productIdx && order.optionId === optionIdx ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0) // 0이면 삭제
         );
 
         // 3. db에 카트 수량 감소
-        axios.post(`${baseUrl}/cartList/decreaseCount`, { cartIdx: cartIdx });
+        myAxios(token, setToken).post(`${baseUrl}/user/cartList/decreaseCount`, {
+            cartIdx: cartIdx,
+        });
     };
 
     return (
@@ -186,7 +201,13 @@ export default function Cart() {
                     </div>
                     <div className="cart-top-selectAll-div">
                         <div className="cart-top-selectAll-left-div">
-                            <input type="checkbox" id="cartSelectAll" className="cart-selectAll-input" onChange={handleSelectAll} checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)} />
+                            <input
+                                type="checkbox"
+                                id="cartSelectAll"
+                                className="cart-selectAll-input"
+                                onChange={handleSelectAll}
+                                checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)}
+                            />
                             <label htmlFor="cartSelectAll" className="font-14 medium">
                                 모두선택
                             </label>
@@ -229,7 +250,13 @@ export default function Cart() {
                                         {/* 업체 헤더 */}
                                         <tr className="store-row">
                                             <td colSpan={5}>
-                                                <div className="store-title" style={{ display: "flex", justifyContent: "flex-start" }}>
+                                                <div
+                                                    className="store-title"
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "flex-start",
+                                                    }}
+                                                >
                                                     <span style={{ marginRight: "540px" }} className="font-14 medium">
                                                         {store.brandName}
                                                     </span>
@@ -282,7 +309,9 @@ export default function Cart() {
                                                                             ]);
                                                                         } else {
                                                                             // 체크 OFF → 삭제
-                                                                            setOrderList((prev) => prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx)));
+                                                                            setOrderList((prev) =>
+                                                                                prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx))
+                                                                            );
                                                                         }
                                                                     }}
                                                                 />
@@ -301,7 +330,13 @@ export default function Cart() {
                                                             </td>
 
                                                             <td>
-                                                                <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                                                                <div
+                                                                    style={{
+                                                                        width: "100%",
+                                                                        display: "flex",
+                                                                        justifyContent: "center",
+                                                                    }}
+                                                                >
                                                                     <div className="detail-append-button">
                                                                         <button className="count-button-style" onClick={() => decreaseCount(product.cartIdx, product.productIdx, product.optionIdx)}>
                                                                             <i className="bi bi-dash-lg append-button-son"></i>

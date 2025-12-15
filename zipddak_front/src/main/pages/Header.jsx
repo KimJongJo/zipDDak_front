@@ -158,7 +158,7 @@ export default function Header({ direction, ...args }) {
                 <a href="/zipddak/productList" className="navitem">
                     자재마켓
                 </a>
-                <a href="/zipddak/best" className="navitem">
+                <a href="/zipddak/main/best" className="navitem">
                     자재 100
                 </a>
                 <a href="/zipddak/community" className="navitem">

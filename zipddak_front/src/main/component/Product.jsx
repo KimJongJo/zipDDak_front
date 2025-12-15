@@ -2,38 +2,42 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Product.css";
 import {Heart} from 'lucide-react'
+import { useNavigate } from "react-router";
 
-export function Products() {
-    const product = {
-        productName: "업체명",
-        productIntro: "상품명 2줄까지 노출해야 하나 싶기도 근데 오늘의 집은 2줄 나옴 최대 글자수가 있는듯",
-        sale: "30%",
-        salePrice: 34900,
-        reviewScore: 4.5,
-        reviewCount: 5,
-    };
+export function Products({ product, toggleFavorite }) {
+    const navigate = useNavigate();
 
     return (
-        <a href="#" className="Product-cards">
+        <div className="Product-cards"
+        onClick={() => navigate(`/zipddak/product/${product.productIdx}`)}>
             <div className="product-images">
-                {/* <i className="bi bi-heart favorite-icons"></i> */}
-                <div className="favorite-icon"><Heart /></div>
+               <img src={`${product.fileRename}/${product.storagePath}`} alt="상품" />
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation(); // 화면 이동 클릭 막음
+                        // 로그인이 안되어있으면 막음
+                        username && toggleFavorite();
+                    }}
+                    className="favorite-icon"
+                >
+                    {product.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                </button>
             </div>
 
             <div className="product-infos">
-                <span className="store-names">{product.productName}</span>
-                <div className="product-names">{product.productIntro}</div>
+                <span className="store-names">{product.brandName}</span>
+                <div className="product-names">{product.name}</div>
                 <div>
-                    <span className="sales">{product.sale}</span>
+                    <span className="sales">{product.discount}%</span>
                     <span className="sale-prices">{product.salePrice.toLocaleString()}</span>
                 </div>
                 <div>
                     <i className="bi bi-star-fill star-icons"></i>
-                    <span className="review-counts">{product.reviewScore}</span>
+                    <span className="review-counts">{product.avgRating}</span>
                     (<span className="review-counts">{product.reviewCount}</span>)
                 </div>
             </div>
-        </a>
+        </div>
     );
 }
 

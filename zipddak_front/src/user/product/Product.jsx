@@ -3,7 +3,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Product.css";
 import { useNavigate } from "react-router";
 
-export default function Product({ product, toggleFavorite }) {
+export default function Product({ product, toggleFavorite,label }) {
     const navigate = useNavigate();
     let username = "rlawhdwh";
 
@@ -12,6 +12,12 @@ export default function Product({ product, toggleFavorite }) {
             {/* 자재 이미지 */}
             <div className="product-image">
                 <img src={`${product.storagePath}/${product.fileRename}`} alt="상품" />
+                
+                {/*베스트 라벨 */}
+                {label&&
+                    <div className="product-index-label">{label}</div>
+                }
+                
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
