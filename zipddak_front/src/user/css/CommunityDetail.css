@@ -1,6 +1,7 @@
 .ComDetail-container,
 .CommunityForm-container,
 .comList-container {
+    margin: 0 auto;
     width: 1200px;
     padding: 0 16px;
     display: flex;
