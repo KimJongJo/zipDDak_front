@@ -5,6 +5,7 @@ import PublicRequestCard from "../component/PublicRequestCard";
 import { useAtom } from "jotai";
 import { tokenAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import "../css/expertEstimate.css";
 
 export default function PublicRequest() {
   const [requestList, setRequestList] = useState([]);
@@ -72,6 +73,16 @@ export default function PublicRequest() {
     getRequestList(null, 20);
   }, []);
 
+  // 스크롤 막기
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    // 페이지 벗어날 때 원상복구
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   // 페이지 하단 감지
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -108,16 +119,22 @@ export default function PublicRequest() {
         display: "flex",
         margin: "0 auto",
         width: "1200px",
-        padding: "48px 16px",
+        padding: "0 16px",
         gap: "30px",
+        height: "100vh",
+        overflow: "hidden",
       }}
     >
       <div
         style={{
           display: "flex",
           flexDirection: "column",
+          padding: "48px 0",
           gap: "30px",
           flex: 1.3,
+          height: "100%",
+          overflowY: "auto",
+          paddingRight: "8px",
         }}
       >
         <h1 className="mypage-title">받은 요청서</h1>
@@ -126,6 +143,7 @@ export default function PublicRequest() {
             display: "flex",
             flexDirection: "column",
             gap: "12px",
+            marginBottom: "100px",
           }}
         >
           <div
@@ -189,10 +207,16 @@ export default function PublicRequest() {
           style={{
             display: "flex",
             flexDirection: "column",
+            padding: "48px 0",
             width: "100%",
             flex: 2,
             borderRight: "1px solid #EFF1F5",
             borderLeft: "1px solid #EFF1F5",
+
+            height: "100%",
+            overflowY: "auto",
+            paddingRight: "8px",
+            marginBottom: "100px",
           }}
         >
           <div
@@ -242,14 +266,7 @@ export default function PublicRequest() {
                 style={{ width: "100px", height: "33px" }}
                 onClick={() =>
                   navigate(
-                    `/expert/requests/detail/${requestDetail.requestIdx}`,
-                    {
-                      state: {
-                        largeServiceIdx: requestDetail.largeServiceIdx,
-                        midServiceIdx: requestDetail.midServiceIdx,
-                        smallServiceIdx: requestDetail.smallServiceIdx,
-                      },
-                    }
+                    `/expert/requests/detail/${requestDetail.requestIdx}`
                   )
                 }
               >
@@ -291,14 +308,37 @@ export default function PublicRequest() {
                 }}
               >
                 <p>
-                  <span>예산</span>{" "}
+                  <span
+                    style={{
+                      minWidth: "74px",
+                      display: "inline-block",
+                    }}
+                  >
+                    예산
+                  </span>
                   {Number(requestDetail.budget).toLocaleString()}만원
                 </p>
                 <p>
-                  <span>지역</span> {requestDetail.location}
+                  <span
+                    style={{
+                      minWidth: "74px",
+                      display: "inline-block",
+                    }}
+                  >
+                    지역
+                  </span>
+                  {requestDetail.location}
                 </p>
                 <p>
-                  <span>희망 일정</span> {requestDetail.preferredDate}
+                  <span
+                    style={{
+                      minWidth: "74px",
+                      display: "inline-block",
+                    }}
+                  >
+                    희망 일정
+                  </span>
+                  {requestDetail.preferredDate}
                 </p>
               </div>
             </div>

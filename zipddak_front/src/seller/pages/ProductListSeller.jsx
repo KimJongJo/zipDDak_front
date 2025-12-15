@@ -24,7 +24,7 @@ export default function ProductList() {
     useEffect(() => {
         myAxios()
             // .get(`/seller/product/categories?sellerId=${sellerId}`)
-            .get(`/seller/product/categories?sellerId=test`)
+            .get(`/seller/product/categories?sellerId=ss123`)
             .then((res) => {
                 setCategories(res.data); // 필터에 카테고리명 매핑
 
@@ -47,7 +47,7 @@ export default function ProductList() {
         myAxios()
             .get("/seller/product/myProductList", {
                 params: {
-                    sellerId: "test",
+                    sellerId: "ss123",
                     page,
                     category: category || null,
                     status: status || null,
@@ -118,7 +118,7 @@ export default function ProductList() {
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
-        const productListUrl = `/seller/product/myProductList` + `?sellerId=test` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
+        const productListUrl = `/seller/product/myProductList` + `?sellerId=ss123` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
         myAxios()
             .get(productListUrl)
             .then((res) => {
@@ -261,7 +261,7 @@ export default function ProductList() {
                                                     </tr>
                                                 ) : (
                                                     myProductList.map((myProduct) => (
-                                                        <tr key={myProduct.productIdx} onClick={() => navigate(`/productDetail/${myProduct.productIdx}`)}>
+                                                        <tr key={myProduct.productIdx} onClick={() => navigate(`/seller/productDetail/${myProduct.productIdx}`)}>
                                                             <td style={{ padding: "0" }}>
                                                                 <img src="/no_img.svg" style={{ width: "100%" }} />
                                                             </td>

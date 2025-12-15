@@ -159,7 +159,7 @@ export function Mypage() {
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/expert/mypage/quotation"
+              to="/expert/mypage/sent/estimates"
               style={({ isActive }) => ({
                 ...navStyle,
                 backgroundColor: isActive

@@ -38,7 +38,7 @@ import SignStore1 from "./user/login/SignStore1";
 import SignStore2 from "./user/login/SignStore2";
 import SignStore3 from "./user/login/SignStore3";
 import Main from "./main/pages/Main.jsx";
-import MainSearch from "./main/pages/Main.jsx";
+import MainSearch from "./main/pages/MainSearch.jsx";
 import MyTool from "./user/myPage/MyTool";
 import ToolBorrowDetail from "./user/myPage/ToolBorrowDetail";
 import ToolLent from "./user/myPage/ToolLent";
@@ -103,7 +103,6 @@ import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
 
 import Token from "./Token.jsx";
-import SellerPdDetail from "./seller/pages/ProductDetail.jsx";
 
 function App() {
     return (
@@ -120,13 +119,13 @@ function App() {
 
                 {/* 일반사용자 메인 */}
                 <Route path="main" element={<Main />} />
-                <Route path="search" element={<MainSearch />} />
-                <Route path="best" element={<Best />} />
+                <Route path="main/search" element={<MainSearch />} />
+                <Route path="main/best" element={<Best />} />
                 <Route path="market/return/:orderId" element={<MarketReturnForm />} />
 
                 {/* 일반사용자 공구대여 */}
                 <Route path="tool" element={<ToolMain />} />
-                <Route path="tool/:toolId" element={<ToolDetail />} />
+                <Route path="tool/:toolIdx" element={<ToolDetail />} />
                 <Route path="tool/regist" element={<RegistTool />} />
                 <Route path="tool/apply" element={<ApplyTool />} />
 
@@ -210,13 +209,10 @@ function App() {
                 <Route path="myInfo" element={<MyInfo />} />
 
                 <Route path="ask" element={<AskToManager />} />
-                <Route path="productModify/:productIdx" element={<ProductModify />} />
-
-                <Route path="ask" element={<AskToManager />} />
-                <Route path="productModify/:productIdx" element={<ProductModify />} />
+                <Route path="productDetail/:productIdx" element={<ProductModify />} />
                 <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
                 <Route path="shippingDetail" element={<ShippingDetail />} />
-                <Route path="returnDetail" element={<ReturnDetail />} />
+                <Route path="returnDetail/:refundIdx" element={<ReturnDetail />} />
                 <Route path="exchangeDetail" element={<ExchangeDetail />} />
                 <Route path="settleDetail" element={<SettleDetail />} />
             </Route>

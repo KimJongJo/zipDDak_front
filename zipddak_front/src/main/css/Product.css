@@ -9,9 +9,10 @@
 
 .Product-cards {
     width: 177px;
-    height: 360px;
+    height: 250px;
     text-decoration-line: none;
     color: unset; /* 부모 색상을 강제로 초기화 */
+     cursor: pointer;
 }
 
 .product-images {
