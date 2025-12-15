@@ -1,6 +1,6 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 
-export const initUser = { username: "", name: "", nickname: "", role: "", expert: "", profile: "" };
+export const initUser = { username: "", name: "", nickname: "", role: "", expert: "", profile: "", addr1:""};
 
 export const userAtom = atomWithStorage(
     "user",
@@ -23,5 +23,11 @@ export const fcmTokenAtom = atomWithStorage(
 export const alarmsAtom = atomWithStorage(
     "alarms",
     [],
+    createJSONStorage(() => sessionStorage),
+);
+
+export const keywordAtom = atomWithStorage(
+    "mainKeyword",
+    null,
     createJSONStorage(() => sessionStorage),
 );
