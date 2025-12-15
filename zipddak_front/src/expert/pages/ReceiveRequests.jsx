@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function ReceiveRequests() {
   const [requests, setRequests] = useState([]);
@@ -14,6 +15,10 @@ export default function ReceiveRequests() {
     endPage: 0,
     startPage: 1,
   });
+
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
@@ -59,8 +64,8 @@ export default function ReceiveRequests() {
   }
 
   useEffect(() => {
-    getRequests(1);
-  }, []);
+    getRequests(pageFromUrl);
+  }, [pageFromUrl]);
 
   return (
     <div className="mypage-layout">
@@ -175,7 +180,11 @@ export default function ReceiveRequests() {
                 color: "#FF5833",
                 backgroundColor: "#fff",
               }}
-              onClick={() => {}}
+              onClick={() => {
+                navigate(
+                  `/expert/mypage/receive/request/${request.requestIdx}?page=${pageInfo.curPage}`
+                );
+              }}
             >
               요청 상세 보기
             </button>
@@ -186,7 +195,9 @@ export default function ReceiveRequests() {
       <Pagination className="my-pagination">
         {pageBtn.map((b) => (
           <PaginationItem key={b} active={b === pageInfo.curPage}>
-            <PaginationLink onClick={() => getRequests(b)}>{b}</PaginationLink>
+            <PaginationLink onClick={() => setSearchParams({ page: b })}>
+              {b}
+            </PaginationLink>
           </PaginationItem>
         ))}
       </Pagination>

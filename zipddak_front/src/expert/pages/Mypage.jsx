@@ -1,9 +1,14 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import "../../user/css/mypage.css";
 
 export function Mypage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isReceiveActive = location.pathname.startsWith(
+    "/expert/mypage/receive"
+  );
 
   const navTitleStyle = {
     display: "flex",
@@ -148,12 +153,12 @@ export function Mypage() {
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/receive/requests"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isReceiveActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               받은 요청서
             </NavLink>

@@ -108,6 +108,7 @@ import ToolProfile from "./user/myPage/ToolProfile.jsx";
 import MyWorksDetail from "./user/myPage/MyWorksDetail.jsx";
 import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
+import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 
 function App() {
   return (
@@ -199,6 +200,10 @@ function App() {
           <Route path="works/detail" element={<ExpertMyWorksDetail />} />
           <Route path="sent/estimates" element={<SentEstimates />} />
           <Route path="receive/requests" element={<ReceiveRequests />} />
+          <Route
+            path="receive/request/:requestIdx"
+            element={<ReceiveRequestDetail />}
+          />
           <Route path="inquiries" element={<ExpertInquiries />} />
           <Route path="inquiries/write" element={<ExpertInquiryForm />} />
           <Route path="community" element={<ExpertCommunity />} />
