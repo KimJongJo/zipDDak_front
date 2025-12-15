@@ -12,6 +12,30 @@ import { useState, useEffect, useRef } from "react";
 
 export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 상세조회");
+    const { refundIdx } = useParams();
+    const [reqOrder, setReqOrder] = useState(null); //반품 요청 주문정보
+    const [reqItems, setReqItems] = useState(null); //반품 요청 주문아이템 정보
+
+    //orderDetail 데이터 불러오기
+    const getRefundRequestDetail = () => {
+        const params = new URLSearchParams();
+        params.append("sellerId", "ss123");
+        params.append("num", refundIdx);
+
+        const refundDetailUrl = `/seller/refund/refundReqDetail?${params.toString()}`;
+
+        myAxios()
+            .get(refundDetailUrl)
+            .then((res) => {
+                console.log("refundDetail :", res.data);
+
+                setReqOrder(res.data.refundOrderData);
+                setReqItems(res.data.refundOrderItemList);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    };
 
     return (
         <>

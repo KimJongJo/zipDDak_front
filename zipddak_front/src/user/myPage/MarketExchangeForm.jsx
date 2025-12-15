@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import DaumPostcode from "react-daum-postcode";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { myAxios } from "../../config";
 
 export default function MarketExchangeForm() {
   const { orderIdx } = useParams();
@@ -30,6 +32,9 @@ export default function MarketExchangeForm() {
   const [reshipAddr2, setReshipAddr2] = useState("");
   const [reshipPostMemo, setReshipPostMemo] = useState("");
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
@@ -41,7 +46,7 @@ export default function MarketExchangeForm() {
 
   // 주문 상세 조회
   const getOrder = () => {
-    axios
+    myAxios(token, setToken)
       .get("http://localhost:8080" + `/market/orderInfo?orderIdx=${orderIdx}`)
       .then((res) => {
         setOrder(res.data);
@@ -53,7 +58,7 @@ export default function MarketExchangeForm() {
 
   // 상품옵션 목록 조회
   const getOptions = (productIdx) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
           `/market/product/options?productIdx=${productIdx}`
@@ -104,7 +109,7 @@ export default function MarketExchangeForm() {
       formData.append("exchangeImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/market/exchange", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })

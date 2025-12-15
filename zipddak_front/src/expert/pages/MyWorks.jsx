@@ -1,3 +1,4 @@
+import { useAtom, useAtomValue } from "jotai";
 import { useState } from "react";
 import {
   Pagination,
@@ -9,9 +10,13 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
 
 export function MyWorks() {
   const [status, setStatus] = useState("전체");
+
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
 
   // 작업상태 매핑
   const WORK_STATUS_LABEL = {

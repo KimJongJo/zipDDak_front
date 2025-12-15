@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export function Inquiries() {
   const [inquiryList, setInquiryList] = useState([]);
@@ -14,14 +16,17 @@ export function Inquiries() {
     startPage: 1,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const navigate = useNavigate();
 
   // 내 문의내역 조회
   const getInquiryList = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/inquiryList?username=test@kosta.com&page=${page}`
+          `/inquiryList?username=${user.username}&page=${page}`
       )
       .then((res) => {
         return res.data;

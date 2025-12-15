@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import axios from "axios";
 import { Input, Modal, ModalBody } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { myAxios } from "../../config";
 
 export default function InquiryForm() {
   const [type, setType] = useState("");
@@ -14,6 +16,9 @@ export default function InquiryForm() {
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const imgRef = useRef(null);
   const navigate = useNavigate();
 
@@ -23,7 +28,7 @@ export default function InquiryForm() {
 
     formData.append("type", type);
     formData.append("content", content);
-    formData.append("writerUsername", "test@kosta.com");
+    formData.append("writerUsername", user.username);
     formData.append("writerType", "USER");
     formData.append("answererType", answererType);
     if (orderItemIdx !== null && orderItemIdx !== undefined) {
@@ -35,7 +40,7 @@ export default function InquiryForm() {
       formData.append("inquiriyImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/inquiry/write", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })

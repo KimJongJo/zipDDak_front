@@ -29,7 +29,7 @@ export default function OrderDetail() {
     //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
         const params = new URLSearchParams();
-        params.append("sellerId", "test");
+        params.append("sellerId", "ss123");
         params.append("num", orderIdx);
 
         const orderDetailUrl = `/seller/order/myOrderDetail?${params.toString()}`;
@@ -109,8 +109,10 @@ export default function OrderDetail() {
     // 단가 합
     const totalUnitPrice = allItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
     // 배송비 합
-    const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, ""));
-    const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
+    const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, "")); //숫자만 걸러서 계산
+    // const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
+    const isFreeShipping = totalUnitPrice > 50000; // 무료 배송 조건
+    const totalPostCharge = isFreeShipping ? 0 : (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
 
     return (
         <>
@@ -247,6 +249,7 @@ export default function OrderDetail() {
                                                 <th style={{ width: "auto" }}>Img</th>
                                                 <th style={{ width: "20%" }}>상품명</th>
                                                 <th style={{ width: "auto" }}>옵션</th>
+                                                <th style={{ width: "auto" }}>단가</th>
                                                 <th style={{ width: "auto" }}>수량</th>
                                                 <th style={{ width: "auto" }}>금액</th>
                                                 <th style={{ width: "auto" }}>주문상태</th>
@@ -277,14 +280,15 @@ export default function OrderDetail() {
                                                                 "옵션없음"
                                                             )}
                                                         </td>
+                                                        <td className="quantity_cell">{it.unitPrice}</td>
                                                         <td className="quantity_cell">{it.quantity}</td>
-                                                        <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
+                                                        <td className="unitPrice_cell">{priceFormat(it.unitPrice * it.quantity)}</td>
                                                         <td>{it.orderStatus}</td>
 
                                                         {idx === 0 && (
                                                             <td rowSpan={bundleItems.length} className={`${table.shipCharge_cell} ${"last-of-bundle-cell"}`}>
                                                                 <span style={{ fontSize: "16px" }}>
-                                                                    <span>{bundleItems[0].postCharge}</span>원
+                                                                    <span>{isFreeShipping ? "무료배송" : `${bundleItems[0].postCharge} 원 `}</span>
                                                                 </span>
                                                                 <br />
                                                                 <span style={{ fontSize: "10px" }}>
@@ -352,8 +356,9 @@ export default function OrderDetail() {
                                                             "옵션없음"
                                                         )}
                                                     </td>
+                                                    <td className="quantity_cell">{it.unitPrice}</td>
                                                     <td className="quantity_cell">{it.quantity}</td>
-                                                    <td className="unitPrice_cell">{priceFormat(it.unitPrice)}</td>
+                                                    <td className="unitPrice_cell">{priceFormat(it.unitPrice * it.quantity)}</td>
                                                     <td>{it.orderStatus}</td>
                                                     <td className="postCharge_cell">
                                                         <span>
@@ -397,7 +402,7 @@ export default function OrderDetail() {
                                         {/* 합계 파트 */}
                                         <tfoot>
                                             <tr>
-                                                <td colSpan={5}>합계</td>
+                                                <td colSpan={6}>합계</td>
                                                 <td className="quantity_total">{totalQuantity}</td>
                                                 <td className="unitPrice_total">{priceFormat(totalUnitPrice)}</td>
                                                 <td></td>

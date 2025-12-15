@@ -27,22 +27,16 @@ export default function Header({ direction, ...args }) {
         setUser(initUser);
         setToken(null);
         // useSetAtom([]);
-        navigate("/zipddak/main");
+        navigate("/zipddak/login");
     };
 
     const [modal, setModal] = useState();
-    const [message, setMessage] = useState();
 
     const expertToggle = () => {
         myAxios(token, setToken)
             .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
             .then((res) => {
                 setUser(res.data);
-
-                if (user.type == "USER") {
-                    setMessage("전문가 회원가입으로 이동합니다.");
-                    setModal(true);
-                }
             })
             .catch((err) => {
                 console.log(err);
@@ -66,7 +60,7 @@ export default function Header({ direction, ...args }) {
                             <>
                                 {/* 견적요청 or 받은견적 */}
                                 {user.expert ? (
-                                    <a href="" className="estimate">
+                                    <a href="/zipddak/mypage/requests" className="estimate">
                                         <Archive size={20} />
                                         <span className="te">받은요청</span>
                                     </a>
@@ -79,7 +73,7 @@ export default function Header({ direction, ...args }) {
 
                                 {/* 멤버십 or 장바구니 */}
                                 {user.expert ? (
-                                    <a href="" className="icon">
+                                    <a href="/zipddakmypage/membership" className="icon">
                                         <Rocket size={20} />
                                     </a>
                                 ) : (
@@ -124,16 +118,11 @@ export default function Header({ direction, ...args }) {
                                         </DropdownItem>
 
                                         <DropdownItem divider />
+                                        {
+                                            // 1. user.role이 "USER"인 경우
+                                            user.role === "USER" ? <DropdownItem onClick={() => setModal(true)}>전문가 가입</DropdownItem> : user.expert ? <DropdownItem onClick={expertToggle}>고객전환</DropdownItem> : <DropdownItem onClick={expertToggle}>전문가전환</DropdownItem>
+                                        }
 
-                                        {user.expert ? (
-                                            <DropdownItem className="" onClick={expertToggle}>
-                                                고객전환
-                                            </DropdownItem>
-                                        ) : (
-                                            <DropdownItem className="" onClick={expertToggle}>
-                                                전문가전환
-                                            </DropdownItem>
-                                        )}
                                         <DropdownItem divider />
 
                                         <DropdownItem onClick={logout}>
@@ -157,7 +146,7 @@ export default function Header({ direction, ...args }) {
                 <a href="/zipddak/main" className="navitem active">
                     홈
                 </a>
-                <a href="/zipddak" className="navitem">
+                <a href="/zipddak/findExpert" className="navitem">
                     견적요청
                 </a>
                 <a href="/zipddak/experts" className="navitem">
@@ -178,11 +167,20 @@ export default function Header({ direction, ...args }) {
             </div>
 
             <Modal isOpen={modal}>
-                <ModalHeader>전문가 회원가입하기</ModalHeader>
-                <ModalBody>{message}</ModalBody>
-                <Button color="primary" onClick={goToExpertmodal}>
-                    확인
-                </Button>
+                <ModalHeader>전문가 가입</ModalHeader>
+                <ModalBody>
+                    <div>전문가 회원가입을 진행하시겠습니까?</div>
+                    <div className="space-px"> </div>
+                    <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div>
+                </ModalBody>
+                <div className="row-cm header-modal-button">
+                    <Button className="primary-button" onClick={() => setModal(false)}>
+                        취소
+                    </Button>
+                    <Button className="primary-button" onClick={goToExpertmodal}>
+                        확인
+                    </Button>
+                </div>
             </Modal>
         </>
     );

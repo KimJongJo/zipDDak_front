@@ -1,13 +1,16 @@
 import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import "../css/Signup.css";
-import { myAxios, baseUrl } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import { userAtom, tokenAtom } from "../../atoms";
+import { useAtom, useSetAtom } from "jotai";
 
 export default function Login() {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
-    const [token, setToken] = useState();
+    const [token, setToken] = useAtom(tokenAtom);
+    const setUser = useSetAtom(userAtom);
 
     const navigate = useNavigate();
 
@@ -18,7 +21,7 @@ export default function Login() {
         formData.append("fcmToken", "fcmToken");
 
         myAxios(null, setToken)
-            .post(`/zipddak`, formData)
+            .post(`/login`, formData)
             .then((res) => {
                 console.log(res.headers.authorization); //token
                 console.log(res);
@@ -34,7 +37,13 @@ export default function Login() {
                     // })
                 }
 
-                navigate("/zipddak/main");
+                if (res.data.role == "USER" || res.data.type == "EXPERT") {
+                    navigate("/zipddak/main");
+                } else if (res.data.role == "APPROVAL_SELLER") {
+                    navigate("/seller/mainhome");
+                } else if (res.data.role == "ADMIN") {
+                    navigate("/admin/userList");
+                }
             })
             .catch((err) => {
                 console.log(err);
@@ -75,12 +84,12 @@ export default function Login() {
                     <div className="input_form">
                         <div className="input_parts">
                             <div className="input_label">이메일</div>
-                            <Input name="email" placeholder="이메일을 입력해주세요." type="email" />
+                            <Input name="username" placeholder="이메일을 입력해주세요." type="email" onChange={(e) => setUsername(e.target.value)} />
                         </div>
 
                         <div className="input_parts">
                             <div className="input_label">비밀번호</div>
-                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" />
+                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" onChange={(e) => setPassword(e.target.value)} />
                         </div>
 
                         <div className="col-cm">

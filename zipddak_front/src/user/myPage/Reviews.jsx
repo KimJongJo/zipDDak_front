@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function Reviews() {
   const [tab, setTab] = useState("작성 가능한 후기");
@@ -17,14 +19,17 @@ export default function Reviews() {
   const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
   const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   const imgRef = useRef(null);
 
   // 후기 작성가능한 대여목록
   const getBeforeToolReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/beforeReviewList/tool?username=test@kosta.com`
+          `/beforeReviewList/tool?username=${user.username}`
       )
       .then((res) => {
         setBeforeReviews(res.data);
@@ -36,10 +41,10 @@ export default function Reviews() {
 
   // 후기 작성가능한 매칭목록
   const getBeforeExpertReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/beforeReviewList/expert?username=test@kosta.com`
+          `/beforeReviewList/expert?username=${user.username}`
       )
       .then((res) => {
         setBeforeReviews(res.data);
@@ -51,10 +56,10 @@ export default function Reviews() {
 
   // 후기 작성가능한 구매목록
   const getBeforeProductReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/beforeReviewList/product?username=test@kosta.com`
+          `/beforeReviewList/product?username=${user.username}`
       )
       .then((res) => {
         setBeforeReviews(res.data);
@@ -66,8 +71,10 @@ export default function Reviews() {
 
   // 작성한 대여 후기목록 조회
   const getMyToolReviews = () => {
-    axios
-      .get("http://localhost:8080" + `/reviewList/tool?username=test@kosta.com`)
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" + `/reviewList/tool?username=${user.username}`
+      )
       .then((res) => {
         setMyReviews(res.data);
       })
@@ -78,9 +85,10 @@ export default function Reviews() {
 
   // 작성한 상품 후기목록 조회
   const getMyProductReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
-        "http://localhost:8080" + `/reviewList/product?username=test@kosta.com`
+        "http://localhost:8080" +
+          `/reviewList/product?username=${user.username}`
       )
       .then((res) => {
         setMyReviews(res.data);
@@ -92,9 +100,9 @@ export default function Reviews() {
 
   // 작성한 전문가 후기목록 조회
   const getMyExpertReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
-        "http://localhost:8080" + `/reviewList/expert?username=test@kosta.com`
+        "http://localhost:8080" + `/reviewList/expert?username=${user.username}`
       )
       .then((res) => {
         setMyReviews(res.data);
@@ -106,10 +114,10 @@ export default function Reviews() {
 
   // 받은 대여 후기목록 조회
   const getReceiveToolReviews = () => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/receive/reviewList/tool?username=test@kosta.com`
+          `/receive/reviewList/tool?username=${user.username}`
       )
       .then((res) => {
         setReceivedReviews(res.data);
@@ -125,7 +133,7 @@ export default function Reviews() {
 
     formData.append("score", rating);
     formData.append("content", targetReview.content);
-    formData.append("writer", "test@kosta.com");
+    formData.append("writer", user.username);
     formData.append("toolIdx", targetReview.toolIdx);
     formData.append("rentalIdx", targetReview.rentalIdx);
 
@@ -134,7 +142,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/write/tool", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -157,7 +165,7 @@ export default function Reviews() {
 
     formData.append("score", rating);
     formData.append("content", targetReview.content);
-    formData.append("writer", "test@kosta.com");
+    formData.append("writer", user.username);
     formData.append("expertIdx", targetReview.expertIdx);
     formData.append("matchingIdx", targetReview.matchingIdx);
 
@@ -166,7 +174,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/write/expert", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -189,7 +197,7 @@ export default function Reviews() {
 
     formData.append("score", rating);
     formData.append("content", targetReview.content);
-    formData.append("writer", "test@kosta.com");
+    formData.append("writer", user.username);
     formData.append("productIdx", targetReview.productIdx);
     formData.append("orderItemIdx", targetReview.orderItemIdx);
 
@@ -198,7 +206,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/write/product", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -232,7 +240,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/modify/tool", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -266,7 +274,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/modify/expert", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -300,7 +308,7 @@ export default function Reviews() {
       formData.append("reviewImages", file);
     });
 
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/modify/product", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
@@ -320,7 +328,7 @@ export default function Reviews() {
   // 대여 후기 삭제
   const deleteToolReview = () => {
     console.log(targetReview);
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/delete/tool", {
         reviewToolIdx: targetReview.reviewToolIdx,
       })
@@ -335,7 +343,7 @@ export default function Reviews() {
 
   // 매칭 후기 삭제
   const deleteExpertReview = () => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/delete/expert", {
         reviewExpertIdx: targetReview.reviewExpertIdx,
       })
@@ -350,7 +358,7 @@ export default function Reviews() {
 
   // 구매 후기 삭제
   const deleteProductReview = () => {
-    axios
+    myAxios(token, setToken)
       .post("http://localhost:8080" + "/review/delete/product", {
         reviewProductIdx: targetReview.reviewProductIdx,
       })

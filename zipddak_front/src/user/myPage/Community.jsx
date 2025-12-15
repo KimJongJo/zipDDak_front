@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { Eye, MessageCircle } from "lucide-react";
+import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function Community() {
   const [communityList, setCommunityList] = useState([]);
@@ -13,12 +15,15 @@ export default function Community() {
     startPage: 1,
   });
 
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
   // 내 커뮤니티목록 조회
   const getCommunityList = (page) => {
-    axios
+    myAxios(token, setToken)
       .get(
         "http://localhost:8080" +
-          `/my/communityList?username=test@kosta.com&page=${page}`
+          `/my/communityList?username=${user.username}&page=${page}`
       )
       .then((res) => {
         setCommunityList(res.data.myCommunityList);

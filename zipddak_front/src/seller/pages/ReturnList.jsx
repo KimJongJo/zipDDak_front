@@ -63,7 +63,7 @@ export default function ReturnList() {
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", "test");
+        params.append("sellerId", "ss123");
         params.append("page", page);
 
         if (keyword) params.append("keyword", keyword);
@@ -189,15 +189,15 @@ export default function ReturnList() {
                                                     </tr>
                                                 ) : (
                                                     myRefundList.map((myRefund) => (
-                                                        <tr key={myRefund.refundIdx} onClick={() => navigate(`/returnDetail/${myRefund.refundIdx}`)}>
+                                                        <tr key={myRefund.refundIdx} onClick={() => navigate(`/seller/returnDetail/${myRefund.refundIdx}`)}>
                                                             <td>{myRefund.orderDate}</td>
                                                             <td>{myRefund.orderCode}</td>
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myRefund.refundProductName}</span> 포함 총 {myRefund.refundItemCount} 건
                                                             </td>
-                                                            <td>{myRefund.customerUsername}</td>
-                                                            <td>{myRefund.pickupPostComp}</td>
-                                                            <td>{myRefund.pickupTrackingNo}</td>
+                                                            <td>{myRefund.username}</td>
+                                                            <td>{myRefund.pickupPostComp ? myRefund.pickupPostComp : "-"}</td>
+                                                            <td>{myRefund.pickupTrackingNo ? myRefund.pickupTrackingNo : "-"}</td>
                                                             <td>{myRefund.orderStatus}</td>
                                                             <td>{myRefund.createdAt}</td>
                                                         </tr>

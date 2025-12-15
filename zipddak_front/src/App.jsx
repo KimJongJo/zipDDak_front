@@ -22,6 +22,7 @@ import { Membership } from "./expert/pages/Membership";
 import ProfileForm from "./expert/pages/ProfileForm";
 import PublicRequest from "./expert/pages/PublicRequest";
 import { MyWorks as ExpertMyWorks } from "./expert/pages/MyWorks";
+import PublicRequestDetail from "./expert/pages/PublicRequestDetail.jsx";
 import Requests from "./expert/pages/Requests";
 import ToolMain from "./user/tool/ToolMain";
 import ToolDetail from "./user/tool/ToolDetail";
@@ -102,7 +103,6 @@ import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
 
 import Token from "./Token.jsx";
-import SellerPdDetail from "./seller/pages/ProductDetail.jsx";
 
 function App() {
     return (
@@ -175,7 +175,7 @@ function App() {
             <Route path="/expert/*" element={<ExpertLayout />}>
                 <Route path="profile/edit" element={<ProfileForm />} />
                 <Route path="requests" element={<PublicRequest />} />
-
+                <Route path="requests/detail/:requestIdx" element={<PublicRequestDetail />} />
                 {/* 전문가 마이페이지 */}
                 <Route path="mypage/*" element={<ExpertMypage />}>
                     <Route path="works" element={<ExpertMyWorks />} />
@@ -208,42 +208,31 @@ function App() {
                 <Route path="myInfo" element={<MyInfo />} />
 
                 <Route path="ask" element={<AskToManager />} />
-                <Route path="productModify/:productIdx" element={<ProductModify />} />
+                <Route path="productDetail/:productIdx" element={<ProductModify />} />
                 <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
                 <Route path="shippingDetail" element={<ShippingDetail />} />
-                <Route path="returnDetail" element={<ReturnDetail />} />
+                <Route path="returnDetail/:refundIdx" element={<ReturnDetail />} />
                 <Route path="exchangeDetail" element={<ExchangeDetail />} />
                 <Route path="settleDetail" element={<SettleDetail />} />
             </Route>
 
-            {/* 사이트 관리자 */}
-            <Route path="admin/*">
-                <Route path="userList" element={<AdminUserList />} />
-                <Route path="expertList" element={<AdminExpertList />} />
-                <Route path="storeList" element={<AdminStoreList />} />
-                <Route path="userList/:username" element={<AdminUserDetail />} />
-                <Route path="userList/:username" element={<AdminExpertDetail />} />
-                <Route path="userList:/storeId" element={<AdminStoreDetail />} />
-                <Route path="switchRequest" element={<AdminSwitchAccountRequests />} />
+            <Route path="rentalList" element={<AdminRentalRecords />} />
+            <Route path="rentalList/:rentalId" element={<AdminRentalDetail />} />
+            <Route path="salesList" element={<AdminSalesHistory />} />
+            <Route path="salesList/:saleId" element={<AdminSalesDetail />} />
+            <Route path="matching/:matchingId" element={<AdminMatchingDetail />} />
+            <Route path="reports" element={<AdminReportList />} />
+            <Route path="reports/:reportId" element={<AdminReportDetail />} />
+            <Route path="payments" element={<PaymentHistory />} />
+            <Route path="payments/:paymentId" element={<AdminPaymentDetail />} />
+            <Route path="membership" element={<AdminMembership />} />
 
-                <Route path="rentalList" element={<AdminRentalRecords />} />
-                <Route path="rentalList/:rentalId" element={<AdminRentalDetail />} />
-                <Route path="salesList" element={<AdminSalesHistory />} />
-                <Route path="salesList/:saleId" element={<AdminSalesDetail />} />
-                <Route path="matching/:matchingId" element={<AdminMatchingDetail />} />
-                <Route path="reports" element={<AdminReportList />} />
-                <Route path="reports/:reportId" element={<AdminReportDetail />} />
-                <Route path="payments" element={<PaymentHistory />} />
-                <Route path="payments/:paymentId" element={<AdminPaymentDetail />} />
-                <Route path="membership" element={<AdminMembership />} />
+            <Route path="settlementList" element={<AdminSettlementList />} />
 
-                <Route path="settlementList" element={<AdminSettlementList />} />
+            <Route path="inquiryList" element={<InquiryList />} />
+            <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
 
-                <Route path="inquiryList" element={<InquiryList />} />
-                <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
-
-                <Route path="dashboard" element={<Dashboard />} />
-            </Route>
+            <Route path="dashboard" element={<Dashboard />} />
         </Routes>
     );
 }
