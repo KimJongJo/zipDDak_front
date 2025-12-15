@@ -4,17 +4,38 @@ import ExpertReviewCard from "./ExpertReviewCard";
 import ExpertQuestion from "./ExpertQuestion";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { baseUrl } from "../../config";
+import { baseUrl, myAxios } from "../../config";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { expertIdxAtom } from "./expertAtom";
+import { useNavigate } from "react-router-dom";
 
 export default function ExpertProfile() {
+    const user = useAtomValue(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [expertAtom, setExpertAtom] = useAtom(expertIdxAtom);
     const [selectInfoCateNo, setSelectInfoCateNo] = useState(1);
 
+    const navigate = useNavigate();
+
+    const [reportReason, setReportReason] = useState("");
     const { expertIdx } = useParams();
+
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
 
     const [career, setCareer] = useState({});
     const [categoryList, setCategoryList] = useState([]);
     const [expertProfile, setExpertProfile] = useState({});
     const [portfolio, setportfolio] = useState([]);
+    const [reviewScore, setReviewScore] = useState({});
+    const [reviewList, setReviewList] = useState([]);
+    const [hasMoreReview, setHasMoreReview] = useState(true);
+
+    const [favoriteIcon, setFavoriteIcon] = useState(false);
+
+    const [reviewPage, setReviewPage] = useState(2);
 
     const expert = {
         nickname: "전문가 활동명",
@@ -56,15 +77,57 @@ export default function ExpertProfile() {
         return m === 0 ? `${ampm} ${h}시` : `${ampm} ${h}시 ${m}분`;
     }
 
+    const reviewMore = () => {
+        if (!hasMoreReview) return; // 더 없으면 요청 안 함
+
+        axios.get(`${baseUrl}/expertProfile/moreReview?expertIdx=${expertIdx}&page=${reviewPage}`).then((res) => {
+            const newReviews = res.data.reviewList;
+
+            console.log(newReviews);
+            // 1️⃣ 리뷰 누적
+            setReviewList((prev) => [...prev, ...newReviews]);
+
+            // 2️⃣ 페이지 증가
+            setReviewPage((prev) => prev + 1);
+
+            setHasMoreReview(res.data.hasNext);
+        });
+    };
+
     useEffect(() => {
-        axios.get(`${baseUrl}/expertProfile?expertIdx=${expertIdx}&username=rlawhdwh`).then((res) => {
+        if (user.username === null) {
+            return;
+        }
+
+        axios.get(`${baseUrl}/expertProfile?expertIdx=${expertIdx}&username=${user.username}`).then((res) => {
             console.log(res.data);
             setCareer(res.data.careerDto);
             setCategoryList(res.data.categoryList);
             setExpertProfile(res.data.expertProfile);
-            setportfolio(res.data.protFolioDtoList);
+            setportfolio(res.data.portFolioDtoList);
+            setReviewList(res.data.expertReviewDto.reviewList.reviewList);
+            setReviewScore(res.data.expertReviewDto.expertReviewScoreDto);
+            setHasMoreReview(res.data.expertReviewDto.reviewList.hasNext);
+            setFavoriteIcon(res.data.favorite);
+
+            setQuestions((prev) => [
+                {
+                    ...prev[0],
+                    answer: res.data.expertProfile?.questionAnswer1 || "",
+                },
+                {
+                    ...prev[1],
+                    answer: res.data.expertProfile?.questionAnswer2 || "",
+                },
+                {
+                    ...prev[2],
+                    answer: res.data.expertProfile?.questionAnswer3 || "",
+                },
+            ]);
+
+            setReviewPage(2);
         });
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         const options = {
@@ -97,31 +160,49 @@ export default function ExpertProfile() {
         };
     }, []);
 
-    const expertReview = [
-        {
-            profileImg: "/images/기본회원프로필.jpg",
-            nickname: "닉네임",
-            reviewScore: 4.3,
-            createdAt: "2025-11-28",
-            images: ["/images/이미지테스트.png", "/images/이미지테스트.png", "/images/이미지테스트.png"],
-            reviewContent: "리뷰 내용이 들어갑니다.",
-        },
-        {
-            profileImg: "/images/기본회원프로필.jpg",
-            nickname: "닉네임",
-            reviewScore: 4.8,
-            createdAt: "2025-11-24",
-            images: [],
-            reviewContent: "두번 째 리뷰 내용이 들어갑니다.",
-        },
-    ];
+    const reportExpert = () => {
+        myAxios(token, setToken)
+            .post(`${baseUrl}/user/reportExpert`, { username: user.username, reason: reportReason, expertIdx: expertIdx })
+            .then((res) => {
+                console.log(res.data);
+            });
+    };
 
-    const questions = [
+    const favoriteToggle = () => {
+        myAxios(token, setToken)
+            .post(`${baseUrl}/user/favoriteExpert`, {
+                username: user.username,
+                expertIdx: expertIdx,
+            })
+            .then((res) => {
+                if (res.data) {
+                    setFavoriteIcon(!favoriteIcon);
+                }
+            });
+    };
+
+    const expertRequest = () => {
+        setExpertAtom(Number(expertIdx));
+        navigate("/zipddak/findExpert");
+    };
+
+    const [questions, setQuestions] = useState([
         {
+            id: 1,
             question: "서비스가 시작되기전 어떤 절차로 진행하나요?",
-            answer: "견적서 확인 및 예상 금액 전달 전화 상담 또는 채팅 상담 진행 예약 양식 작성 및 예약금 입금 장소 전일 담당 팀장님 해피콜 진행 청소 완료 후 잔금 입금",
+            answer: "",
         },
-    ];
+        {
+            id: 2,
+            question: "어떤 서비스를 전문적으로 제공하나요?",
+            answer: "",
+        },
+        {
+            id: 3,
+            question: "서비스의 견적은 어떤 방식으로 산정 되나요?",
+            answer: "",
+        },
+    ]);
 
     return (
         <div className="body-div">
@@ -134,10 +215,114 @@ export default function ExpertProfile() {
 
                         {/* 견적요청 버튼, 관심, 신고 */}
                         <div className="expertProfile-request-div">
-                            <button className="expertProfile-request-button">견적 요청하기</button>
+                            <button onClick={expertRequest} className="expertProfile-request-button">
+                                견적 요청하기
+                            </button>
                             <div>
-                                <i className="bi bi-heart expertProfile-heart"></i>
-                                <i className="bi bi-exclamation-triangle expertProfile-report"></i>
+                                <button onClick={favoriteToggle} style={{ border: "none", backgroundColor: "transparent" }}>
+                                    {favoriteIcon ? <i className="bi bi-heart-fill expertProfile-heart"></i> : <i className="bi bi-heart expertProfile-heart"></i>}
+                                </button>
+
+                                <button onClick={toggle} style={{ border: "none", backgroundColor: "transparent" }}>
+                                    <i className="bi bi-exclamation-triangle expertProfile-report"></i>
+                                </button>
+                                <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                                    <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
+                                        <span className="ask-title">신고하기</span>
+                                    </ModalHeader>
+                                    <div className="ask-modal-body">
+                                        <div>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input value="FAKE" onChange={(e) => setReportReason(e.target.value)} type="radio" name="reason" id="FAKE" style={{ marginRight: "20px" }} />{" "}
+                                                    <label htmlFor="FAKE" className="font-14">
+                                                        허위 정보 기재
+                                                    </label>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input
+                                                        value="PRICE_MISMATCH"
+                                                        onChange={(e) => setReportReason(e.target.value)}
+                                                        type="radio"
+                                                        name="reason"
+                                                        id="PRICE_MISMATCH"
+                                                        style={{ marginRight: "20px" }}
+                                                    />{" "}
+                                                    <label htmlFor="PRICE_MISMATCH" className="font-14">
+                                                        견적 금액과 실제 비용 불일치
+                                                    </label>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input
+                                                        value="UNPROFESSIONAL_RESPONSE"
+                                                        onChange={(e) => setReportReason(e.target.value)}
+                                                        type="radio"
+                                                        name="reason"
+                                                        id="UNPROFESSIONAL_RESPONSE"
+                                                        style={{ marginRight: "20px" }}
+                                                    />{" "}
+                                                    <label htmlFor="UNPROFESSIONAL_RESPONSE" className="font-14">
+                                                        비전문적이거나 불성실한 응대
+                                                    </label>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input
+                                                        value="INAPPROPRIATE_BEHAVIOR"
+                                                        onChange={(e) => setReportReason(e.target.value)}
+                                                        type="radio"
+                                                        name="reason"
+                                                        id="INAPPROPRIATE_BEHAVIOR"
+                                                        style={{ marginRight: "20px" }}
+                                                    />{" "}
+                                                    <label htmlFor="INAPPROPRIATE_BEHAVIOR" className="font-14">
+                                                        부적절한 언행 또는 불쾌감을 주는 태도
+                                                    </label>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input
+                                                        value="SERVICE_NOT_PROVIDED"
+                                                        onChange={(e) => setReportReason(e.target.value)}
+                                                        type="radio"
+                                                        name="reason"
+                                                        id="SERVICE_NOT_PROVIDED"
+                                                        style={{ marginRight: "20px" }}
+                                                    />{" "}
+                                                    <label htmlFor="SERVICE_NOT_PROVIDED" className="font-14">
+                                                        서비스 미이행 또는 일방적인 계약 파기
+                                                    </label>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                    <Input
+                                                        value="POLICY_VIOLATION"
+                                                        onChange={(e) => setReportReason(e.target.value)}
+                                                        type="radio"
+                                                        name="reason"
+                                                        id="POLICY_VIOLATION"
+                                                        style={{ marginRight: "20px" }}
+                                                    />{" "}
+                                                    <label htmlFor="POLICY_VIOLATION" className="font-14">
+                                                        플랫폼 정책 위반 행위
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div className="ask-modal-body-button-div">
+                                                <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                                                    취소
+                                                </button>
+                                                <button
+                                                    className="ask-modal-write ask-modal-button"
+                                                    type="button"
+                                                    onClick={() => {
+                                                        reportExpert();
+                                                        toggle();
+                                                    }}
+                                                >
+                                                    신고하기
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Modal>
                             </div>
                         </div>
                     </div>
@@ -231,6 +416,7 @@ export default function ExpertProfile() {
                             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
                                 {categoryList.map((category) => (
                                     <div
+                                        key={category.categoryIdx}
                                         style={{
                                             padding: "0 20px",
                                             border: "1px solid #e0e5eb",
@@ -270,7 +456,7 @@ export default function ExpertProfile() {
                             <div>
                                 {career.career !== 0 ? (
                                     career.careerList?.map((c) => (
-                                        <div>
+                                        <div key={c.careerIdx}>
                                             {/* 경력 타이틀 */}
                                             <span className="font-15 medium">{c.title}</span>
                                             <div className="expertProfile-info-career-content">
@@ -300,8 +486,14 @@ export default function ExpertProfile() {
                         <div className="expertProfile-auth-img-div">
                             <span className="font-18 semibold">자격증 및 기타 서류</span>
                             {/* 자격증 */}
-                            <div>
-                                <img className="expertProfile-auth-img" src="/images/이미지테스트.png" />
+                            <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+                                {expertProfile.certImage1 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage1}`} alt="cert1" />}
+
+                                {expertProfile.certImage2 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage2}`} alt="cert2" />}
+
+                                {expertProfile.certImage3 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage3}`} alt="cert3" />}
+
+                                {!expertProfile.certImage1 && !expertProfile.certImage2 && !expertProfile.certImage3 && <span style={{ color: "#999", fontSize: "14px" }}>자격증 없음</span>}
                             </div>
                         </div>
                     </div>
@@ -311,8 +503,12 @@ export default function ExpertProfile() {
                     {/* 포트폴리오 */}
                     <div className="expertProfile-portfolio-div" ref={portfolioRef}>
                         <span className="font-18 semibold">포트폴리오</span>
-                        <div>
-                            <img className="expertProfile-portfolio" src="/images/이미지테스트.png" />
+                        <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                            {!portfolio || portfolio.length === 0 ? (
+                                <span style={{ color: "#999", fontSize: "14px" }}>포트폴리오 없음</span>
+                            ) : (
+                                portfolio.map((port, idx) => <img key={idx} className="expertProfile-portfolio" src="/images/이미지테스트.png" alt="portfolio" />)
+                            )}
                         </div>
                     </div>
 
@@ -325,22 +521,24 @@ export default function ExpertProfile() {
                             <div className="expertProfile-review-score">
                                 <i className="bi bi-star-fill" style={{ fontSize: "28px", color: "#F7C444" }}></i>
                                 {/* 리뷰 평점 */}
-                                <span className="font-24 semibold margin-left-5">4.9</span>
+                                <span className="font-24 semibold margin-left-5">{reviewScore.score}</span>
 
                                 {/* 리뷰 수 */}
-                                <span>(500)</span>
+                                <span>({reviewScore.reviewCount})</span>
                             </div>
                         </div>
                         {/* 리뷰 반복 */}
                         <div>
-                            {expertReview.map((review) => (
-                                <ExpertReviewCard expertReview={review} />
+                            {reviewList.map((review) => (
+                                <ExpertReviewCard key={review.reviewIdx} expertReview={review} />
                             ))}
                         </div>
                         <div className="expertProfile-review-more-button-div">
-                            <button className="expertProfile-review-more-button font-14">
-                                리뷰 더보기 <i className="bi bi-chevron-down more-icon"></i>
-                            </button>
+                            {hasMoreReview && (
+                                <button onClick={reviewMore} className="expertProfile-review-more-button font-14">
+                                    리뷰 더보기 <i className="bi bi-chevron-down more-icon"></i>
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -349,7 +547,7 @@ export default function ExpertProfile() {
                         <span className="font-18 semibold">질문 답변</span>
 
                         {questions.map((question) => (
-                            <ExpertQuestion question={question} />
+                            <ExpertQuestion key={question.id} question={question} />
                         ))}
                     </div>
                 </div>

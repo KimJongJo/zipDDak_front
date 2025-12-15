@@ -1,6 +1,7 @@
 import { Button, Input } from "reactstrap";
 import "../css/CommunityDetail.css";
 import { Eye, Dot, Heart } from "lucide-react";
+import { useParams } from "react-router";
 
 export default function Comdetail() {
     const ComContent = {
