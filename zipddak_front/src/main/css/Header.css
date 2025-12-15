@@ -131,3 +131,15 @@ body {
 .dropdown-item {
     padding:12px;
 }
+
+.header-modal-button {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    gap: 12px;
+    padding: 12px;
+}
+
+.space-px {
+    height: 4px;
+}

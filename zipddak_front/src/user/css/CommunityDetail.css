@@ -1,6 +1,7 @@
 .ComDetail-container,
 .CommunityForm-container,
 .comList-container {
+    margin: 0 auto;
     width: 1200px;
     padding: 0 16px;
     display: flex;
@@ -21,7 +22,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
 }
 
 .small {
@@ -37,14 +38,14 @@
 .ComBody {
     margin: 20px 0;
     padding-bottom: 40px;
-    border-bottom: #F1F3F7 1px solid;
+    border-bottom: #f1f3f7 1px solid;
     gap: 14px;
 }
 
 .UserInfo {
     gap: 12px;
     padding-bottom: 20px;
-    border-bottom: #F1F3F7 1px solid;
+    border-bottom: #f1f3f7 1px solid;
     margin-bottom: 20px;
 }
 
@@ -61,7 +62,7 @@
 .textInput {
     margin: 0 32px;
     width: 1104px;
-    border: #F1F3F7 1px solid;
+    border: #f1f3f7 1px solid;
     border-radius: 8px;
     margin-bottom: 40px;
     padding-right: 12px;
@@ -93,12 +94,12 @@
 .c-img {
     width: 450px;
     height: 540px;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
     margin: 10px 0;
 }
 
 .ectInfo {
-    color: #6A7685;
+    color: #6a7685;
     gap: 5px;
 }
 
@@ -121,12 +122,12 @@
 .favBtn {
     width: 80px;
     height: 80px;
-    border: #F1F3F7 1px solid;
+    border: #f1f3f7 1px solid;
     border-radius: 8px;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    color: #6A7685;
+    color: #6a7685;
 }
 
 .favdiv {
@@ -167,12 +168,12 @@
 .img-add-box {
     width: 80px;
     height: 80px;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
 }
 
 .img-add-box {
     justify-content: center;
-    background-color: #303441 ;
+    background-color: #303441;
     cursor: pointer;
 }
 
@@ -204,5 +205,3 @@
     margin: 40px 0;
     gap: 16px;
 }
-
-
