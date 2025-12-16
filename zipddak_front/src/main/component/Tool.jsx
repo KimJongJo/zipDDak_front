@@ -5,17 +5,17 @@ import { Heart, Calendar, MessageCircle } from 'lucide-react'
 import { Button } from "reactstrap";
 import { useNavigate } from "react-router";
 
-export function Tool({tool, toggleFavorite}) {
+export function Tool({ tool, toggleFavorite }) {
 
     const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0,2).join(' ');
+    const toolAddress = toolAddrString.split(' ').slice(1, 3).join(' ');
 
     const navigate = useNavigate();
 
     return (
-        <div className="Tool-card" onClick={()=>navigate(`/zipddak/tool/${tool.toolIdx}`)}>
+        <div className="Tool-card" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image">
-                <img src={`${tool.fileRename}/${tool.storagePath}`} alt="공구" />
+                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -40,15 +40,15 @@ export function Tool({tool, toggleFavorite}) {
     );
 }
 
-export function Toolmain({tool, toggleFavorite}) {
+export function Toolmain({ tool, toggleFavorite }) {
 
     const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0,2).join(' ');
+    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
 
     const navigate = useNavigate();
 
     return (
-        <div className="Tool-card-m" onClick={()=>navigate(`/zipddak/tool/${tool.toolIdx}`)}>
+        <div className="Tool-card-m" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-m">
                 <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
                 <button
@@ -72,29 +72,35 @@ export function Toolmain({tool, toggleFavorite}) {
                 </div>
             </div>
             <div className="tool-reaction-m">
-                <div className="favs"><Heart/>{tool.favorite}</div>
+                <div className="favs"><Heart />{tool.favorite}</div>
                 <i className="bi bi-dot dot"></i>
-                <div className="chats"><MessageCircle/>{tool.toolchat}</div>
+                <div className="chats"><MessageCircle />{tool.toolchat}</div>
             </div>
         </div>
     );
 }
 
-export function ToolL() {
-    const Tool = {
-        TooltName: "공구 이름",
-        address: "김포시 사우동",
-        rentalPrice: 34900,
-        toolfavorite: 118,
-        toolchat: 7,
-        toolStatus: true
-    };
+export function ToolL({ tool, toggleFavorite }) {
+
+    const toolAddrString = tool.addr1;
+    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+
+    const navigate = useNavigate();
 
     return (
-        <a href="#" className="Tool-card-L">
+        <div className="Tool-card-L" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-L">
-                {/* <i className="bi bi-heart favorite-icon"></i> */}
-                <i className="bi bi-heart favorite-icon"></i>
+               <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation(); // 화면 이동 클릭 막음
+                        // 로그인이 안되어있으면 막음
+                        username && toggleFavorite();
+                    }}
+                    className="favorite-icon"
+                >
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                </button>
                 {
                     Tool.toolStatus &&
                     (<div className="tool-status-badge">대여중</div>)
@@ -102,20 +108,55 @@ export function ToolL() {
             </div>
 
             <div className="tool-info-L">
-                <div className="tool-name-L">{Tool.TooltName}</div>
-                <span className="tool-address-L">{Tool.address}</span>
+                <div className="tool-name-L">{tool.name}</div>
+                <span className="tool-address-L">{toolAddress}</span>
                 <div>
                     <span className="oneday-L">1일</span>
-                    <span className="rental-price-L">{Tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price-L">{tool.rentalPrice.toLocaleString()}</span>
                 </div>
             </div>
             <div className="tool-reaction-L">
-                <div className="favs"><i className="bi bi-heart favicon"></i>{Tool.toolfavorite}</div>
+                <div className="favs"><i className="bi bi-heart favicon"></i>{tool.toolfavorite}</div>
                 <i className="bi bi-dot dot"></i>
-                <div className="chats"><i className="bi bi-chat chaticon"></i>{Tool.toolchat}</div>
+                <div className="chats"><i className="bi bi-chat chaticon"></i>{tool.toolchat}</div>
             </div>
-        </a>
+        </div>
     );
+}
+
+export function MapTool({ tool, toggleFavorite }) {
+
+    const toolAddrString = tool.addr1;
+    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+
+    const navigate = useNavigate();
+
+    return (
+        <div className="tool-h">
+            <div className="tool-image-h" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
+                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation(); // 화면 이동 클릭 막음
+                        // 로그인이 안되어있으면 막음
+                        username && toggleFavorite();
+                    }}
+                    className="favorite-icon"
+                >
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                </button>
+            </div>
+
+            <div className="tool-info-h">
+                <div className="tool-name-h">{tool.name}</div>
+                <span className="tool-address-h">{toolAddress}</span>
+                <div>
+                    <span className="oneday-h">1일</span>
+                    <span className="rental-price-h">{tool.rentalPrice.toLocaleString()}</span>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export function MyToolCard() {

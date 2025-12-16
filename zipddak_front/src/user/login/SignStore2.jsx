@@ -49,9 +49,7 @@ export default function SignStore2() {
                 .catch(err => {
                     console.log(err);
                 })
-                .finally(()=> {
-                    setModal(true);
-                })
+               
         }, 500); //0.5초
 
         return () => clearTimeout(timer);

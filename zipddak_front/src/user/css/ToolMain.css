@@ -1,7 +1,14 @@
-.tool-container {
+.tool-container,
+.map-bottom-list {
+    width: 1200px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 0 auto;
+}
+
+.map-bottom-list {
+    padding: 0 16px;
 }
 
 /* 검색 */
@@ -71,12 +78,10 @@
 }
 
 .mapBtn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 5px 10px !important;
 }
 
-.trade {
+.trade-main {
   position: relative;
   width: 165px;
 }
@@ -130,13 +135,40 @@
 }
 
 .map-show {
+    color: #ff5833;
+    cursor: pointer;
+}
+
+.map-close {
+    color: #303441;
     cursor: pointer;
 }
 
 .maplist {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 40px;
+  max-height: 0;
+  overflow: hidden;
+
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    max-height 0.3s ease,   /* 👈 닫힐 때 딜레이 */
+    transform 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.maplist.open {
+  max-height: 480px;
+
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+
+  transition:
+    max-height 0.3s ease,        /* 👈 열릴 때 즉시 */
+    transform 0.35s ease,
+    opacity 0.35s ease;
 }
 
 .map {
@@ -271,6 +303,7 @@
     font-weight: 500;
     background-color: #F2F2F7;
     border-radius: 16px;
+    cursor: pointer;
 }
 
 .bbtn.active,
