@@ -104,7 +104,7 @@ export default function AdminUserList() {
 
     const search = () => {
         myAxios(token, setToken)
-            .get(`${baseUrl}/ad/users?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
+            .get(`${baseUrl}/admin/users?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
             .then((res) => {
                 console.log(res.data);
                 setUserList(res.data.list);

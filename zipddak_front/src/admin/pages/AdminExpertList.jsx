@@ -88,7 +88,7 @@ export default function AdminExpertList() {
 
     const search = () => {
         myAxios(token, setToken)
-            .get(`${baseUrl}/ad/experts?major=${defaultMajor}&state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
+            .get(`${baseUrl}/admin/experts?major=${defaultMajor}&state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
             .then((res) => {
                 console.log(res.data);
                 setExpertList(res.data.list);

@@ -1,18 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
 
 export default function AdminRentalRecords() {
-    // 전문 서비스
-    const [defaultMajor, setDefaultMajor] = useState(1);
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
+
     // 속성명
     const [defaultColumn, setDefaultColumn] = useState(1);
+
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [rentalList, setRentalList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -67,6 +80,21 @@ export default function AdminRentalRecords() {
         },
     ];
 
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/rentals?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&startDate=${startDate}&endDate${endDate}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setRentalList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token]);
     return (
         <div className="admin-body-div">
             {/* <AdminSidebar /> */}
@@ -94,9 +122,9 @@ export default function AdminRentalRecords() {
                 {/* 검색 필터 라인 */}
                 <div className="admin-filter-line-div-rental">
                     <div className="admin-filter-line-div-top">
-                        <Input className="admin-filter-input-date font-13" type="date" />
+                        <Input onChange={(e) => setStartDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                         <span className="font-22 medium">~</span>
-                        <Input className="admin-filter-input-date font-13" type="date" />
+                        <Input onChange={(e) => setEndDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                     </div>
                     <div className="admin-filter-line-div-under">
                         {/* 활동 상태 */}
@@ -121,11 +149,11 @@ export default function AdminRentalRecords() {
                         {/* 우측 검색 필터 */}
                         <div className="admin-userList-filter-right">
                             {/* 필터 select */}
-                            <select className="admin-userList-filter-select font-13" name="" id="">
-                                <option value="">전체</option>
-                                <option value="">공구명</option>
-                                <option value="">빌려준 사람</option>
-                                <option value="">빌린 사람</option>
+                            <select onChange={(e) => setDefaultColumn(e.target.value)} className="admin-userList-filter-select font-13" name="" id="">
+                                <option value={1}>전체</option>
+                                <option value={2}>공구명</option>
+                                <option value={3}>빌려준 사람</option>
+                                <option value={4}>빌린 사람</option>
                             </select>
 
                             {/* 검색 input */}
