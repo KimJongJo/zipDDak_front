@@ -6,6 +6,7 @@ import { userAtom, tokenAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { myAxios } from "../../config";
 
 export default function ToolMain() {
 
@@ -14,6 +15,7 @@ export default function ToolMain() {
 
     const [tool, setTool] = useState([]);
     const navigate = useNavigate();
+    const [page, setPage] = useState();
 
     //키워드
     const [keyword, setKeyword] = useState('');
@@ -62,32 +64,37 @@ export default function ToolMain() {
     }
 
     //공구 리스트
-    const toolList = () => {
+    const toolList = (isMore = false) => {
        
         //지도 기준
 
         const params = {
             //키워드
-            keyword: keyword || undefined,
+            keyword: keyword,
             //유저
-            username: user.username || undefined,
+            username: user.username,
             //카테고리
-            categoryNo: categoryNo || undefined,
-             //거래방식
-            tWay: tWay || undefined,
+            categoryNo: toolCateIdx,
+            //거래방식
+            wayNo: tWay,
             //정렬기준
-            tOrder: tOrder || undefined,
+            orderNo: tOrder,
             //대여중인 공구
-            rentalTool: rentalTool ? false : undefined,
+            rentalState: rentalTool,
+            //페이지
+            page : page
         };
 
         const tokenPharam = token ? token : null;
 
-
         myAxios(tokenPharam, setToken).get('/tool/main',{params})
             .then((res) => {
                 console.log(res.data);
-                setTool(res.data);
+                if (isMore) {
+                setTool(prev => [...prev, ...res.data.cards]);
+                } else {
+                setTool(res.data.cards);
+                }
 
             })
             .catch((err) => {
@@ -95,11 +102,12 @@ export default function ToolMain() {
             })
     }
 
-      useEffect(()=> {
+    useEffect(()=> {
 
         toolList();
 
-      },[user.username, checkedCategory,tWay,tOrder,rentalTool,keyword])
+    },[token,user?.username, checkedCategory,tWay,tOrder,rentalTool,keyword])
+
 
     return (
         <>
@@ -109,7 +117,8 @@ export default function ToolMain() {
                         <div className="t-filter">
                             <span className="f-label">검색</span>
                             <div className="search-box">
-                                <input className="keyword" type="text" placeholder="공구명으로 검색"></input>
+                                <input className="keyword" type="text" placeholder="공구명으로 검색"
+                                onChange={(e)=> setKeyword(e.target.value)}></input>
                                 <Search size={15} />
                             </div>
                         </div>
@@ -127,7 +136,7 @@ export default function ToolMain() {
                             <div className="trade-main">
                                 <select className="trade-select"
                                     value={tWay}
-                                    onChange={(e) => seTWay(number(e.target.value))}>
+                                    onChange={(e) => seTWay(e.target.value)}>
                                     <option value={0}>전체</option>
                                     <option value={1}>직거래</option>
                                     <option value={2}>택배거래</option>
@@ -186,7 +195,7 @@ export default function ToolMain() {
                         <div className="list">
                             <div className="list-card">
 
-                                {
+                                {Array.isArray(tool)&&
                                     tool.map(toolCard => (
                                         <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />
                                     ))
@@ -240,7 +249,10 @@ export default function ToolMain() {
                         }
                     </div>
 
-                    <div className="moreBtn">
+                    <div className="moreBtn" onClick={()=> {
+                        setPage(prev=>prev+1),
+                        toolList(true)
+                    }}>
                         <span>더보기</span>
                         <PlusCircle size={20} />
                     </div>
