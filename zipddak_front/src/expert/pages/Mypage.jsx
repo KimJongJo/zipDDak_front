@@ -1,9 +1,16 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import "../../user/css/mypage.css";
 
 export function Mypage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isReceiveActive = location.pathname.startsWith(
+    "/expert/mypage/receive"
+  );
+  const isSentActive = location.pathname.startsWith("/expert/mypage/sent");
+  const isWorksActive = location.pathname.startsWith("/expert/mypage/works");
 
   const navTitleStyle = {
     display: "flex",
@@ -136,36 +143,36 @@ export function Mypage() {
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/works"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isWorksActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               작업내역
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/expert/mypage/requests"
-              style={({ isActive }) => ({
+              to="/expert/mypage/receive/requests"
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isReceiveActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               받은 요청서
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/sent/estimates"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isSentActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               보낸 견적서
             </NavLink>
