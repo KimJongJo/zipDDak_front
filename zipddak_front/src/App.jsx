@@ -109,6 +109,7 @@ import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
+import RequestHistory from "./user/myPage/RequestHistory.jsx";
 
 function App() {
   return (
@@ -166,6 +167,7 @@ function App() {
             element={<MyWorksDetail />}
           />
           <Route path="expert/requests/active" element={<RequestActive />} />
+          <Route path="expert/requests/history" element={<RequestHistory />} />
           <Route path="inquiries" element={<Inquiries />} />
           <Route path="inquiries/write" element={<InquiryForm />} />
           <Route path="community" element={<Community />} />

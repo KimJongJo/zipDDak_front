@@ -1,96 +1,109 @@
+import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
 
 export default function RequestActive() {
   const [request, setRequest] = useState({}); // 요청서 상세
-  const [estimateDetail, setEstimateDetail] = useState(null); // 선택한 전문가 견적서 상세
+  const [expertList, setExpertList] = useState([]); // 전문가 목록
+  const [estimate, setEstimate] = useState(null); // 선택한 전문가 견적서 상세
+  const [costList, setCostList] = useState([]); // 견적서 비용 상세
   const [selectedExpertIdx, setSelectedExpertIdx] = useState(null); // 선택한 전문가 id
 
   const [open, setOpen] = useState(true);
 
-  // 전문가 클릭 시 견적서 상세 호출(임시)
-  const handleExpertClick = (expertIdx) => {
-    setSelectedExpertIdx(expertIdx);
-    setEstimateDetail(estimateDetailRepairMock);
+  const user = useAtomValue(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
+  // 진행중인 요청서 조회
+  const getRequest = () => {
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" +
+          `/active/requestDetail?username=${user.username}`
+      )
+      .then((res) => {
+        setRequest(res.data.requestDetail);
+        setExpertList(res.data.expertList);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  // mock
-  const requestDetailRepairMock = {
-    requestIdx: 101, // 요청서 ID
-    largeServiceIdx: 23, // 서비스 대분류 (수리)
-    smallServiceName: "냉장고 수리", // 서비스 소분류
-
-    budget: 1000000, // 예산
-    preferredDate: "2025-09-28", // 희망 시공일
-    location: "서울시 강남구", // 시공 장소
-    constructionSize: "욕실 1곳", // 시공 사이즈
-    purpose: "욕실 타일 부분 수리", // 시공 목적
-    place: "욕실", // 시공할 공간
-    additionalRequest: "주말 시공 희망", // 추가 요청사항
-
-    status: "RECRUITING", // 진행 상태
-    createdAt: "2025-09-28", // 요청일
-
-    imageUrls: [
-      // 요청서 이미지
-      "/mock/request/repair1.jpg",
-      "/mock/request/repair2.jpg",
-    ],
-
-    experts: [
-      {
-        expertIdx: 1, // 전문가 ID
-        expertName: "김수리", // 전문가 이름
-        profileImageUrl: "/mock/expert/1.png", // 프로필 이미지
-        totalEstimateCost: 520000, // 총 견적 금액
-      },
-      {
-        expertIdx: 2,
-        expertName: "박장인",
-        profileImageUrl: "/mock/expert/2.png",
-        totalEstimateCost: 610000,
-      },
-    ],
-  };
-  const estimateDetailRepairMock = {
-    estimateIdx: 1001, // 견적서 ID
-    expertIdx: 1, // 전문가 ID
-    requestIdx: 101, // 요청서 ID
-    largeServiceIdx: 23, // 서비스 대분류
-
-    totalEstimateCost: 520000, // 총 견적 금액
-    workDurationType: "DAY", // 작업 예상 시간 타입
-    workDurationValue: 2, // 작업 예상 시간
-    workScope: "타일,줄눈", // 작업 범위
-    workDetail: "파손된 타일 제거 후 동일 타일로 부분 교체",
-
-    costList: [
-      {
-        type: "BUILD", // 비용 타입
-        label: "타일 시공비", // 항목명
-        amount: 240000, // 금액
-      },
-      {
-        type: "MATERIAL",
-        label: "타일 자재비",
-        amount: 280000,
-      },
-    ],
-
-    disposalCost: 20000, // 폐기물 처리비
-    demolitionCost: 40000, // 철거비
-    etcFee: 20000, // 기타 비용
-    costDetail: "기존 타일 철거 및 폐기물 처리 포함",
-
-    createdAt: "2025-09-29T10:00:00",
-
-    diagnosisType: "VISIT", // 사전 진단 방식
-    repairType: "PART", // 수리 방식
+  // 견적서 상세 조회
+  const getEstimateDetail = (estimateIdx) => {
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" +
+          `/active/estimateDetail?estimateIdx=${estimateIdx}`
+      )
+      .then((res) => {
+        setEstimate(res.data.estimateDetail);
+        setCostList(res.data.costList);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  // (임시)
+  // 사전진단 매핑
+  const DIAGNOSIS_TYPE_MAPPING = {
+    VISIT: "현장 방문 필요",
+    PHOTO: "사진으로 진단 가능",
+  };
+  // 수리방식 매핑
+  const REPAIR_TYPE_MAPPING = {
+    PART: "부분 수리",
+    ALL: "전체 교체",
+    CHECK: "점검만 진행",
+  };
+  // 철거여부 매핑
+  const DEMOLITION_TYPE_MAPPING = {
+    INCLUDED: "기존 자재 철거 포함",
+    EXTRA: "철거 비용 별도",
+    NONE: "철거 없음",
+  };
+  // 컨설팅방식 매핑
+  const CONSULTING_TYPE_MAPPING = {
+    ONLINE: "온라인 (채팅/화상)",
+    VISIT: "직접 방문",
+  };
+
+  // 시공비, 자재비 총액
+  const getCostTotalByType = (costList, type) => {
+    return costList
+      .filter((cost) => cost.type === type)
+      .reduce((sum, cost) => sum + Number(cost.amount || 0), 0);
+  };
+  const buildTotal = getCostTotalByType(costList, "BUILD");
+  const materialTotal = getCostTotalByType(costList, "MATERIAL");
+
+  // 기타 비용 총액
+  const getExtraCostTotal = (estimate) => {
+    return (
+      Number(estimate.consultingLaborCost || 0) +
+      Number(estimate.stylingDesignCost || 0) +
+      Number(estimate.threeDImageCost || 0) +
+      Number(estimate.reportProductionCost || 0) +
+      Number(estimate.demolitionCost || 0) +
+      Number(estimate.disposalCost || 0) +
+      Number(estimate.etcFee || 0)
+    );
+  };
+
+  // 전체 견적금액 총액
+  const getTotalAmount = (costList, estimate) => {
+    const buildTotal = getCostTotalByType(costList, "BUILD");
+    const materialTotal = getCostTotalByType(costList, "MATERIAL");
+    const extraTotal = getExtraCostTotal(estimate);
+
+    return buildTotal + materialTotal + extraTotal;
+  };
+
   useEffect(() => {
-    setRequest(requestDetailRepairMock);
+    getRequest();
   }, []);
 
   return (
@@ -116,12 +129,13 @@ export default function RequestActive() {
           }}
         >
           <p>
-            요청일 <span>{request.createdAt}</span>
+            요청일 <span>{request.requestAt}</span>
           </p>
           <p
             style={{
               color: "#6A7685",
               fontSize: "12px",
+              cursor: "pointer",
             }}
           >
             요청 취소하기
@@ -345,7 +359,7 @@ export default function RequestActive() {
                 {request.additionalRequest}
               </p>
             </div>
-            {request.imageUrls && (
+            {request.image1Idx && (
               <div
                 style={{
                   display: "flex",
@@ -353,22 +367,23 @@ export default function RequestActive() {
                   marginTop: "10px",
                 }}
               >
-                {request.imageUrls.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={`http://localhost:8080/imageView?type=expert&filename=${img}`}
-                    width="80px"
-                    height="80px"
-                  />
-                ))}
+                {[request.image1Idx, request.image2Idx, request.image3Idx]
+                  .filter((img) => img)
+                  .map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={`http://localhost:8080/imageView?type=expert&filename=${img}`}
+                      width="80px"
+                      height="80px"
+                    />
+                  ))}
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* 전문가 목록 */}
-      {request.experts && (
+      {expertList.length !== 0 ? (
         <div
           style={{
             display: "flex",
@@ -377,7 +392,7 @@ export default function RequestActive() {
             alignSelf: "stretch",
           }}
         >
-          {request.experts.map((expert) => (
+          {expertList.map((expert) => (
             <div
               style={{
                 display: "flex",
@@ -390,37 +405,37 @@ export default function RequestActive() {
                 borderRadius: "8px",
                 fontSize: "12px",
                 cursor: "pointer",
-
                 border:
-                  selectedExpertIdx === expert.expertIdx
+                  selectedExpertIdx === expert.estimateIdx
                     ? "1px solid rgba(179, 235, 255, 0.50)"
                     : "1px solid #EFF1F5",
 
                 background:
-                  selectedExpertIdx === expert.expertIdx
+                  selectedExpertIdx === expert.estimateIdx
                     ? "rgba(179, 235, 255, 0.10)"
                     : "#FFF",
 
                 transition: "all 0.2s ease",
               }}
-              key={expert.expertIdx}
-              onClick={() => handleExpertClick(expert.expertIdx)}
+              key={expert.estimateIdx}
+              onClick={() => {
+                setSelectedExpertIdx(expert.estimateIdx);
+                getEstimateDetail(expert.estimateIdx);
+              }}
             >
               <img
-                src={`http://localhost:8080/imageView?type=expert&filename=${expert.profileImageUrl}`}
+                src={`http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}`}
                 width="40px"
                 height="40px"
               />
-              <p style={{ whiteSpace: "nowrap" }}>{expert.expertName}</p>
+              <p style={{ whiteSpace: "nowrap" }}>{expert.activityName}</p>
               <p style={{ fontWeight: "600", whiteSpace: "nowrap" }}>
-                {Number(expert.totalEstimateCost).toLocaleString()}원
+                {Math.floor(expert.totalCost / 10000)}만원
               </p>
             </div>
           ))}
         </div>
-      )}
-
-      {!estimateDetail ? (
+      ) : (
         <div
           style={{
             padding: "40px",
@@ -429,151 +444,385 @@ export default function RequestActive() {
             fontSize: "14px",
           }}
         >
-          전문가를 선택하면 견적서가 표시됩니다.
+          받은 견적서가 없습니다.
         </div>
-      ) : (
+      )}
+
+      {expertList.length !== 0 && (
         <>
-          <div
-            style={{
-              display: "flex",
-              height: "60px",
-              justifyContent: "center",
-              alignItems: "center",
-              border: "1px solid rgba(255, 88, 51, 0.15)",
-              background: "rgba(255, 88, 51, 0.05)",
-            }}
-          >
+          {!estimate ? (
             <div
               style={{
-                height: "100%",
-                width: "100%",
-                display: "flex",
-                paddingLeft: "30px",
-                alignItems: "center",
-                gap: "10px",
-                fontSize: "16px",
-                fontWeight: "600",
+                padding: "40px",
+                textAlign: "center",
+                color: "#6A7685",
+                fontSize: "14px",
               }}
             >
-              <p>총 견적 금액</p>
-              <p>
-                {Number(estimateDetail.totalEstimateCost).toLocaleString()}원
-              </p>
+              전문가를 선택하면 견적서가 표시됩니다.
             </div>
-            <div
-              style={{
-                height: "100%",
-                width: "100%",
-                display: "flex",
-                paddingLeft: "30px",
-                alignItems: "center",
-                gap: "10px",
-                fontSize: "16px",
-                fontWeight: "600",
-                borderLeft: "1px solid rgba(255, 88, 51, 0.15)",
-              }}
-            >
-              <p>예상 작업 기간</p>
-              <p>7일</p>
-            </div>
-          </div>
-
-          {/* 견적서 상세 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "30px",
-            }}
-          >
-            <div style={{ flex: 1 }}>
-              <h3 className="mypage-sectionTitle">견적 금액 상세</h3>
+          ) : (
+            <>
               <div
-                className="labelInput-wrapper"
-                style={{ padding: "16px 40px" }}
+                style={{
+                  display: "flex",
+                  height: "60px",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  border: "1px solid rgba(255, 88, 51, 0.15)",
+                  background: "rgba(255, 88, 51, 0.05)",
+                }}
               >
-                <label style={{ width: "150px" }}>타일</label>
-                <p
+                <div
                   style={{
-                    fontWeight: "600",
-                    textAlign: "right",
+                    height: "100%",
                     width: "100%",
-                  }}
-                >
-                  240만원
-                </p>
-              </div>
-              <div
-                className="labelInput-wrapper"
-                style={{ padding: "16px 40px" }}
-              >
-                <label
-                  style={{
-                    width: "150px",
-                    fontWeight: "600",
+                    display: "flex",
+                    paddingLeft: "30px",
+                    alignItems: "center",
+                    gap: "10px",
                     fontSize: "16px",
-                  }}
-                >
-                  시공비 합계
-                </label>
-                <p
-                  style={{
                     fontWeight: "600",
-                    textAlign: "right",
-                    fontSize: "16px",
-                    whiteSpace: "nowrap",
                   }}
                 >
-                  240만원
-                </p>
+                  <p>총 견적 금액</p>
+                  <p>
+                    {Math.floor(getTotalAmount(costList, estimate) / 10000)}원
+                  </p>
+                </div>
+                <div
+                  style={{
+                    height: "100%",
+                    width: "100%",
+                    display: "flex",
+                    paddingLeft: "30px",
+                    alignItems: "center",
+                    gap: "10px",
+                    fontSize: "16px",
+                    fontWeight: "600",
+                    borderLeft: "1px solid rgba(255, 88, 51, 0.15)",
+                  }}
+                >
+                  <p>예상 작업 기간</p>
+                  {estimate.workDurationType === "HOUR" && (
+                    <p>{estimate.workDurationValue}시간</p>
+                  )}
+                  {estimate.workDurationType === "DAY" && (
+                    <p>{estimate.workDurationValue}일</p>
+                  )}
+                  {estimate.workDurationType === "WEEK" && (
+                    <p>{estimate.workDurationValue}주</p>
+                  )}
+                  {estimate.workDurationType === "MONTH" && (
+                    <p>{estimate.workDurationValue}개월</p>
+                  )}
+                </div>
               </div>
-              <Input
-                type="textarea"
-                style={{ marginTop: "20px" }}
-                value={estimateDetail.costDetail}
-              />
-            </div>
-            <div style={{ flex: 2 }}>
-              <h3 className="mypage-sectionTitle">작업 상세</h3>
-              {estimateDetail.diagnosisType && (
-                <div className="labelInput-wrapper">
-                  <label style={{ width: "150px" }}>사전 진단 필요 여부</label>
-                  <p>{estimateDetail.diagnosisType}</p>
-                </div>
-              )}
-              {estimateDetail.repairType && (
-                <div className="labelInput-wrapper">
-                  <label style={{ width: "150px" }}>수리 방식</label>
-                  <p>{estimateDetail.repairType}</p>
-                </div>
-              )}
-              {estimateDetail.demolitionType && (
-                <div className="labelInput-wrapper">
-                  <label style={{ width: "150px" }}>철거 방식</label>
-                  <p>{estimateDetail.demolitionType}</p>
-                </div>
-              )}
-              {estimateDetail.consultingType && (
-                <div className="labelInput-wrapper">
-                  <label style={{ width: "150px" }}>컨설팅 방식</label>
-                  <p>{estimateDetail.consultingType}</p>
-                </div>
-              )}
-              <div className="labelInput-wrapper">
-                <label style={{ width: "150px" }}>작업 범위</label>
-                <p>{estimateDetail.workScope}</p>
-              </div>
-              <div className="labelInput-wrapper">
-                <label style={{ width: "150px" }}>상세 설명</label>
-                <p>{estimateDetail.workDetail}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* 전문가 정보 */}
-          <div>
-            <h3 className="mypage-sectionTitle">전문가 정보</h3>
-            {/* {expertList.map((expert, index) => (
+              {/* 견적서 상세 */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "30px",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <h3 className="mypage-sectionTitle">견적 금액 상세</h3>
+                  {/* 시공비 */}
+                  {costList
+                    .filter((cost) => cost.type === "BUILD")
+                    .map((cost) => (
+                      <div
+                        className="labelInput-wrapper"
+                        style={{ padding: "16px 40px" }}
+                      >
+                        <label style={{ width: "150px" }}>{cost.label}</label>
+                        <p
+                          style={{
+                            fontWeight: "600",
+                            textAlign: "right",
+                            width: "100%",
+                          }}
+                        >
+                          {Math.floor(cost.amount / 10000)} 만원
+                        </p>
+                      </div>
+                    ))}
+                  {buildTotal !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label
+                        style={{
+                          width: "150px",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                        }}
+                      >
+                        시공비 합계
+                      </label>
+                      <p
+                        style={{
+                          width: "100%",
+                          fontWeight: "600",
+                          textAlign: "right",
+                          fontSize: "16px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {Math.floor(buildTotal / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 자재비 */}
+                  {costList
+                    .filter((cost) => cost.type === "MATERIAL")
+                    .map((cost) => (
+                      <div
+                        className="labelInput-wrapper"
+                        style={{ padding: "16px 40px" }}
+                      >
+                        <label style={{ width: "150px" }}>{cost.label}</label>
+                        <p
+                          style={{
+                            fontWeight: "600",
+                            textAlign: "right",
+                            width: "100%",
+                          }}
+                        >
+                          {Math.floor(cost.amount / 10000)} 만원
+                        </p>
+                      </div>
+                    ))}
+                  {materialTotal !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label
+                        style={{
+                          width: "150px",
+                          fontWeight: "600",
+                          fontSize: "16px",
+                        }}
+                      >
+                        자재비 합계
+                      </label>
+                      <p
+                        style={{
+                          width: "100%",
+                          fontWeight: "600",
+                          textAlign: "right",
+                          fontSize: "16px",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {Math.floor(materialTotal / 1000)} 만원
+                      </p>
+                    </div>
+                  )}
+
+                  {/* 그 외 비용 */}
+                  {estimate.consultingLaborCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>컨설팅 인건비</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.consultingLaborCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.stylingDesignCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>
+                        스타일링 디자인비
+                      </label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.stylingDesignCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.threeDImageCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>3D이미지 작업비</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.threeDImageCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.reportProductionCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>보고서 제작비</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.reportProductionCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.demolitionCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>철거비</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.demolitionCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.disposalCost !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>폐기물 처리비</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.disposalCost / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  {estimate.etcFee !== 0 && (
+                    <div
+                      className="labelInput-wrapper"
+                      style={{ padding: "16px 40px" }}
+                    >
+                      <label style={{ width: "150px" }}>기타비용</label>
+                      <p
+                        style={{
+                          fontWeight: "600",
+                          textAlign: "right",
+                          width: "100%",
+                        }}
+                      >
+                        {Math.floor(estimate.etcFee / 10000)} 만원
+                      </p>
+                    </div>
+                  )}
+                  <div
+                    className="labelInput-wrapper"
+                    style={{ padding: "16px 40px" }}
+                  >
+                    <label
+                      style={{
+                        width: "150px",
+                        fontWeight: "600",
+                        fontSize: "16px",
+                      }}
+                    >
+                      총 견적 금액
+                    </label>
+                    <p
+                      style={{
+                        fontWeight: "600",
+                        textAlign: "right",
+                        fontSize: "16px",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {Math.floor(getTotalAmount(costList, estimate) / 10000)}{" "}
+                      만원
+                    </p>
+                  </div>
+                  {estimate.costDetail && (
+                    <Input
+                      type="textarea"
+                      style={{ marginTop: "20px" }}
+                      value={estimate.costDetail}
+                    />
+                  )}
+                </div>
+                <div style={{ flex: 2 }}>
+                  <h3 className="mypage-sectionTitle">작업 상세</h3>
+                  {estimate.diagnosisType && (
+                    <div className="labelInput-wrapper">
+                      <label style={{ width: "150px" }}>
+                        사전 진단 필요 여부
+                      </label>
+                      <p>{DIAGNOSIS_TYPE_MAPPING[estimate.diagnosisType]}</p>
+                    </div>
+                  )}
+                  {estimate.repairType && (
+                    <div className="labelInput-wrapper">
+                      <label style={{ width: "150px" }}>수리 방식</label>
+                      <p>{REPAIR_TYPE_MAPPING[estimate.repairType]}</p>
+                    </div>
+                  )}
+                  {estimate.demolitionType && (
+                    <div className="labelInput-wrapper">
+                      <label style={{ width: "150px" }}>철거 방식</label>
+                      <p>{DEMOLITION_TYPE_MAPPING[estimate.demolitionType]}</p>
+                    </div>
+                  )}
+                  {estimate.consultingType && (
+                    <div className="labelInput-wrapper">
+                      <label style={{ width: "150px" }}>컨설팅 방식</label>
+                      <p>{CONSULTING_TYPE_MAPPING[estimate.consultingType]}</p>
+                    </div>
+                  )}
+                  <div className="labelInput-wrapper">
+                    <label style={{ width: "150px" }}>작업 범위</label>
+                    <p>{estimate.workScope}</p>
+                  </div>
+                  <div className="labelInput-wrapper">
+                    <label style={{ width: "150px" }}>상세 설명</label>
+                    <p>{estimate.workDetail}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* 전문가 정보 */}
+              <div>
+                <h3 className="mypage-sectionTitle">전문가 정보</h3>
+                {/* {expertList.map((expert, index) => (
           <div
             key={expert.expertIdx}
             ref={expertList.length === index + 1 ? lastProductRef : null}
@@ -584,7 +833,9 @@ export default function RequestActive() {
             />
           </div>
         ))} */}
-          </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
