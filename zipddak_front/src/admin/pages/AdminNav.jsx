@@ -70,6 +70,9 @@ export default function AdminNav() {
                                     <button onClick={() => navigate("/admin/payment")}>결제 내역</button>
                                 </li>
                                 <li>
+                                    <button onClick={() => navigate("/admin/membership")}>멤버십 내역</button>
+                                </li>
+                                <li>
                                     <button onClick={() => navigate("/admin/reports")}>신고 내역</button>
                                 </li>
                             </ul>

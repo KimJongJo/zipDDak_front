@@ -1,18 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function PaymentHistory() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 전문 서비스
     const [defaultMajor, setDefaultMajor] = useState(1);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
-    // 속성명
-    const [defaultColumn, setDefaultColumn] = useState(1);
+
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [paymentList, setPaymentList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -21,11 +31,7 @@ export default function PaymentHistory() {
         },
         {
             stateCode: 2,
-            label: "결제 취소",
-        },
-        {
-            stateCode: 3,
-            label: "환불",
+            label: "취소/환불",
         },
     ];
 
@@ -54,9 +60,41 @@ export default function PaymentHistory() {
 
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
     };
+
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
+
+        setSearchKeyword(keyword);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setSaleList([]);
+        setPage(1);
+    };
+
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/payments?state=${defaultState}&type=${defaultMajor}&keyword=${searchKeyword}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setPaymentList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, defaultState, defaultMajor, searchKeyword, page]);
 
     // const testUser = [];
 
@@ -144,11 +182,13 @@ export default function PaymentHistory() {
                         {/* 검색 input */}
                         <div className="admin-userList-search-div">
                             <i className="bi bi-search"></i>
-                            <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
                         </div>
 
                         {/* 검색 버튼 */}
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
+                        <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                            검색
+                        </button>
 
                         {/* 초기화 버튼 */}
                         <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -158,7 +198,7 @@ export default function PaymentHistory() {
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {paymentList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -176,57 +216,58 @@ export default function PaymentHistory() {
                                 <thead>
                                     <tr>
                                         <td>
+                                            <span className="font-14 medium">결제번호</span>
+                                        </td>
+                                        <td>
                                             <span className="font-14 medium">주문번호</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">회원명</span>
+                                            <span className="font-14 medium">구매상품</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">서비스</span>
+                                            <span className="font-14 medium">결제 승인 시간</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">결제 금액</span>
+                                            <span className="font-14 medium">결제수단</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">결제일</span>
+                                            <span className="font-14 medium">결제금액</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">결제 상태</span>
+                                            <span className="font-14 medium">처리상태</span>
                                         </td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((payment) => (
-                                        <tr key={payment.paymentNo}>
+                                    {paymentList.map((payment) => (
+                                        <tr key={payment.paymentIdx}>
                                             <td>
-                                                <span className="font-14">{payment.paymentNo}</span>
+                                                <span className="font-14">{payment.paymentIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{payment.userName}</span>
+                                                <span className="font-14">{payment.orderId}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{payment.service}</span>
-                                            </td>
-
-                                            <td>
-                                                <span className="font-14">{payment.payment.toLocaleString()}원</span>
+                                                <span className="font-14">{payment.orderName}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{payment.paymentDate}</span>
+                                                <span className="font-14">{new Date(payment.approvedAt).toLocaleString("ko-KR")}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{payment.method}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{payment.amount.toLocaleString()}원</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {payment.stateCode === 1 ? (
+                                                    {payment.state === "DONE" ? (
                                                         <div className="payment-state-code-1">
                                                             <span className="font-12 medium">결제완료</span>
                                                         </div>
-                                                    ) : payment.stateCode === 2 ? (
-                                                        <div className="payment-state-code-2">
-                                                            <span className="font-12 medium">환불</span>
-                                                        </div>
                                                     ) : (
                                                         <div className="payment-state-code-3">
-                                                            <span className="font-12 medium">결제취소</span>
+                                                            <span className="font-12 medium">취소/환불</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -235,26 +276,7 @@ export default function PaymentHistory() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>

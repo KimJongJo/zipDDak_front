@@ -248,6 +248,7 @@ function App() {
 
             <Route path="dashboard" element={<Dashboard />} />
 
+            {/* 전문가 */}
             <Route path="admin/*" element={<AdminLayout />}>
                 {/* 회원 관리 */}
                 <Route path="users" element={<AdminUserList />} />
@@ -265,6 +266,7 @@ function App() {
                 <Route path="salesHistory/:saleIdx" element={<AdminSalesDetail />} />
                 <Route path="payment" element={<PaymentHistory />} />
                 <Route path="payment/:paymentIdx" element={<AdminPaymentDetail />} />
+                <Route path="membership" element={<AdminMembership />} />
                 <Route path="reports" element={<AdminReportList />} />
                 <Route path="reports/:type/:reportIdx" element={<AdminReportDetail />} />
 
