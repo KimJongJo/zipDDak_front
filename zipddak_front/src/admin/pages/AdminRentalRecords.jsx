@@ -69,7 +69,7 @@ export default function AdminRentalRecords() {
 
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
