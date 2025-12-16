@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
 
 export default function AdminStoreList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 전문 서비스
-    const [defaultProductCode, setDefaultProductCode] = useState(1);
+    const [defaultProductCode, setDefaultProductCode] = useState(0);
+
+    // 검색 키워드
+    const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
-    // 속성명
-    const [defaultColumn, setDefaultColumn] = useState(1);
-    // 검색 키워드
-    const [keyword, setKeyword] = useState("");
+
+    const [sellerList, setSellerList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -29,80 +38,57 @@ export default function AdminStoreList() {
         },
         {
             stateCode: 4,
-            label: "탈퇴",
-        },
-    ];
-
-    const userColumn = [
-        {
-            columnCode: 1,
-            label: "all",
-        },
-        {
-            columnCode: 2,
-            label: "name",
-        },
-        {
-            columnCode: 3,
-            label: "nickname",
-        },
-        {
-            columnCode: 4,
-            label: "username",
-        },
-        {
-            columnCode: 5,
-            label: "tel",
+            label: "신청처리중",
         },
     ];
 
     const productCode = [
         {
-            productCode: 1,
+            productCode: 0,
             label: "전체",
         },
         {
-            productCode: 2,
+            productCode: 1,
             label: "주방",
         },
         {
-            productCode: 3,
+            productCode: 6,
             label: "욕실",
         },
         {
-            productCode: 4,
+            productCode: 14,
             label: "중문/도어",
         },
         {
-            productCode: 5,
+            productCode: 15,
             label: "폴딩도어",
         },
         {
-            productCode: 6,
+            productCode: 16,
             label: "벽지/장판/마루",
         },
         {
-            productCode: 7,
+            productCode: 17,
             label: "타일",
         },
         {
-            productCode: 8,
+            productCode: 18,
             label: "시트/필름",
         },
         {
-            productCode: 9,
+            productCode: 19,
             label: "스위치/콘센트",
         },
         {
-            productCode: 10,
+            productCode: 20,
             label: "커튼블라인드",
         },
         {
-            productCode: 11,
+            productCode: 21,
             label: "페인트",
         },
         {
-            productCode: 12,
+            productCode: 22,
             label: "조명",
         },
     ];
@@ -127,9 +113,25 @@ export default function AdminStoreList() {
         },
     ];
 
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/ad/sellers?productCode=${defaultProductCode}&state=${defaultState}&keyword=${searchKeyword}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setSellerList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, page, defaultProductCode, defaultState]);
+
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">

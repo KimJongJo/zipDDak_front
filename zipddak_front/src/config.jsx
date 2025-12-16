@@ -24,14 +24,15 @@ export const myAxios = (token, setToken) => {
                 switch (error.response.status) {
                     case 401: //401,403 은 인증오류, 로그인 다시시도
                     case 403:
-                        window.location.href = `${reactUrl}/zipddak`;
+                        console.log("403");
+                        // window.location.href = `${reactUrl}/zipddak`;
                         break;
                     default:
                         return Promise.reject(error);
                 }
                 return Promise.reject(error);
             }
-        },
+        }
     );
 
     //토큰이 있으면 헤더에 토큰을 삽입하여 요청
