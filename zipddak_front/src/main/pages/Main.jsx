@@ -61,7 +61,7 @@ export default function Main() {
     myAxios(token, setToken).get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
     .then((res)=> {
       console.log(res.data);
-      setExpert(res.data);
+      setExpert(res.data.cards);
    
     })
     .catch((err)=> {
@@ -73,7 +73,7 @@ export default function Main() {
 
     expertList();
     
-  },[user.username, eCategory,eActiveCategory])
+  },[user.username, eCategory])
 
  
   //상품 리스트
@@ -90,11 +90,18 @@ export default function Main() {
       const usernamePharam =user? user.username : '';
       const categoryPharam= pCategory? pCategory : 1 ;
       const keywordPharam = '';
+
+      let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
   
-    myAxios(token, setToken).get(`/main/product?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+    myAxios(tokenPharam, setToken).get(url)
     .then((res)=> {
       console.log(res.data);
-      setProduct(res.data);
+      setProduct(res.data.cards);
    
     })
     .catch((err)=> {
@@ -122,11 +129,19 @@ export default function Main() {
       const usernamePharam =user? user.username : '';
       const categoryPharam= tCategory? tCategory : 83 ;
       const keywordPharam = '';
+
+      let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
   
-    myAxios(token, setToken).get(`/main/tool?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+  
+    myAxios(tokenPharam, setToken).get(url)
     .then((res)=> {
       console.log(res.data);
-      setTool(res.data);
+      setTool(res.data.cards);
    
     })
     .catch((err)=> {
@@ -138,7 +153,7 @@ export default function Main() {
 
     toolList();
     
-  },[user.username, tCategory,tActiveCategory])
+  },[user.username, tCategory])
 
 
   //커뮤니티 리스트
@@ -155,8 +170,15 @@ export default function Main() {
   //     const usernamePharam =user? user.username : '';
   //     const categoryPharam= tCategory? tCategory : 76 ;
   //     const keywordPharam = '';
+
+// let url = `/main/community?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+//       if (usernamePharam) {
+//         url += `&username=${usernamePharam}`;
+//       }
+
+//       const tokenPharam = token? token : null;
   
-  //   myAxios(token, setToken).get(`/main/community?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+  //   myAxios(tokenPharam, setToken).get(url)
   //   .then((res)=> {
   //     console.log(res.data);
   //     setCommunity(res.data);
@@ -228,7 +250,7 @@ export default function Main() {
           </div>
 
           <div className="cards">
-             {
+             {Array.isArray(expert) &&
               expert.map(expertCard =>(
                 <Expert key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
               ))
@@ -244,7 +266,7 @@ export default function Main() {
             <div className="title-box">
               <div className="title-main-main">
                 <MapPin size={24} color="#FF5833" />
-                <span>{user.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
+                <span>{user?.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
                 {/* <MapPin size={24} color='#FF5833'/> */}
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/tool`)}>
@@ -271,7 +293,7 @@ export default function Main() {
           </div>
 
           <div className="cards">
-            {
+            {Array.isArray(tool) &&
               tool.map(toolCard =>(
                 <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite}/>
               ))
@@ -329,7 +351,7 @@ export default function Main() {
           </div>
 
           <div className="cards">
-            {
+            {Array.isArray(product) &&
               product.map(productCard => (
               <Product key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>
               ))

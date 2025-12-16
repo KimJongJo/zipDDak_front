@@ -95,7 +95,7 @@ export default function Login() {
                         <div className="col-cm">
                             <div className="login_options">
                                 <FormGroup check>
-                                    <Input type="checkbox" /> <Label check>로그인 유지</Label>
+                                    <Label check><Input type="checkbox" />로그인 유지</Label>
                                 </FormGroup>
                                 <a href="">
                                     <span>아이디/비밀번호 찾기</span>

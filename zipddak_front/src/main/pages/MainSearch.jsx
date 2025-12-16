@@ -54,6 +54,7 @@ export default function MainSearch() {
   //전문가 리스트
   const [eCategory, setECategory] = useState();
   const [eActiveCategory, setEActiveCategory] = useState(0);
+  const [expertLength, setExpertLength] = useState(0);
 
   const expertCategory = (categoryNo) => {
     setECategory(categoryNo);
@@ -68,7 +69,8 @@ export default function MainSearch() {
     myAxios(token, setToken).get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
       .then((res) => {
         console.log(res.data);
-        setExpert(res.data);
+        setExpert(res.data.cards);
+        setExpertLength(res.data.totalCount);
 
       })
       .catch((err) => {
@@ -86,6 +88,7 @@ export default function MainSearch() {
   //상품 리스트
   const [pCategory, setPCategory] = useState();
   const [pActiveCategory, setPActiveCategory] = useState(1);
+  const [productLength, setProductLength] = useState(0);
 
   const productCategory = (categoryNo) => {
     setPCategory(categoryNo);
@@ -98,10 +101,18 @@ export default function MainSearch() {
     const categoryPharam = pCategory ? pCategory : 1;
     const keywordPharam = keyword? keyword:'';
 
-    myAxios(token, setToken).get(`/main/product?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+    let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+
+    myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
         console.log(res.data);
-        setProduct(res.data);
+        setProduct(res.data.cards);
+        setProductLength(res.data.totalCount)
 
       })
       .catch((err) => {
@@ -118,6 +129,7 @@ export default function MainSearch() {
   //공구 리스트
   const [tCategory, setTcategory] = useState();
   const [tActiveCategory, setTActiveCategory] = useState(83);
+  const [toolLength, setToolLength] = useState(0);
 
   const toolCategory = (categoryNo) => {
     setTcategory(categoryNo);
@@ -130,10 +142,19 @@ export default function MainSearch() {
     const categoryPharam = tCategory ? tCategory : 1;
     const keywordPharam = keyword? keyword:'';
 
-    myAxios(token, setToken).get(`/main/tool?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+    let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+  
+
+    myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
         console.log(res.data);
-        setTool(res.data);
+        setTool(res.data.cards);
+        setToolLength(res.data.totalCount);
 
       })
       .catch((err) => {
@@ -220,7 +241,7 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <span>추천 전문가</span>
-                <span className="s-count">{expert.length}</span>
+                <span className="s-count">{expertLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/experts?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -243,7 +264,7 @@ export default function MainSearch() {
           </div>
 
           <div className="cards">
-           {
+           {Array.isArray(expert) &&
             expert.map(expertCard=> (
               <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
             ))
@@ -259,8 +280,8 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <MapPin size={24} color="#FF5833" />
-                <span>{user.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
-                <span className="s-count">{tool.length}</span>
+                <span>{user?.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
+                <span className="s-count">{toolLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/tool?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -287,7 +308,7 @@ export default function MainSearch() {
 
           <div className="cards">
 
-            {
+            {Array.isArray(tool) &&
               tool.map(toolCard =>(
                 <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite}/>
               ))
@@ -302,7 +323,7 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <span>자재 마켓</span>
-                <span className="s-count">{product.length}</span>
+                <span className="s-count">{productLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/productList?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -346,7 +367,7 @@ export default function MainSearch() {
           </div>
 
           <div className="cards">
-            {
+            {Array.isArray(product) &&
               product.map (productCard=> (
                 <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>
               ))

@@ -13,7 +13,7 @@ export default function Expertmain({ expert }) {
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
                  <img className="expert-img" 
-                 src={`${expert.fileRename}/${expert.storagePath}`} alt="전문가" />
+                 src={`${expert.storagePath}/${expert.fileRename}`} alt="전문가" />
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>
