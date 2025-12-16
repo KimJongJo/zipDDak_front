@@ -1,133 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminSalesHistory() {
-    // 전문 서비스
-    const [defaultRole, setDefaultRole] = useState(1);
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
     // 속성명
     const [defaultColumn, setDefaultColumn] = useState(1);
     // 검색 키워드
+    const [startDate, setStartDate] = useState("");
+    const [searchStartDate, setSearchStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [searchEndDate, setSearchEndDate] = useState("");
+
+    // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [saleList, setSaleList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
             stateCode: 1,
-            label: "배송완료",
+            label: "결제완료",
         },
         {
             stateCode: 2,
-            label: "배송중",
+            label: "결제취소",
         },
-        {
-            stateCode: 3,
-            label: "상품준비중",
-        },
-        {
-            stateCode: 4,
-            label: "취소완료",
-        },
-        {
-            stateCode: 5,
-            label: "교환완료",
-        },
-        {
-            stateCode: 6,
-            label: "반품완료",
-        },
-    ];
-
-    const testUser = [
-        {
-            orderNo: 1,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 1,
-            productCount: 2,
-        },
-        {
-            orderNo: 2,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 2,
-            productCount: 2,
-        },
-        {
-            orderNo: 3,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 3,
-            productCount: 2,
-        },
-        {
-            orderNo: 4,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 4,
-            productCount: 2,
-        },
-        {
-            orderNo: 5,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 5,
-            productCount: 2,
-        },
-        {
-            orderNo: 6,
-            storeName: "업체이름",
-            productName: "상품명",
-            buyerName: "홍길동",
-            totalAmount: 200000,
-            orderDate: "2025-11-09",
-            orderStatus: 6,
-            productCount: 2,
-        },
-    ];
-
-    // 컬럼 정의
-    const columns = [
-        { label: "주문번호", key: "orderNo" },
-        { label: "업체명", key: "storeName" },
-        { label: "상품명", key: "productName" },
-        { label: "구매자", key: "buyerName" },
-        { label: "금액", key: "totalAmount" },
-        { label: "구매날짜", key: "orderDate" },
-        { label: "주문상태", key: "orderStatus" },
-    ];
-
-    const filterOptions = [
-        // 전문가
-        { value: "", label: "전체" },
-        { value: "storeName", label: "업체명" },
-        { value: "productName", label: "상품명" },
-        { value: "buyerName", label: "구매자" },
+        // {
+        //     stateCode: 3,
+        //     label: "상품준비중",
+        // },
+        // {
+        //     stateCode: 4,
+        //     label: "취소완료",
+        // },
+        // {
+        //     stateCode: 5,
+        //     label: "교환완료",
+        // },
+        // {
+        //     stateCode: 6,
+        //     label: "반품완료",
+        // },
     ];
 
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
+        setStartDate("");
+        setEndDate("");
+        setSearchStartDate("");
+        setSearchEndDate("");
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
     };
+
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
+
+        setSearchKeyword(keyword);
+        setSearchStartDate(startDate);
+        setSearchEndDate(endDate);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setSaleList([]);
+        setPage(1);
+    };
+
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/sales?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&startDate=${searchStartDate}&endDate=${searchEndDate}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setSaleList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, defaultState, page, searchKeyword, searchStartDate, searchEndDate]);
 
     // const testUser = [];
 
@@ -155,8 +126,9 @@ export default function AdminSalesHistory() {
                 </div>
 
                 {/* 검색 필터 라인 */}
-                <div className="admin-filter-sales-line-div">
-                    <div className="admin-filter-sales-line-first-div">
+                <div className="admin-filter-sales-line-div" style={{ height: "60px" }}>
+                    {/* 우측 검색 필터 */}
+                    <div className="admin-sales-filter-right" style={{ width: "100%", display: "flex", justifyContent: "space-between" }}>
                         {/* 활동 상태 */}
                         <div className="admin-userList-radio-div">
                             {userState.map((state) => (
@@ -176,36 +148,35 @@ export default function AdminSalesHistory() {
                             ))}
                         </div>
                         <div className="admin-filter-line-div-top">
-                            <Input className="admin-filter-input-date font-13" type="date" />
+                            <Input value={startDate} onChange={(e) => setStartDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                             <span className="font-22 medium">~</span>
-                            <Input className="admin-filter-input-date font-13" type="date" />
+                            <Input value={endDate} onChange={(e) => setEndDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                         </div>
-                    </div>
+                        <div style={{ display: "flex", gap: "10px" }}>
+                            <select onChange={(e) => setDefaultColumn(e.target.value)} className="admin-userList-filter-select font-13" name="" id="">
+                                <option value={1}>전체</option>
+                                <option value={2}>주문번호</option>
+                                <option value={3}>주문코드</option>
+                                <option value={4}>구매자</option>
+                            </select>
 
-                    {/* 우측 검색 필터 */}
-                    <div className="admin-sales-filter-right">
-                        <select className="admin-userList-filter-select font-13" value={defaultColumn} onChange={(e) => setDefaultColumn(e.target.value)}>
-                            {filterOptions.map((opt, idx) => (
-                                <option key={idx} value={opt.value}>
-                                    {opt.label}
-                                </option>
-                            ))}
-                        </select>
+                            <div className="admin-userList-search-div">
+                                <i className="bi bi-search"></i>
+                                <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                            </div>
 
-                        <div className="admin-userList-search-div">
-                            <i className="bi bi-search"></i>
-                            <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                            <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                                검색
+                            </button>
+                            <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
+                                초기화
+                            </button>
                         </div>
-
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
-                        <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
-                            초기화
-                        </button>
                     </div>
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {saleList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -215,101 +186,75 @@ export default function AdminSalesHistory() {
                                 borderBottom: "1px solid #eaecf0",
                             }}
                         >
-                            <span className="font-12 medium">회원 정보를 검색해주세요.</span>
+                            <span className="font-12 medium">대여 내역이 존재하지 않습니다.</span>
                         </div>
                     ) : (
                         <div className="admin-userList-table-div">
                             <Table hover className="admin-userList-table">
                                 <thead>
                                     <tr>
-                                        {columns.map((col) => (
-                                            <td key={col.key}>
-                                                <span className="font-14 medium">{col.label}</span>
-                                            </td>
-                                        ))}
+                                        <td>
+                                            <span className="font-14 medium">주문번호</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">주문코드</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">구매자</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">수령인</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">결제금액</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">구매날짜</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">주문상태</span>
+                                        </td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((sales) => (
-                                        <tr key={sales.orderNo}>
-                                            {columns.map((col) =>
-                                                col.key === "orderStatus" ? (
-                                                    <td key={col.key}>
-                                                        <div className="user-state-badge">
-                                                            {sales[col.key] === 1 ? (
-                                                                <div className="sales-state-code-1">
-                                                                    <span className="font-12 medium">배송완료</span>
-                                                                </div>
-                                                            ) : sales[col.key] === 2 ? (
-                                                                <div className="sales-state-code-2">
-                                                                    <span className="font-12 medium">배송중</span>
-                                                                </div>
-                                                            ) : sales[col.key] === 3 ? (
-                                                                <div className="sales-state-code-3">
-                                                                    <span className="font-12 medium">상품준비중</span>
-                                                                </div>
-                                                            ) : sales[col.key] === 4 ? (
-                                                                <div className="sales-state-code-4">
-                                                                    <span className="font-12 medium">취소완료</span>
-                                                                </div>
-                                                            ) : sales[col.key] === 5 ? (
-                                                                <div className="sales-state-code-5">
-                                                                    <span className="font-12 medium">교환완료</span>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="sales-state-code-6">
-                                                                    <span className="font-12 medium">반품완료</span>
-                                                                </div>
-                                                            )}
+                                    {saleList.map((sales) => (
+                                        <tr key={sales.orderIdx}>
+                                            <td>
+                                                <span className="font-14">{sales.orderIdx}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{sales.orderCode}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{sales.buyer}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{sales.recv}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{sales.amount}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{sales.createdAt}</span>
+                                            </td>
+                                            <td>
+                                                <div className="user-state-badge">
+                                                    {sales.state === "결제완료" ? (
+                                                        <div className="rental-state-code-1">
+                                                            <span className="font-12 medium">결제완료</span>
                                                         </div>
-                                                    </td>
-                                                ) : col.key === "totalAmount" ? (
-                                                    <td key={col.key}>
-                                                        <span className="font-14">{sales[col.key].toLocaleString()}원</span>
-                                                    </td>
-                                                ) : col.key === "productName" ? (
-                                                    sales.productCount === 1 ? (
-                                                        <td key={col.key}>
-                                                            <span className="font-14">{sales[col.key]}</span>
-                                                        </td>
                                                     ) : (
-                                                        <td key={col.key}>
-                                                            <span className="font-14">
-                                                                {sales[col.key]} 외 {sales.productCount - 1}건
-                                                            </span>
-                                                        </td>
-                                                    )
-                                                ) : (
-                                                    <td key={col.key}>
-                                                        <span className="font-14">{sales[col.key]}</span>
-                                                    </td>
-                                                )
-                                            )}
+                                                        <div className="rental-state-code-3">
+                                                            <span className="font-12 medium">결제취소</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </Table>
-
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>

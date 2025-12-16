@@ -38,16 +38,16 @@ export default function AdminNav() {
 
                             <ul className="sub-menu">
                                 <li>
-                                    <button onClick={() => navigate("/ad/users")}>일반 회원</button>
+                                    <button onClick={() => navigate("/admin/users")}>일반 회원</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/experts")}>전문가</button>
+                                    <button onClick={() => navigate("/admin/experts")}>전문가</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/sellers")}>판매업체</button>
+                                    <button onClick={() => navigate("/admin/sellers")}>판매업체</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/switchRequest")}>전환신청 / 입점신청</button>
+                                    <button onClick={() => navigate("/admin/switchRequest")}>전환신청 / 입점신청</button>
                                 </li>
                             </ul>
                         </li>
@@ -61,16 +61,19 @@ export default function AdminNav() {
 
                             <ul className="sub-menu">
                                 <li>
-                                    <button onClick={() => navigate("/ad/rentals")}>대여 내역</button>
+                                    <button onClick={() => navigate("/admin/rentals")}>대여 내역</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/salesHistory")}>판매 내역</button>
+                                    <button onClick={() => navigate("/admin/salesHistory")}>판매 내역</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/payment")}>결제 내역</button>
+                                    <button onClick={() => navigate("/admin/payment")}>결제 내역</button>
                                 </li>
                                 <li>
-                                    <button onClick={() => navigate("/ad/reports")}>신고 내역</button>
+                                    <button onClick={() => navigate("/admin/membership")}>멤버십 내역</button>
+                                </li>
+                                <li>
+                                    <button onClick={() => navigate("/admin/reports")}>신고 내역</button>
                                 </li>
                             </ul>
                         </li>

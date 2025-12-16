@@ -5,6 +5,7 @@ import { Input, Table } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom, useAtomValue } from "jotai";
 import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminStoreList() {
     const [user, setUser] = useAtom(userAtom);
@@ -93,10 +94,17 @@ export default function AdminStoreList() {
         },
     ];
 
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
+        setDefaultProductCode(0);
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
     };
 
     // const testUser = [];
@@ -113,9 +121,19 @@ export default function AdminStoreList() {
         },
     ];
 
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
+
+        setSearchKeyword(keyword);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setSellerList([]);
+        setPage(1);
+    };
+
     const search = () => {
         myAxios(token, setToken)
-            .get(`${baseUrl}/ad/sellers?productCode=${defaultProductCode}&state=${defaultState}&keyword=${searchKeyword}&page=${page}`)
+            .get(`${baseUrl}/admin/sellers?productCode=${defaultProductCode}&state=${defaultState}&keyword=${searchKeyword}&page=${page}`)
             .then((res) => {
                 console.log(res.data);
                 setSellerList(res.data.list);
@@ -127,7 +145,7 @@ export default function AdminStoreList() {
         if (!token) return;
 
         search();
-    }, [token, page, defaultProductCode, defaultState]);
+    }, [token, page, defaultProductCode, defaultState, searchKeyword]);
 
     return (
         <div className="admin-body-div">
@@ -222,7 +240,9 @@ export default function AdminStoreList() {
                         </div>
 
                         {/* 검색 버튼 */}
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
+                        <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                            검색
+                        </button>
 
                         {/* 초기화 버튼 */}
                         <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -273,40 +293,40 @@ export default function AdminStoreList() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((store) => (
-                                        <tr key={store.storeNo}>
+                                    {sellerList.map((seller) => (
+                                        <tr key={seller.sellerIdx}>
                                             <td>
-                                                <span className="font-14">{store.storeNo}</span>
+                                                <span className="font-14">{seller.sellerIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{store.storeName}</span>
+                                                <span className="font-14">{seller.compName}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{store.managerName}</span>
+                                                <span className="font-14">{seller.brandName}</span>
                                             </td>
 
                                             <td>
-                                                <span className="font-14">{store.reportCount}</span>
+                                                <span className="font-14">{seller.reportCount}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{store.storeTel}</span>
+                                                <span className="font-14">{seller.managerTel}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{store.createdAt}</span>
+                                                <span className="font-14">{seller.createdAt}</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {store.stateCode === 1 ? (
+                                                    {seller.state === "ACTIVE" ? (
                                                         <div className="user-state-code-1">
                                                             <span className="font-12 medium">정상</span>
                                                         </div>
-                                                    ) : user.stateCode === 2 ? (
+                                                    ) : seller.state === "STOPPED" ? (
                                                         <div className="user-state-code-2">
                                                             <span className="font-12 medium">활동정지</span>
                                                         </div>
                                                     ) : (
                                                         <div className="user-state-code-3">
-                                                            <span className="font-12 medium">탈퇴</span>
+                                                            <span className="font-12 medium">신청처리중</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -315,26 +335,7 @@ export default function AdminStoreList() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>
