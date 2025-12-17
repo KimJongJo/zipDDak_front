@@ -110,8 +110,45 @@ import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
 import RequestHistory from "./user/myPage/RequestHistory.jsx";
+import { useEffect, useState } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { alarmsAtom, fcmTokenAtom, tokenAtom, userAtom } from "./atoms.jsx";
+import {
+  firebaseReqPermission,
+  registerServiceWorker,
+} from "./firebaseconfig.jsx";
+import { myAxios } from "./config.jsx";
 
 function App() {
+  const [alarm, setAlarm] = useState();
+
+  const user = useAtomValue(userAtom);
+  const setFcmToken = useSetAtom(fcmTokenAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+  const [alarms, setAlarms] = useAtom(alarmsAtom);
+
+  useEffect(() => {
+    registerServiceWorker();
+    navigator.serviceWorker.ready.then(() => {
+      firebaseReqPermission(setFcmToken, setAlarm);
+    });
+
+    if (user.username) {
+      myAxios(token, setToken)
+        .get(`/notificationList?username=${user.username}`)
+        .then((res) => {
+          console.log("useEffect에서 호출" + res.data);
+          setAlarms(res.data);
+        });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    Boolean(alarm) &&
+      alarm.recvUsername === user.username &&
+      setAlarms([...alarms, alarm]);
+  }, [alarm]);
+
   return (
     <Routes>
       <Route path="/auth/token" element={<Token />} />
