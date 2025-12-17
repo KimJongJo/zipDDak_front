@@ -1,18 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminMembership() {
-    // 전문 서비스
-    const [defaultMajor, setDefaultMajor] = useState(1);
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
-    // 속성명
-    const [defaultColumn, setDefaultColumn] = useState(1);
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [membershipList, setMembershipList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -27,11 +34,27 @@ export default function AdminMembership() {
 
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
+    };
+
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
+
+        setSearchKeyword(keyword);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setMembershipList([]);
+        setPage(1);
     };
 
     // const testUser = [];
+
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
 
     const testUser = [
         {
@@ -51,6 +74,22 @@ export default function AdminMembership() {
             stateCode: 2,
         },
     ];
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/membership?state=${defaultState}&keyword=${searchKeyword}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setRentalList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, defaultState, page, searchKeyword]);
 
     return (
         <div className="admin-body-div">
@@ -97,11 +136,13 @@ export default function AdminMembership() {
                         {/* 검색 input */}
                         <div className="admin-userList-search-div">
                             <i className="bi bi-search"></i>
-                            <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
                         </div>
 
                         {/* 검색 버튼 */}
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
+                        <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                            검색
+                        </button>
 
                         {/* 초기화 버튼 */}
                         <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -184,26 +225,7 @@ export default function AdminMembership() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>
