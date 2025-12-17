@@ -11,6 +11,9 @@ export default function AdminSwitchAccountRequests() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
+    // 페이지 강제 새로고침
+    const [refreshFlag, setRefreshFlag] = useState(false);
+
     // 전문 서비스
     const [defaultRole, setDefaultRole] = useState(1);
     // 활동 상태
@@ -27,8 +30,12 @@ export default function AdminSwitchAccountRequests() {
 
     // 전문가 상세
     const [expertInfo, setExpertInfo] = useState({});
+    const [selectExpertIdx, setSelectExpertIdx] = useState(0);
+    const [expertResult, setExpertResult] = useState(0);
     // 판매업체 상세
     const [sellerInfo, setSellerInfo] = useState({});
+    const [selectSellerIdx, setSelectSellerIdx] = useState(0);
+    const [sellerResult, setSellerResult] = useState(0);
 
     // 전문가 요청
     const requestExpert = () => {
@@ -61,7 +68,7 @@ export default function AdminSwitchAccountRequests() {
         } else if (defaultRole === 2) {
             requestSeller(); // 상태 바꾸면서 즉시 호출
         }
-    }, [token, defaultRole, page, searchKeyword, defaultState, defaultColumn]);
+    }, [token, defaultRole, page, searchKeyword, defaultState, defaultColumn, refreshFlag]);
 
     // 카테고리가 바뀔때마다 페이지 1로 초기화
     useEffect(() => {
@@ -201,6 +208,35 @@ export default function AdminSwitchAccountRequests() {
             });
     };
 
+    const requestSellerInfo = (sellerIdx) => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/requestSellerInfo?sellerIdx=${sellerIdx}`)
+            .then((res) => {
+                console.log(res.data);
+                setSellerInfo(res.data);
+            });
+    };
+
+    const switchExpert = async () => {
+        await myAxios(token, setToken).post(`${baseUrl}/admin/switchExpert`, {
+            expertIdx: selectExpertIdx,
+            expertResult: expertResult,
+        });
+
+        toggle();
+        setRefreshFlag((prev) => !prev);
+    };
+
+    const switchSeller = async () => {
+        await myAxios(token, setToken).post(`${baseUrl}/admin/switchSeller`, {
+            sellerIdx: selectSellerIdx,
+            sellerResult: sellerResult,
+        });
+
+        toggle();
+        setRefreshFlag((prev) => !prev);
+    };
+
     // const testUser = [];
 
     return (
@@ -338,6 +374,7 @@ export default function AdminSwitchAccountRequests() {
                                             <tr
                                                 onClick={() => {
                                                     requestExpertInfo(user.expertIdx);
+                                                    setSelectExpertIdx(user.expertIdx);
                                                     toggle();
                                                 }}
                                                 key={user.userName}
@@ -384,7 +421,8 @@ export default function AdminSwitchAccountRequests() {
                                         userList.map((user) => (
                                             <tr
                                                 onClick={() => {
-                                                    console.log(user.sellerIdx);
+                                                    requestSellerInfo(user.sellerIdx);
+                                                    setSelectSellerIdx(user.sellerIdx);
                                                     toggle();
                                                 }}
                                                 key={user.sellerIdx}
@@ -541,18 +579,18 @@ export default function AdminSwitchAccountRequests() {
                                                             <td>
                                                                 <div className="admin-userList-modal-radio-div">
                                                                     <div className="admin-userList-modal-radio-div-in">
-                                                                        <input className="admin-userList-modal-radio" type="radio" name="switch" id="switch-ok" />
+                                                                        <input onChange={() => setExpertResult(1)} className="admin-userList-modal-radio" type="radio" name="switch" id="switch-ok" />
                                                                         <label htmlFor="switch-ok" className="font-14">
                                                                             전환 승인
                                                                         </label>
                                                                     </div>
                                                                     <div className="admin-userList-modal-radio-div-in">
-                                                                        <input className="admin-userList-modal-radio" type="radio" name="switch" id="switch-no" />
+                                                                        <input onChange={() => setExpertResult(2)} className="admin-userList-modal-radio" type="radio" name="switch" id="switch-no" />
                                                                         <label htmlFor="switch-no" className="font-14">
                                                                             반려
                                                                         </label>
 
-                                                                        <input className="admin-userList-modal-reason-input font-14" type="text" placeholder="반려 사유를 작성해주세요" />
+                                                                        {/* <input className="admin-userList-modal-reason-input font-14" type="text" placeholder="반려 사유를 작성해주세요" /> */}
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -561,8 +599,12 @@ export default function AdminSwitchAccountRequests() {
                                                 </table>
                                             </div>
                                             <div className="admin-userList-switchId-buttons">
-                                                <button className="admin-userList-switchId-backBtn font-12 semibold">취소</button>
-                                                <button className="admin-userList-switchId-endBtn font-12 semibold">처리 완료</button>
+                                                <button onClick={toggle} className="admin-userList-switchId-backBtn font-12 semibold">
+                                                    취소
+                                                </button>
+                                                <button onClick={switchExpert} className="admin-userList-switchId-endBtn font-12 semibold">
+                                                    처리 완료
+                                                </button>
                                             </div>
                                         </div>
                                     ) : (
@@ -575,10 +617,26 @@ export default function AdminSwitchAccountRequests() {
                                                     <tbody>
                                                         <tr>
                                                             <td className="admin-userList-switchId-modal-table-trtd admin-modal-firstTd">
-                                                                <span className="font-14">업체명</span>
+                                                                <span className="font-14">회사명</span>
                                                             </td>
                                                             <td>
-                                                                <span className="font-14">{storeTest.storeName}</span>
+                                                                <span className="font-14">{sellerInfo.compName}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="admin-userList-switchId-modal-table-trtd">
+                                                                <span className="font-14">브랜드명</span>
+                                                            </td>
+                                                            <td>
+                                                                <span className="font-14">{sellerInfo.brandName}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="admin-userList-switchId-modal-table-trtd">
+                                                                <span className="font-14">대표자</span>
+                                                            </td>
+                                                            <td>
+                                                                <span className="font-14">{sellerInfo.ceoName}</span>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -586,39 +644,29 @@ export default function AdminSwitchAccountRequests() {
                                                                 <span className="font-14">전화번호</span>
                                                             </td>
                                                             <td>
-                                                                <span className="font-14">{storeTest.tel}</span>
+                                                                <span className="font-14">{sellerInfo.phone}</span>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td className="admin-userList-switchId-modal-table-trtd">
-                                                                <span className="font-14">사업자 번호</span>
+                                                                <span className="font-14">사업자번호</span>
                                                             </td>
                                                             <td>
-                                                                <span className="font-14">{storeTest.businessNumber}</span>
+                                                                <span className="font-14">{sellerInfo.businessLicense}</span>
                                                             </td>
                                                         </tr>
                                                         <tr>
                                                             <td className="admin-userList-switchId-modal-table-trtd">
-                                                                <span className="font-14">취급 품목</span>
+                                                                <span className="font-14">취급품목</span>
                                                             </td>
                                                             <td>
-                                                                <span className="font-14">{storeTest.businessNumber}</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td className="admin-userList-switchId-modal-table-trtd">
-                                                                <span className="font-14">홈페이지</span>
-                                                            </td>
-                                                            <td>
-                                                                <span className="font-14">{storeTest.homeLink}</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td className="admin-userList-switchId-modal-table-trtd">
-                                                                <span className="font-14">은행</span>
-                                                            </td>
-                                                            <td>
-                                                                <span className="font-14">{storeTest.bank}</span>
+                                                                <span className="font-14">
+                                                                    {sellerInfo.items?.map((item, idx) => (
+                                                                        <span style={{ marginRight: "15px" }} key={idx}>
+                                                                            {item}
+                                                                        </span>
+                                                                    ))}
+                                                                </span>
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -626,7 +674,23 @@ export default function AdminSwitchAccountRequests() {
                                                                 <span className="font-14">계좌번호</span>
                                                             </td>
                                                             <td>
-                                                                <span className="font-14">{storeTest.accountNum}</span>
+                                                                <span className="font-14">{sellerInfo.account}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="admin-userList-switchId-modal-table-trtd">
+                                                                <span className="font-14">은행</span>
+                                                            </td>
+                                                            <td>
+                                                                <span className="font-14">{sellerInfo.bank}</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="admin-userList-switchId-modal-table-trtd">
+                                                                <span className="font-14">예금주</span>
+                                                            </td>
+                                                            <td>
+                                                                <span className="font-14">{sellerInfo.host}</span>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -655,18 +719,18 @@ export default function AdminSwitchAccountRequests() {
                                                             <td>
                                                                 <div className="admin-userList-modal-radio-div">
                                                                     <div className="admin-userList-modal-radio-div-in">
-                                                                        <input className="admin-userList-modal-radio" type="radio" name="switch" id="switch-ok" />
+                                                                        <input onChange={() => setSellerResult(1)} className="admin-userList-modal-radio" type="radio" name="switch" id="switch-ok" />
                                                                         <label htmlFor="switch-ok" className="font-14">
                                                                             전환 승인
                                                                         </label>
                                                                     </div>
                                                                     <div className="admin-userList-modal-radio-div-in">
-                                                                        <input className="admin-userList-modal-radio" type="radio" name="switch" id="switch-no" />
+                                                                        <input onChange={() => setSellerResult(2)} className="admin-userList-modal-radio" type="radio" name="switch" id="switch-no" />
                                                                         <label htmlFor="switch-no" className="font-14">
                                                                             반려
                                                                         </label>
 
-                                                                        <input className="admin-userList-modal-reason-input font-14" type="text" placeholder="반려 사유를 작성해주세요" />
+                                                                        {/* <input className="admin-userList-modal-reason-input font-14" type="text" placeholder="반려 사유를 작성해주세요" /> */}
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -675,10 +739,12 @@ export default function AdminSwitchAccountRequests() {
                                                 </table>
                                             </div>
                                             <div className="admin-userList-switchId-buttons">
-                                                <button onClick={() => setModal(false)} className="admin-userList-switchId-backBtn font-12 semibold">
+                                                <button onClick={toggle} className="admin-userList-switchId-backBtn font-12 semibold">
                                                     취소
                                                 </button>
-                                                <button className="admin-userList-switchId-endBtn font-12 semibold">처리 완료</button>
+                                                <button onClick={switchSeller} className="admin-userList-switchId-endBtn font-12 semibold">
+                                                    처리 완료
+                                                </button>
                                             </div>
                                         </div>
                                     )}

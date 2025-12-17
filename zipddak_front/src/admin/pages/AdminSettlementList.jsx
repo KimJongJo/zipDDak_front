@@ -1,18 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table, Modal, ModalBody } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminSettlementList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 전문 서비스
     const [defaultMajor, setDefaultMajor] = useState(1);
 
-    // 활동 상태
-    const [defaultState, setDefaultState] = useState(1);
     // 속성명
     const [defaultColumn, setDefaultColumn] = useState(1);
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    // 활동 상태
+    const [defaultState, setDefaultState] = useState(1);
+
+    const [sellerList, setSellerList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -93,6 +105,22 @@ export default function AdminSettlementList() {
         accountNum: "000000-00-000000",
     };
 
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/settlement?column=${defaultColumn}&state=${defaultState}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                // setSellerList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, []);
+
     return (
         <div className="admin-body-div">
             {/* <AdminSidebar /> */}
@@ -148,23 +176,6 @@ export default function AdminSettlementList() {
 
                         {/* 우측 검색 필터 */}
                         <div className="admin-userList-filter-right">
-                            {/* 필터 select */}
-                            <select className="admin-userList-filter-select font-13" name="" id="">
-                                <option value="">전체</option>
-                                <option value="">공구명</option>
-                                <option value="">빌려준 사람</option>
-                                <option value="">빌린 사람</option>
-                            </select>
-
-                            {/* 검색 input */}
-                            <div className="admin-userList-search-div">
-                                <i className="bi bi-search"></i>
-                                <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
-                            </div>
-
-                            {/* 검색 버튼 */}
-                            <button className="admin-userList-search-button font-13 medium">검색</button>
-
                             {/* 초기화 버튼 */}
                             <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
                                 초기화
