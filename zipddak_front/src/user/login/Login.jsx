@@ -32,10 +32,11 @@ export default function Login() {
 
         if (res) {
           setUser(res.data);
+          setToken(res.headers.authorization);
+
           myAxios(res.headers.authorization, setToken)
             .get(`/notificationList?username=${res.data.username}`)
             .then((res) => {
-              console.log("/login 호출" + res.data);
               setAlarms(res.data);
               navigate("/");
             });

@@ -1,75 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminRentalRecords() {
-    // 전문 서비스
-    const [defaultMajor, setDefaultMajor] = useState(1);
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
+
     // 속성명
     const [defaultColumn, setDefaultColumn] = useState(1);
+
+    const [startDate, setStartDate] = useState("");
+    const [searchStartDate, setSearchStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [searchEndDate, setSearchEndDate] = useState("");
+
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [rentalList, setRentalList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
             stateCode: 1,
-            label: "대여중",
+            label: "결제대기",
         },
         {
             stateCode: 2,
-            label: "반납완료",
+            label: "결제완료",
         },
         {
             stateCode: 3,
-            label: "대여취소",
+            label: "배송중",
+        },
+        {
+            stateCode: 4,
+            label: "대여중",
+        },
+        {
+            stateCode: 5,
+            label: "반납완료",
         },
     ];
 
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
+        setStartDate("");
+        setEndDate("");
+        setSearchStartDate("");
+        setSearchEndDate("");
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
     };
 
-    // const testUser = [];
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
 
-    const testUser = [
-        {
-            rentalNo: 1,
-            productName: "공구 이름",
-            provider: "홍길동", // 빌려준 사람
-            renter: "홍길동", // 빌린 사람
-            rentalDate: "2025-11-30",
-            returnDate: "2025-11-30",
-            rentalStateCode: 1,
-        },
-        {
-            rentalNo: 1,
-            productName: "공구 이름",
-            provider: "홍길동", // 빌려준 사람
-            renter: "홍길동", // 빌린 사람
-            rentalDate: "2025-11-30",
-            returnDate: "2025-11-30",
-            rentalStateCode: 2,
-        },
-        {
-            rentalNo: 1,
-            productName: "공구 이름",
-            provider: "홍길동", // 빌려준 사람
-            renter: "홍길동", // 빌린 사람
-            rentalDate: "2025-11-30",
-            returnDate: "2025-11-30",
-            rentalStateCode: 3,
-        },
-    ];
+        setSearchKeyword(keyword);
+        setSearchStartDate(startDate);
+        setSearchEndDate(endDate);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setRentalList([]);
+        setPage(1);
+    };
 
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/rentals?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&startDate=${searchStartDate}&endDate=${searchEndDate}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setRentalList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, defaultState, page, searchKeyword, searchStartDate, searchEndDate]);
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
@@ -94,9 +123,9 @@ export default function AdminRentalRecords() {
                 {/* 검색 필터 라인 */}
                 <div className="admin-filter-line-div-rental">
                     <div className="admin-filter-line-div-top">
-                        <Input className="admin-filter-input-date font-13" type="date" />
+                        <Input value={startDate} onChange={(e) => setStartDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                         <span className="font-22 medium">~</span>
-                        <Input className="admin-filter-input-date font-13" type="date" />
+                        <Input value={endDate} onChange={(e) => setEndDate(e.target.value)} className="admin-filter-input-date font-13" type="date" />
                     </div>
                     <div className="admin-filter-line-div-under">
                         {/* 활동 상태 */}
@@ -121,21 +150,23 @@ export default function AdminRentalRecords() {
                         {/* 우측 검색 필터 */}
                         <div className="admin-userList-filter-right">
                             {/* 필터 select */}
-                            <select className="admin-userList-filter-select font-13" name="" id="">
-                                <option value="">전체</option>
-                                <option value="">공구명</option>
-                                <option value="">빌려준 사람</option>
-                                <option value="">빌린 사람</option>
+                            <select onChange={(e) => setDefaultColumn(e.target.value)} className="admin-userList-filter-select font-13" name="" id="">
+                                <option value={1}>전체</option>
+                                <option value={2}>공구명</option>
+                                <option value={3}>빌려준 사람</option>
+                                <option value={4}>빌린 사람</option>
                             </select>
 
                             {/* 검색 input */}
                             <div className="admin-userList-search-div">
                                 <i className="bi bi-search"></i>
-                                <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                                <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
                             </div>
 
                             {/* 검색 버튼 */}
-                            <button className="admin-userList-search-button font-13 medium">검색</button>
+                            <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                                검색
+                            </button>
 
                             {/* 초기화 버튼 */}
                             <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -146,7 +177,7 @@ export default function AdminRentalRecords() {
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {rentalList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -156,7 +187,7 @@ export default function AdminRentalRecords() {
                                 borderBottom: "1px solid #eaecf0",
                             }}
                         >
-                            <span className="font-12 medium">회원 정보를 검색해주세요.</span>
+                            <span className="font-12 medium">대여 내역이 존재하지 않습니다.</span>
                         </div>
                     ) : (
                         <div className="admin-userList-table-div">
@@ -187,40 +218,47 @@ export default function AdminRentalRecords() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((rental) => (
-                                        <tr key={rental.rentalNo}>
+                                    {rentalList.map((rental) => (
+                                        <tr key={rental.rentalIdx}>
                                             <td>
-                                                <span className="font-14">{rental.rentalNo}</span>
+                                                <span className="font-14">{rental.rentalIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.productName}</span>
+                                                <span className="font-14">{rental.toolName}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.provider}</span>
-                                            </td>
-
-                                            <td>
-                                                <span className="font-14">{rental.renter}</span>
+                                                <span className="font-14">{rental.owner}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.rentalDate}</span>
+                                                <span className="font-14">{rental.borrower}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.returnDate}</span>
+                                                <span className="font-14">{rental.startDate}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{rental.endDate}</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {rental.rentalStateCode === 1 ? (
+                                                    {rental.state === "PRE" ? (
                                                         <div className="rental-state-code-1">
-                                                            <span className="font-12 medium">반납완료</span>
+                                                            <span className="font-12 medium">결제대기</span>
                                                         </div>
-                                                    ) : rental.rentalStateCode === 2 ? (
+                                                    ) : rental.state === "PAYED" ? (
                                                         <div className="rental-state-code-2">
-                                                            <span className="font-12 medium">대여취소</span>
+                                                            <span className="font-12 medium">결제완료</span>
+                                                        </div>
+                                                    ) : rental.state === "DELIVERY" ? (
+                                                        <div className="rental-state-code-2">
+                                                            <span className="font-12 medium">배송중</span>
+                                                        </div>
+                                                    ) : rental.state === "RENTAL" ? (
+                                                        <div className="rental-state-code-2">
+                                                            <span className="font-12 medium">대여중</span>
                                                         </div>
                                                     ) : (
                                                         <div className="rental-state-code-3">
-                                                            <span className="font-12 medium">대여중</span>
+                                                            <span className="font-12 medium">반납완료</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -229,26 +267,7 @@ export default function AdminRentalRecords() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>

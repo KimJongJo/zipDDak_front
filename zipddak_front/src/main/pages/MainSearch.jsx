@@ -170,37 +170,39 @@ export default function MainSearch() {
 
 
   //커뮤니티 리스트
-  // const [cCategory, setCCategory] = useState();
-  // const [cActiveCategory, setCActiveCategory] = useState(76);
+  const [cCategory, setCCategory] = useState();
+  const [cActiveCategory, setCActiveCategory] = useState(76);
 
-  // const communityCategory = (categoryNo) => {
-  //   setCCategory(categoryNo);
-  //   setCActiveCategory(categoryNo);
-  // }
+  const communityCategory = (categoryNo) => {
+    setCCategory(categoryNo);
+    setCActiveCategory(categoryNo);
+  }
 
-  // const communityList = () => {
+  const communityList = () => {
 
-  //     const usernamePharam =user? user.username : '';
-  //     const categoryPharam= tCategory? tCategory : 1 ;
-  //     const keywordPharam = keyword? keyword:'';
+    const categoryPharam = tCategory ? tCategory : 76;
+    const keywordPharam = '';
 
-  //   myAxios(token, setToken).get(`/main/community?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
-  //   .then((res)=> {
-  //     console.log(res.data);
-  //     setCommunity(res.data);
+    const tokenPharam = token ? token : null;
 
-  //   })
-  //   .catch((err)=> {
-  //     console.log(err);
-  //   })
-  // }
+    myAxios(tokenPharam, setToken).get(`/main/community?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+      .then((res) => {
+        console.log(res.data);
+        setCommunity(res.data.cards);
 
-  // useEffect(()=> {
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
 
-  //   communityList();
+  useEffect(() => {
 
-  // },[user.username, cCategory,keyword])
+    communityList();
 
+  }, [cCategory])
+
+  
   //전체보기
   const searchMore = () => {
 
@@ -388,38 +390,38 @@ export default function MainSearch() {
               </div>
             </div>
             <div className="main-category">
-               <div className={pActiveCategory === 76? "category-item active" : "category-item"}
+               <div className={cActiveCategory === 76? "category-item active" : "category-item"}
               onClick={()=>communityCategory(76)}>우리집 자랑</div>
 
-              <div className={pActiveCategory === 77? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 77? "category-item active" : "category-item"}
               onClick={()=>communityCategory(77)}>자재 토론회</div>
 
-              <div className={pActiveCategory === 78? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 78? "category-item active" : "category-item"}
               onClick={()=>communityCategory(78)}>나만의 노하우</div>
 
-              <div className={pActiveCategory === 79? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 79? "category-item active" : "category-item"}
               onClick={()=>communityCategory(79)}>전문가에게 묻다</div>
 
-              <div className={pActiveCategory === 80? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 80? "category-item active" : "category-item"}
               onClick={()=>communityCategory(80)}>함께해요</div>
 
-              <div className={pActiveCategory === 81? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 81? "category-item active" : "category-item"}
               onClick={()=>communityCategory(81)}>전문가 소식</div>
 
-              <div className={pActiveCategory === 82? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 82? "category-item active" : "category-item"}
               onClick={()=>communityCategory(82)}>자유</div>
             </div>
           </div>
 
           <div className="community-cards">
-             <div className="row-cm maincom">
-              <Community />
-              <Community />
+             <div className="grid-cm">
+               {Array.isArray(community) &&
+                community.map(communityCard => (
+                  <Community key={communityCard.communityIdx} product={communityCard} />
+                ))
+              }
             </div>
-            <div className="row-cm maincom">
-              <Community />
-              <Community />
-            </div>
+          
           </div>
         </div>
       </div>

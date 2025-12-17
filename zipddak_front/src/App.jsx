@@ -118,6 +118,8 @@ import {
   registerServiceWorker,
 } from "./firebaseconfig.jsx";
 import { myAxios } from "./config.jsx";
+import AdminNav from "./admin/pages/AdminNav.jsx";
+import AdminLayout from "./admin/pages/AdminLayout.jsx";
 
 function App() {
   const [alarm, setAlarm] = useState();
@@ -305,6 +307,42 @@ function App() {
       <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
 
       <Route path="dashboard" element={<Dashboard />} />
+
+      {/* 전문가 */}
+      <Route path="admin/*" element={<AdminLayout />}>
+        {/* 회원 관리 */}
+        <Route path="users" element={<AdminUserList />} />
+        <Route path="users/:username" element={<AdminUserDetail />} />
+        <Route path="experts" element={<AdminExpertList />} />
+        <Route path="experts/:expertIdx" element={<AdminExpertDetail />} />
+        <Route path="sellers" element={<AdminStoreList />} />
+        <Route path="sellers/:sellerIdx" element={<AdminStoreDetail />} />
+        <Route path="switchRequest" element={<AdminSwitchAccountRequests />} />
+
+        {/* 이용 내역 */}
+        <Route path="rentals" element={<AdminRentalRecords />} />
+        <Route path="rentals/:rentalIdx" element={<AdminRentalDetail />} />
+        <Route path="salesHistory" element={<AdminSalesHistory />} />
+        <Route path="salesHistory/:saleIdx" element={<AdminSalesDetail />} />
+        <Route path="payment" element={<PaymentHistory />} />
+        <Route path="payment/:paymentIdx" element={<AdminPaymentDetail />} />
+        <Route path="membership" element={<AdminMembership />} />
+        <Route path="reports" element={<AdminReportList />} />
+        <Route
+          path="reports/:type/:reportIdx"
+          element={<AdminReportDetail />}
+        />
+
+        {/* 정산 */}
+        <Route path="settlements" element={<AdminSettlementList />} />
+
+        {/* 1:1 문의 */}
+        <Route path="inquirys" element={<InquiryList />} />
+        <Route path="inquirys/:inquiryIdx" element={<InquiryReturn />} />
+
+        {/* 통계 */}
+        <Route path="dashbord" element={<Dashboard />} />
+      </Route>
     </Routes>
   );
 }
