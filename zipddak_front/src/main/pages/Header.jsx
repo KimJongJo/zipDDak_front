@@ -139,7 +139,7 @@ export default function Header({ direction, ...args }) {
                               gap: "20px",
                             }}
                           >
-                            <img src="/fi-rs-document.png" />
+                            <img src="/fi-rs-document.svg" />
                             <div>
                               <p className="alarm-title">{alarm.title}</p>
                               <p className="alarm-body">{alarm.content}</p>
@@ -155,7 +155,7 @@ export default function Header({ direction, ...args }) {
                               gap: "20px",
                             }}
                           >
-                            <img src="/fi-rs-woman-head.png" />
+                            <img src="/fi-rs-woman-head.svg" />
                             <div>
                               <p className="alarm-title">{alarm.title}</p>
                               <p className="alarm-body">{alarm.content}</p>
@@ -171,7 +171,7 @@ export default function Header({ direction, ...args }) {
                               gap: "20px",
                             }}
                           >
-                            <img src="/fi-rs-confetti.png" />
+                            <img src="/fi-rs-confetti.svg" />
                             <div>
                               <p className="alarm-title">{alarm.title}</p>
                               <p className="alarm-body">{alarm.content}</p>
@@ -187,7 +187,7 @@ export default function Header({ direction, ...args }) {
                               gap: "20px",
                             }}
                           >
-                            <img src="/fi-rs-document.png" />
+                            <img src="/fi-rs-document.svg" />
                             <div>
                               <p className="alarm-title">{alarm.title}</p>
                               <p className="alarm-body">{alarm.content}</p>
@@ -203,7 +203,7 @@ export default function Header({ direction, ...args }) {
                               gap: "20px",
                             }}
                           >
-                            <img src="/fi-rs-document.png" />
+                            <img src="/fi-rs-document.svg" />
                             <div>
                               <p className="alarm-title">{alarm.title}</p>
                               <p className="alarm-body">{alarm.content}</p>

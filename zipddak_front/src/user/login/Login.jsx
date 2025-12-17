@@ -22,8 +22,6 @@ export default function Login() {
     formData.append("password", password);
     formData.append("fcmToken", fcmToken);
 
-    console.log("/login 호출" + formData);
-
     myAxios(null, setToken)
       .post(`/login`, formData)
       .then((res) => {
@@ -38,10 +36,8 @@ export default function Login() {
             .get(`/notificationList?username=${res.data.username}`)
             .then((res) => {
               setAlarms(res.data);
-              navigate("/");
             });
         }
-
         if (res.data.role == "USER" || res.data.type == "EXPERT") {
           navigate("/zipddak/main");
         } else if (res.data.role == "APPROVAL_SELLER") {
