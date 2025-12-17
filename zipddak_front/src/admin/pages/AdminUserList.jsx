@@ -1,15 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminUserList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
     // 속성명
     const [defaultColumn, setDefaultColumn] = useState(1);
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [userList, setUserList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
+
+    // 검색창에 있는 text 가져오기
 
     const userState = [
         {
@@ -57,6 +70,18 @@ export default function AdminUserList() {
         setDefaultState(1);
         setDefaultColumn(1);
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
+    };
+
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
+
+        setSearchKeyword(keyword);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setUserList([]);
+        setPage(1);
     };
 
     // const testUser = [];
@@ -71,137 +96,31 @@ export default function AdminUserList() {
             createdAt: "2025-11-09",
             stateCode: 1,
         },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 2,
-            userName: "종길동",
-            userNickname: "종종종",
-            userId: "hong456@kosta.com",
-            userTel: "010-5678-5678",
-            createdAt: "2025-10-09",
-            stateCode: 2,
-        },
     ];
+
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/users?state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setUserList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+        search();
+    }, [token, page, defaultState, defaultColumn, searchKeyword]);
 
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
@@ -274,22 +193,24 @@ export default function AdminUserList() {
                     {/* 우측 검색 필터 */}
                     <div className="admin-userList-filter-right">
                         {/* 필터 select */}
-                        <select className="admin-userList-filter-select font-13" name="" id="">
-                            <option value="">전체</option>
-                            <option value="">회원명</option>
-                            <option value="">닉네임</option>
-                            <option value="">아이디</option>
-                            <option value="">휴대전화</option>
+                        <select onChange={(e) => setDefaultColumn(e.target.value)} className="admin-userList-filter-select font-13" name="" id="">
+                            <option value={1}>전체</option>
+                            <option value={2}>회원명</option>
+                            <option value={3}>닉네임</option>
+                            <option value={4}>아이디</option>
+                            <option value={5}>휴대전화</option>
                         </select>
 
                         {/* 검색 input */}
                         <div className="admin-userList-search-div">
                             <i className="bi bi-search"></i>
-                            <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
+                            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
                         </div>
 
                         {/* 검색 버튼 */}
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
+                        <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                            검색
+                        </button>
 
                         {/* 초기화 버튼 */}
                         <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -317,9 +238,6 @@ export default function AdminUserList() {
                                 <thead>
                                     <tr>
                                         <td>
-                                            <span className="font-14 medium">회원번호</span>
-                                        </td>
-                                        <td>
                                             <span className="font-14 medium">회원명</span>
                                         </td>
                                         <td>
@@ -340,33 +258,30 @@ export default function AdminUserList() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((user) => (
-                                        <tr key={user.userNo}>
+                                    {userList.map((user) => (
+                                        <tr key={user.username}>
                                             <td>
-                                                <span className="font-14">{user.userNo}</span>
+                                                <span className="font-14">{user.name}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userName}</span>
+                                                <span className="font-14">{user.nickname}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userNickname}</span>
+                                                <span className="font-14">{user.username}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userId}</span>
-                                            </td>
-                                            <td>
-                                                <span className="font-14">{user.userTel}</span>
+                                                <span className="font-14">{user.phone ? user.phone : "-"}</span>
                                             </td>
                                             <td>
                                                 <span className="font-14">{user.createdAt}</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {user.stateCode === 1 ? (
+                                                    {user.state === "ACTIVE" ? (
                                                         <div className="user-state-code-1">
                                                             <span className="font-12 medium">정상</span>
                                                         </div>
-                                                    ) : user.stateCode === 2 ? (
+                                                    ) : user.stateCode === "SUSPENDED" ? (
                                                         <div className="user-state-code-2">
                                                             <span className="font-12 medium">활동정지</span>
                                                         </div>
@@ -381,26 +296,7 @@ export default function AdminUserList() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>
