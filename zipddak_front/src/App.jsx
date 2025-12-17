@@ -251,7 +251,7 @@ function App() {
 
             <Route path="dashboard" element={<Dashboard />} />
 
-            {/* 전문가 */}
+            {/* 사이트관리자 */}
             <Route path="admin/*" element={<AdminLayout />}>
                 {/* 회원 관리 */}
                 <Route path="users" element={<AdminUserList />} />

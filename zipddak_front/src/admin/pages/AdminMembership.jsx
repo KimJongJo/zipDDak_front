@@ -56,31 +56,12 @@ export default function AdminMembership() {
         setPage(pageNum);
     };
 
-    const testUser = [
-        {
-            membershipNo: 1,
-            expertName: "홍길동",
-            firstJoinDate: "2025-11-09",
-            membershipDuration: 6,
-            expirationDate: "2025-11-09",
-            stateCode: 1,
-        },
-        {
-            membershipNo: 2,
-            expertName: "홍길동",
-            firstJoinDate: "2025-11-09",
-            membershipDuration: 6,
-            expirationDate: "",
-            stateCode: 2,
-        },
-    ];
-
     const search = () => {
         myAxios(token, setToken)
             .get(`${baseUrl}/admin/membership?state=${defaultState}&keyword=${searchKeyword}&page=${page}`)
             .then((res) => {
                 console.log(res.data);
-                setRentalList(res.data.list);
+                setMembershipList(res.data.list);
                 setPageInfo(res.data.pageInfo);
             });
     };
@@ -152,7 +133,7 @@ export default function AdminMembership() {
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {membershipList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -162,7 +143,7 @@ export default function AdminMembership() {
                                 borderBottom: "1px solid #eaecf0",
                             }}
                         >
-                            <span className="font-12 medium">회원 정보를 검색해주세요.</span>
+                            <span className="font-12 medium">데이터가 존재하지 않습니다.</span>
                         </div>
                     ) : (
                         <div className="admin-userList-table-div">
@@ -170,47 +151,53 @@ export default function AdminMembership() {
                                 <thead>
                                     <tr>
                                         <td>
-                                            <span className="font-14 medium">번호</span>
+                                            <span className="font-14 medium">멤버십 번호</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">전문가명</span>
+                                            <span className="font-14 medium">아이디</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">최초 가입일</span>
+                                            <span className="font-14 medium">활동명</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">총 가입기간</span>
+                                            <span className="font-14 medium">시작일</span>
                                         </td>
                                         <td>
                                             <span className="font-14 medium">만료일</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">멤버십 상태</span>
+                                            <span className="font-14 medium">결제일</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">활성상태</span>
                                         </td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((membership) => (
-                                        <tr key={membership.membershipNo}>
+                                    {membershipList.map((membership) => (
+                                        <tr key={membership.membershipIdx}>
                                             <td>
-                                                <span className="font-14">{membership.membershipNo}</span>
+                                                <span className="font-14">{membership.membershipIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{membership.expertName}</span>
+                                                <span className="font-14">{membership.username}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{membership.firstJoinDate}</span>
+                                                <span className="font-14">{membership.activityName}</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{membership.startDate}</span>
                                             </td>
 
                                             <td>
-                                                <span className="font-14">{membership.membershipDuration}개월</span>
+                                                <span className="font-14">{membership.endDate}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{membership.expirationDate !== "" ? membership.expirationDate : "-"}</span>
+                                                <span className="font-14">{new Date(membership.paymentDate).toLocaleString("ko-KR")}</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {membership.stateCode === 1 ? (
+                                                    {defaultState === 1 ? (
                                                         <div className="membership-state-code-1">
                                                             <span className="font-12 medium">활성</span>
                                                         </div>
