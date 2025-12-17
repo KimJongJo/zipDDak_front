@@ -29,21 +29,8 @@ export function firebaseReqPermission(setFcmToken, setAlarm) {
   firebaseMessaging.onMessage((payload) => {
     console.log(payload);
     let data = payload.data;
-
-    setAlarm({
-      notificationIdx: data.notificationIdx,
-      type: data.type,
-      title: data.title,
-      content: data.content,
-      sendUsername: data.sendUsername,
-      recvUsername: data.recvUsername,
-      refIdx:
-        data.communityIdx ||
-        data.estimateIdx ||
-        data.rentalIdx ||
-        data.requestIdx ||
-        data.reviewIdx,
-    });
+    console.log(data);
+    setAlarm(data);
   });
 }
 

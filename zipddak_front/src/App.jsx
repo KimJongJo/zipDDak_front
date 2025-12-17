@@ -110,16 +110,14 @@ import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
 import RequestHistory from "./user/myPage/RequestHistory.jsx";
-import { useEffect, useState } from "react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { alarmsAtom, fcmTokenAtom, tokenAtom, userAtom } from "./atoms.jsx";
-import {
-  firebaseReqPermission,
-  registerServiceWorker,
-} from "./firebaseconfig.jsx";
-import { myAxios } from "./config.jsx";
 import AdminNav from "./admin/pages/AdminNav.jsx";
 import AdminLayout from "./admin/pages/AdminLayout.jsx";
+
+import { registerServiceWorker, firebaseReqPermission } from "./firebaseconfig";
+import { useEffect, useState } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
+import { myAxios } from "./config.jsx";
 
 function App() {
   const [alarm, setAlarm] = useState();
@@ -134,21 +132,20 @@ function App() {
     navigator.serviceWorker.ready.then(() => {
       firebaseReqPermission(setFcmToken, setAlarm);
     });
+  }, []);
 
+  useEffect(() => {
     if (user.username) {
       myAxios(token, setToken)
         .get(`/notificationList?username=${user.username}`)
         .then((res) => {
-          console.log("useEffect에서 호출" + res.data);
           setAlarms(res.data);
         });
     }
-  }, [user]);
+  }, [user.username]);
 
   useEffect(() => {
-    Boolean(alarm) &&
-      alarm.recvUsername === user.username &&
-      setAlarms([...alarms, alarm]);
+    Boolean(alarm) && setAlarms((prev) => [...prev, alarm]);
   }, [alarm]);
 
   return (
@@ -178,7 +175,11 @@ function App() {
         {/* 일반사용자 커뮤니티 */}
         <Route path="community" element={<CommunityList />} />
         <Route path="community/write" element={<ComForm />} />
-        <Route path="community/:communityIdx" element={<Comdetail />} />
+        <Route path="community/:communityId" element={<Comdetail />} />
+        <Route
+          path="community/modify/:modifyCommunityId"
+          element={<ComForm />}
+        />
 
         {/* 일반사용자 자재구매 */}
         <Route path="productList" element={<ProductList />} />
