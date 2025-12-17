@@ -2,10 +2,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Community.css";
 import { Eye, MessageCircle, Heart } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export function Community({ community }) {
+    const navigate = useNavigate();
+
     return (
-        <a href="#" className="Com-card">
+        <a
+            onClick={() => {
+                navigate(`/zipddak/community/${community.communityId}`);
+            }}
+            className="Com-card"
+        >
             <div className="Com-infoBox">
                 <div className="Com-info">
                     <span className="Com-category">{community.categoryName}</span>
