@@ -1,6 +1,9 @@
 import "../css/AdminNav.css";
+import { useNavigate } from "react-router";
 
 export default function AdminNav() {
+    const navigate = useNavigate();
+
     return (
         <aside className="admin-sidebar">
             {/* Top */}
@@ -35,16 +38,16 @@ export default function AdminNav() {
 
                             <ul className="sub-menu">
                                 <li>
-                                    <button>일반 회원</button>
+                                    <button onClick={() => navigate("/admin/users")}>일반 회원</button>
                                 </li>
                                 <li>
-                                    <button>전문가</button>
+                                    <button onClick={() => navigate("/admin/experts")}>전문가</button>
                                 </li>
                                 <li>
-                                    <button>판매업체</button>
+                                    <button onClick={() => navigate("/admin/sellers")}>판매업체</button>
                                 </li>
                                 <li>
-                                    <button>전환신청 / 입점신청</button>
+                                    <button onClick={() => navigate("/admin/switchRequest")}>전환신청 / 입점신청</button>
                                 </li>
                             </ul>
                         </li>
@@ -58,23 +61,26 @@ export default function AdminNav() {
 
                             <ul className="sub-menu">
                                 <li>
-                                    <button>대여 내역</button>
+                                    <button onClick={() => navigate("/admin/rentals")}>대여 내역</button>
                                 </li>
                                 <li>
-                                    <button>판매 내역</button>
+                                    <button onClick={() => navigate("/admin/salesHistory")}>판매 내역</button>
                                 </li>
                                 <li>
-                                    <button>결제 내역</button>
+                                    <button onClick={() => navigate("/admin/payment")}>결제 내역</button>
                                 </li>
                                 <li>
-                                    <button>신고 내역</button>
+                                    <button onClick={() => navigate("/admin/membership")}>멤버십 내역</button>
+                                </li>
+                                <li>
+                                    <button onClick={() => navigate("/admin/reports")}>신고 내역</button>
                                 </li>
                             </ul>
                         </li>
 
                         {/* 정산 */}
                         <li className="menu-item single">
-                            <button>
+                            <button onClick={() => navigate("/admin/settlements")}>
                                 <i className="bi bi-currency-dollar admin-sidebar-icon"></i>
                                 <span className="font-18 semibold">정산</span>
                             </button>
@@ -82,7 +88,7 @@ export default function AdminNav() {
 
                         {/* 1:1 문의 */}
                         <li className="menu-item single">
-                            <button>
+                            <button onClick={() => navigate("/admin/inquirys")}>
                                 <i className="bi bi-chat-dots admin-sidebar-icon"></i>
                                 <span className="font-18 semibold">1 : 1 문의</span>
                             </button>
@@ -90,7 +96,7 @@ export default function AdminNav() {
 
                         {/* 통계 */}
                         <li className="menu-item single">
-                            <button>
+                            <button onClick={() => navigate("/admin/dashbord")}>
                                 <i className="bi bi-graph-up admin-sidebar-icon"></i>
                                 <span className="font-18 semibold">통계</span>
                             </button>

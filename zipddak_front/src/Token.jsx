@@ -20,7 +20,7 @@ export default function Token() {
         formData.append("fcmToken", fcmToken);
 
         token &&
-            myAxios(token, setToken)
+            myAxios(tokenParam, setToken)
                 .post("/zipddak", formData)
 
                 .then((res) => {
