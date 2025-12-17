@@ -4,6 +4,7 @@ export const baseUrl = "http://localhost:8080";
 export const reactUrl = "http://localhost:5173";
 
 export const myAxios = (token, setToken) => {
+    // console.log(token);
     let instance = axios.create({
         baseURL: baseUrl,
         timeout: 5000,
@@ -12,9 +13,11 @@ export const myAxios = (token, setToken) => {
     instance.interceptors.response.use(
         //응답이 올때마다 헤더에 토큰 유무 체크하여 토큰 갱신
         (response) => {
+
             // console.log(response.headers.authorization);
             if (response.headers.authorization) {
                 setToken(response.headers.authorization);
+
             }
             return response;
         },
@@ -41,6 +44,7 @@ export const myAxios = (token, setToken) => {
     token &&
         instance.interceptors.request.use((config) => {
             config.headers.authorization = token;
+            console.log("디버그 ",config.headers.authorization)
             return config;
         });
 

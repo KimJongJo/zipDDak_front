@@ -2,7 +2,7 @@ import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import "../css/Signup.css";
 import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { userAtom, tokenAtom } from "../../atoms";
 import { useAtom, useSetAtom } from "jotai";
 
@@ -28,6 +28,7 @@ export default function Login() {
 
                 if (res) {
                     setUser(res.data);
+                    setToken(res.headers.authorization);
                     // myAxios(res.headers.authorization,setToken).post(`/user/alarms`)
                     // .then(res=> {
                     //     console.log(res)
@@ -49,6 +50,7 @@ export default function Login() {
                 console.log(err);
                 alert(err.response.data.message);
             });
+
     };
 
     return (
