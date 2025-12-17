@@ -58,7 +58,7 @@ export default function AdminMembership() {
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
-                    <span className="font-18 medium">결제내역</span>
+                    <span className="font-18 medium">멤버십 가입 내역</span>
                     <div className="admin-userList-top-div-right">
                         <div className="admin-rental-count-card">
                             <span className="font-13 medium">신규 가입 수 / 총 가입자 수</span>
