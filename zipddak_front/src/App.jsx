@@ -109,6 +109,7 @@ import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
+import RequestHistory from "./user/myPage/RequestHistory.jsx";
 import AdminNav from "./admin/pages/AdminNav.jsx";
 import AdminLayout from "./admin/pages/AdminLayout.jsx";
 
@@ -159,27 +160,37 @@ function App() {
                 <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
                 <Route path="findExpert" element={<FindExpert />} />
 
-                {/* 일반사용자 마이페이지 */}
-                <Route path="mypage/*" element={<Mypage />}>
-                    <Route path="account" element={<Account />} />
-                    <Route path="expert/works" element={<MyWorks />} />
-                    <Route path="expert/works/detail/:matchingIdx" element={<MyWorksDetail />} />
-                    <Route path="expert/requests/active" element={<RequestActive />} />
-                    <Route path="inquiries" element={<Inquiries />} />
-                    <Route path="inquiries/write" element={<InquiryForm />} />
-                    <Route path="community" element={<Community />} />
-                    <Route path="likes" element={<Likes />} />
-                    <Route path="reviews" element={<Reviews />} />
-                    <Route path="market/orders" element={<MarketOrders />} />
-                    <Route path="market/returns" element={<MarketReturns />} />
-                    <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
-                    <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
-                    <Route path="tool" element={<MyTool />} />
-                    <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
-                    <Route path="tool/lent" element={<ToolLent />} />
-                    <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
-                </Route>
-            </Route>
+        {/* 일반사용자 마이페이지 */}
+        <Route path="mypage/*" element={<Mypage />}>
+          <Route path="account" element={<Account />} />
+          <Route path="expert/works" element={<MyWorks />} />
+          <Route
+            path="expert/works/detail/:matchingIdx"
+            element={<MyWorksDetail />}
+          />
+          <Route path="expert/requests/active" element={<RequestActive />} />
+          <Route path="expert/requests/history" element={<RequestHistory />} />
+          <Route path="inquiries" element={<Inquiries />} />
+          <Route path="inquiries/write" element={<InquiryForm />} />
+          <Route path="community" element={<Community />} />
+          <Route path="likes" element={<Likes />} />
+          <Route path="reviews" element={<Reviews />} />
+          <Route path="market/orders" element={<MarketOrders />} />
+          <Route path="market/returns" element={<MarketReturns />} />
+          <Route
+            path="market/detail/:orderIdx"
+            element={<MarketOrderDetail />}
+          />
+          <Route
+            path="market/exchange/:orderIdx"
+            element={<MarketExchangeForm />}
+          />
+          <Route path="tool" element={<MyTool />} />
+          <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
+          <Route path="tool/lent" element={<ToolLent />} />
+          <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
+        </Route>
+      </Route>
 
             {/* 전문가 */}
             <Route path="/expert/*" element={<ExpertLayout />}>
