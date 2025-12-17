@@ -79,6 +79,7 @@
 
 .mapBtn {
     padding: 5px 10px !important;
+    cursor: pointer;
 }
 
 .trade-main {
@@ -330,12 +331,14 @@
 }
 
 /* 카드 리스트 */
-.cards {
+.toolMaincards {
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin: 40px 0;
+
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    row-gap: 30px;
+    column-gap: 20px;
 }
 
 .moreBtn {
@@ -357,4 +360,13 @@
 
 .moreBtn:active {
     background-color: #eff1f5;
+}
+
+.resetToolMain {
+    justify-content: space-between;
+}
+
+.resetToolFilter {
+    cursor: pointer;
+    gap: 5px;
 }

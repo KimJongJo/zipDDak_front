@@ -69,12 +69,13 @@ export function Toolmain({ tool, toggleFavorite }) {
                 <div>
                     <span className="oneday-m">1일</span>
                     <span className="rental-price-m">{tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price-m">원</span>
                 </div>
             </div>
             <div className="tool-reaction-m">
-                <div className="favs"><Heart />{tool.favorite}</div>
+                <div className="favs"><Heart size={14}/>{tool.favorite}</div>
                 <i className="bi bi-dot dot"></i>
-                <div className="chats"><MessageCircle />{tool.toolchat}</div>
+                <div className="chats"><MessageCircle size={13}/>{tool.toolchat}</div>
             </div>
         </div>
     );
@@ -113,6 +114,7 @@ export function ToolL({ tool, toggleFavorite }) {
                 <div>
                     <span className="oneday-L">1일</span>
                     <span className="rental-price-L">{tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price-L">원</span>
                 </div>
             </div>
             <div className="tool-reaction-L">

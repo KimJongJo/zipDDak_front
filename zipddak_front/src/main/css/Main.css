@@ -192,6 +192,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin: 40px 0;
 }
 
 .Best-cards {
@@ -235,6 +236,10 @@
     font-weight: 600;
 }
 
-.maincom {
-    gap: 15px;
+
+
+.grid-cm {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2개씩 한 행 */
+  gap: 15px; /* 카드 간 간격 */
 }

@@ -1,11 +1,12 @@
-import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle, ChevronUp } from "lucide-react";
+import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle, ChevronUp, Pointer, RotateCcw } from "lucide-react";
 import { Button, FormGroup, Input, Label } from "reactstrap";
 import "../css/ToolMain.css";
-import { ToolL, MapTool } from "../../main/component/Tool";
+import { ToolL, MapTool, Toolmain } from "../../main/component/Tool";
 import { userAtom, tokenAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { myAxios } from "../../config";
 
 export default function ToolMain() {
 
@@ -14,9 +15,19 @@ export default function ToolMain() {
 
     const [tool, setTool] = useState([]);
     const navigate = useNavigate();
+    
+    const [offset, setOffset] = useState(0);
+    const INIT_SIZE = 15;
+    const MORE_SIZE = 5;
 
     //키워드
+    const [input, setInput] = useState('');
     const [keyword, setKeyword] = useState('');
+    const searchTool = () => {
+        setTool([]);
+        setOffset(0);
+        setKeyword(input);
+    }
 
     //공구 지도로 찾기
     const [openMap, setOpenMap] = useState(false);
@@ -39,12 +50,13 @@ export default function ToolMain() {
                 return prev.filter(v => v !== idx);
             }
         });
+
     };
 
     const toolCateIdx = checkedCategory.join(",");
 
     //거래방식
-    const [tWay, seTWay] = useState(0);
+    const [tWay, setTWay] = useState(0);
 
     //정렬기준
     const [tOrder, setTOrder] = useState();
@@ -62,32 +74,41 @@ export default function ToolMain() {
     }
 
     //공구 리스트
-    const toolList = () => {
-       
+    const toolList = (isMore = false, sizeParam = MORE_SIZE, offsetParam = offset) => {
+
         //지도 기준
 
         const params = {
             //키워드
-            keyword: keyword || undefined,
+            keyword: keyword,
             //유저
-            username: user.username || undefined,
+            username: user.username,
             //카테고리
-            categoryNo: categoryNo || undefined,
-             //거래방식
-            tWay: tWay || undefined,
+            categoryNo: toolCateIdx,
+            //거래방식
+            wayNo: tWay,
             //정렬기준
-            tOrder: tOrder || undefined,
+            orderNo: tOrder,
             //대여중인 공구
-            rentalTool: rentalTool ? false : undefined,
+            rentalState: rentalTool,
+
+            offset: offsetParam,
+            size: sizeParam
         };
 
-        const tokenPharam = token ? token : null;
+        const tokenParam = token ? token : null;
 
-
-        myAxios(tokenPharam, setToken).get('/tool/main',{params})
+        myAxios(tokenParam, setToken).get('/tool/main', { params })
             .then((res) => {
                 console.log(res.data);
-                setTool(res.data);
+
+                if (isMore) {
+                    setTool(prev => [...prev, ...res.data.cards]);
+                } else {
+                    setTool(res.data.cards);
+                }
+
+               setOffset(offsetParam + sizeParam);
 
             })
             .catch((err) => {
@@ -95,11 +116,31 @@ export default function ToolMain() {
             })
     }
 
-      useEffect(()=> {
+    // 최초 & 필터 변경 시
+    useEffect(() => {
+        setTool([])
+       toolList(false, INIT_SIZE, 0);  
+    }, [user?.username, checkedCategory, tWay, tOrder, rentalTool, keyword]);
 
-        toolList();
+    //초기화 
+    const resetToolMain = () => {
+        setCheckedCategory([]);
+        setInput('');
+        setKeyword('');
+        setOffset(0);
+        setRentalTool(false);
+        setTOrder(0);
+        setTWay(0);
+    }
 
-      },[user.username, checkedCategory,tWay,tOrder,rentalTool,keyword])
+    // 더보기 전용
+    useEffect(() => {
+        console.log(
+            "tool ids:",
+            tool.map(t => t.toolIdx)
+        );
+    }, [tool]);
+
 
     return (
         <>
@@ -109,8 +150,18 @@ export default function ToolMain() {
                         <div className="t-filter">
                             <span className="f-label">검색</span>
                             <div className="search-box">
-                                <input className="keyword" type="text" placeholder="공구명으로 검색"></input>
-                                <Search size={15} />
+                                <input className="keyword" type="text" placeholder="공구명으로 검색"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyDown={(e)=> {
+                                    if(e.key === 'Enter')
+                                        searchTool();
+                                    }}  
+                                    ></input>
+                                <Search size={15} style={{ cursor: "pointer" }}
+                                 onClick={searchTool}
+                                  
+                                />
                             </div>
                         </div>
                         <div className="t-filter">
@@ -127,7 +178,7 @@ export default function ToolMain() {
                             <div className="trade-main">
                                 <select className="trade-select"
                                     value={tWay}
-                                    onChange={(e) => seTWay(number(e.target.value))}>
+                                    onChange={(e) => setTWay(e.target.value)}>
                                     <option value={0}>전체</option>
                                     <option value={1}>직거래</option>
                                     <option value={2}>택배거래</option>
@@ -136,35 +187,45 @@ export default function ToolMain() {
                             </div>
                         </div>
                     </div>
-                    <div className="t-filter">
-                        <span className="f-label">카테고리</span>
-                        <div className="f-category">
-                            <FormGroup check>
-                                <Label check><Input id="checkbox2" type="checkbox"
-                                    value={83}
-                                    onChange={handleCategoryCheck} /> 전동공구</Label>
-                            </FormGroup>
-                            <FormGroup check>
-                                <Label check> <Input id="checkbox2" type="checkbox"
-                                    value={84}
-                                    onChange={handleCategoryCheck} /> 일반공구</Label>
-                            </FormGroup>
-                            <FormGroup check>
-                                <Label check><Input id="checkbox2" type="checkbox"
-                                    value={85}
-                                    onChange={handleCategoryCheck} />생활용품</Label>
-                            </FormGroup>
-                            <FormGroup check>
-                                <Label check><Input id="checkbox2" type="checkbox"
-                                    value={86}
-                                    onChange={handleCategoryCheck} />기타공구</Label>
-                            </FormGroup>
-                            <FormGroup check>
-                                <Label check><Input id="checkbox2" type="checkbox"
-                                    value={87}
-                                    onChange={handleCategoryCheck} />찾아요</Label>
-                            </FormGroup>
+                    <div className="row-cm resetToolMain">
+                        <div className="t-filter">
+                            <span className="f-label">카테고리</span>
+                            <div className="f-category">
+                                <FormGroup check>
+                                    <Label check><Input id="checkbox2" type="checkbox"
+                                        value={83}
+                                        checked={checkedCategory.includes(83)}
+                                        onChange={handleCategoryCheck} /> 전동공구</Label>
+                                </FormGroup>
+                                <FormGroup check>
+                                    <Label check> <Input id="checkbox2" type="checkbox"
+                                        value={84}
+                                        checked={checkedCategory.includes(84)}
+                                        onChange={handleCategoryCheck} /> 일반공구</Label>
+                                </FormGroup>
+                                <FormGroup check>
+                                    <Label check><Input id="checkbox2" type="checkbox"
+                                        value={85}
+                                        checked={checkedCategory.includes(85)}
+                                        onChange={handleCategoryCheck} />생활용품</Label>
+                                </FormGroup>
+                                <FormGroup check>
+                                    <Label check><Input id="checkbox2" type="checkbox"
+                                        value={86}
+                                        checked={checkedCategory.includes(86)}
+                                        onChange={handleCategoryCheck} />기타공구</Label>
+                                </FormGroup>
+                                <FormGroup check>
+                                    <Label check><Input id="checkbox2" type="checkbox"
+                                        value={87}
+                                        checked={checkedCategory.includes(87)}
+                                        onChange={handleCategoryCheck} />찾아요</Label>
+                                </FormGroup>
+                            </div>
                         </div>
+                        <span className="row-cm resetToolFilter"
+                            onClick={resetToolMain}
+                        ><RotateCcw size={14} />초기화</span>
                     </div>
                 </div>
 
@@ -186,7 +247,7 @@ export default function ToolMain() {
                         <div className="list">
                             <div className="list-card">
 
-                                {
+                                {Array.isArray(tool) &&
                                     tool.map(toolCard => (
                                         <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />
                                     ))
@@ -232,15 +293,17 @@ export default function ToolMain() {
                         </FormGroup>
                     </div>
 
-                    <div className="cards">
-                        {
+                    <div className="toolMaincards">
+                        {Array.isArray(tool) &&
                             tool.map(toolCard => (
-                                <ToolL key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />
+                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />
                             ))
                         }
                     </div>
 
-                    <div className="moreBtn">
+                    <div className="moreBtn" onClick={() => {
+                        toolList(true, MORE_SIZE);
+                    }}>
                         <span>더보기</span>
                         <PlusCircle size={20} />
                     </div>
