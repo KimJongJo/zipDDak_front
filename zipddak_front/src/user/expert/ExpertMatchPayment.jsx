@@ -85,7 +85,7 @@ export default function ExpertMatchPayment() {
             amount: amount,
             orderId: orderId,
             orderName: orderName,
-            successUrl: `http://localhost:8080/user/payment/estimate/complate?expertIdx=${expertIdx}`, // 성공시 서버쪽으로 보냄
+            successUrl: `http://localhost:8080/user/payment/estimate/complate?expertIdx=${expertDto.expertIdx}`, // 성공시 서버쪽으로 보냄
             failUrl: "http://localhost:5173/zipddak/experts",
         });
     };
