@@ -88,6 +88,7 @@ export default function Experts() {
 
     useEffect(() => {
         axios.get(`${baseUrl}/addExperts?cateNo=${selectMajor}`).then((res) => {
+            console.log(res.data);
             setAddExpertList(res.data);
         });
     }, [selectMajor]);
