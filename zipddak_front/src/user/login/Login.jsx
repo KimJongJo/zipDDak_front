@@ -43,7 +43,7 @@ export default function Login() {
         } else if (res.data.role == "APPROVAL_SELLER") {
           navigate("/seller/mainhome");
         } else if (res.data.role == "ADMIN") {
-          navigate("/admin/userList");
+          navigate("/admin/users");
         }
       })
       .catch((err) => {

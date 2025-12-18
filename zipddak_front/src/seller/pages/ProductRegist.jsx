@@ -56,8 +56,8 @@ export default function ProductRegist() {
     const [selectedSubCategory, setSelectedSubCategory] = useState("");
     // 카테고리 세팅
     useEffect(() => {
-        myAxios()
-            .get("/seller/product/categories/all")
+        myAxios(token, setToken)
+            .get("/product/categories/all")
             .then((res) => res.data)
             .then((data) => setCategories(data))
             .catch((err) => console.error("카테고리 로드 실패", err));
@@ -79,13 +79,13 @@ export default function ProductRegist() {
         salePrice,
         discountRate,
 
+        priceValue,
+        salePriceValue,
+        discountRateValue,
+
         handlePrice,
         handleSalePrice,
         handleDiscountRate,
-
-        setPrice,
-        setSalePrice,
-        setDiscountRate,
     } = usePriceCalc();
 
     //옵션 설정
@@ -165,12 +165,12 @@ export default function ProductRegist() {
             }
 
             // 4) 가격
-            formData.append("price", price);
+            formData.append("price", priceValue);
 
             //판매가, 할인율 입력된 경우에만
-            if (salePrice && discountRate) {
-                formData.append("salePrice", salePrice); //판매가
-                formData.append("discount", discountRate); //할인율
+            if (salePriceValue && discountRateValue) {
+                formData.append("salePrice", salePriceValue); //판매가
+                formData.append("discount", discountRateValue); //할인율
             }
 
             // 5) 옵션 JSON
@@ -191,7 +191,7 @@ export default function ProductRegist() {
             }
             //직접픽업 선택시 픽업지 주소 추가
             if (pickupOK == "Y") {
-                formData.append("zonecode", pickupData.zonecode);
+                formData, append("zonecode", pickupData.zonecode);
                 formData.append("pickupAddr1", pickupData.address);
                 formData.append("pickupAddr2", pickupData.detailAddress);
             }
@@ -202,8 +202,8 @@ export default function ProductRegist() {
             for (let [k, v] of formData.entries()) console.log(k, v);
 
             // 8) 서버 전송
-            myAxios()
-                .post(`/seller/product/regist`, formData)
+            myAxios(token, setToken)
+                .post(`/product/regist`, formData)
                 .then((res) => {
                     console.log(res);
                     console.log(res.data);
@@ -211,7 +211,7 @@ export default function ProductRegist() {
                     if (res.data.success === true) {
                         let productIdx = res.data.productIdx;
                         alert(res.data.message);
-                        navigate(`/productDetail/${productIdx}`); //상품 상세 페이지로 이동
+                        navigate(`/productList`); //상품 리스트로 이동
                     } else {
                         alert(res.data.message);
                     }
@@ -371,7 +371,6 @@ export default function ProductRegist() {
                                         placeholder="가격을 입력하세요"
                                         onChange={(e) => {
                                             handlePrice(e.target.value);
-                                            setPrice(e.target.value);
                                         }}
                                     />
                                     {/* invalid */}
@@ -391,7 +390,6 @@ export default function ProductRegist() {
                                             value={salePrice}
                                             onChange={(e) => {
                                                 handleSalePrice(e.target.value);
-                                                setSalePrice(e.target.value);
                                             }}
                                         />
                                         {/* invalid */}
@@ -410,7 +408,6 @@ export default function ProductRegist() {
                                             value={discountRate}
                                             onChange={(e) => {
                                                 handleDiscountRate(e.target.value);
-                                                setDiscountRate(e.target.value);
                                             }}
                                         />
                                         {/* invalid */}

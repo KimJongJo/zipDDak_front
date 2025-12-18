@@ -153,8 +153,6 @@ function App() {
     <Routes>
       <Route path="/auth/token" element={<Token />} />
       <Route path="/zipddak/*" element={<UserLayout />}>
-        <Route path="message" element={<Message />} />
-
         {/* 일반사용자 로그인 */}
         <Route path="login" element={<Login />} />
         <Route path="signUp/user" element={<SignUser />} />
@@ -175,6 +173,15 @@ function App() {
         <Route path="tool/regist" element={<RegistTool />} />
         <Route path="tool/apply" element={<ApplyTool />} />
 
+        {/* 일반사용자 전문가찾기 */}
+        <Route path="experts" element={<Experts />} />
+        <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
+        <Route
+          path="expertMatchPayment/:estimateIdx"
+          element={<ExpertMatchPayment />}
+        />
+        <Route path="findExpert" element={<FindExpert />} />
+
         {/* 일반사용자 커뮤니티 */}
         <Route path="community" element={<CommunityList />} />
         <Route path="community/write" element={<ComForm />} />
@@ -194,12 +201,6 @@ function App() {
 
         {/* 일반사용자 장바구니 */}
         <Route path="cart" element={<Cart />} />
-
-        {/* 일반사용자 전문가찾기 */}
-        <Route path="experts" element={<Experts />} />
-        <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-        <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
-        <Route path="findExpert" element={<FindExpert />} />
 
         {/* 일반사용자 마이페이지 */}
         <Route path="mypage/*" element={<Mypage />}>
@@ -314,7 +315,7 @@ function App() {
 
       <Route path="dashboard" element={<Dashboard />} />
 
-      {/* 전문가 */}
+      {/* 사이트관리자 */}
       <Route path="admin/*" element={<AdminLayout />}>
         {/* 회원 관리 */}
         <Route path="users" element={<AdminUserList />} />

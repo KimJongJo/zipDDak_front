@@ -81,12 +81,12 @@ export default function useModifyImgUpload(options = {}) {
     };
 
     /* ================= 상세 이미지 ================= */
-    const remainADetailSlots = maxDetailImages - (oldDetailImages.length + newDetailFiles.length);
+    const remainDetailSlots = maxDetailImages - (oldDetailImages.length + newDetailFiles.length);
 
     const addDetailImages = (files) => {
         const fileArr = Array.from(files);
 
-        if (fileArr.length > remainADetailSlots) {
+        if (fileArr.length > remainDetailSlots) {
             alert(`상세 이미지는 최대 ${maxDetailImages}장까지 가능합니다.`);
             return;
         }
@@ -142,7 +142,7 @@ export default function useModifyImgUpload(options = {}) {
         deleteDetailIdxList,
 
         remainAddSlots,
-        remainADetailSlots,
+        remainDetailSlots,
 
         /* setter (초기 데이터 세팅용) */
         setOldThumb,
