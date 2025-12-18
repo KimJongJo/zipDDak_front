@@ -65,7 +65,7 @@ export default function ShippingList() {
         if (searchDate) params.append("searchDate", searchDate);
         if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
 
-        const shippingListUrl = `/seller/shipping/myShippingList?${params.toString()}`;
+        const shippingListUrl = `/shipping/myShippingList?${params.toString()}`;
 
         myAxios()
             .get(shippingListUrl)

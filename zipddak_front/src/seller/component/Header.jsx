@@ -50,9 +50,9 @@ const Header = () => {
                 </nav>
 
                 <div className="user_info">
-                    <div className="alarm_icon">
+                    {/* <div className="alarm_icon">
                         <i className="bi bi-bell pointer"></i>
-                    </div>
+                    </div> */}
                     <div className="user_icon pointer">
                         <img src="/userIcon.svg" />
                         <i className="bi bi-chevron-down"></i>

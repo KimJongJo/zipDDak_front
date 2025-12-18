@@ -69,3 +69,18 @@
     gap: 8px;
     width: 100%;
 }
+
+/* 정산금 모의계산 모달  */
+.settleCalcContent.modal-content {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.contentParts {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 50%;
+    margin-bottom: 8px;
+}

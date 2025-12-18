@@ -32,7 +32,7 @@ export default function OrderDetail() {
         params.append("sellerId", "ss123");
         params.append("num", orderIdx);
 
-        const orderDetailUrl = `/seller/order/myOrderDetail?${params.toString()}`;
+        const orderDetailUrl = `/order/myOrderDetail?${params.toString()}`;
 
         myAxios()
             .get(orderDetailUrl)

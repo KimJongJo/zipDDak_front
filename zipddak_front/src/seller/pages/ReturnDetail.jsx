@@ -22,7 +22,7 @@ export default function OrderList() {
         params.append("sellerId", "ss123");
         params.append("num", refundIdx);
 
-        const refundDetailUrl = `/seller/refund/refundReqDetail?${params.toString()}`;
+        const refundDetailUrl = `/refund/refundReqDetail?${params.toString()}`;
 
         myAxios()
             .get(refundDetailUrl)
