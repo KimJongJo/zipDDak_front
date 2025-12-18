@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { Input, Pagination, PaginationItem, PaginationLink } from 'reactstrap';
-
+import { Input, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 
 export default function ToolLent() {
-
     const [status, setStatus] = useState("전체");
 
     // 작업상태 매핑
@@ -96,14 +94,14 @@ export default function ToolLent() {
     return (
         <>
             <div className="myPage-tool-container">
-                <Header1 />
+                {/* <Header1 /> */}
 
                 <div className="mypage-layout">
                     <h1 className="mypage-title">공구대여 내역</h1>
-                     <div className='tabs'>
-                    <div className='tab_nav'>빌린 공구</div>
-                    <div className='tab_nav'>빌려준 공구</div>
-                </div>
+                    <div className="tabs">
+                        <div className="tab_nav">빌린 공구</div>
+                        <div className="tab_nav">빌려준 공구</div>
+                    </div>
 
                     <div>
                         {/* 날짜 선택 */}
@@ -115,8 +113,7 @@ export default function ToolLent() {
                                 margin: "0 0 14px 0",
                             }}
                         >
-                            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input> -{" "}
-                            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input>
+                            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input> - <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input>
                         </div>
 
                         <table className="mypage-table">
@@ -132,15 +129,9 @@ export default function ToolLent() {
                             </thead>
                             <tbody>
                                 {workList.map((work) => (
-                                    <tr
-                                        key={work.workId}
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => { }}
-                                    >
+                                    <tr key={work.workId} style={{ cursor: "pointer" }} onClick={() => {}}>
                                         <td style={{ textAlign: "left", fontSize: "13px" }}>
-                                            <p style={{ fontWeight: "600", fontSize: "14px" }}>
-                                                {work.categoryName}
-                                            </p>
+                                            <p style={{ fontWeight: "600", fontSize: "14px" }}>{work.categoryName}</p>
                                             <p style={{ margin: "6px 0" }}>{work.region}</p>
                                             <p>
                                                 {work.workType} · {work.budget} · {work.preferredDate}
@@ -159,8 +150,7 @@ export default function ToolLent() {
                                                 fontWeight: "500",
                                             }}
                                         >
-                                            <p>{work.workStartDate.slice(0, 10)}</p>-
-                                            <p>{work.workEndDate.slice(0, 10)}</p>
+                                            <p>{work.workStartDate.slice(0, 10)}</p>-<p>{work.workEndDate.slice(0, 10)}</p>
                                         </td>
                                         <td
                                             style={{
@@ -178,15 +168,9 @@ export default function ToolLent() {
                                                     gap: "6px",
                                                 }}
                                             >
-                                                <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                                                    {WORK_STATUS_LABEL[work.workStatus]}
-                                                </span>
+                                                <span style={{ fontSize: "16px", fontWeight: "700" }}>{WORK_STATUS_LABEL[work.workStatus]}</span>
                                                 {work.workStatus === "COMPLETED" && (
-                                                    <button
-                                                        className="primary-button"
-                                                        style={{ width: "60px", height: "33px" }}
-                                                        onClick={() => { }}
-                                                    >
+                                                    <button className="primary-button" style={{ width: "60px", height: "33px" }} onClick={() => {}}>
                                                         후기작성
                                                     </button>
                                                 )}
@@ -209,8 +193,7 @@ export default function ToolLent() {
                         </PaginationItem>
                     </Pagination>
                 </div>
-
             </div>
         </>
-    )
+    );
 }
