@@ -25,7 +25,7 @@ import {
 import { useState } from "react";
 import { useAtom } from "jotai/react";
 import { alarmsAtom, initUser, tokenAtom, userAtom } from "../../atoms";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { baseUrl, myAxios } from "../../config";
 import { NavLink } from "react-router-dom";
 
@@ -41,6 +41,7 @@ export default function Header({ direction, ...args }) {
   const toggle = () => setDropdownOpen((prevState) => !prevState);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 로그아웃
   const logout = () => {
@@ -56,6 +57,17 @@ export default function Header({ direction, ...args }) {
       .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
       .then((res) => {
         setUser(res.data);
+
+        const path = location.pathname;
+        // 유저 마이페이지 → 전문가 마이페이지
+        if (path.startsWith("/zipddak/mypage")) {
+          navigate("/expert/mypage");
+        }
+
+        // 전문가 마이페이지 → 유저 마이페이지
+        else if (path.startsWith("/expert/mypage")) {
+          navigate("/zipddak/mypage");
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -82,12 +94,9 @@ export default function Header({ direction, ...args }) {
               <>
                 {/* 견적요청 or 받은견적 */}
                 {user.expert ? (
-                  <a
-                    href="/expert/mypage/receive/requests"
-                    className="estimate"
-                  >
+                  <a href="/expert/requests" className="estimate">
                     <Archive size={20} />
-                    <span className="te">받은요청</span>
+                    <span className="te">공개요청</span>
                   </a>
                 ) : (
                   <a
@@ -230,32 +239,47 @@ export default function Header({ direction, ...args }) {
                 </Dropdown>
 
                 {/* 프로필 이미지 */}
-                <a href="mypage/*" className="profile"></a>
                 <Dropdown
                   isOpen={dropdownOpen}
                   toggle={toggle}
                   direction={direction}
                   className="profileDropDown"
                 >
-                  <a href="/zipddak/mypage">
-                    <div className="profile-img">
-                      {user.profile != null && user.profile != "" ? (
-                        <img
-                          src={`${baseUrl}/imageView?type=${
-                            user.expert ? "EXPERT" : "USER"
-                          }&filename=${user.profile}`}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
-                      ) : (
-                        <UserRound color="#303441" />
-                      )}
-                    </div>
-                  </a>
-
+                  {user.expert ? (
+                    <a href="/expert/mypage">
+                      <div className="profile-img">
+                        {user.profile != null && user.profile != "" ? (
+                          <img
+                            src={`${baseUrl}/imageView?type=expert&filename=${user.profile}`}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <UserRound color="#303441" />
+                        )}
+                      </div>
+                    </a>
+                  ) : (
+                    <a href="/zipddak/mypage">
+                      <div className="profile-img">
+                        {user.profile != null && user.profile != "" ? (
+                          <img
+                            src={`${baseUrl}/imageView?type=profile&filename=${user.profile}`}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                          />
+                        ) : (
+                          <UserRound color="#303441" />
+                        )}
+                      </div>
+                    </a>
+                  )}
                   <DropdownToggle className="myDropDown">
                     <ChevronDown size={20} color="#303441" />
                   </DropdownToggle>
@@ -267,11 +291,19 @@ export default function Header({ direction, ...args }) {
                       </div>
                     </DropdownItem>
                     <DropdownItem>
-                      <a href="/zipddak/mypage/account">프로필 관리</a>
+                      {user.expert ? (
+                        <a href="/expert/profile/edit">프로필 관리</a>
+                      ) : (
+                        <a href="/zipddak/mypage/account">프로필 관리</a>
+                      )}
                     </DropdownItem>
 
                     <DropdownItem>
-                      <a href="/zipddak/mypage">마이페이지</a>
+                      {user.expert ? (
+                        <a href="/expert/mypage">마이페이지</a>
+                      ) : (
+                        <a href="/zipddak/mypage">마이페이지</a>
+                      )}
                     </DropdownItem>
 
                     <DropdownItem divider />

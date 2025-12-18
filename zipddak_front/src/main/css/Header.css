@@ -1,8 +1,15 @@
+html {
+  overflow-y: scroll;
+}
+
+svg {
+  vertical-align: unset;
+}
+
 .Userheader,
 .navigation {
-  width: 1200px;
+  max-width: 1200px;
   margin: 0px auto;
-  padding: 0 136px;
 }
 
 .divider-line {
@@ -14,7 +21,7 @@
 .Userheader {
   height: 95px;
   padding: 0 16px;
-
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,6 +62,7 @@
 
 .navigation {
   display: flex;
+  width: 100%;
   justify-content: flex-start;
   align-items: center;
   font-size: 16px;
@@ -65,22 +73,46 @@
 }
 
 .navitem {
+  position: relative;
   height: 52px;
   display: flex;
   align-items: center;
   padding: 0 2px;
   cursor: pointer;
+  color: #303441 !important;
+  transition: color 0.2s ease;
 }
 
+/* hover 시 텍스트 색상 */
 .navitem:hover {
-  color: #ff5833;
+  color: #ff5833 !important;
 }
 
-.navitem:active,
+/* underline 기본 상태 */
+.navitem::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: 2px;
+  background-color: #ff5833;
+
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+/* active 상태 */
 .navitem.active {
-  color: #ff5833;
-  border-bottom: 2px solid #ff5833;
+  color: #ff5833 !important;
   font-weight: 600;
+}
+
+/* active일 때 underline 유지 */
+.navitem.active::after {
+  transform: scaleX(1);
 }
 
 .estimate,

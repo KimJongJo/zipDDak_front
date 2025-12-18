@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Mypage from "./user/myPage/Mypage";
 import Account from "./user/myPage/Account";
 import Inquiries from "./user/myPage/Inquiries";
@@ -203,6 +203,7 @@ function App() {
 
         {/* 일반사용자 마이페이지 */}
         <Route path="mypage/*" element={<Mypage />}>
+          <Route index element={<Navigate to="expert/works" replace />} />
           <Route path="account" element={<Account />} />
           <Route path="expert/works" element={<MyWorks />} />
           <Route
@@ -243,6 +244,7 @@ function App() {
         />
         {/* 전문가 마이페이지 */}
         <Route path="mypage/*" element={<ExpertMypage />}>
+          <Route index element={<Navigate to="works" replace />} />
           <Route path="works" element={<ExpertMyWorks />} />
           <Route
             path="works/detail/:matchingIdx"

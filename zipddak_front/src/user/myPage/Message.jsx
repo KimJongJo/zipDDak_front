@@ -21,6 +21,7 @@ export default function Message() {
     initialRoomId ? Number(initialRoomId) : null
   ); // 선택한 채팅방
 
+  const isFirstRender = useRef(true);
   const clientRef = useRef(null);
   const roomSubRef = useRef(null);
   const roomListSubRef = useRef(null);
@@ -165,8 +166,13 @@ export default function Message() {
 
   // 새로운 메시지 도착 시 하단으로 스크롤
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     bottomRef.current?.scrollIntoView({
-      behavior: "smooth", // or "auto"
+      behavior: "smooth",
     });
   }, [messages]);
 

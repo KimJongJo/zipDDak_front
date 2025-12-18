@@ -56,7 +56,8 @@ export default function Login() {
     <>
       <div className="signUp-box">
         <div className="login">
-          <div className="logo"></div>
+          {/* <div className="logo"></div> */}
+          <img src="/zipddak-logo.svg" />
           <div className="title">로그인</div>
 
           <div className="sns_login">
