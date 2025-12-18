@@ -71,7 +71,7 @@ export default function ReturnList() {
         if (searchRequestDate) params.append("searchRequestDate", searchRequestDate);
         if (selectedStatus.length > 0) params.append("refundStateList", selectedStatus.join(","));
 
-        const refundListUrl = `/seller/refund/myRefundList?${params.toString()}`;
+        const refundListUrl = `/refund/myRefundList?${params.toString()}`;
 
         myAxios()
             .get(refundListUrl)
