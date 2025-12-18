@@ -1,6 +1,7 @@
 import { atomWithStorage, createJSONStorage } from "jotai/utils";
 
-export const initUser = { username: "", name: "", nickname: "", role: "", expert: "", profile: "", addr1:""};
+export const initUser = { username: "", name: "", nickname: "", role: "", expert: "", 
+    profile: "", addr1:"", addr2:"", zonecode:"", settleBank:"", settleAccount:"",settleHost:""};
 
 export const userAtom = atomWithStorage(
     "user",

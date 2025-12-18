@@ -109,6 +109,7 @@ import RequestActive from "./user/myPage/RequestActive.jsx";
 import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
 import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
 import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
+import ModifyTool from "./user/tool/ToolModify.jsx";
 
 function App() {
   return (
@@ -131,8 +132,9 @@ function App() {
 
         {/* 일반사용자 공구대여 */}
         <Route path="tool" element={<ToolMain />} />
-        <Route path="tool/:toolId" element={<ToolDetail />} />
+        <Route path="tool/:toolIdx" element={<ToolDetail />} />
         <Route path="tool/regist" element={<RegistTool />} />
+        <Route path="tool/modify/:tooIdx" element={<ModifyTool/>}/>
         <Route path="tool/apply" element={<ApplyTool />} />
 
         {/* 일반사용자 커뮤니티 */}
@@ -181,7 +183,7 @@ function App() {
             path="market/exchange/:orderIdx"
             element={<MarketExchangeForm />}
           />
-          <Route path="tool" element={<MyTool />} />
+          <Route path="tools/my" element={<MyTool />} />
           <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
           <Route path="tool/lent" element={<ToolLent />} />
           <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
