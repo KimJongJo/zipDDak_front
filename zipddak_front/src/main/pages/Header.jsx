@@ -1,9 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import "../css/Header.css";
 import "../../css/common.css";
-
 import {
   ChevronDown,
   Rocket,
@@ -23,15 +21,13 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
-  ModalFooter,
-  ListGroupItem,
 } from "reactstrap";
 import { useState } from "react";
 import { useAtom } from "jotai/react";
 import { alarmsAtom, initUser, tokenAtom, userAtom } from "../../atoms";
-import PropTypes from "prop-types";
 import { useNavigate } from "react-router";
 import { baseUrl, myAxios } from "../../config";
+import { NavLink } from "react-router-dom";
 
 export default function Header({ direction, ...args }) {
   const [user, setUser] = useAtom(userAtom);
@@ -40,9 +36,13 @@ export default function Header({ direction, ...args }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [alarmOpen, setAlarmOpen] = useState(false);
+  const [modal, setModal] = useState();
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
+
   const navigate = useNavigate();
 
+  // 로그아웃
   const logout = () => {
     setUser(initUser);
     setToken(null);
@@ -50,8 +50,7 @@ export default function Header({ direction, ...args }) {
     navigate("/zipddak/login");
   };
 
-  const [modal, setModal] = useState();
-
+  // 전문가 <-> 고객 전환
   const expertToggle = () => {
     myAxios(token, setToken)
       .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
@@ -63,6 +62,7 @@ export default function Header({ direction, ...args }) {
       });
   };
 
+  // 전문가 가입
   const goToExpertmodal = () => {
     setModal(false);
     navigate("/zipddak/signUp/expert");
@@ -72,28 +72,35 @@ export default function Header({ direction, ...args }) {
     <>
       <div className="Userheader">
         <>
+          {/* 로고 */}
           <a href="/zipddak/main">
-            <div className="logo"></div>
+            <img src="/zipddak-logo.svg" />
           </a>
+
           <div className="userBox">
             {user.username ? (
               <>
                 {/* 견적요청 or 받은견적 */}
                 {user.expert ? (
-                  <a href="/zipddak/mypage/requests" className="estimate">
+                  <a
+                    href="/expert/mypage/receive/requests"
+                    className="estimate"
+                  >
                     <Archive size={20} />
                     <span className="te">받은요청</span>
                   </a>
                 ) : (
-                  <a href="" className="estimate">
+                  <a
+                    href="/zipddak/mypage/expert/requests/active"
+                    className="estimate"
+                  >
                     <Archive size={20} />
                     <span className="te">받은견적</span>
                   </a>
                 )}
-
                 {/* 멤버십 or 장바구니 */}
                 {user.expert ? (
-                  <a href="/zipddakmypage/membership" className="icon">
+                  <a href="/expert/mypage/membership" className="icon">
                     <Rocket size={20} />
                   </a>
                 ) : (
@@ -101,12 +108,10 @@ export default function Header({ direction, ...args }) {
                     <ShoppingCart size={20} />
                   </a>
                 )}
-
-                {/* 공통 아이콘 */}
-                <a href="" className="icon">
+                {/* 채팅 */}
+                <a href="/zipddak/message" className="icon">
                   <MessageCircleMore size={20} />
                 </a>
-
                 {/* 알림 */}
                 <Dropdown
                   isOpen={alarmOpen}
@@ -224,8 +229,8 @@ export default function Header({ direction, ...args }) {
                   </DropdownMenu>
                 </Dropdown>
 
+                {/* 프로필 이미지 */}
                 <a href="mypage/*" className="profile"></a>
-                {/* 드롭다운 */}
                 <Dropdown
                   isOpen={dropdownOpen}
                   toggle={toggle}
@@ -305,31 +310,58 @@ export default function Header({ direction, ...args }) {
           </div>
         </>
       </div>
-
+      <div className="divider-line" />
       <div className="navigation">
-        <a href="/zipddak/main" className="navitem active">
+        <NavLink
+          to="/zipddak/main"
+          end
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
           홈
-        </a>
-        <a href="/zipddak/findExpert" className="navitem">
+        </NavLink>
+        <NavLink
+          to="/zipddak/findExpert"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
           견적요청
-        </a>
-        <a href="/zipddak/experts" className="navitem">
-          전문가찾기
-        </a>
-        <a href="/zipddak/tool" className="navitem">
-          공구대여
-        </a>
-        <a href="/zipddak/productList" className="navitem">
-          자재마켓
-        </a>
-        <a href="/zipddak/main/best" className="navitem">
-          자재 100
-        </a>
-        <a href="/zipddak/community" className="navitem">
-          커뮤니티
-        </a>
-      </div>
+        </NavLink>
 
+        <NavLink
+          to="/zipddak/experts"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
+          전문가찾기
+        </NavLink>
+
+        <NavLink
+          to="/zipddak/tool"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
+          공구대여
+        </NavLink>
+
+        <NavLink
+          to="/zipddak/productList"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
+          자재마켓
+        </NavLink>
+
+        <NavLink
+          to="/zipddak/main/best"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
+          자재 100
+        </NavLink>
+
+        <NavLink
+          to="/zipddak/community"
+          className={({ isActive }) => `navitem ${isActive ? "active" : ""}`}
+        >
+          커뮤니티
+        </NavLink>
+      </div>
+      <div className="divider-line" />
       <Modal isOpen={modal}>
         <ModalHeader>전문가 가입</ModalHeader>
         <ModalBody>

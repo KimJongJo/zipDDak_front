@@ -103,8 +103,8 @@ export default function RequestActive() {
   };
 
   useEffect(() => {
-    getRequest();
-  }, []);
+    user.username && getRequest();
+  }, [user.username]);
 
   return (
     <div className="mypage-layout">

@@ -1,23 +1,23 @@
-body {
-  min-width: 1300px;
-}
-
 .Userheader,
 .navigation {
-  max-width: 1440px !important;
+  width: 1200px;
+  margin: 0px auto;
   padding: 0 136px;
-  margin: 0 auto;
+}
+
+.divider-line {
+  width: 100%;
+  height: 1px;
+  background-color: #eff1f5;
 }
 
 .Userheader {
-  width: 100%;
   height: 95px;
   padding: 0 16px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eff1f5;
 }
 
 .userBox {
@@ -60,11 +60,8 @@ body {
   font-size: 16px;
   font-weight: 600;
   gap: 32px;
-
-  width: 100%;
   height: 52px;
   padding: 0 16px;
-  border-bottom: 1px solid #eff1f5;
 }
 
 .navitem {

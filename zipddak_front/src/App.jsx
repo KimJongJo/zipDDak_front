@@ -77,6 +77,7 @@ import Dashboard from "./admin/pages/Dashboard";
 import UserLayout from "./main/pages/UserLayout.jsx";
 import ExpertLayout from "./expert/pages/ExpertLayout";
 import Best from "./main/pages/Best.jsx";
+import Message from "./user/myPage/Message.jsx";
 
 // 자재판매자
 import SellerLayout from "./seller/pages/SellerLayout";
@@ -152,6 +153,8 @@ function App() {
     <Routes>
       <Route path="/auth/token" element={<Token />} />
       <Route path="/zipddak/*" element={<UserLayout />}>
+        <Route path="message" element={<Message />} />
+
         {/* 일반사용자 로그인 */}
         <Route path="login" element={<Login />} />
         <Route path="signUp/user" element={<SignUser />} />
