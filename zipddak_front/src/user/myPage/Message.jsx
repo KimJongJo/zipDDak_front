@@ -15,11 +15,13 @@ export default function Message() {
   const [stompConnected, setStompConnected] = useState(false);
   const [chip, setChip] = useState("EXPERT");
   const [inputMessage, setInputMessage] = useState("");
-  const [chatList, setChatList] = useState([]); // 채팅방 목록
-  const [messages, setMessages] = useState([]); // 대화 내용
   const [selectMessageRoomIdx, setSelectMessageRoomIdx] = useState(
     initialRoomId ? Number(initialRoomId) : null
-  ); // 선택한 채팅방
+  ); // 선택한 채팅방 아이디
+  const [selectedRoom, setSelectedRoom] = useState(null); // 선택한 채팅방
+
+  const [chatList, setChatList] = useState([]); // 채팅방 목록
+  const [messages, setMessages] = useState([]); // 대화 내용
 
   const isFirstRender = useRef(true);
   const clientRef = useRef(null);
@@ -48,14 +50,17 @@ export default function Message() {
   // 채팅 전송
   const sendMessage = () => {
     if (!clientRef.current?.connected) return;
-
+    console.log(user.username);
     clientRef.current.publish({
       destination: "/app/chat/send",
       body: JSON.stringify({
-        messageRoomIdx: 1,
+        messageRoomIdx: selectMessageRoomIdx,
         content: inputMessage,
         sendUsername: user.username,
-        recvUsername: "gyeongeh@gmail.com",
+        recvUsername:
+          selectedRoom.roomSendUsername === user.username
+            ? selectedRoom.roomRecvUsername
+            : selectedRoom.roomSendUsername,
         sendButton: false,
       }),
     });
@@ -81,7 +86,13 @@ export default function Message() {
 
   // 최초 목록 조회
   useEffect(() => {
-    if (user.username) getMessageRoomList(chip);
+    if (user.username) {
+      if (user.expert) {
+        getMessageRoomList("NOTUSER");
+      } else {
+        getMessageRoomList(chip);
+      }
+    }
   }, [user.username, chip]);
 
   // STOMP 연결 (최초 1회)
@@ -105,7 +116,7 @@ export default function Message() {
           setChatList((prev) =>
             prev.map((room) =>
               room.messageRoomIdx === update.messageRoomIdx
-                ? { ...room, ...update }
+                ? { ...room, ...update, unreadCount: 0 }
                 : room
             )
           );
@@ -135,8 +146,6 @@ export default function Message() {
     // 이전 구독 해제
     roomSubRef.current?.unsubscribe();
 
-    console.log("subscribe room:", selectMessageRoomIdx);
-
     roomSubRef.current = clientRef.current.subscribe(
       `/topic/chat/room/${selectMessageRoomIdx}`,
       (msg) => {
@@ -161,6 +170,7 @@ export default function Message() {
 
     if (exists) {
       setSelectMessageRoomIdx(Number(initialRoomId));
+      setSelectedRoom(exists);
     }
   }, [chatList, initialRoomId]);
 
@@ -203,76 +213,107 @@ export default function Message() {
       >
         <h3 className="message-title">쪽지</h3>
 
-        <div className="mypage-chipList">
-          <div
-            className={chip === "EXPERT" ? "isActive" : ""}
-            onClick={() => {
-              setChip("EXPERT");
-              setSelectMessageRoomIdx(0);
-              getMessageRoomList("EXPERT");
-            }}
-          >
-            전문가
+        {user.expert ? (
+          <div style={{ margin: "16px" }}></div>
+        ) : (
+          <div className="mypage-chipList">
+            <div
+              className={chip === "EXPERT" ? "isActive" : ""}
+              onClick={() => {
+                setChip("EXPERT");
+                setMessages([]);
+                setChatList([]);
+                setSelectMessageRoomIdx(0);
+                setSelectedRoom(null);
+                getMessageRoomList("EXPERT");
+              }}
+            >
+              전문가
+            </div>
+            <div
+              className={chip === "TOOL" ? "isActive" : ""}
+              onClick={() => {
+                setChip("TOOL");
+                setMessages([]);
+                setChatList([]);
+                setSelectMessageRoomIdx(0);
+                setSelectedRoom(null);
+                getMessageRoomList("TOOL");
+              }}
+            >
+              공구대여
+            </div>
           </div>
-          <div
-            className={chip === "TOOL" ? "isActive" : ""}
-            onClick={() => {
-              setChip("TOOL");
-              setSelectMessageRoomIdx(0);
-              getMessageRoomList("TOOL");
-            }}
-          >
-            공구대여
-          </div>
-        </div>
+        )}
 
         <div className="message-list">
-          {chatList.map((chat) => (
-            <div
-              className={
-                selectMessageRoomIdx === chat.messageRoomIdx
-                  ? "message-list-card-active"
-                  : "message-list-card"
-              }
-              onClick={() => setSelectMessageRoomIdx(chat.messageRoomIdx)}
-            >
-              <div className="card-info-section">
-                {chip === "TOOL" ? (
-                  <img
-                    src={`http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}`}
-                    width="48px"
-                    height="48px"
-                    style={{ borderRadius: "999px" }}
-                  />
-                ) : (
-                  <img
-                    src={`http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}`}
-                    width="48px"
-                    height="48px"
-                  />
-                )}
-                <div>
-                  <p>{chip === "TOOL" ? chat.nickname : chat.activityName}</p>
-                  <span>
-                    {chip === "TOOL"
-                      ? chat.toolName
-                      : `${chat.mainService} · ${chat.addr1}`}
-                  </span>
-                </div>
-              </div>
-              <div className="card-chat-section">
-                <div>
-                  <p>{chat.lastMessage}</p>
-                  {chat.unreadCount !== 0 && (
-                    <p className="confirmFalseCount-badge">
-                      {chat.unreadCount}
-                    </p>
+          {chatList.length !== 0 ? (
+            chatList.map((chat) => (
+              <div
+                className={
+                  selectMessageRoomIdx === chat.messageRoomIdx
+                    ? "message-list-card-active"
+                    : "message-list-card"
+                }
+                onClick={() => {
+                  setSelectMessageRoomIdx(chat.messageRoomIdx);
+                  setSelectedRoom(chat);
+                }}
+              >
+                <div className="card-info-section">
+                  {chip === "TOOL" || user.expert ? (
+                    <img
+                      src={`http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}`}
+                      width="48px"
+                      height="48px"
+                      style={{ borderRadius: "999px" }}
+                    />
+                  ) : (
+                    <img
+                      src={`http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}`}
+                      width="48px"
+                      height="48px"
+                    />
                   )}
+                  <div>
+                    <p>
+                      {chip === "TOOL" || user.expert
+                        ? chat.nickname
+                        : chat.activityName}
+                    </p>
+                    <span>
+                      {chip === "TOOL" || user.expert
+                        ? chat.toolName
+                        : `${chat.mainService} · ${chat.addr1}`}
+                    </span>
+                  </div>
                 </div>
-                <span>{timeAgo(chat.updatedAt)}</span>
+                <div className="card-chat-section">
+                  <div>
+                    <p>{chat.lastMessage}</p>
+                    {chat.unreadCount !== 0 && (
+                      <p className="confirmFalseCount-badge">
+                        {chat.unreadCount}
+                      </p>
+                    )}
+                  </div>
+                  <span>{timeAgo(chat.updatedAt)}</span>
+                </div>
               </div>
+            ))
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                padding: "40px",
+                textAlign: "center",
+                color: "#6A7685",
+                fontSize: "14px",
+              }}
+            >
+              진행중인 쪽지가 없습니다.
             </div>
-          ))}
+          )}
         </div>
       </div>
       {/* 채팅 상세 */}
@@ -290,47 +331,67 @@ export default function Message() {
           paddingRight: "8px",
         }}
       >
-        <div className="message-detail-title">
-          <div>
-            <img
-              src=""
-              width="32px"
-              height="32px"
-              style={{ borderRadius: "999px" }}
-            />
-            <p>전문가 활동명</p>
-          </div>
-          <button
-            className="primary-button"
-            style={{ width: "100px", height: "33px" }}
-          >
-            결제 요청하기
-          </button>
-        </div>
-
-        <div className="message-detail-content">
-          {messages.map((msg) =>
-            msg.sendUsername === user.username ? (
-              <div className="message-bubble-send">
-                <span>{timeAgo(msg.createdAt)}</span>
-                <p>{msg.content}</p>
-              </div>
-            ) : (
-              <div className="message-bubble-recive">
+        {selectedRoom && (
+          <>
+            <div className="message-detail-title">
+              <div>
                 <img
-                  src=""
+                  src={
+                    chip === "TOOL" || user.expert
+                      ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                      : `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                  }
                   width="32px"
                   height="32px"
                   style={{ borderRadius: "999px" }}
                 />
-                <div>
-                  <p>{msg.content}</p>
-                  <span>{timeAgo(msg.createdAt)}</span>
-                </div>
+                <p>
+                  {chip === "TOOL" || user.expert
+                    ? selectedRoom.nickname
+                    : selectedRoom.activityName}
+                </p>
               </div>
-            )
-          )}
-          {/* <div className="message-bubble-recive hasButton">
+              {selectedRoom.roomRecvUsername === user.username &&
+                (chip === "TOOL" ? (
+                  <button
+                    className="primary-button"
+                    style={{ width: "100px", height: "33px" }}
+                  >
+                    결제 요청하기
+                  </button>
+                ) : (
+                  <button
+                    className="primary-button"
+                    style={{ width: "100px", height: "33px" }}
+                  >
+                    최종 견적 보내기
+                  </button>
+                ))}
+            </div>
+
+            <div className="message-detail-content">
+              {messages.map((msg) =>
+                msg.sendUsername === user.username ? (
+                  <div className="message-bubble-send">
+                    <span>{timeAgo(msg.createdAt)}</span>
+                    <p>{msg.content}</p>
+                  </div>
+                ) : (
+                  <div className="message-bubble-recive">
+                    <img
+                      src=""
+                      width="32px"
+                      height="32px"
+                      style={{ borderRadius: "999px" }}
+                    />
+                    <div>
+                      <p>{msg.content}</p>
+                      <span>{timeAgo(msg.createdAt)}</span>
+                    </div>
+                  </div>
+                )
+              )}
+              {/* <div className="message-bubble-recive hasButton">
             <img
               src=""
               width="32px"
@@ -342,36 +403,38 @@ export default function Message() {
               <span>날짜?</span>
             </div>
           </div> */}
-          <div ref={bottomRef} />
-        </div>
+              <div ref={bottomRef} />
+            </div>
 
-        <div className="message-detail-send">
-          <Input
-            placeholder="메시지를 입력하세요"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => {
-              // 한글 조합 중이면 무시
-              if (e.isComposing) return;
-              // 키 자동 반복 방지 (꾹 눌렀을 때)
-              if (e.repeat) return;
-              if (e.key === "Enter") {
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-          />
-          <i
-            class="bi bi-arrow-up"
-            style={{
-              fontSize: "24px",
-              color: "rgba(173, 173, 173, 1)",
-              padding: "0 10px",
-              cursor: "pointer",
-            }}
-            onClick={sendMessage}
-          ></i>
-        </div>
+            <div className="message-detail-send">
+              <Input
+                placeholder="메시지를 입력하세요"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  // 한글 조합 중이면 무시
+                  if (e.isComposing) return;
+                  // 키 자동 반복 방지 (꾹 눌렀을 때)
+                  if (e.repeat) return;
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+              />
+              <i
+                class="bi bi-arrow-up"
+                style={{
+                  fontSize: "24px",
+                  color: "rgba(173, 173, 173, 1)",
+                  padding: "0 10px",
+                  cursor: "pointer",
+                }}
+                onClick={sendMessage}
+              ></i>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

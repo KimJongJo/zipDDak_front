@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
+import { useNavigate } from "react-router";
 
 export default function RequestActive() {
   const [request, setRequest] = useState({}); // 요청서 상세
@@ -10,8 +11,11 @@ export default function RequestActive() {
   const [estimate, setEstimate] = useState(null); // 선택한 전문가 견적서 상세
   const [costList, setCostList] = useState([]); // 견적서 비용 상세
   const [selectedExpertIdx, setSelectedExpertIdx] = useState(null); // 선택한 전문가 id
+  const [selectedExpertUsername, setSelectedExpertUsername] = useState(null); // 선택한 전문가 username
 
   const [open, setOpen] = useState(true);
+
+  const navigate = useNavigate();
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
@@ -26,6 +30,7 @@ export default function RequestActive() {
       .then((res) => {
         setRequest(res.data.requestDetail);
         setExpertList(res.data.expertList);
+        setSelectedExpertUsername(res.data.expertUsername);
       })
       .catch((err) => {
         console.log(err);
@@ -45,6 +50,21 @@ export default function RequestActive() {
       })
       .catch((err) => {
         console.log(err);
+      });
+  };
+
+  // 채팅하기
+  const chat = () => {
+    myAxios(token, setToken)
+      .post("http://localhost:8080/message-room", {
+        type: "EXPERT",
+        sendUsername: user.username,
+        recvUsername: selectedExpertUsername,
+        estimateIdx: estimate.estimateIdx,
+      })
+      .then((res) => {
+        const roomId = res.data;
+        navigate(`/zipddak/message?roomId=${roomId}`);
       });
   };
 
@@ -775,6 +795,7 @@ export default function RequestActive() {
                   {estimate.costDetail && (
                     <Input
                       type="textarea"
+                      readOnly
                       style={{ marginTop: "20px" }}
                       value={estimate.costDetail}
                     />
@@ -822,6 +843,9 @@ export default function RequestActive() {
               {/* 전문가 정보 */}
               <div>
                 <h3 className="mypage-sectionTitle">전문가 정보</h3>
+                <button className="primary-button" onClick={chat}>
+                  채팅하기
+                </button>
                 {/* {expertList.map((expert, index) => (
           <div
             key={expert.expertIdx}
