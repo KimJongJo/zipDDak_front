@@ -9,8 +9,10 @@ export default function Footer() {
 
                 <div className="etc_menu">
                     <div className="other_menu">
-                        <span className="pointer">
-                            <a href="/seller/productModify">공지사항</a>
+                        <span className="pointer ">
+                            <a href="#" className="readonlyText">
+                                공지사항
+                            </a>
                         </span>
                         <span className="pointer">
                             <a href="/seller/ask">일대일 문의</a>

@@ -1,6 +1,5 @@
 //css
 import table from "../css/table.module.css";
-
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 

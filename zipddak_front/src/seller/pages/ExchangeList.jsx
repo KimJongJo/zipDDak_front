@@ -71,7 +71,7 @@ export default function ProductRegist() {
         if (searchRequestDate) params.append("searchRequestDate", searchRequestDate);
         if (selectedStatus.length > 0) params.append("exchangeStateList", selectedStatus.join(","));
 
-        const exchangeListUrl = `/seller/exchange/myExchangeList?${params.toString()}`;
+        const exchangeListUrl = `/exchange/myExchangeList?${params.toString()}`;
 
         myAxios()
             .get(exchangeListUrl)
