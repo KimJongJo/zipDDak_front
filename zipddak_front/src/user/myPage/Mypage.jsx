@@ -1,9 +1,27 @@
 import { Outlet, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import "../css/mypage.css";
+import { baseUrl, myAxios } from "../../config";
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
 
 export default function Mypage() {
   const navigate = useNavigate();
+
+  const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
+  // 전문가 <-> 고객 전환
+  const expertToggle = () => {
+    myAxios(token, setToken)
+      .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
+      .then((res) => {
+        setUser(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const navTitleStyle = {
     display: "flex",
@@ -74,7 +92,7 @@ export default function Mypage() {
           }}
         >
           <img
-            src="/Icon.svg"
+            src={`${baseUrl}/imageView?type=profile&filename=${user.profile}`}
             width="96px"
             height="96px"
             style={{ borderRadius: "999px" }}
@@ -82,6 +100,10 @@ export default function Mypage() {
           <button
             className="secondary-button"
             style={{ width: "160px", height: "33px" }}
+            onClick={() => {
+              expertToggle();
+              navigate("/expert/mypage");
+            }}
           >
             전문가로 전환
           </button>

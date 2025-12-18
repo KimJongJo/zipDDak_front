@@ -27,11 +27,40 @@ export function firebaseReqPermission(setFcmToken, setAlarm) {
     });
 
   firebaseMessaging.onMessage((payload) => {
-    console.log(payload);
-    let data = payload.data;
+    const data = payload.data;
     console.log(data);
-    setAlarm(data);
+
+    if (data.eventType === "NOTIFICATION") {
+      setAlarm(convertFcmToAlarm(data));
+    }
+
+    if (data.eventType === "MESSAGE") {
+      console.log("메시지 도착");
+    }
   });
+}
+
+function convertFcmToAlarm(fcm) {
+  return {
+    notificationIdx: fcm.notificationIdx ? Number(fcm.notificationIdx) : null,
+    type: fcm.notificationType,
+
+    title: fcm.title,
+    content: fcm.content,
+
+    recvUsername: fcm.recvUsername ?? null,
+    sendUsername: fcm.sendUsername ?? null,
+
+    requestIdx: fcm.requestIdx ? Number(fcm.requestIdx) : null,
+    estimateIdx: fcm.estimateIdx ? Number(fcm.estimateIdx) : null,
+    rentalIdx: fcm.rentalIdx ? Number(fcm.rentalIdx) : null,
+    communityIdx: fcm.communityIdx ? Number(fcm.communityIdx) : null,
+    reviewIdx: fcm.reviewIdx ? Number(fcm.reviewIdx) : null,
+    reviewType: fcm.reviewType ?? null,
+
+    confirm: false,
+    createDate: fcm.createdAt ?? new Date().toISOString(),
+  };
 }
 
 // 서비스 워커 등록: background 설정

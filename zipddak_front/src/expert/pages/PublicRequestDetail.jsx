@@ -1369,7 +1369,7 @@ export default function PublicRequestDetail() {
               fontSize: "14px",
             }}
           >
-            <p>문의가 접수되었습니다.</p>
+            <p>견적이 성공적으로 전송되었습니다.</p>
           </div>
         </ModalBody>
       </Modal>
