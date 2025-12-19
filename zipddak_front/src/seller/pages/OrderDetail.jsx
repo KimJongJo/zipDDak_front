@@ -447,7 +447,7 @@ export default function OrderDetail() {
                                 </div>
                             </div>
                         </div>
-                        <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} />
+                        <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} registType="FIRST_SEND" />
 
                         {/* 클레임 내역 사항 */}
                         <div className="position-relative mt-4"></div>

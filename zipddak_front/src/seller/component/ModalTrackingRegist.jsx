@@ -3,7 +3,7 @@ import { useState } from "react";
 import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
 
-export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModalOpen, selectedItems, targetItemIdx, orderIdx, refresh, resetChecked }) {
+export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModalOpen, selectedItems, targetItemIdx, orderIdx, refresh, resetChecked, registType }) {
     const [postComp, setPostComp] = useState("");
     const [trackingNumber, setTrackingNumber] = useState("");
 
@@ -22,11 +22,12 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
 
             // → targetItems 로 API 호출
             await myAxios()
-                .post("/seller/order/registerTrackingNo", {
+                .post("/registerTrackingNo", {
                     orderIdx: orderIdx,
                     itemIdxs: targetItems,
                     postComp: postComp,
                     trackingNumber: trackingNumber,
+                    registType: registType,
                 })
                 .then((res) => {
                     if (res.data.success === true) {
@@ -64,7 +65,7 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
                 </ModalHeader>
                 <ModalBody className={[modal.modalBody, modal.trackingModalBody].join(" ")}>
                     <div className={modal.trackingModalContent}>
-                        <p>선택된 상품 {selectedItems?.length}개를 출고 처리하시겠습니까?</p>
+                        <p>선택된 상품 {selectedItems?.length || 1}개를 출고 처리하시겠습니까?</p>
                         <div className={modal.descTrackingModalColumn}>
                             <p>상품 발송 시 운송장번호를 등록해주세요.</p>
                             <p>

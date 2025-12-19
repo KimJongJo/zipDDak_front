@@ -6,10 +6,12 @@ import acco from "../css/accordion.module.css";
 import usePageTitle from "../js/usePageTitle.jsx";
 import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
 import { priceFormat } from "../js/priceFormat.jsx";
+import { getEarliestProcessDateFromItems, getEarliestProcessDateFromAcceptItems } from "../js/dateUtils.jsx";
 //component
 import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalReject from "../component/ModalReject.jsx";
 import ModalAccept from "../component/ModalAccept.jsx";
+import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 import ModalRefund from "../component/ModalRefund.jsx";
 
 import { Input, Label, Spinner } from "reactstrap";
@@ -30,11 +32,12 @@ export default function ReturnDetail() {
     const [reqRefundAmount, setReqRefundAmount] = useState(0); //환불금액
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false); //반품거절 등록 모달 상태
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false); //반품접수 등록 모달 상태
+    const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false); //환불처리 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
     const [token, setToken] = useAtom(tokenAtom);
 
-    //테이블 체크박스 상태 초기화
+    //테이블 체크박스 상태
     const {
         allChecked,
         checkedItems,
@@ -109,11 +112,22 @@ export default function ReturnDetail() {
     // 반품요청상품 총금액 합
     const refundReqPrice = reqItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
 
+    //아코디언 표시 조건용
+    const hasRejected = reqItems.some((item) => item.refundRejectedAt); //반품거절건
+    const hasAccepted = reqItems.some((item) => item.refundAcceptedAt); //반품접수승인건(=수거요청)
+    const hasPickupComplated = reqItems.some((item) => item.refundPickupComplatedAt); //반품수거완료
+    const hasRefundCompleted = reqItems.some((item) => item.refundComplatedAt); //반품처리완료건
+
+    //아코디언내 테이블 표시 렌더링용
+    const rejectedItems = reqItems.filter((item) => item.refundRejectedAt);
+    const acceptedItems = reqItems.filter((item) => item.refundAcceptedAt);
+    const pickupComplatedItems = reqItems.some((item) => item.refundPickupComplatedAt);
+    const refundComplatedItems = reqItems.some((item) => item.refundComplatedAt);
+
     return (
         <>
             {/* 페이지 탭 타이틀 */}
             {pageTitle}
-
             <main className="main">
                 <div className="mainFrame listFrame">
                     <div className="headerFrame">
@@ -134,7 +148,6 @@ export default function ReturnDetail() {
                                 </button>
                             </div>
                         </div>
-
                         {/* 클레임상세 */}
                         <div className={detail.processFlow}>
                             <div className="position-relative mt-4">
@@ -346,245 +359,340 @@ export default function ReturnDetail() {
                                     </div>
                                 </div>
                             </div>
-                            <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={setIsRejectModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} rejectType="반품 거절" />
-                            <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={setIsAcceptModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} acceptType="반품 접수" />
 
                             {/* 반품 수거 정보 */}
-                            <div className="position-relative">
-                                <Label className="input_title">반품 수거 정보</Label>
+                            {(hasAccepted || hasPickupComplated) && (
+                                <div className="position-relative">
+                                    <Label className="input_title">반품 수거 정보</Label>
 
-                                {/* <AccordionBox /> */}
-                                <div className={acco.accordionFrame}>
-                                    <div className={acco.acco_header}>
-                                        <p>
-                                            요청 일자 : <span>2025-11-10 12:25:30</span>{" "}
-                                        </p>
-                                    </div>
-
-                                    <div className={acco.claim_detail_body}>
-                                        <div className={detail.pd_list_table}>
-                                            <Label className="sub_title">수거 상품</Label>
-                                            <div className={detail.product_list}>
-                                                <div className={[table.tableBody, table.table_border].join(" ")}>
-                                                    <table className={table.claim_table}>
-                                                        <thead>
-                                                            <tr>
-                                                                <th style={{ width: "5%" }}>
-                                                                    <Input type="checkbox" />
-                                                                </th>
-                                                                <th style={{ width: "5%" }}>#</th>
-                                                                <th style={{ width: "5%" }}>Img</th>
-                                                                <th style={{ width: "15%" }}>상품번호</th>
-                                                                <th style={{ width: "20%" }}>상품명</th>
-                                                                <th style={{ width: "25%" }}>옵션</th>
-                                                                <th style={{ width: "10%" }}>수량</th>
-                                                                <th style={{ width: "10%" }}>수거 송장번호</th>
-                                                                <th style={{ width: "5%" }}>처리</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr className={table.shipping_bundle_deli}>
-                                                                <td>
-                                                                    <Input type="checkbox" />
-                                                                </td>
-                                                                <td>10</td>
-                                                                <td style={{ padding: "0" }}>
-                                                                    <img src="/no_img.svg" style={{ width: "40px" }} />
-                                                                </td>
-                                                                <td>P123456</td>
-                                                                <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                                <td>색상 : 브라운</td>
-                                                                <td>1</td>
-                                                                <td>123456789</td>
-                                                                <td>
-                                                                    <i className="bi bi-three-dots-vertical pointer"></i>
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div className="btn_part">
-                                                    <button type="button" className="primary-button">
-                                                        운송장번호 등록
-                                                    </button>
-                                                </div>
-                                            </div>
+                                    {/* <AccordionBox /> */}
+                                    <div className={acco.accordionFrame}>
+                                        <div className={acco.acco_header}>
+                                            <p>
+                                                요청 일자 : <span>{getEarliestProcessDateFromAcceptItems(reqItems)}</span>{" "}
+                                            </p>
                                         </div>
 
-                                        <div className={detail.info_list_section}>
-                                            <div className={detail.info_column}>
-                                                <div className={detail.info_line}>
-                                                    <Label className="sub_title">수거 송장번호 </Label>
-                                                    <div className={detail.flexParts} style={{ width: "50%" }}>
-                                                        <Input className="" style={{ width: "30%" }} placeholder="택배사" readOnly />
-                                                        <Input style={{ width: "50%" }} placeholder="송장번호" readOnly />
-                                                        <button type="button" className="sub-button" style={{ width: "20%", padding: "8px" }}>
-                                                            {/* 조회  */}
-                                                            <i className="bi bi-search"></i>
+                                        <div className={acco.claim_detail_body}>
+                                            <div className={detail.pd_list_table}>
+                                                <Label className="sub_title">수거 상품</Label>
+                                                <div className={detail.product_list}>
+                                                    <div className={[table.tableBody, table.table_border].join(" ")}>
+                                                        <table className={table.claim_table}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style={{ width: "5%" }}>
+                                                                        <Input
+                                                                            type="checkbox"
+                                                                            checked={allChecked}
+                                                                            onChange={(e) => {
+                                                                                const allIds = [reqItems.map((it) => it.orderItemIdx)];
+                                                                                handleAllCheck(allIds, e.target.checked);
+                                                                            }}
+                                                                        />
+                                                                    </th>
+                                                                    <th style={{ width: "5%" }}>#</th>
+                                                                    <th style={{ width: "5%" }}>Img</th>
+                                                                    <th style={{ width: "20%" }}>상품명</th>
+                                                                    <th style={{ width: "25%" }}>옵션</th>
+                                                                    <th style={{ width: "10%" }}>수량</th>
+                                                                    <th style={{ width: "10%" }}>처리상태</th>
+                                                                    <th style={{ width: "10%" }}>수거 송장번호</th>
+                                                                    <th style={{ width: "10%" }}>택배사</th>
+                                                                    <th style={{ width: "5%" }}>처리</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {acceptedItems.map((it) => (
+                                                                    <tr key={it.orderItemIdx}>
+                                                                        <td>
+                                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)} />
+                                                                        </td>
+                                                                        <td>{it.rowNumber}</td>
+                                                                        <td style={{ padding: "0" }}>
+                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                        </td>
+                                                                        <td className={table.title_cell}>{it.productName}</td>
+                                                                        <td>
+                                                                            {it.productOptionIdx ? (
+                                                                                <span>
+                                                                                    {it.optionName} : {it.optionValue}
+                                                                                </span>
+                                                                            ) : (
+                                                                                "옵션없음"
+                                                                            )}
+                                                                        </td>
+                                                                        <td>{it.quantity}</td>
+                                                                        <td>[{it.orderStatus}]</td>
+                                                                        <td>{reqOrder.pickupPostComp ? `${reqOrder.pickupPostComp}` : "-"}</td>
+                                                                        <td>{reqOrder.pickupTrackingNo ? `${reqOrder.pickupTrackingNo}` : "-"}</td>
+                                                                        <td className="dropdown-wrapper" style={{ position: "relative" }}>
+                                                                            <i
+                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
+                                                                                onClick={(e) => {
+                                                                                    handleDropdownClick(e, it.orderItemIdx);
+                                                                                }}
+                                                                            ></i>
+                                                                        </td>
+
+                                                                        {openDropdown === it.orderItemIdx && (
+                                                                            <ActionDropdownPortal
+                                                                                pos={{ x: dropdownPos.x, y: dropdownPos.y }}
+                                                                                onClose={() => setOpenDropdown(null)}
+                                                                                menuItems={[
+                                                                                    {
+                                                                                        label: "운송장번호 등록",
+                                                                                        onClick: () => {
+                                                                                            setSelectedItem(it.orderItemIdx);
+                                                                                            setIsTrackingModalOpen(true); //모달 오픈
+                                                                                            setOpenDropdown(null); // 드롭다운 닫기
+                                                                                            console.log("운송장번호", it.orderItemIdx);
+                                                                                        },
+                                                                                    },
+                                                                                    {
+                                                                                        label: "반품 승인",
+                                                                                        onClick: () => {
+                                                                                            setSelectedItem(it.orderItemIdx);
+                                                                                            setIsRefundModalOpen(true); //모달 오픈
+                                                                                            setOpenDropdown(null); // 드롭다운 닫기
+                                                                                            console.log("반품 접수", it.orderItemIdx);
+                                                                                        },
+                                                                                    },
+                                                                                    {
+                                                                                        label: "반품 거절",
+                                                                                        onClick: () => {
+                                                                                            setSelectedItem(it.orderItemIdx);
+                                                                                            setIsRejectModalOpen(true); //모달 오픈
+                                                                                            setOpenDropdown(null); // 드롭다운 닫기
+                                                                                            console.log("반품 거절", it.orderItemIdx);
+                                                                                        },
+                                                                                    },
+                                                                                ]}
+                                                                            />
+                                                                        )}
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div className="btn_part">
+                                                        <button
+                                                            type="button"
+                                                            className="primary-button"
+                                                            onClick={() => {
+                                                                const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                                if (!selected) return;
+                                                                setIsTrackingModalOpen(true);
+                                                            }}
+                                                        >
+                                                            운송장번호 등록
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className={detail.info_column}>
-                                                <div className={detail.info_line}>
-                                                    <Label className="sub_title">회수 요청일</Label>
-                                                    <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
-                                                </div>
-                                            </div>
 
-                                            <div className={detail.info_column}>
-                                                <div className={detail.info_line}>
-                                                    <Label className="sub_title">수거 완료일</Label>
-                                                    <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
+                                            <div className={detail.info_list_section}>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
+                                                        <Label className="sub_title">수거 송장번호 </Label>
+                                                        <div className={detail.flexParts} style={{ width: "50%" }}>
+                                                            <Input className="" style={{ width: "30%" }} placeholder="택배사" readOnly />
+                                                            <Input style={{ width: "50%" }} placeholder="송장번호" readOnly />
+                                                            <button type="button" className="sub-button" style={{ width: "20%", padding: "8px" }}>
+                                                                {/* 조회  */}
+                                                                <i className="bi bi-search"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
+                                                        <Label className="sub_title">회수 요청일</Label>
+                                                        <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
+                                                    </div>
+                                                </div>
+
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_line}>
+                                                        <Label className="sub_title">수거 완료일</Label>
+                                                        <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
 
                         {/* 반품 처리 결과 */}
-                        <div className="position-relative">
-                            <Label className="input_title">반품 처리 결과</Label>
+                        {(hasRejected || hasRefundCompleted) && (
+                            <div className="position-relative">
+                                <Label className="input_title">반품 처리 결과</Label>
 
-                            {/* <AccordionBox /> */}
-                            <div className={acco.accordionFrame}>
-                                <div className={acco.acco_header}>
-                                    <p>
-                                        처리 일자 : <span>2025-11-10 12:25:30</span>
-                                    </p>
-                                </div>
-
-                                <div className={acco.claim_detail_body}>
-                                    <div className={detail.pd_list_table}>
-                                        <Label className="sub_title">반품 완료 상품</Label>
-                                        <div className={detail.product_list}>
-                                            <div className={[table.tableBody, table.table_border].join(" ")}>
-                                                <table className={table.claim_table}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th style={{ width: "5%" }}>#</th>
-                                                            <th style={{ width: "5%" }}>Img</th>
-                                                            <th style={{ width: "10%" }}>상품번호</th>
-                                                            <th style={{ width: "20%" }}>상품명</th>
-                                                            <th style={{ width: "25%" }}>옵션</th>
-                                                            <th style={{ width: "10%" }}>수량</th>
-                                                            <th style={{ width: "10%" }}>처리상태</th>
-                                                            <th style={{ width: "10%" }}>사유</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>10</td>
-                                                            <td style={{ padding: "0" }}>
-                                                                <img src="/no_img.svg" style={{ width: "40px" }} />
-                                                            </td>
-                                                            <td>P123456</td>
-                                                            <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                            <td>색상 : 브라운</td>
-                                                            <td>1 / 1</td>
-                                                            <td>[반품완료]</td>
-                                                            <td>수거, 검수완료</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                                <>{/* <AccordionBox /> */}</>
+                                <div className={acco.accordionFrame}>
+                                    <div className={acco.acco_header}>
+                                        <p>
+                                            최초 처리 일자 : <span>{getEarliestProcessDateFromItems(reqItems)}</span>
+                                        </p>
                                     </div>
 
-                                    <div className={detail.info_list_section}>
-                                        <div className={detail.info_column}>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">환불 수단 </Label>
-                                                <Input className="" readOnly />
+                                    {hasRefundCompleted && (
+                                        <div className={acco.claim_detail_body}>
+                                            <div className={detail.pd_list_table}>
+                                                <Label className="sub_title">반품 완료 상품</Label>
+                                                <div className={detail.product_list}>
+                                                    <div className={[table.tableBody, table.table_border].join(" ")}>
+                                                        <table className={table.claim_table}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style={{ width: "5%" }}>#</th>
+                                                                    <th style={{ width: "5%" }}>Img</th>
+                                                                    <th style={{ width: "10%" }}>상품번호</th>
+                                                                    <th style={{ width: "20%" }}>상품명</th>
+                                                                    <th style={{ width: "25%" }}>옵션</th>
+                                                                    <th style={{ width: "10%" }}>수량</th>
+                                                                    <th style={{ width: "10%" }}>처리상태</th>
+                                                                    <th style={{ width: "10%" }}>사유</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>10</td>
+                                                                    <td style={{ padding: "0" }}>
+                                                                        <img src="/no_img.svg" style={{ width: "40px" }} />
+                                                                    </td>
+                                                                    <td>P123456</td>
+                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
+                                                                    <td>색상 : 브라운</td>
+                                                                    <td>1 / 1</td>
+                                                                    <td>[반품완료]</td>
+                                                                    <td>수거, 검수완료</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">수거 상품 금액 </Label>
-                                                <Input className="" readOnly />
-                                            </div>
-                                        </div>
-                                        <div className={detail.info_column}>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">배송비 차감 </Label>
-                                                <Input className="" readOnly />
-                                            </div>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">최종 환불 금액 </Label>
-                                                <Input className="" readOnly />
-                                            </div>
-                                        </div>
 
-                                        <div className={detail.info_column}>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">처리 완료일</Label>
-                                                <Input className="" placeholder="" readOnly />
-                                            </div>
-                                            <div className={detail.info_cell}>
-                                                <Label className="blankSpace">~</Label>
+                                            <div className={detail.info_list_section}>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">환불 수단 </Label>
+                                                        <Input className="" readOnly />
+                                                    </div>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">수거 상품 금액 </Label>
+                                                        <Input className="" readOnly />
+                                                    </div>
+                                                </div>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">배송비 차감 </Label>
+                                                        <Input className="" readOnly />
+                                                    </div>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">최종 환불 금액 </Label>
+                                                        <Input className="" readOnly />
+                                                    </div>
+                                                </div>
+
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">처리 완료일</Label>
+                                                        <Input className="" placeholder="" readOnly />
+                                                    </div>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="blankSpace">~</Label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
+                                    )}
 
-                                <hr className="section_divider" />
-
-                                <div className={acco.claim_detail_body}>
-                                    <div className={detail.pd_list_table}>
-                                        <Label className="sub_title">반품 처리 제외</Label>
-                                        <div className={detail.product_list}>
-                                            <div className={[table.tableBody, table.table_border].join(" ")}>
-                                                <table className={table.claim_table}>
-                                                    <thead>
-                                                        <tr>
-                                                            <th style={{ width: "5%" }}>#</th>
-                                                            <th style={{ width: "5%" }}>Img</th>
-                                                            <th style={{ width: "10%" }}>상품번호</th>
-                                                            <th style={{ width: "20%" }}>상품명</th>
-                                                            <th style={{ width: "25%" }}>옵션</th>
-                                                            <th style={{ width: "10%" }}>수량</th>
-                                                            <th style={{ width: "10%" }}>처리상태</th>
-                                                            <th style={{ width: "10%" }}>사유</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>10</td>
-                                                            <td style={{ padding: "0" }}>
-                                                                <img src="/no_img.svg" style={{ width: "40px" }} />
-                                                            </td>
-                                                            <td>P123456</td>
-                                                            <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                            <td>색상 : 브라운</td>
-                                                            <td>1 / 1</td>
-                                                            <td>[반품거절]</td>
-                                                            <td>상품 훼손</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
+                                    {hasRejected && (
+                                        <div className={[acco.claim_detail_body, acco.section_top_divider].join(" ")}>
+                                            <div className={detail.pd_list_table}>
+                                                <Label className="sub_title">반품 처리 제외</Label>
+                                                <div className={detail.product_list}>
+                                                    <div className={[table.tableBody, table.table_border].join(" ")}>
+                                                        <table className={table.claim_table}>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th style={{ width: "5%" }}>#</th>
+                                                                    <th style={{ width: "5%" }}>Img</th>
+                                                                    <th style={{ width: "20%" }}>상품명</th>
+                                                                    <th style={{ width: "25%" }}>옵션</th>
+                                                                    <th style={{ width: "10%" }}>수량</th>
+                                                                    <th style={{ width: "10%" }}>처리상태</th>
+                                                                    <th style={{ width: "10%" }}>사유</th>
+                                                                    <th style={{ width: "15%" }}>처리일자</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {rejectedItems.map((it, idx) => (
+                                                                    <tr key={it.orderItemIdx}>
+                                                                        <td>{it.rowNumber}</td>
+                                                                        <td style={{ padding: "0" }}>
+                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                        </td>
+                                                                        <td className={table.title_cell}>{it.productName}</td>
+                                                                        <td>
+                                                                            {it.productOptionIdx ? (
+                                                                                <span>
+                                                                                    {it.optionName} : {it.optionValue}
+                                                                                </span>
+                                                                            ) : (
+                                                                                "옵션없음"
+                                                                            )}
+                                                                        </td>
+                                                                        <td className="quantity_cell">
+                                                                            {it.quantity} / {it.quantity}
+                                                                        </td>
+                                                                        <td>[{it.orderStatus}]</td>
+                                                                        <td>-</td>
+                                                                        <td>{it.rejectedAt}</td>
+                                                                    </tr>
+                                                                ))}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
 
-                                    <div className={detail.info_list_section}>
-                                        <div className={detail.info_column}>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">메모</Label>
-                                                <Input placeholder="처리 내용" type="textarea" />
-                                            </div>
+                                            {/* <div className={detail.info_list_section}>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">메모</Label>
+                                                        <Input placeholder="처리 내용" type="textarea" />
+                                                    </div>
+                                                </div>
+                                                <div className={detail.info_column}>
+                                                    <div className={detail.info_cell}>
+                                                        <Label className="sub_title">처리 완료일</Label>
+                                                        <Input readOnly />
+                                                    </div>
+                                                </div>
+                                            </div> */}
                                         </div>
-
-                                        <div className={detail.info_column}>
-                                            <div className={detail.info_cell}>
-                                                <Label className="sub_title">처리 완료일</Label>
-                                                <Input className="" type="" readOnly />
-                                            </div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
+                    <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={setIsRejectModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} rejectType="반품 거절" />
+                    <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={setIsAcceptModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} acceptType="반품 접수" />
+                    <ModalTrackingRegist
+                        trackingModalOpen={isTrackingModalOpen}
+                        setTrackingModalOpen={setIsTrackingModalOpen}
+                        selectedItems={getSelected()}
+                        targetItemIdx={selectedItem}
+                        orderIdx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        resetChecked={resetChecked}
+                        registType="REFUND_PICKUP"
+                    />
                 </div>
             </main>
         </>

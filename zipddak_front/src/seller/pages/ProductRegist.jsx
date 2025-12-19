@@ -211,7 +211,7 @@ export default function ProductRegist() {
                     if (res.data.success === true) {
                         let productIdx = res.data.productIdx;
                         alert(res.data.message);
-                        navigate(`/productList`); //상품 리스트로 이동
+                        navigate(`/seller/productList`); //상품 리스트로 이동
                     } else {
                         alert(res.data.message);
                     }
