@@ -243,7 +243,7 @@ export default function Main() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="expert-cards">
             {Array.isArray(expert) &&
               expert.map(expertCard => (
                 <Expert key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />
@@ -286,7 +286,7 @@ export default function Main() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="tool-cards">
             {Array.isArray(tool) &&
               tool.map(toolCard => (
                 <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />
@@ -344,7 +344,7 @@ export default function Main() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="product-cards">
             {Array.isArray(product) &&
               product.map(productCard => (
                 <Product key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite} />

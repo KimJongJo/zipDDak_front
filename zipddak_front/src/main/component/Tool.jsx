@@ -38,6 +38,7 @@ export function Tool({ tool, toggleFavorite }) {
                 <div>
                     <span className="oneday">1일</span>
                     <span className="rental-price">{tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price">원</span>
                 </div>
             </div>
         </div>
@@ -211,7 +212,7 @@ export function MyToolCard({ tool,onChanged }) {
                         <span className="myTool-name">{ tool.name}</span>
                         <span className="myTool-category">{ tool.categoryName}</span>
                     </div>
-                    <div className={tool.rentalPrice==0? "myTool-price orangeColor":"myTool-price"}>{tool.rentalPrice==0? "무료대여" : tool.rentalPrice+"원"}</div>
+                    <div className={tool.rentalPrice==0? "myTool-price orangeColor":"myTool-price"}>{tool.rentalPrice==0? "무료대여" : tool.rentalPrice.toLocaleString()+"원"}</div>
                     </div>
                     <div className="row-cm myTool-bottom">
                         <div className="row-cm ToolMyBox">

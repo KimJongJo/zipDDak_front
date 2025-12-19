@@ -195,6 +195,31 @@
     margin: 40px 0;
 }
 
+.tool-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 6칸 고정 */
+
+    justify-items: start;   /* 카드 왼쪽 정렬 */
+    margin: 40px 0;
+}
+
+.expert-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 6칸 고정 */
+
+    justify-items: start;   /* 카드 왼쪽 정렬 */
+    margin: 40px 0;
+}
+
+.product-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 6칸 고정 */
+
+    justify-items: start;   /* 카드 왼쪽 정렬 */
+    margin: 40px 0;
+}
+
+
 .Best-cards {
     display: flex;
     align-items: center;

@@ -7,7 +7,9 @@ import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
+import DaumPostcode from 'react-daum-postcode';
+import { Modal as AddrModal } from 'antd';
 
 export default function ApplyTool() {
 
@@ -15,6 +17,7 @@ export default function ApplyTool() {
     const [token, setToken] = useAtom(tokenAtom);
 
     const { toolIdx } = useParams();
+    const [tool, setTool] = useState();
 
     const [rental, setRental] = useState({
 
@@ -95,12 +98,25 @@ export default function ApplyTool() {
     //대상 공구
     const targetTool = () => {
 
-        token&&myAxios(token,setToken).get(`/tool/target`, {toolIdx:toolIdx})
+        token&&myAxios(token,setToken).get(`/tool/detail`, {params:{toolIdx:toolIdx}})
+        .then(res=> {
+            console.log(res.data);
+            setTool(res.data);
+        })
+        .catch(err=> {
+            console.log(err);
+        })
 
     }
 
+    useEffect (()=> {
+        if (token && toolIdx) {
+        targetTool();
+    }
+    },[token,toolIdx])
 
 
+    if (!tool) return <div>로딩중...</div>;
     return (
         <>
             <div className="regTool-container ">
@@ -110,7 +126,7 @@ export default function ApplyTool() {
                         <div className="d-user tuserbox">
                             <div className="profileImage"></div>
                             <div className="userInfo">
-                                <span className="nick">{ }닉네임</span>
+                                <span className="nick">{tool.nickname}닉네임</span>
                                 <span className="loca">{ }지역</span>
                             </div>
                         </div>
@@ -126,6 +142,7 @@ export default function ApplyTool() {
                         <div className="regToolForm">
                             <div className="options">
                                 <span className="o-label">거래대상 공구</span>
+                                <MapTool key={tool.idx} tool={tool}/>
                             </div>
 
                             <div className="options">

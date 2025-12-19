@@ -136,6 +136,7 @@ function App() {
         <Route path="tool/regist" element={<RegistTool />} />
         <Route path="tool/modify/:tooIdx" element={<ModifyTool/>}/>
         <Route path="tool/apply" element={<ApplyTool />} />
+        {/* <Route path="apply/:toolIdx" element={<ApplyTool />} /> */}
 
         {/* 일반사용자 커뮤니티 */}
         <Route path="community" element={<CommunityList />} />
