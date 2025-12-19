@@ -9,7 +9,7 @@
     border-radius: 8px;
 
     box-shadow: 0 0.5px 2px 0 rgba(25, 33, 61, 0.1);
-    margin-bottom: 30px;
+    margin-bottom: 10px;
 }
 
 .acco_header {
@@ -83,4 +83,8 @@
     flex-direction: column;
     /* align-items: flex-start; */
     gap: 15px;
+}
+
+.section_top_divider {
+    border-top: 1px solid var(--innerLine);
 }

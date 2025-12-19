@@ -146,7 +146,7 @@ export default function PublicRequest() {
             marginBottom: "100px",
           }}
         >
-          <div
+          {/* <div
             style={{
               display: "flex",
               gap: "8px",
@@ -187,7 +187,7 @@ export default function PublicRequest() {
             >
               맞춤견적
             </div>
-          </div>
+          </div> */}
           {requestList.map((request, idx) => (
             <PublicRequestCard
               key={`${request?.requestIdx}-${idx}`}

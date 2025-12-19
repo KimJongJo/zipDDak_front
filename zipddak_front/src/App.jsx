@@ -122,7 +122,6 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
 
-
 function App() {
   return (
     <Routes>
@@ -141,6 +140,7 @@ function App() {
         <Route path="main/search" element={<MainSearch />} />
         <Route path="main/best" element={<Best />} />
         <Route path="market/return/:orderId" element={<MarketReturnForm />} />
+
 
 
         {/* 일반사용자 공구대여 */}

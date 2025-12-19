@@ -1,7 +1,7 @@
 import { Input, Modal, ModalBody } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
 import { useEffect, useRef, useState } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 
@@ -13,7 +13,7 @@ export default function Account() {
   const [modalType, setModalType] = useState(""); // 주소, 안내
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const userValue = useAtomValue(userAtom);
+  const [userValue, setUserValue] = useAtom(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
 
   const fileRef = useRef(null); // 프로필 이미지 input 클릭
@@ -40,7 +40,7 @@ export default function Account() {
   const modifyAccount = () => {
     const formData = new FormData();
 
-    formData.append("username", "test@kosta.com");
+    formData.append("username", userValue.username);
     formData.append("nickname", user.nickname);
     formData.append("password", user.password);
     formData.append("name", user.name);
@@ -62,6 +62,23 @@ export default function Account() {
           setModalType("안내");
           setIsModalOpen(true);
 
+          // atom 세팅
+          myAxios(token, setToken)
+            .get(
+              "http://localhost:8080" +
+                `/account/detail?username=${userValue.username}`
+            )
+            .then((res) => {
+              setUser(res.data);
+              setUserValue((prev) => ({
+                ...prev,
+                ...res.data,
+              }));
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+
           setTimeout(() => {
             setIsModalOpen(false);
           }, 1500);
@@ -80,8 +97,8 @@ export default function Account() {
   };
 
   useEffect(() => {
-    getAccount();
-  }, []);
+    userValue.username && getAccount();
+  }, [userValue.username]);
 
   return (
     <div className="mypage-layout">
@@ -302,7 +319,7 @@ export default function Account() {
                 fontSize: "14px",
               }}
             >
-              <p>문의가 접수되었습니다.</p>
+              <p>정보가 정상적으로 수정되었습니다.</p>
             </div>
           </ModalBody>
         </Modal>

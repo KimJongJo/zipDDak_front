@@ -263,7 +263,14 @@ export default function ProductModify() {
                 const isVisible = pdInfo.visibleYn === true;
                 setVisible(isVisible ? 1 : 0);
             })
-            .catch(console.error);
+            .catch((err) => {
+                console.log(err.message);
+                console.log("error data : " + err.response.data.message);
+                if (err.response && err.response.data) {
+                    alert("알 수 없는 오류가 발생했습니다. 상품 상세내용 확인 불가");
+                    navigate(`/seller/productList`); //상품 리스트로 이동
+                }
+            });
     }, [productIdx]);
 
     // -----------------------------
@@ -341,7 +348,7 @@ export default function ProductModify() {
                 .then((res) => {
                     if (res.data.success === true) {
                         alert(res.data.message);
-                        navigate(`/seller/productDetail/${productIdx}`); //상품 상세 페이지로 이동
+                        navigate(`/seller/productList`); //상품 리스트로 이동
                     } else {
                         alert(res.data.message);
                     }

@@ -13,10 +13,18 @@ export default function Mypage() {
 
   // 전문가 <-> 고객 전환
   const expertToggle = () => {
+    if (user.role === "USER") {
+      navigate("/zipddak/signUp/expert");
+      return;
+    }
+
     myAxios(token, setToken)
       .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
       .then((res) => {
-        setUser(res.data);
+        if (res.data) {
+          setUser(res.data);
+          navigate("/expert/mypage");
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -97,16 +105,27 @@ export default function Mypage() {
             height="96px"
             style={{ borderRadius: "999px" }}
           />
-          <button
-            className="secondary-button"
-            style={{ width: "160px", height: "33px" }}
-            onClick={() => {
-              expertToggle();
-              navigate("/expert/mypage");
-            }}
-          >
-            전문가로 전환
-          </button>
+          {user.role === "USER" ? (
+            <button
+              className="secondary-button"
+              style={{ width: "160px", height: "33px" }}
+              onClick={() => {
+                navigate("/zipddak/signUp/expert");
+              }}
+            >
+              전문가 가입
+            </button>
+          ) : (
+            <button
+              className="secondary-button"
+              style={{ width: "160px", height: "33px" }}
+              onClick={() => {
+                expertToggle();
+              }}
+            >
+              전문가로 전환
+            </button>
+          )}
         </div>
         <nav>
           <div style={{ padding: " 10px 0 14px 0" }}>
