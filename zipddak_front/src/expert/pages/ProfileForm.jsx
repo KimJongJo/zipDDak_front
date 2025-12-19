@@ -219,6 +219,11 @@ export default function ProfileForm() {
   const modifyExpert = () => {
     const formData = new FormData();
 
+    if (expert.mainServiceIdx === null) {
+      alert("대표 서비스를 선택해주세요");
+      return;
+    }
+
     formData.append("expertIdx", expert.expertIdx);
     formData.append("activityName", expert.activityName);
     formData.append("introduction", expert.introduction);
@@ -323,6 +328,7 @@ export default function ProfileForm() {
     formData.append("startDate", `${career.startDate}-01`);
     formData.append("endDate", `${career.endDate}-01`);
     formData.append("description", career.description);
+    formData.append("months", diffInMonths(career.startDate, career.endDate));
 
     myAxios(token, setToken)
       .post("http://localhost:8080" + "/career/write", formData)

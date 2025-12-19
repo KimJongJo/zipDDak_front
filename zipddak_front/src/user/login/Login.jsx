@@ -38,7 +38,7 @@ export default function Login() {
               setAlarms(res.data);
             });
         }
-        if (res.data.role == "USER" || res.data.type == "EXPERT") {
+        if (res.data.role == "USER" || res.data.role == "EXPERT") {
           navigate("/zipddak/main");
         } else if (res.data.role == "APPROVAL_SELLER") {
           navigate("/seller/mainhome");
