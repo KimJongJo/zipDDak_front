@@ -51,6 +51,22 @@ export default function Header({ direction, ...args }) {
     navigate("/zipddak/login");
   };
 
+  // 알림 확인
+  const alarmConfirm = (notificationIdx) => {
+    myAxios(token, setToken)
+      .get(`/confirm/${notificationIdx}`)
+      .then((res) => {
+        if (res.data == true) {
+          setAlarms(
+            alarms.filter((alarm) => alarm.notificationIdx !== notificationIdx)
+          );
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   // 전문가 <-> 고객 전환
   const expertToggle = () => {
     myAxios(token, setToken)
@@ -60,12 +76,18 @@ export default function Header({ direction, ...args }) {
 
         const path = location.pathname;
         // 유저 마이페이지 → 전문가 마이페이지
-        if (path.startsWith("/zipddak/mypage")) {
+        if (
+          path.startsWith("/zipddak/mypage") ||
+          path.startsWith("/zipddak/message")
+        ) {
           navigate("/expert/mypage");
         }
 
         // 전문가 마이페이지 → 유저 마이페이지
-        else if (path.startsWith("/expert/mypage")) {
+        else if (
+          path.startsWith("/expert/mypage") ||
+          path.startsWith("/zipddak/message")
+        ) {
           navigate("/zipddak/mypage");
         }
       })
@@ -162,11 +184,18 @@ export default function Header({ direction, ...args }) {
                         )}
                         {alarm.type === "ESTIMATE" && (
                           <div
+                            onClick={() => {
+                              alarmConfirm();
+                              navigate(
+                                "/zipddak/mypage/expert/requests/active"
+                              );
+                            }}
                             style={{
                               display: "flex",
                               flexDirection: "row",
                               alignItems: "center",
                               gap: "20px",
+                              cursor: "pointer",
                             }}
                           >
                             <img src="/fi-rs-woman-head.svg" />
@@ -229,7 +258,7 @@ export default function Header({ direction, ...args }) {
                           o
                           onClick={(e) => {
                             e.stopPropagation();
-                            // alarmConfirm(alarm.notificationIdx);
+                            alarmConfirm(alarm.notificationIdx);
                           }}
                         ></i>
                       </DropdownItem>

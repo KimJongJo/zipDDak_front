@@ -4,6 +4,7 @@ import "../css/mypage.css";
 import { baseUrl, myAxios } from "../../config";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
+import { UserRound } from "lucide-react";
 
 export default function Mypage() {
   const navigate = useNavigate();

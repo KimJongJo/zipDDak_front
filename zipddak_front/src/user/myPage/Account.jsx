@@ -40,7 +40,7 @@ export default function Account() {
   const modifyAccount = () => {
     const formData = new FormData();
 
-    formData.append("username", "test@kosta.com");
+    formData.append("username", userValue.username);
     formData.append("nickname", user.nickname);
     formData.append("password", user.password);
     formData.append("name", user.name);
@@ -80,8 +80,8 @@ export default function Account() {
   };
 
   useEffect(() => {
-    getAccount();
-  }, []);
+    userValue.username && getAccount();
+  }, [userValue.username]);
 
   return (
     <div className="mypage-layout">
@@ -302,7 +302,7 @@ export default function Account() {
                 fontSize: "14px",
               }}
             >
-              <p>문의가 접수되었습니다.</p>
+              <p>정보가 정상적으로 수정되었습니다.</p>
             </div>
           </ModalBody>
         </Modal>

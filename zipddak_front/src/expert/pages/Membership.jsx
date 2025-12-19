@@ -97,8 +97,8 @@ export function Membership() {
   const endDate = endDateObj.toISOString().split("T")[0];
 
   useEffect(() => {
-    getMembership(1);
-  }, []);
+    user.username && getMembership(1);
+  }, [user.username]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -264,11 +264,11 @@ export function Membership() {
             <h3 className="mypage-sectionTitle">고객정보</h3>
             <div className="labelInput-wrapper">
               <label style={{ width: "100px" }}>이름</label>
-              <p>이름 가져와야함</p>
+              <p>{user.name}</p>
             </div>
             <div className="labelInput-wrapper">
               <label style={{ width: "100px" }}>휴대폰 번호</label>
-              <p>번호 가져와야함</p>
+              <p>{user.phone}</p>
             </div>
           </div>
 
