@@ -18,6 +18,7 @@ export function Mypage() {
       .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
       .then((res) => {
         setUser(res.data);
+        navigate("/zipddak/mypage");
       })
       .catch((err) => {
         console.log(err);
@@ -138,7 +139,6 @@ export function Mypage() {
               }}
               onClick={() => {
                 expertToggle();
-                navigate("/zipddak/mypage");
               }}
             >
               일반 사용자로 전환

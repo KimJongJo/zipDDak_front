@@ -500,7 +500,7 @@ export default function Message() {
           paddingRight: "8px",
         }}
       >
-        <h3 className="message-title">쪽지</h3>
+        <h3 className="message-title">채팅</h3>
 
         {user.expert ? (
           <div style={{ margin: "16px" }}></div>
@@ -600,7 +600,7 @@ export default function Message() {
                 fontSize: "14px",
               }}
             >
-              진행중인 쪽지가 없습니다.
+              진행중인 채팅이 없습니다.
             </div>
           )}
         </div>

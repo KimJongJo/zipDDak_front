@@ -25,7 +25,7 @@ import {
 import { useState } from "react";
 import { useAtom } from "jotai/react";
 import { alarmsAtom, initUser, tokenAtom, userAtom } from "../../atoms";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { baseUrl, myAxios } from "../../config";
 import { NavLink } from "react-router-dom";
 
@@ -41,7 +41,6 @@ export default function Header({ direction, ...args }) {
   const toggle = () => setDropdownOpen((prevState) => !prevState);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   // 로그아웃
   const logout = () => {
@@ -73,23 +72,7 @@ export default function Header({ direction, ...args }) {
       .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
       .then((res) => {
         setUser(res.data);
-
-        const path = location.pathname;
-        // 유저 마이페이지 → 전문가 마이페이지
-        if (
-          path.startsWith("/zipddak/mypage") ||
-          path.startsWith("/zipddak/message")
-        ) {
-          navigate("/expert/mypage");
-        }
-
-        // 전문가 마이페이지 → 유저 마이페이지
-        else if (
-          path.startsWith("/expert/mypage") ||
-          path.startsWith("/zipddak/message")
-        ) {
-          navigate("/zipddak/mypage");
-        }
+        navigate("/zipddak/main");
       })
       .catch((err) => {
         console.log(err);
@@ -168,6 +151,10 @@ export default function Header({ direction, ...args }) {
                       >
                         {alarm.type === "REQUEST" && (
                           <div
+                            onClick={() => {
+                              alarmConfirm(alarm.notificationIdx);
+                              navigate("/expert/mypage/receive/requests");
+                            }}
                             style={{
                               display: "flex",
                               flexDirection: "row",
@@ -185,7 +172,7 @@ export default function Header({ direction, ...args }) {
                         {alarm.type === "ESTIMATE" && (
                           <div
                             onClick={() => {
-                              alarmConfirm();
+                              alarmConfirm(alarm.notificationIdx);
                               navigate(
                                 "/zipddak/mypage/expert/requests/active"
                               );
@@ -223,6 +210,12 @@ export default function Header({ direction, ...args }) {
                         )}
                         {alarm.type === "COMMUNITY" && (
                           <div
+                            onClick={() => {
+                              alarmConfirm(alarm.notificationIdx);
+                              navigate(
+                                `/zipddak/community/${alarm.communityIdx}`
+                              );
+                            }}
                             style={{
                               display: "flex",
                               flexDirection: "row",

@@ -1,7 +1,7 @@
 import { Input, Modal, ModalBody } from "reactstrap";
 import DaumPostcode from "react-daum-postcode";
 import { useEffect, useRef, useState } from "react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 
@@ -13,7 +13,7 @@ export default function Account() {
   const [modalType, setModalType] = useState(""); // 주소, 안내
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const userValue = useAtomValue(userAtom);
+  const [userValue, setUserValue] = useAtom(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
 
   const fileRef = useRef(null); // 프로필 이미지 input 클릭
@@ -61,6 +61,23 @@ export default function Account() {
         if (res.data) {
           setModalType("안내");
           setIsModalOpen(true);
+
+          // atom 세팅
+          myAxios(token, setToken)
+            .get(
+              "http://localhost:8080" +
+                `/account/detail?username=${userValue.username}`
+            )
+            .then((res) => {
+              setUser(res.data);
+              setUserValue((prev) => ({
+                ...prev,
+                ...res.data,
+              }));
+            })
+            .catch((err) => {
+              console.log(err);
+            });
 
           setTimeout(() => {
             setIsModalOpen(false);
