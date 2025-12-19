@@ -7,7 +7,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config.jsx";
+import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
@@ -265,8 +265,8 @@ export default function ProductList() {
                                                 ) : (
                                                     myProductList.map((myProduct) => (
                                                         <tr key={myProduct.productIdx} onClick={() => navigate(`/seller/productDetail/${myProduct.productIdx}`)}>
-                                                            <td style={{ padding: "0" }}>
-                                                                <img src="/no_img.svg" style={{ width: "100%" }} />
+                                                            <td className={table.img_cell} style={{ padding: "0" }}>
+                                                                <img src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "50%" }} />
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>

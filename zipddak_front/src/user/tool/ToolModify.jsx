@@ -10,19 +10,10 @@ import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 
 
-export default function RegistTool() {
+export default function ModifyTool() {
 
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-
-    const [tool, setTool] = useState({
-        toolIdx:null, name: '', category: '83', rentalPrice: null, freeRental: false, content: '', tradeAddr: '주소',
-        directRental: false, postRental: false, freePost: false, postCharge: null, zonecode: "", addr1: "",
-        addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
-        img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
-        settleBank: "", settleAccount: "", settleHost: ""
-    })
-
 
     const [modal, setModal] = useState(false);
     const [message, setMessage] = useState('');
@@ -169,7 +160,7 @@ export default function RegistTool() {
             postRental,
             directRental,
             freePost,
-            owner: user.username,
+            owner: user.nickname,
         };
 
 
@@ -187,25 +178,8 @@ export default function RegistTool() {
             formData.append("images", img.file);
         });
 
-        // ⭐⭐⭐ 여기
-        // for (let [key, value] of formData.entries()) {
-        //     console.log("FormData key:", key);
-        //     console.log("FormData value:", value);
 
-        //     new Blob(
-        //         [JSON.stringify(submitTool)],
-        //         { type: "application/json; charset=utf-8" }
-        //     )
-
-        //     if (value instanceof Blob) {
-        //         value.text().then(text => {
-        //             console.log("Blob 내용:", text);
-        //         });
-        //     }
-        // }
-
-
-        token && myAxios(token, setToken).post("/tool/regist", formData)
+        token && myAxios(token, setToken).post("/tool/modify", formData)
             .then(res => {
 
                 if (res.data) {

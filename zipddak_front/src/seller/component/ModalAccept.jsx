@@ -3,9 +3,9 @@ import { useState } from "react";
 import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
 
-export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selectedItems, targetItemIdx, idx, refresh, resetChecked }) {
-    const [refundReason, setRefundReason] = useState("");
-    const [refundDetailReason, setRefundDetailReason] = useState("");
+export default function ModalAccept({ acceptModalOpen, setAcceptModalOpen, selectedItems, targetItemIdx, idx, refresh, resetChecked, acceptType }) {
+    const [acceptReason, setAcceptReason] = useState("");
+    const [acceptDetailReason, setAcceptDetailReason] = useState("");
 
     const handleSave = async () => {
         try {
@@ -39,7 +39,7 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
 
                     if (res.data.success === true) {
                         alert(res.data.message);
-                        setRefundModalOpen(false); //모달 닫기
+                        setAcceptModalOpen(false); //모달 닫기
                         resetChecked(); //체크박스 초기화
                         if (refresh) refresh(); // 새로고침
                     } else {
@@ -57,20 +57,22 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
 
     return (
         <>
-            <Modal isOpen={refundModalOpen} toggle={() => setRefundModalOpen(false)} className={[modal.modalFrame, modal.refundModalFrame].join(" ")}>
-                <ModalHeader toggle={() => setRefundModalOpen(false)} className={[modal.modalHeader, modal.refundModalHeader].join(" ")}>
-                    환불 처리
+            <Modal isOpen={acceptModalOpen} toggle={() => setAcceptModalOpen(false)} className={[modal.modalFrame, modal.refundModalFrame].join(" ")}>
+                <ModalHeader toggle={() => setAcceptModalOpen(false)} className={[modal.modalHeader, modal.refundModalHeader].join(" ")}>
+                    {acceptType}
                 </ModalHeader>
                 <ModalBody className={[modal.modalBody, modal.refundModalBody].join(" ")}>
                     <div className={modal.refundModalContent}>
                         <div className={modal.descRefundModalColumn}>
-                            <p>선택된 상품 {selectedItems?.length || 1}개를 환불 처리하시겠습니까?</p>
+                            <p>
+                                선택된 상품 {selectedItems?.length || 1}개를 {acceptType} 처리하시겠습니까?
+                            </p>
                             <p style={{ color: "red" }}>처리 후 취소할 수 없습니다.</p>
                         </div>
                         <div className={modal.refundModalContent} style={{ padding: "15px" }}>
                             <div className={modal.refundModalColumn}>
                                 <span className="sub_title">환불 사유 </span>
-                                <Input type="select" className={modal.selectReason} onChange={(e) => setRefundReason(e.target.value)}>
+                                <Input type="select" className={modal.selectReason} onChange={(e) => setAcceptReason(e.target.value)}>
                                     <option>환불 사유 선택 </option>
                                     <option value="재고없음">재고없음</option>
                                     <option value="2">2</option>
@@ -80,7 +82,7 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
                             </div>
                             <div className={modal.refundModalColumn}>
                                 <span className="sub_title">환불 내용 </span>
-                                <Input type="textarea" className={modal.writeReason} placeholder="환불처리에 대한 상세사유를 적어주세요! (최대 2000자)" onChange={(e) => setRefundDetailReason(e.target.value)} />
+                                <Input type="textarea" className={modal.writeReason} placeholder="환불처리에 대한 상세사유를 적어주세요! (최대 2000자)" onChange={(e) => setAcceptDetailReason(e.target.value)} />
                             </div>
                         </div>
                     </div>
@@ -89,7 +91,7 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
                         <button className="primary-button" style={{ width: "100%", height: "33px" }} onClick={handleSave}>
                             저장
                         </button>
-                        <button className="sub-button" style={{ width: "100%", height: "33px" }} onClick={() => setRefundModalOpen(false)}>
+                        <button className="sub-button" style={{ width: "100%", height: "33px" }} onClick={() => setAcceptModalOpen(false)}>
                             취소
                         </button>
                     </div>
