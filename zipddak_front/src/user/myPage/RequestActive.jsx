@@ -53,6 +53,21 @@ export default function RequestActive() {
       });
   };
 
+  // 요청 취소하기
+  const stopRequest = () => {
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" +
+          `/request/stop?requestIdx=${request.requestIdx}`
+      )
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   // 채팅하기
   const chat = () => {
     myAxios(token, setToken)
@@ -190,6 +205,7 @@ export default function RequestActive() {
                   fontSize: "12px",
                   cursor: "pointer",
                 }}
+                onClick={() => stopRequest()}
               >
                 요청 취소하기
               </p>
