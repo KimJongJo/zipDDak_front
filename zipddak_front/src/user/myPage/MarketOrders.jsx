@@ -200,15 +200,27 @@ export default function MarketOrders() {
           >
             <div className="mypage-statusCard">
               <p>상품준비중</p>
-              <span>{orderStatusSummary.readyStatus}</span>
+              <span>
+                {orderStatusSummary.readyStatus
+                  ? orderStatusSummary.readyStatus
+                  : 0}
+              </span>
             </div>
             <div className="mypage-statusCard">
               <p>배송중</p>
-              <span>{orderStatusSummary.shippingStatus}</span>
+              <span>
+                {orderStatusSummary.shippingStatus
+                  ? orderStatusSummary.shippingStatus
+                  : 0}
+              </span>
             </div>
             <div className="mypage-statusCard">
               <p>배송완료</p>
-              <span>{orderStatusSummary.deliveredStatus}</span>
+              <span>
+                {orderStatusSummary.deliveredStatus
+                  ? orderStatusSummary.deliveredStatus
+                  : 0}
+              </span>
             </div>
             <div
               className="mypage-statusCard"
@@ -216,7 +228,11 @@ export default function MarketOrders() {
               onClick={() => navigate("/zipddak/mypage/market/returns")}
             >
               <p>취소/교환/반품</p>
-              <span>{orderStatusSummary.returnsStatus}</span>
+              <span>
+                {orderStatusSummary.returnsStatus
+                  ? orderStatusSummary.returnsStatus
+                  : 0}
+              </span>
             </div>
           </div>
         </div>

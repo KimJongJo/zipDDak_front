@@ -107,97 +107,115 @@ export default function Inquiries() {
           </tr>
         </thead>
         <tbody>
-          {inquiryList.map((inquiry) => (
-            <>
-              <tr
-                key={inquiry.inquiryIdx}
-                onClick={() => toggleRow(inquiry.inquiryIdx)}
-              >
-                <td style={{ width: "120px", fontWeight: "500" }}>
-                  {getInquiryTypeLabel(inquiry.type)}
-                </td>
-                <td style={{ textAlign: "left" }}>{inquiry.content}</td>
-                <td style={{ width: "110px" }}>{inquiry.writeAt}</td>
-                <td style={{ width: "110px" }}>{inquiry.answerAt}</td>
-                <td style={{ width: "90px", fontWeight: "500" }}>
-                  {inquiry.answer !== null ? "답변완료" : "답변예정"}
-                </td>
-              </tr>
+          {inquiryList.length === 0 ? (
+            <tr>
+              <td colSpan={5}>
+                <div
+                  style={{
+                    width: "100%",
+                    padding: "40px",
+                    textAlign: "center",
+                    color: "#6A7685",
+                    fontSize: "14px",
+                  }}
+                >
+                  작성한 문의가 없습니다.
+                </div>
+              </td>
+            </tr>
+          ) : (
+            inquiryList.map((inquiry) => (
+              <>
+                <tr
+                  key={inquiry.inquiryIdx}
+                  onClick={() => toggleRow(inquiry.inquiryIdx)}
+                >
+                  <td style={{ width: "120px", fontWeight: "500" }}>
+                    {getInquiryTypeLabel(inquiry.type)}
+                  </td>
+                  <td style={{ textAlign: "left" }}>{inquiry.content}</td>
+                  <td style={{ width: "110px" }}>{inquiry.writeAt}</td>
+                  <td style={{ width: "110px" }}>{inquiry.answerAt}</td>
+                  <td style={{ width: "90px", fontWeight: "500" }}>
+                    {inquiry.answer !== null ? "답변완료" : "답변예정"}
+                  </td>
+                </tr>
 
-              {openRowId === inquiry.inquiryIdx && (
-                <tr>
-                  <td colSpan="4" style={{ background: "#FDFDFD" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        padding: "0 60px 20px",
-                        alignItems: "center",
-                        gap: "56px",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "#888",
-                          fontSize: "32px",
-                          fontStyle: "normal",
-                          fontWeight: "500",
-                          lineHeight: "150%",
-                        }}
-                      >
-                        Q
-                      </span>
-                      <div>
-                        <p>{inquiry.content}</p>
-                        {inquiry.image1 && (
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "8px",
-                              marginTop: "14px",
-                            }}
-                          >
-                            {[inquiry.image1, inquiry.image2, inquiry.image3]
-                              .filter((img) => img)
-                              .map((img, idx) => (
-                                <img
-                                  key={idx}
-                                  src={`http://localhost:8080/imageView?type=inquiry&filename=${img}`}
-                                  width="50px"
-                                  height="50px"
-                                />
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {inquiry.answer && (
+                {openRowId === inquiry.inquiryIdx && (
+                  <tr>
+                    <td colSpan="4" style={{ background: "#FDFDFD" }}>
                       <div
                         style={{
                           display: "flex",
-                          padding: "20px 60px 0",
+                          padding: "0 60px 20px",
                           alignItems: "center",
                           gap: "56px",
                         }}
                       >
                         <span
                           style={{
-                            color: "#FF5833",
+                            color: "#888",
                             fontSize: "32px",
                             fontStyle: "normal",
                             fontWeight: "500",
                             lineHeight: "150%",
                           }}
                         >
-                          A
+                          Q
                         </span>
-                        <p>{inquiry.answer}</p>
+                        <div>
+                          <p>{inquiry.content}</p>
+                          {inquiry.image1 && (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "8px",
+                                marginTop: "14px",
+                              }}
+                            >
+                              {[inquiry.image1, inquiry.image2, inquiry.image3]
+                                .filter((img) => img)
+                                .map((img, idx) => (
+                                  <img
+                                    key={idx}
+                                    src={`http://localhost:8080/imageView?type=inquiry&filename=${img}`}
+                                    width="50px"
+                                    height="50px"
+                                  />
+                                ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </td>
-                </tr>
-              )}
-            </>
-          ))}
+                      {inquiry.answer && (
+                        <div
+                          style={{
+                            display: "flex",
+                            padding: "20px 60px 0",
+                            alignItems: "center",
+                            gap: "56px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "#FF5833",
+                              fontSize: "32px",
+                              fontStyle: "normal",
+                              fontWeight: "500",
+                              lineHeight: "150%",
+                            }}
+                          >
+                            A
+                          </span>
+                          <p>{inquiry.answer}</p>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </>
+            ))
+          )}
         </tbody>
       </table>
 

@@ -101,19 +101,35 @@ export function MyWorks() {
         >
           <div className="mypage-statusCard">
             <p>결제완료</p>
-            <span>{matchingStatusSummary.paymentStatus}</span>
+            <span>
+              {matchingStatusSummary.paymentStatus
+                ? matchingStatusSummary.paymentStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>작업중</p>
-            <span>{matchingStatusSummary.progressStatus}</span>
+            <span>
+              {matchingStatusSummary.progressStatus
+                ? matchingStatusSummary.progressStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>취소</p>
-            <span>{matchingStatusSummary.cancelStatus}</span>
+            <span>
+              {matchingStatusSummary.cancelStatus
+                ? matchingStatusSummary.cancelStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>작업완료</p>
-            <span>{matchingStatusSummary.completeStatus}</span>
+            <span>
+              {matchingStatusSummary.completeStatus
+                ? matchingStatusSummary.completeStatus
+                : 0}
+            </span>
           </div>
         </div>
 
@@ -325,7 +341,7 @@ export function MyWorks() {
                     <span style={{ fontSize: "16px", fontWeight: "700" }}>
                       {WORK_STATUS_LABEL[work.status]}
                     </span>
-                    {work.status === "PAYMENT_COMPLETED" && (
+                    {/* {work.status === "PAYMENT_COMPLETED" && (
                       <button
                         className="secondary-button"
                         style={{ width: "60px", height: "33px" }}
@@ -333,7 +349,7 @@ export function MyWorks() {
                       >
                         취소신청
                       </button>
-                    )}
+                    )} */}
                   </div>
                 </td>
               </tr>

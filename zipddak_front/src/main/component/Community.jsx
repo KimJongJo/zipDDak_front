@@ -10,37 +10,37 @@ export function Community({ community }) {
     return (
         <a
             onClick={() => {
-                navigate(`/zipddak/community/${community.communityId}`);
+                navigate(`/zipddak/community/${community?.communityId}`);
             }}
             className="Com-card"
         >
             <div className="Com-infoBox">
                 <div className="Com-info">
-                    <span className="Com-category">{community.categoryName}</span>
-                    <div className="Com-title">{community.title}</div>
-                    <span className="Com-content">{community.content}</span>
+                    <span className="Com-category">{community?.categoryName}</span>
+                    <div className="Com-title">{community?.title}</div>
+                    <span className="Com-content">{community?.content}</span>
                 </div>
                 <div className="Com-reaction">
-                    <span className="Com-writer">{community.nickname}</span>
+                    <span className="Com-writer">{community?.nickname}</span>
                     <i className="bi bi-dot dot"></i>
                     <div className="favs">
                         <Eye size={15} />
-                        {community.viewCount}
+                        {community?.viewCount}
                     </div>
                     <i className="bi bi-dot dot"></i>
                     <div className="chats">
                         <MessageCircle size={15} />
-                        {community.replyCount}
+                        {community?.replyCount}
                     </div>
                     <i className="bi bi-dot dot"></i>
                     <div className="favs">
                         <Heart size={17} />
-                        {community.favoriteCount}
+                        {community?.favoriteCount}
                     </div>
                 </div>
             </div>
 
-            <img src={`http://localhost:8080/imageView?type=community&filename=${community.img1}`} className="Com-image"></img>
+            <img src={`http://localhost:8080/imageView?type=community&filename=${community?.img1}`} className="Com-image"></img>
         </a>
     );
 }

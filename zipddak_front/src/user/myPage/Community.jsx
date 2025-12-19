@@ -3,7 +3,7 @@ import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { Eye, MessageCircle } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 
 export default function Community() {
   const [communityList, setCommunityList] = useState([]);
@@ -50,7 +50,19 @@ export default function Community() {
     <div className="mypage-layout">
       <h1 className="mypage-title">내 게시물</h1>
 
-      {communityList.length !== 0 && (
+      {communityList.length === 0 ? (
+        <div
+          style={{
+            width: "100%",
+            padding: "40px",
+            textAlign: "center",
+            color: "#6A7685",
+            fontSize: "14px",
+          }}
+        >
+          작성한 게시글이 없습니다.
+        </div>
+      ) : (
         <div
           style={{
             display: "flex",
@@ -59,7 +71,10 @@ export default function Community() {
           }}
         >
           {communityList.map((community) => (
-            <a href="#" className="Com-card">
+            <a
+              href={`/zipddak/community/${community.communityIdx}`}
+              className="Com-card"
+            >
               <div className="Com-infoBox">
                 <div className="Com-info">
                   <span className="Com-category">{community.categoryName}</span>
@@ -68,10 +83,10 @@ export default function Community() {
                 </div>
                 <div className="Com-reaction">
                   <span className="Com-writer">{community.writerNickname}</span>
-                  <div className="favs">
-                    <Eye size={15} />
-                    {community.views}
-                  </div>
+                  {/* <div className="favs">
+                          <Eye size={15} />
+                          {community.views}
+                        </div> */}
                   <i className="bi bi-dot dot"></i>
                   <div className="chats">
                     <MessageCircle size={15} />
@@ -79,8 +94,13 @@ export default function Community() {
                   </div>
                 </div>
               </div>
-
-              <div className="Com-image"></div>
+              {community.thumbnail && (
+                <img
+                  src={`${baseUrl}/imageView?type=community&filename=${community.thumbnail}`}
+                  width="80px"
+                  height="80px"
+                />
+              )}
             </a>
           ))}
         </div>
