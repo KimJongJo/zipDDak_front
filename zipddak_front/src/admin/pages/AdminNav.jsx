@@ -1,8 +1,21 @@
 import "../css/AdminNav.css";
 import { useNavigate } from "react-router";
+import { alarmsAtom, initUser, tokenAtom, userAtom } from "../../atoms";
+import { useAtom } from "jotai/react";
 
 export default function AdminNav() {
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [alarms, setAlarms] = useAtom(alarmsAtom);
+
+    // 로그아웃
+    const logout = () => {
+        setUser(initUser);
+        setToken(null);
+        setAlarms([]);
+        navigate("/zipddak/login");
+    };
 
     return (
         <aside className="admin-sidebar">
@@ -23,8 +36,8 @@ export default function AdminNav() {
                     </div>
 
                     <div className="admin-info">
-                        <span className="font-16 semibold">관리자 : 홍길동</span>
-                        <span className="font-14">관리자ID : admin1</span>
+                        <span className="font-16 semibold">관리자 : {user.name}</span>
+                        <span className="font-14">관리자ID : {user.username}</span>
                     </div>
 
                     {/* Menu */}
@@ -106,7 +119,9 @@ export default function AdminNav() {
 
                 {/* Logout */}
                 <div className="sidebar-bottom">
-                    <button className="logout-btn">로그아웃</button>
+                    <button onClick={logout} className="logout-btn">
+                        로그아웃
+                    </button>
                 </div>
             </div>
         </aside>

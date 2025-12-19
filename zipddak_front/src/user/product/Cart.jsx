@@ -29,6 +29,8 @@ export default function Cart() {
     };
 
     useEffect(() => {
+        if (!token) return;
+
         myAxios(token, setToken)
             .get(`${baseUrl}/user/cartList?page=1&username=${user.username}`)
             .then((res) => {
@@ -37,7 +39,7 @@ export default function Cart() {
 
                 setOrderList([]);
             });
-    }, []);
+    }, [token]);
 
     // 선택 상품 삭제
     const cartDeleteProducts = () => {
