@@ -22,59 +22,88 @@ const calcSalePrice = (price, discountRate) => {
 };
 
 export default function usePriceCalc() {
+    //화면용 (,포함)
     const [price, setPrice] = useState("");
     const [salePrice, setSalePrice] = useState("");
     const [discountRate, setDiscountRate] = useState("");
 
+    //서버로 보내는용(, 삭제)
+    const [priceValue, setPriceValue] = useState(0);
+    const [salePriceValue, setSalePriceValue] = useState(0);
+    const [discountRateValue, setDiscountRateValue] = useState(0);
+
     // 가격 입력
     const handlePrice = (value) => {
         const raw = value.replace(/[^0-9]/g, "");
-        const formatted = formatNumber(raw);
+        const num = Number(raw) || 0;
 
-        setPrice(formatted);
+        setPrice(formatNumber(raw));
+        setPriceValue(num);
 
-        const p = toNumber(raw);
-        const sp = toNumber(salePrice);
-        const discount = calcDiscountRate(p, sp);
-
-        setDiscountRate(discount !== "" ? discount : "");
+        if (salePriceValue > 0) {
+            const d = calcDiscountRate(num, salePriceValue);
+            setDiscountRate(d === "" ? "" : d.toString());
+            setDiscountRateValue(d || 0);
+        }
     };
 
     // 판매가 입력
     const handleSalePrice = (value) => {
         const raw = value.replace(/[^0-9]/g, "");
-        const formatted = formatNumber(raw);
+        const num = Number(raw) || 0;
 
-        setSalePrice(formatted);
+        setSalePrice(formatNumber(raw));
+        setSalePriceValue(num);
 
-        const p = toNumber(price);
-        const sp = toNumber(raw);
-        const discount = calcDiscountRate(p, sp);
-
-        setDiscountRate(discount !== "" ? discount : "");
+        if (priceValue > 0) {
+            const d = calcDiscountRate(priceValue, num);
+            setDiscountRate(d === "" ? "" : d.toString());
+            setDiscountRateValue(d || 0);
+        }
     };
 
     // 할인율 입력
     const handleDiscountRate = (value) => {
         const raw = value.replace(/[^0-9]/g, "");
+        const d = Number(raw) || 0;
+
         setDiscountRate(raw);
+        setDiscountRateValue(d);
 
-        const p = toNumber(price);
-        const d = toNumber(raw);
+        if (priceValue > 0) {
+            const sp = calcSalePrice(priceValue, d);
+            setSalePrice(sp === "" ? "" : formatNumber(sp));
+            setSalePriceValue(sp || 0);
+        }
+    };
 
-        const sp = calcSalePrice(p, d);
-        setSalePrice(sp !== "" ? formatNumber(sp) : "");
+    const initPriceData = ({ price, salePrice, discountRate }) => {
+        //수정화면에서 서버에서 받은 가격을 세팅
+        setPriceValue(price || 0);
+        setSalePriceValue(salePrice || 0);
+        setDiscountRateValue(discountRate || 0);
+
+        setPrice(price ? formatNumber(price) : "");
+        setSalePrice(salePrice ? formatNumber(salePrice) : "");
+        setDiscountRate(discountRate !== null ? discountRate.toString() : "");
     };
 
     return {
+        // 화면 표시
         price,
         salePrice,
         discountRate,
+
+        // 서버 전송용
+        priceValue,
+        salePriceValue,
+        discountRateValue,
+
+        // 핸들러
         handlePrice,
         handleSalePrice,
         handleDiscountRate,
-        setPrice,
-        setSalePrice,
-        setDiscountRate,
+
+        initPriceData,
     };
 }

@@ -12,7 +12,7 @@ export default function Token() {
     setToken(tokenParam);
     let fcmToken = useAtomValue(fcmTokenAtom);
 
-    console.log(tokenParam);
+    // console.log(tokenParam);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,7 +20,7 @@ export default function Token() {
         formData.append("fcmToken", fcmToken);
 
         token &&
-            myAxios(tokenParam, setToken)
+            myAxios(token, setToken)
                 .post("/zipddak", formData)
 
                 .then((res) => {

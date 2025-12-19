@@ -74,6 +74,7 @@
     width: 100%;
     overflow-x: auto; /* 내용 길어질 시 자동으로 가로스크롤 */
 }
+
 table.list_table,
 table.detail_table,
 table.inquire_table {
@@ -101,7 +102,8 @@ table.detail_info_table tbody tr {
 table.detail_info_table tbody tr th {
     background-color: #eaecf0;
 }
-
+table.salesTable th,
+table.salesTable td,
 table.detail_info_table th,
 table.detail_info_table td {
     padding: 8px 10px;
@@ -123,12 +125,10 @@ table.detail_info_table tbody tr {
     height: 45px;
 }
 
+table.salesTable,
 table.settle_table {
-    width: max-content; /* 내용 크기만큼 자연 확장 */
-    min-width: 100%; /* 화면보다 좁아지지 않게 */
+    width: 100%;
     table-layout: fixed;
-    border-collapse: collapse;
-    white-space: nowrap; /* 열 줄바꿈 방지 */
 }
 
 table.settle_table tbody td.date_cell {

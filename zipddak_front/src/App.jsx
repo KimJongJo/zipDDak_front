@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Mypage from "./user/myPage/Mypage";
 import Account from "./user/myPage/Account";
 import Inquiries from "./user/myPage/Inquiries";
@@ -77,6 +77,7 @@ import Dashboard from "./admin/pages/Dashboard";
 import UserLayout from "./main/pages/UserLayout.jsx";
 import ExpertLayout from "./expert/pages/ExpertLayout";
 import Best from "./main/pages/Best.jsx";
+import Message from "./user/myPage/Message.jsx";
 
 // 자재판매자
 import SellerLayout from "./seller/pages/SellerLayout";
@@ -114,6 +115,12 @@ import ModifyTool from "./user/tool/ToolModify.jsx";
 import RequestHistory from "./user/myPage/RequestHistory.jsx";
 import AdminNav from "./admin/pages/AdminNav.jsx";
 import AdminLayout from "./admin/pages/AdminLayout.jsx";
+
+import { registerServiceWorker, firebaseReqPermission } from "./firebaseconfig";
+import { useEffect, useState } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
+import { myAxios } from "./config.jsx";
 
 
 function App() {
@@ -197,6 +204,7 @@ function App() {
           <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
         </Route>
       </Route>
+
 
       {/* 전문가 */}
       <Route path="/expert/*" element={<ExpertLayout />}>
