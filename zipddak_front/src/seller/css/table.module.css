@@ -91,6 +91,44 @@ table.inquire_table {
 
     margin-bottom: 5px;
 }
+table.list_table th,
+table.list_table td,
+table.detail_table th,
+table.detail_table td,
+table.inquire_table th,
+table.inquire_table td,
+table.salesTable th,
+table.salesTable td,
+table.detail_info_table th,
+table.detail_info_table td {
+    padding: 8px 10px;
+    text-align: center;
+
+    /* 가로 구분선 */
+    border-bottom: 1px solid var(--innerLine);
+
+    box-sizing: border-box;
+    line-height: 20px;
+}
+table.salesTable th,
+table.salesTable td,
+table.detail_info_table th,
+table.detail_info_table td {
+    width: 25%;
+}
+
+table.list_table thead {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+}
+/* 행에 마우스 hover시 색변환 */
+table.list_table tbody tr:hover td:not(:has(img)) {
+    background-color: #eee;
+    cursor: pointer;
+}
+table.list_table tbody tr:hover td.noData:not(:has(img)) {
+    background-color: transparent;
+    cursor: default;
+}
 
 table.detail_info_table {
     border-top: 1px solid #d3d3d3;
@@ -102,20 +140,7 @@ table.detail_info_table tbody tr {
 table.detail_info_table tbody tr th {
     background-color: #eaecf0;
 }
-table.salesTable th,
-table.salesTable td,
-table.detail_info_table th,
-table.detail_info_table td {
-    padding: 8px 10px;
-    text-align: center;
 
-    /* 가로 구분선 */
-    border-bottom: 1px solid #d3d3d3;
-
-    box-sizing: border-box;
-    line-height: 20px;
-    width: 25%;
-}
 table.detail_info_table thead th {
     color: #667085;
     background: #eaecf0;
@@ -157,38 +182,24 @@ table.settle_table tbody tr:hover td:not(:has(img)) {
     border-radius: 8px;
 }
 
+table.claim_table {
+    width: max-content; /* 내용 크기만큼 자연 확장 */
+    min-width: 100%; /* 화면보다 좁아지지 않게 */
+    table-layout: fixed;
+
+    border-collapse: collapse;
+    white-space: nowrap; /* 열 줄바꿈 방지 */
+}
+
+table.claim_table th,
+table.claim_table td {
+    border-bottom: 1px solid var(--innerLine);
+    padding: 10px;
+    text-align: center;
+}
+
 .claim_table tbody tr:last-child td {
     border-bottom: none;
-}
-
-table.list_table thead {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.8);
-}
-
-table.list_table th,
-table.list_table td,
-table.detail_table th,
-table.detail_table td,
-table.inquire_table th,
-table.inquire_table td {
-    padding: 8px 10px;
-    text-align: center;
-
-    /* 가로 구분선 */
-    border-bottom: 1px solid var(--innerLine);
-
-    box-sizing: border-box;
-    line-height: 20px;
-}
-
-/* table th {
-    background: var(--subcolor);
-} */
-
-/* 행에 마우스 hover시 색변환 */
-table.list_table tbody tr:hover td:not(:has(img)) {
-    background-color: #eee;
-    cursor: pointer;
 }
 
 tr.last-of-bundle td,
@@ -198,7 +209,8 @@ tr.last-of-single td,
 }
 
 .title_cell {
-    text-align: left !important;
+    /* text-align: left !important; */
+
     /* 셀 안에 텍스트 내용 길어질 경우 말줄임표 처리*/
     white-space: nowrap;
     overflow: hidden;
@@ -209,19 +221,19 @@ tr.last-of-single td,
     text-align: right;
 }
 
-/* .option_cell {
-    text-align: left !important;
-} */
+.img_cell {
+    white-space: nowrap;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+}
+
 .totalCnt {
     width: 100%;
     text-align: right;
     margin-top: 5px;
 }
 
-table.list_table tbody tr:hover td.noData:not(:has(img)) {
-    background-color: transparent;
-    cursor: default;
-}
 /* ****************************************
     페이지네이션 
 ***************************************** */
