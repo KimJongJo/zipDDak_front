@@ -12,7 +12,8 @@ export default function SignUser() {
     const [user, setUser] = useState({
         username: '', nickname: '', password: '', checkPassword: '', name: '', phone: '',
         auth_num: '', zonecode: '', addr1: '', addr2: '', settleBank: '', settleAccount: '', settleHost: '',
-        provider: '', providerId: '', fcmToken: '', role: 'USER', expert: false, createdate: '', profileImg: ''
+        provider: '', providerId: '', fcmToken: '', role: 'USER', expert: false, createdate: '', profileImg: '',
+        state:'ACTIVE'
     })
 
     const [modal, setModal] = useState(false);

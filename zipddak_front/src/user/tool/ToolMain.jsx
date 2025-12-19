@@ -34,7 +34,7 @@ export default function ToolMain() {
 
     //유저 주소 자르기
     const userAddressString = user?.addr1 || '';
-    const userAdress = userAddressString.split(' ').slice(0, 2).join(' ');
+    const userAdress = userAddressString.split(' ').slice(1, 3).join(' ');
 
     //카테고리
     const [checkedCategory, setCheckedCategory] = useState([]);
