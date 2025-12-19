@@ -43,7 +43,7 @@ export default function MainSearch() {
 
     if (!submittedKeyword) {
         alert('검색어를 입력해주세요.');
-        // setKeyword(''); 
+        setKeyword(''); 
         return; 
     }
     
@@ -265,7 +265,7 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="expert-cards">
            {Array.isArray(expert) &&
             expert.map(expertCard=> (
               <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
@@ -308,7 +308,7 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="tool-cards">
 
             {Array.isArray(tool) &&
               tool.map(toolCard =>(
@@ -368,7 +368,7 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="product-cards">
             {Array.isArray(product) &&
               product.map (productCard=> (
                 <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>

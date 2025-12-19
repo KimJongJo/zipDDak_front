@@ -3,14 +3,22 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin: 0 auto;
 }
 
 .regTool {
     width: 1200px;
     padding: 0 16px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
     margin: 40px 0;
+}
+
+.applyTool {
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .r-title {
@@ -33,7 +41,7 @@
     padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 30px;
     border: 1px solid #eff1f5;
 }
 
@@ -96,40 +104,73 @@
     padding: 10px; */
 }
 
-.zonecode {
-    width: 150px;
+.zonecodeInput {
+    width: 260px !important;
+}
+
+.mapPinI {
+    padding: 5px 10px !important;
 }
 
 .trade {
-    width: 300px;
+    width: 260px;
     display: flex;
     justify-content: space-between;
     font-size: 14px;
+    border: 1px solid #eff1f5;
+    border-radius: 8px;
+    cursor: pointer;
 }
+
+.toolRegiMessage {
+    width: 100%;
+    border: none;
+}
+
+.toolPostI {
+    right: 5px;
+}
+
 
 .location-box {
     width: 250px;
 }
 
 .btn-col {
-    width: 100%;
+    width: 910px;
     padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
     gap: 12px;
-    margin-bottom: 40px;
+    margin: 40px 0;
 }
 
-.thumbnail {
-    width: 100px;
-    height: 100px;
-    border: #B6BCC9 1px dotted;
-    border-radius: 8px;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.thumbnail {
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detail-img-list {
+    gap: 20px;
+}
+
+.thumbnail.add {
+  border: #B6BCC9 1px dotted;
 }
 
 .flex-box {
@@ -222,4 +263,28 @@
     padding: 24px 20px;
     border: #F1F3F7 1px solid;
     border-radius: 8px;
+}
+
+.toolBank {
+    width: 400px !important;
+}
+
+.sbSelect {
+    width:260px !important;
+}
+
+.pqSelect {
+    width: 345px !important;
+}
+
+.myToolCards {display: grid;
+    grid-template-columns: 1fr; /* 1열 */
+    gap: 20px;                 /* 카드 간 간격 */
+    margin: 40px 0;}
+
+
+.Rentalmap {
+    width: 300px;
+    height: 200px;
+    background-color: #eff1f5;
 }

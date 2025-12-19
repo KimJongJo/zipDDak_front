@@ -33,6 +33,9 @@
     width: 100%;
     margin-top: 5px;
     margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .tool-address {
@@ -93,7 +96,7 @@
     width: 100%;
     margin-top: 8px;
     margin-left: 8px;
-    gap: 5px;
+    gap: 8px;
 }
 
 .tool-address-m {
@@ -186,9 +189,9 @@
     justify-content: center;
 
     position: absolute; /* 절대 위치 */
-    top: 15px;
-    left: 15px;
-    font-size: 14px;
+    top: 5px;
+    left: 5px;
+    font-size: 12px;
     font-weight: 600;
     color: #ffffff;
     cursor: pointer;
@@ -279,7 +282,56 @@
     font-weight: 600;
 }
 
+.myTool-button {
+    display: flex;
+    gap: 10px;
+}
 
+.myTool-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.myTool-rabel {
+    justify-content: space-between;
+}
+
+.myTool-box {
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.ToolMyBox {
+    gap: 50px;
+}
+
+.rentalBox {
+    gap: 10px;
+}
+
+.myTool-rental-status,
+.myTool-category {
+    font-weight: 600;
+}
+
+.myTool-name {
+    margin-top: 10px;
+}
+
+.titleMyTool {
+    gap: 20px;
+}
+
+.rentalDisable {
+    background-color: #eff1f5 !important;
+}
+
+.orangeColor {
+    color: #ff5833;
+}
 
 
 
