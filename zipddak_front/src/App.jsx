@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Mypage from "./user/myPage/Mypage";
 import Account from "./user/myPage/Account";
 import Inquiries from "./user/myPage/Inquiries";
@@ -77,6 +77,7 @@ import Dashboard from "./admin/pages/Dashboard";
 import UserLayout from "./main/pages/UserLayout.jsx";
 import ExpertLayout from "./expert/pages/ExpertLayout";
 import Best from "./main/pages/Best.jsx";
+import Message from "./user/myPage/Message.jsx";
 
 // 자재판매자
 import SellerLayout from "./seller/pages/SellerLayout";
@@ -152,6 +153,7 @@ function App() {
         <Routes>
             <Route path="/auth/token" element={<Token />} />
             <Route path="/zipddak/*" element={<UserLayout />}>
+                <Route path="message" element={<Message />} />
                 {/* 일반사용자 로그인 */}
                 <Route path="login" element={<Login />} />
                 <Route path="signUp/user" element={<SignUser />} />
@@ -172,6 +174,12 @@ function App() {
                 <Route path="tool/regist" element={<RegistTool />} />
                 <Route path="tool/apply" element={<ApplyTool />} />
 
+                {/* 일반사용자 전문가찾기 */}
+                <Route path="experts" element={<Experts />} />
+                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
+                <Route path="expertMatchPayment/:estimateIdx" element={<ExpertMatchPayment />} />
+                <Route path="findExpert" element={<FindExpert />} />
+
                 {/* 일반사용자 커뮤니티 */}
                 <Route path="community" element={<CommunityList />} />
                 <Route path="community/write" element={<ComForm />} />
@@ -189,14 +197,9 @@ function App() {
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
 
-                {/* 일반사용자 전문가찾기 */}
-                <Route path="experts" element={<Experts />} />
-                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-                <Route path="expertMatchPayment/:estimateIdx" element={<ExpertMatchPayment />} />
-                <Route path="findExpert" element={<FindExpert />} />
-
                 {/* 일반사용자 마이페이지 */}
                 <Route path="mypage/*" element={<Mypage />}>
+                    <Route index element={<Navigate to="expert/works" replace />} />
                     <Route path="account" element={<Account />} />
                     <Route path="expert/works" element={<MyWorks />} />
                     <Route path="expert/works/detail/:matchingIdx" element={<MyWorksDetail />} />
@@ -225,6 +228,7 @@ function App() {
                 <Route path="requests/detail/:requestIdx" element={<PublicRequestDetail />} />
                 {/* 전문가 마이페이지 */}
                 <Route path="mypage/*" element={<ExpertMypage />}>
+                    <Route index element={<Navigate to="works" replace />} />
                     <Route path="works" element={<ExpertMyWorks />} />
                     <Route path="works/detail/:matchingIdx" element={<ExpertMyWorksDetail />} />
                     <Route path="sent/estimates" element={<SentEstimates />} />
@@ -285,7 +289,7 @@ function App() {
 
             <Route path="dashboard" element={<Dashboard />} />
 
-            {/* 전문가 */}
+            {/* 사이트관리자 */}
             <Route path="admin/*" element={<AdminLayout />}>
                 {/* 회원 관리 */}
                 <Route path="users" element={<AdminUserList />} />
