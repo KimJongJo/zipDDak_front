@@ -2,10 +2,13 @@ import { Input, Modal, ModalHeader, ModalBody } from "reactstrap";
 import { useState } from "react";
 import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selectedItems, targetItemIdx, idx, refresh, resetChecked, rejectType }) {
     const [rejectReason, setRejectReason] = useState("");
     const [rejectDetailReason, setRejectDetailReason] = useState("");
+    const [token, setToken] = useAtom(tokenAtom);
 
     const handleSave = async () => {
         try {
@@ -21,16 +24,13 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
             }
             console.log("targetItems : " + targetItems);
 
-            console.log("rejectReason : " + rejectReason);
-            console.log("rejectDetailReason : " + rejectDetailReason);
-
             // → targetItems 로 API 호출
-            const res = await myAxios()
+            const res = await myAxios(token, setToken)
                 .post("/refund/refundRejectItems", {
                     orderIdx: idx,
                     itemIdxs: targetItems,
-                    rejectReason: rejectReason,
-                    rejectDetailReason: rejectDetailReason,
+                    // rejectReason: rejectReason,
+                    // rejectDetailReason: rejectDetailReason,
                 })
                 .then((res) => {
                     console.log(res);
@@ -73,7 +73,7 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
                             </p>
                             {/* <p style={{ color: "red" }}>처리 후 취소할 수 없습니다.</p> */}
                         </div>
-                        <div className={modal.refundModalContent} style={{ padding: "15px" }}>
+                        {/* <div className={modal.refundModalContent} style={{ padding: "15px" }}>
                             <div className={modal.refundModalColumn}>
                                 <span className="sub_title">
                                     거절 사유<span className="required">*</span>
@@ -89,7 +89,7 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
                                 <span className="sub_title">거절 내용 </span>
                                 <Input type="textarea" className={modal.writeReason} placeholder="거절처리에 대한 상세사유를 적어주세요! (최대 2000자)" onChange={(e) => setRejectDetailReason(e.target.value)} />
                             </div>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="btn_part">
