@@ -67,7 +67,7 @@ export default function AdminPaymentDetail() {
 
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
 
             <div className="admin-detail-div">
                 <div className="admin-detail-top-div">

@@ -1,11 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminExpertList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 전문 서비스
-    const [defaultMajor, setDefaultMajor] = useState(1);
+    const [defaultMajor, setDefaultMajor] = useState(0);
 
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
@@ -13,6 +19,11 @@ export default function AdminExpertList() {
     const [defaultColumn, setDefaultColumn] = useState(1);
     // 검색 키워드
     const [keyword, setKeyword] = useState("");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [page, setPage] = useState(1);
+
+    const [expertList, setExpertList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
 
     const userState = [
         {
@@ -29,25 +40,25 @@ export default function AdminExpertList() {
         },
         {
             stateCode: 4,
-            label: "탈퇴",
+            label: "신청처리중",
         },
     ];
 
     const expertMajor = [
         {
-            majorCode: 1,
+            majorCode: 0,
             label: "전체",
         },
         {
-            majorCode: 2,
+            majorCode: 23,
             label: "수리",
         },
         {
-            majorCode: 3,
+            majorCode: 44,
             label: "인테리어",
         },
         {
-            majorCode: 4,
+            majorCode: 74,
             label: "시공/견적 컨설팅",
         },
     ];
@@ -55,47 +66,46 @@ export default function AdminExpertList() {
     const clearFilter = () => {
         setDefaultState(1);
         setDefaultColumn(1);
+        setDefaultMajor(0);
         setKeyword("");
+        setSearchKeyword("");
+        setPage(1);
     };
 
-    // const testUser = [];
+    // 검색
+    const keywordSearch = async () => {
+        console.log("클릭");
 
-    const testUser = [
-        {
-            userNo: 1,
-            userName: "홍길동",
-            userId: "hong123@kosta.com",
-            reportCount: 0,
-            major: "수리",
-            userTel: "010-1234-1234",
-            createdAt: "2025-11-09",
-            stateCode: 1,
-        },
-        {
-            userNo: 1,
-            userName: "홍길동",
-            userId: "hong123@kosta.com",
-            reportCount: 0,
-            major: "수리",
-            userTel: "010-1234-1234",
-            createdAt: "2025-11-09",
-            stateCode: 2,
-        },
-        {
-            userNo: 1,
-            userName: "홍길동",
-            userId: "hong123@kosta.com",
-            reportCount: 0,
-            major: "수리",
-            userTel: "010-1234-1234",
-            createdAt: "2025-11-09",
-            stateCode: 3,
-        },
-    ];
+        setSearchKeyword(keyword);
+        // 검색버튼 클릭시 새 배열로 초기화
+        setExpertList([]);
+        setPage(1);
+    };
+
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
+
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/experts?major=${defaultMajor}&state=${defaultState}&column=${defaultColumn}&keyword=${searchKeyword}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setExpertList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, defaultMajor, defaultState, defaultColumn, searchKeyword, page]);
 
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
@@ -180,11 +190,11 @@ export default function AdminExpertList() {
                     {/* 우측 검색 필터 */}
                     <div className="admin-userList-filter-right">
                         {/* 필터 select */}
-                        <select className="admin-userList-filter-select font-13" name="" id="">
-                            <option value="">전체</option>
-                            <option value="">회원명</option>
-                            <option value="">아이디</option>
-                            <option value="">휴대전화</option>
+                        <select onChange={(e) => setDefaultColumn(e.target.value)} className="admin-userList-filter-select font-13" name="" id="">
+                            <option value={1}>전체</option>
+                            <option value={2}>활동명</option>
+                            <option value={3}>아이디</option>
+                            <option value={4}>휴대전화</option>
                         </select>
 
                         {/* 검색 input */}
@@ -194,7 +204,9 @@ export default function AdminExpertList() {
                         </div>
 
                         {/* 검색 버튼 */}
-                        <button className="admin-userList-search-button font-13 medium">검색</button>
+                        <button onClick={keywordSearch} className="admin-userList-search-button font-13 medium">
+                            검색
+                        </button>
 
                         {/* 초기화 버튼 */}
                         <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
@@ -204,7 +216,7 @@ export default function AdminExpertList() {
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {expertList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -222,10 +234,10 @@ export default function AdminExpertList() {
                                 <thead>
                                     <tr>
                                         <td>
-                                            <span className="font-14 medium">회원번호</span>
+                                            <span className="font-14 medium">전문가 번호</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">회원명</span>
+                                            <span className="font-14 medium">활동명</span>
                                         </td>
                                         <td>
                                             <span className="font-14 medium">아이디</span>
@@ -248,43 +260,43 @@ export default function AdminExpertList() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((user) => (
-                                        <tr key={user.userNo}>
+                                    {expertList.map((expert) => (
+                                        <tr key={expert.expertIdx}>
                                             <td>
-                                                <span className="font-14">{user.userNo}</span>
+                                                <span className="font-14">{expert.expertIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userName}</span>
+                                                <span className="font-14">{expert.activityName}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userId}</span>
+                                                <span className="font-14">{expert.username}</span>
                                             </td>
 
                                             <td>
-                                                <span className="font-14">{user.reportCount}</span>
+                                                <span className="font-14">{expert.reportCount}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.major}</span>
+                                                <span className="font-14">{expert.cateName}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.userTel}</span>
+                                                <span className="font-14">{expert.phone}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{user.createdAt}</span>
+                                                <span className="font-14">{expert.createdAt}</span>
                                             </td>
                                             <td>
                                                 <div className="user-state-badge">
-                                                    {user.stateCode === 1 ? (
+                                                    {expert.state === "ACTIVE" ? (
                                                         <div className="user-state-code-1">
                                                             <span className="font-12 medium">정상</span>
                                                         </div>
-                                                    ) : user.stateCode === 2 ? (
+                                                    ) : expert.state === "STOPPED" ? (
                                                         <div className="user-state-code-2">
                                                             <span className="font-12 medium">활동정지</span>
                                                         </div>
                                                     ) : (
                                                         <div className="user-state-code-3">
-                                                            <span className="font-12 medium">탈퇴</span>
+                                                            <span className="font-12 medium">신청처리중</span>
                                                         </div>
                                                     )}
                                                 </div>
@@ -293,26 +305,7 @@ export default function AdminExpertList() {
                                     ))}
                                 </tbody>
                             </Table>
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>
