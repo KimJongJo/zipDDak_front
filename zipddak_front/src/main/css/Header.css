@@ -215,12 +215,16 @@ svg {
   background: transparent !important;
 }
 
+.dropdown-item:active {
+  background-color: transparent;
+}
+
 .alarm-item {
   display: flex;
-  width: 318px;
   padding: 20px;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 .alarm-item div {
   display: flex;
