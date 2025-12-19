@@ -71,6 +71,7 @@ export default function ToolDetail() {
 
     //바로 대여
     const directApply = () => {
+        console.log("toolIdx:", toolIdx);
         navigate(`/zipddak/tool/apply/${toolIdx}`);
     }
 

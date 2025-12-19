@@ -7,32 +7,36 @@ import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 import DaumPostcode from 'react-daum-postcode';
 import { Modal as AddrModal } from 'antd';
+import { MapTool } from '../../main/component/Tool';
+
 
 export default function ApplyTool() {
 
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
-    const { toolIdx } = useParams();
     const [tool, setTool] = useState();
+    const { toolIdx } = useParams();
+    const navigate = useNavigate();
 
     const [rental, setRental] = useState({
 
-        rentalIdx: '',
+        // rentalIdx: '',
         rentalCode: '',
         startDate: '',
         endDate: '',
         request: '',
-        directRental: '',
-        postCharge: '',
-        postRental: '',
+        directRental: false,
+        postCharge: 0,
+        postRental: false,
         zonecode: '',
         addr1: '',
         addr2: '',
-        postRequest: '',
+        postRequest: '배송시 요청사항 없음',
         paymentType: '',
         satus: '',
         borrower: '',
@@ -41,17 +45,66 @@ export default function ApplyTool() {
         createdAt: '',
 
         toolIdx: '',
-        name: ''
+        phone: ''
 
     });
 
+    //대상 공구
+    const targetTool = () => {
+
+        console.log(" myAxios 여기");
+
+        token && myAxios(token, setToken).get(`/tool/detail`, {
+            params: {
+                toolIdx: toolIdx,
+                username: user.username
+            }
+        })
+            .then(res => {
+                console.log(res.data);
+                setTool(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+    }
+
+    useEffect(() => {
+        console.log("1.useEffect 왜 안돼")
+        if (toolIdx) {
+            targetTool();
+        }
+    }, [toolIdx])
+
+    //툴 정보
+    useEffect(() => {
+        if (tool) {
+            setRental(prev => ({
+                ...prev,
+                toolIdx: tool.idx,
+                owner: tool.owner,
+                postCharge: tool.postCharge
+            }));
+        }
+    }, [tool]);
+
+
+    //직접 입력
     const ChangeInput = (e) => {
         setRental({ ...rental, [e.target.name]: e.target.value })
     }
 
 
     //거래방식
-    const [rentalType, setRentalType]= useState();
+    const [rentalType, setRentalType] = useState(false);
+    useEffect(() => {
+        setRental(prev => ({
+            ...prev,
+            directRental: rentalType === "DIRECT",
+            postRental: rentalType === "POST"
+        }));
+    }, [rentalType]);
 
     //주소
     const [isAddOpen, setIsAddOpen] = useState(false);
@@ -92,28 +145,121 @@ export default function ApplyTool() {
     }, [useProfile, user]);
 
     //결제선택
-    const [payType, setPayType] = useState(false);
+    const [paymentType, setPaymentType] = useState(false);
+
+    useEffect(() => {
+        setRental(prev => ({ ...prev, paymentType }));
+    }, [paymentType]);
 
 
-    //대상 공구
-    const targetTool = () => {
+    //대여기간 
+    const [totalDays, setTotalDays] = useState(0);
 
-        token&&myAxios(token,setToken).get(`/tool/detail`, {params:{toolIdx:toolIdx}})
-        .then(res=> {
-            console.log(res.data);
-            setTool(res.data);
-        })
-        .catch(err=> {
-            console.log(err);
-        })
+    const totalDate = (e) => {
+        const { name, value } = e.target;
+        setRental(prev => ({ ...prev, [name]: value }));
 
+        // 총일수 계산
+        if (name === 'startDate' || name === 'endDate') {
+            const start = name === 'startDate' ? value : rental.startDate;
+            const end = name === 'endDate' ? value : rental.endDate;
+
+            if (start && end) {
+                const startTime = new Date(start).getTime();
+                const endTime = new Date(end).getTime();
+                const diffDays = Math.ceil((endTime - startTime) / (1000 * 60 * 60 * 24)) + 1; // +1 포함
+                setTotalDays(diffDays > 0 ? diffDays : 0);
+            }
+        }
+    };
+
+    //총대여비
+    const [totalCharge, setTotalCharge] = useState(0);
+
+    useEffect(() => {
+        if (tool?.rentalPrice && totalDays > 0) {
+            setTotalCharge(tool.rentalPrice * totalDays);
+        } else {
+            setTotalCharge(0);
+        }
+    }, [tool, totalDays]);
+
+    const [fianalCharge, setFinalCharge] = useState();
+
+    useEffect(() => {
+        if (tool && totalCharge) {
+            setFinalCharge(totalCharge + tool.postCharge);
+        } else {
+            setFinalCharge(0);
+        }
+    }, [tool, totalCharge])
+
+
+    //거래 동의
+    const [agree, setAgree] = useState(false);
+
+    //대여 등록
+    const doRental = () => {
+
+        if (!rental.startDate || !rental.endDate) {
+            alert("대여기간을 선택해주세요.");
+            return;
+        }
+
+        requestTossPaymentApi();
+
+
+        // token && myAxios(token, setToken).post('/rental/application', rental)
+        //     .then(res => {
+        //         console.log(res.data);
+        //         alert("대여등록 성공 결제 진행")
+        //         requestTossPaymentApi();
+        //     })
+        //     .catch(err => {
+        //         console.log(err);
+        //     })
     }
 
-    useEffect (()=> {
-        if (token && toolIdx) {
-        targetTool();
-    }
-    },[token,toolIdx])
+    // 토스 페이먼츠 결제 요청 시작
+    const requestTossPaymentApi = async () => {
+
+    //     const recvUser = {
+    //     sender: tool.owner,
+    //     recvier: rental.name,
+    //     tel: rental.phone,
+    //     zonecode: rental.zonecode,
+    //     addr1: rental.addr1,
+    //     detailAddress: rental.addr2,
+    //     requestContent: rental.request,
+    // };
+
+
+        const res = await myAxios(token,setToken).post(`/user/payment/rental`, {
+            username: user.username,
+            amount: fianalCharge,
+            rental : rental,
+            toolIdx: toolIdx
+        });
+
+        const { orderId, orderName, amount } = res.data;
+
+        const encodedOrderName = encodeURIComponent(orderName);
+
+        // 테스트 경우 클라이언트 키가 노출되어도 상관 없음
+        // 실제 운영하는 환경에서는 서버에서 clientKey를 내려주고 클라이언트 요청시 가져와서 사용
+        const tossPayments = await loadTossPayments(
+            "test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD"
+        );
+
+        await tossPayments.requestPayment({
+            method: "CARD",
+            amount: amount,
+            orderId: orderId,
+            orderName: orderName,
+            successUrl: `http://localhost:8080/user/payment/rental/complate?orderName=${encodedOrderName}&username=${user.username}&toolIdx=${toolIdx}`, // 성공시 서버쪽으로 보냄
+            failUrl: "http://localhost:5173/zipddak/productOrder",
+        });
+    };
 
 
     if (!tool) return <div>로딩중...</div>;
@@ -142,7 +288,7 @@ export default function ApplyTool() {
                         <div className="regToolForm">
                             <div className="options">
                                 <span className="o-label">거래대상 공구</span>
-                                <MapTool key={tool.idx} tool={tool}/>
+                                <MapTool key={tool.idx} tool={tool} />
                             </div>
 
                             <div className="options">
@@ -150,14 +296,17 @@ export default function ApplyTool() {
                                 <div className="flex-box">
                                     <FormGroup>
                                         <Label>대여 시작일</Label>
-                                        <Input className="pinput" name="rentalStartDate" placeholder="date placeholder" type="date" />
+                                        <Input className="pinput" name="startDate" placeholder="date placeholder" type="date"
+                                            onChange={totalDate} />
                                     </FormGroup>
                                     <div className="hypen">
                                         <Minus />
                                     </div>
                                     <FormGroup>
                                         <Label>대여 종료일</Label>
-                                        <Input className="pinput" name="rentalEndDate" placeholder="date placeholder" type="date" />
+                                        <Input className="pinput" name="endDate" placeholder="date placeholder" type="date"
+                                            onChange={totalDate}
+                                        />
                                     </FormGroup>
                                     {/* <div className="period">
                                     <span>총</span>
@@ -171,35 +320,35 @@ export default function ApplyTool() {
                                 <span className="o-label">주문자</span>
                                 <div className="flex-box">
                                     <span className="tag">이름</span>
-                                    <Input placeholder="이름(실명)" name="name" type="text" readOnly />
+                                    <Input placeholder="이름(실명)" name="name" type="text" onChange={ChangeInput} />
                                 </div>
                                 <div className="flex-box">
                                     <span className="tag">전화전호</span>
-                                    <Input placeholder="'-'없이 숫자로만 입력" name="name" type="text" readOnly />
+                                    <Input placeholder="'-'없이 숫자로만 입력" name="phone" type="text" onChange={ChangeInput} />
                                 </div>
                             </div>
 
                             <div className="options">
-                            <span className="o-label">거래방식</span>
-                            <div className="check-col">
-                                <FormGroup check>
-                                    <Label check><Input name="postRental" type="radio"
-                                        value="POST"
-                                        checked={rentalType==="POST"}
-                                        onChange={(e) => setRentalType(e.target.value)}
-                                    /> 택배 배송</Label>
-                                </FormGroup>
-                                <FormGroup check>
-                                    <Label check><Input name="directRental" type="radio"
-                                        value="DIRECT"
-                                        checked={rentalType==="DIRECT"}
-                                        onChange={(e) => setRentalType(e.target.value)}
-                                    /> 직접 픽업</Label>
-                                </FormGroup>
+                                <span className="o-label">거래방식</span>
+                                <div className="check-col">
+                                    <FormGroup check>
+                                        <Label check><Input name="postRental" type="radio"
+                                            value="POST"
+                                            checked={rentalType === "POST"}
+                                            onChange={(e) => setRentalType(e.target.value)}
+                                        /> 택배 배송</Label>
+                                    </FormGroup>
+                                    <FormGroup check>
+                                        <Label check><Input name="directRental" type="radio"
+                                            value="DIRECT"
+                                            checked={rentalType === "DIRECT"}
+                                            onChange={(e) => setRentalType(e.target.value)}
+                                        /> 직접 픽업</Label>
+                                    </FormGroup>
+                                </div>
                             </div>
-                        </div>
 
-                            {rentalType==="POST" &&
+                            {rentalType === "POST" &&
                                 <div className="options">
                                     <span className="o-label">받을주소</span>
                                     <div className="post-box">
@@ -257,7 +406,7 @@ export default function ApplyTool() {
                                 </div>
                             }
 
-                            {rentalType==="DIRECT"&&
+                            {rentalType === "DIRECT" &&
                                 <div className="Rentalmap"></div>
                             }
 
@@ -271,16 +420,25 @@ export default function ApplyTool() {
 
                             <div className="options">
                                 <span className="o-label">요청사항</span>
-                                <Input type="textarea" name="registToolDetail" placeholder="공구의 상세한 설명을 적어주세요! (최대 2000자)" className="ttextarea" />
+                                <Input type="textarea" name="request" placeholder="대여시 요청사항이 있나요?" className="ttextarea"
+                                    onChange={ChangeInput} />
                             </div>
 
                             <div className="options">
                                 <span className="o-label">결제방식</span>
                                 <div className="flex-box pay">
-                                    <div className="payOption"
-                                    onClick={()=> setPayType(pre=>!pre)}
-                                    >만나서 결제</div>
-                                    <div className="payOption">토스페이</div>
+                                    <div
+                                        className={`payOption ${paymentType === false ? 'active' : ''}`}
+                                        onClick={() => setPaymentType(false)}
+                                    >
+                                        만나서 결제
+                                    </div>
+                                    <div
+                                        className={`payOption ${paymentType === true ? 'active' : ''}`}
+                                        onClick={() => setPaymentType(true)}
+                                    >
+                                        토스페이
+                                    </div>
                                 </div>
                             </div>
 
@@ -291,26 +449,40 @@ export default function ApplyTool() {
                                 <div className="product-order-form-div wide">
                                     <div className="product-order-form-div-top wide">
                                         <div className="product-order-form-div-intop">
-                                            <span className="font-16 semibold">결제금액</span>
+                                            {/* <span className="font-16 semibold">결제금액</span> */}
                                             <div className="product-order-form-second">
                                                 <span className="font-15">1일 대여비</span>
-                                                <span className="font-14">원</span>
+                                                <span className="row-cm moneyGap">
+                                                    {tool.rentalPrice.toLocaleString()}
+                                                    <span className="font-14">원</span>
+                                                </span>
                                             </div>
-                                            <div className="product-order-form-second">
-                                                <div className="product-order-form-second totalRental">
-                                                    <span className="font-15">총 대여비</span>
-                                                    <span className="font-15 rental-period">4일</span>
-                                                </div>
-                                                <span className="font-14">원</span>
-                                            </div>
+                                            {totalDays > 0 &&
+                                                <div className="product-order-form-second">
+                                                    <div className="product-order-form-second totalRental">
+                                                        <span className="font-15">총 대여비</span>
+                                                        <span className="font-15 rental-period"> {totalDays}일</span>
+                                                    </div>
+                                                    <span className="row-cm moneyGap">
+                                                        {totalCharge.toLocaleString()}
+                                                        <span className="font-14">원</span>
+                                                    </span>
+                                                </div>}
                                             <div className="product-order-form-second">
                                                 <span className="font-15">배송비</span>
-                                                <span className="font-14">원</span>
+                                                <span className="row-cm moneyGap">
+                                                    {tool.postCharge.toLocaleString()}
+                                                    <span className="font-14">원</span>
+                                                </span>
                                             </div>
                                             <div className="product-order-form-second">
                                                 <span className="font-16 total-rental-label">최종 결제 금액</span>
                                                 <span className="total-rental-price">
-                                                    <span className="font-22 semibold order-price"></span>원
+                                                    <span className="row-cm moneyGap">
+                                                        <span className="font-22 semibold order-price">
+                                                            {fianalCharge.toLocaleString()}</span>
+                                                        <span>원</span>
+                                                    </span>
                                                 </span>
                                             </div>
                                         </div>
@@ -331,7 +503,10 @@ export default function ApplyTool() {
                             <div className="options">
                                 <div className="check-col">
                                     <FormGroup check>
-                                        <Input id="checkbox2" type="checkbox" />{" "}
+                                        <Input id="checkbox2"
+                                            type="checkbox"
+                                            checked={agree}
+                                            onChange={(e) => setAgree(e.target.checked)} />{" "}
                                     </FormGroup>
                                     <span className="check-detail">(필수) 집딱의 파손면책 어쩌구에 동의 합니다.</span>
                                 </div>
@@ -341,8 +516,20 @@ export default function ApplyTool() {
                 </div>
 
                 <div className="btn-col">
-                    <Button className="tertiary-button">작성취소</Button>
-                    <Button className="primary-button">결제하기</Button>
+                    <Button className="tertiary-button"
+                        // 임시, 추후모달 추가
+                        onClick={() => navigate(`/zipddak/tool`)}
+                    >작성취소</Button>
+                    <Button className="primary-button"
+                        onClick={() => {
+                            if (!agree) {
+                                alert("필수 약관에 동의해주세요!");
+                                return;
+                            }
+                            doRental(); // 동의했으면 실제 결제/등록 함수 호출
+                        }}
+                    >
+                        결제하기</Button>
                 </div>
             </div>
         </>

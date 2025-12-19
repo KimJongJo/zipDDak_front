@@ -195,7 +195,8 @@
 }
 
 .tool-h {
-    width: 330px;
+    /* width: 330px; */
+    width: 400px;
     height: 130px;
     border: #eff1f5 1px solid;
     border-radius: 8px; 
@@ -233,6 +234,9 @@
 .tool-info-h {
     /* width: 100%; */
     margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .tool-address-h {

@@ -224,6 +224,10 @@
     font-weight: 600;
 }
 
+.moneyGap {
+   gap: 5px; 
+}
+
 .pay {
     gap: 16px;
 }
