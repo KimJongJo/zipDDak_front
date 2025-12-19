@@ -211,7 +211,7 @@ export default function ProductRegist() {
                     if (res.data.success === true) {
                         let productIdx = res.data.productIdx;
                         alert(res.data.message);
-                        navigate(`/productList`); //상품 리스트로 이동
+                        navigate(`/seller/productList`); //상품 리스트로 이동
                     } else {
                         alert(res.data.message);
                     }
@@ -338,7 +338,13 @@ export default function ProductRegist() {
                                     {categories.map((cat) => (
                                         <FormGroup key={cat.categoryIdx} check inline className="mt-2">
                                             <Label check>
-                                                <Input type="radio" name="productCategory" value={cat.categoryIdx} checked={String(selectedCategory) === String(cat.categoryIdx)} onChange={(e) => setSelectedCategory(e.target.value)} />
+                                                <Input
+                                                    type="radio"
+                                                    name="productCategory"
+                                                    value={cat.categoryIdx}
+                                                    checked={String(selectedCategory) === String(cat.categoryIdx)}
+                                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                                />
                                                 {cat.name}
                                             </Label>
                                         </FormGroup>
@@ -350,7 +356,13 @@ export default function ProductRegist() {
                                         {subCategories.map((sub) => (
                                             <FormGroup check inline key={sub.categoryIdx}>
                                                 <Label check>
-                                                    <Input type="radio" name="productSubCategory" value={sub.categoryIdx} checked={String(selectedSubCategory) === String(sub.categoryIdx)} onChange={(e) => setSelectedSubCategory(e.target.value)} />
+                                                    <Input
+                                                        type="radio"
+                                                        name="productSubCategory"
+                                                        value={sub.categoryIdx}
+                                                        checked={String(selectedSubCategory) === String(sub.categoryIdx)}
+                                                        onChange={(e) => setSelectedSubCategory(e.target.value)}
+                                                    />
                                                     {sub.name}
                                                 </Label>
                                             </FormGroup>
@@ -513,7 +525,12 @@ export default function ProductRegist() {
                                                                     <span className="blankSpace">~</span>
                                                                 </Label>
                                                                 <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom">
-                                                                    <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="small-button2"
+                                                                        style={{ marginBottom: "2px" }}
+                                                                        onClick={() => removeValueLine(optionIdx, valueIdx)}
+                                                                    >
                                                                         <i className="bi bi-dash-lg"></i>
                                                                     </button>
                                                                 </Tippy>
