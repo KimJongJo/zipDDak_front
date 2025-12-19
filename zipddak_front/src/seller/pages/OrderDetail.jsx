@@ -8,11 +8,12 @@ import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
 import { priceFormat } from "../js/priceFormat.jsx";
 //component
 import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
-import ModalRefund from "../component/ModalRefund.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
 import { myAxios } from "../../config.jsx";
-import { FormGroup, Input, Label, Spinner, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
+import { FormGroup, Input, Label, Spinner } from "reactstrap";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Tippy from "@tippyjs/react";
@@ -22,9 +23,9 @@ export default function OrderDetail() {
     const { orderIdx } = useParams();
     const [order, setOrder] = useState(null); //주문정보
     const [items, setItems] = useState(null); //주문아이템 정보
-    const [isRefundModalOpen, setIsRefundModalOpen] = useState(false); //환불처리 모달 상태
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
+    const [token, setToken] = useAtom(tokenAtom);
 
     //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
@@ -34,7 +35,7 @@ export default function OrderDetail() {
 
         const orderDetailUrl = `/order/myOrderDetail?${params.toString()}`;
 
-        myAxios()
+        myAxios(token, setToken)
             .get(orderDetailUrl)
             .then((res) => {
                 console.log("orderDetail :", res.data);
@@ -72,7 +73,7 @@ export default function OrderDetail() {
         toggleDropdown(itemIdx);
     };
 
-    //테이블 체크박스 상태 초기화
+    //테이블 체크박스 상태
     const {
         allChecked,
         checkedItems,
@@ -105,7 +106,7 @@ export default function OrderDetail() {
 
     // 묶음 + 개별 합치기
     // 수량 합
-    const totalQuantity = allItems.reduce((acc, cur) => acc + cur.quantity, 0);
+    const totalQuantity = allItems.reduce((acc, cur) => acc + cur.quantity, 0); //acc: 누적값 , cur : 현재 순회 중인 배열 요소 하나
     // 단가 합
     const totalUnitPrice = allItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
     // 배송비 합
@@ -446,7 +447,6 @@ export default function OrderDetail() {
                                 </div>
                             </div>
                         </div>
-                        <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} />
                         <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} />
 
                         {/* 클레임 내역 사항 */}
