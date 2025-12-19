@@ -36,6 +36,10 @@ input[readonly]:focus {
     box-shadow: none !important;
 }
 
+.readonlyText {
+    cursor: not-allowed;
+}
+
 input[type="date"] {
     color: var(--fontColor);
 }
@@ -44,10 +48,6 @@ textarea {
     width: 100%;
     resize: none !important;
 }
-/* option {
-    border-color: #ff583398 !important;
-    border-radius: 5px;
-} */
 
 .title_line {
     display: flex;

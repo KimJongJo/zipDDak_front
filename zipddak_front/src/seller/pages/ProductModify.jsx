@@ -5,29 +5,32 @@ import useModifyImgUpload from "../js/useModifyImgUpload.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 import usePriceCalc from "../js/usePriceCalc.jsx";
 import usePdOptionSetting from "../js/usePdOptionSetting.jsx";
+import { priceFormat } from "../js/priceFormat.jsx";
 // component
 import DeliveryTab from "../component/ProductDeliveryTab";
 import PickupTab from "../component/ProductPickupTab";
+import ModalWarning from "../component/ModalWarning";
+
 // library
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
-import { myAxios } from "../../config.jsx";
+import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
 export default function ProductModify() {
-    const pageTitle = usePageTitle("상품관리 > 상품 수정"); //탭 타이틀 설정
+    const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
     const [token, setToken] = useAtom(tokenAtom);
+    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
 
     // -----------------------------
     // 상품 정보 state
     // -----------------------------
-    //상품명 입력
     const [productName, setProductName] = useState("");
 
     //이미지
@@ -70,19 +73,19 @@ export default function ProductModify() {
     } = useModifyImgUpload();
 
     //카테고리 선택
-    const [categories, setCategories] = useState([]); //대분류 로딩
-    const [subCategories, setSubCategories] = useState([]); //소분류로딩
+    const [categories, setCategories] = useState([]); //대분류 목록 로딩
+    const [subCategories, setSubCategories] = useState([]); //소분류 목록 로딩
     const [selectedCategory, setSelectedCategory] = useState(""); //선택한 대분류
     const [selectedSubCategory, setSelectedSubCategory] = useState(""); //선택한 소분류
     // 카테고리 세팅
     useEffect(() => {
-        myAxios()
-            .get("/seller/product/categories/all")
+        myAxios(token, setToken)
+            .get("/product/categories/all")
             .then((res) => res.data)
             .then((data) => setCategories(data))
             .catch((err) => console.error("카테고리 로드 실패", err));
     }, []);
-    // 라디오로 카테고리 선택 시 subCategory 세팅
+    // 라디오로 카테고리 선택 시 subCategory 세팅 (소분류 목록 세팅용)
     useEffect(() => {
         if (!selectedCategory) {
             setSubCategories([]);
@@ -90,8 +93,19 @@ export default function ProductModify() {
         }
         const category = categories.find((c) => String(c.categoryIdx) === String(selectedCategory));
         setSubCategories(category?.subCategories || []);
-        setSelectedSubCategory(""); //상위 카테고리 바뀌면 소카테고리 초기화
     }, [selectedCategory, categories]);
+    //대분류->소분류 목록 생성 후 그 안에 기존 소분류가 존재하면 유지 / 아니면 초기화 (소분류 유효성 검사)
+    useEffect(() => {
+        if (!selectedCategory || !selectedSubCategory) return;
+        const category = categories.find((c) => String(c.categoryIdx) === String(selectedCategory));
+
+        if (!category) return;
+        const exists = category.subCategories?.some((sc) => String(sc.categoryIdx) === String(selectedSubCategory));
+
+        if (!exists) {
+            setSelectedSubCategory("");
+        }
+    }, [categories, selectedCategory]);
 
     //가격 입력 + 계산
     const {
@@ -99,13 +113,15 @@ export default function ProductModify() {
         salePrice,
         discountRate,
 
+        priceValue,
+        salePriceValue,
+        discountRateValue,
+
         handlePrice,
         handleSalePrice,
         handleDiscountRate,
 
-        setPrice,
-        setSalePrice,
-        setDiscountRate,
+        initPriceData,
     } = usePriceCalc();
 
     //옵션 설정
@@ -135,7 +151,7 @@ export default function ProductModify() {
         detailAddress: "",
     });
     //상품 공개 유무
-    const [visible, setVisible] = useState(0); // hide = 0, open = 1
+    const [visible, setVisible] = useState(); // hide = 0, open = 1
 
     // -----------------------------
     // 2) 기존 상품 불러오기
@@ -147,7 +163,7 @@ export default function ProductModify() {
         params.append("sellerId", "ss123");
         params.append("num", productIdx);
 
-        const productDetailUrl = `/seller/product/myProductDetail?${params.toString()}`;
+        const productDetailUrl = `/product/myProductDetail?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(productDetailUrl)
@@ -160,62 +176,92 @@ export default function ProductModify() {
 
                 // 기존 썸네일 이미지
                 setOldThumb({
-                    idx: pdInfo.thumbnailIdx,
-                    url: pdInfo.thumbnailUrl,
+                    filename: pdInfo.thumbnailFileRename,
+                    idx: pdInfo.thumbnailFileIdx,
                 });
                 // 기존 추가 이미지
-                setOldAddImages(
-                    pdInfo.image1FileIdx.map((img) => ({
-                        idx: img.addFileIdx,
-                        url: img.url,
-                    })),
-                );
-                // 기존 상세 이미지
-                setOldDetailImages(
-                    pdInfo.detail1FileIdx.map((img) => ({
-                        idx: img.detailFileIdx,
-                        url: img.url,
-                    })),
-                );
+                const addImages = [];
+                for (let i = 1; i <= 5; i++) {
+                    const filename = pdInfo[`image${i}FileRename`];
+                    const idx = pdInfo[`image${i}FileIdx`];
 
-                //가격정보
-                setPrice(pdInfo.price);
-                //판매가,할인율 있으면 함께 세팅
-                if (salePrice && discountRate) {
-                    setSalePrice(pdInfo.salePrice);
-                    setDiscountRate(pdInfo.discount);
+                    if (filename && idx) {
+                        addImages.push({ filename, idx });
+                    }
                 }
+                setOldAddImages(addImages);
+
+                // 기존 상세 이미지
+                const detailImages = [];
+                for (let i = 1; i <= 2; i++) {
+                    const filename = pdInfo[`detail${i}FileRename`];
+                    const idx = pdInfo[`detail${i}FileIdx`];
+
+                    if (filename && idx) {
+                        detailImages.push({ filename, idx });
+                    }
+                }
+                setOldDetailImages(detailImages);
 
                 //카테고리
                 setSelectedCategory(pdInfo.categoryIdx);
                 //소분류 있으면 함꼐 세팅
-                if (selectedSubCategory) {
-                    setSelectedSubCategory(pdInfo.subCategoryIdx);
-                }
+                setSelectedSubCategory(pdInfo.subCategoryIdx);
+
+                //가격정보
+                initPriceData({
+                    price: pdInfo.price,
+                    salePrice: pdInfo.salePrice,
+                    discountRate: pdInfo.discount,
+                });
 
                 //옵션
-                if (optionYn == 1) {
-                    setOptions(pdInfo.options || []);
+                if (pdInfo.optionYn == 1 && Array.isArray(pdInfo.pdOptions)) {
+                    const grouped = [];
+                    pdInfo.pdOptions.forEach((opt) => {
+                        let target = grouped.find((o) => o.optionName === opt.name);
+
+                        if (!target) {
+                            target = {
+                                optionName: opt.name,
+                                values: [],
+                            };
+                            grouped.push(target);
+                        }
+
+                        target.values.push({
+                            value: opt.value,
+                            price: String(opt.price ?? ""),
+                        });
+                    });
+                    console.log("변환된 옵션", grouped);
+                    setOptions(grouped);
                 }
 
                 // 배송
-                setPostOK(pdInfo.postYn === 1 ? "Y" : "N");
-                setPickupOK(pdInfo.pickupYn === 1 ? "Y" : "N");
-                if (postOK == "Y") {
+                const isPost = pdInfo.postYn === true;
+                const isPickup = pdInfo.pickupYn === true;
+
+                setPostOK(isPost ? "Y" : "N");
+                if (isPost) {
                     setDeliveryData({
                         postType: pdInfo.postType,
                         shippingFee: pdInfo.postCharge,
                     });
                 }
-                if (pickupOK == "Y") {
+
+                setPickupOK(isPickup ? "Y" : "N");
+                if (isPickup) {
                     setPickupData({
                         zipcode: pdInfo.zonecode,
                         address: pdInfo.pickupAddr1,
                         detailAddress: pdInfo.pickupAddr2,
                     });
                 }
+
                 //상품 공개유무
-                setVisible(pdInfo.visibleYn);
+                const isVisible = pdInfo.visibleYn === true;
+                setVisible(isVisible ? 1 : 0);
             })
             .catch(console.error);
     }, [productIdx]);
@@ -223,7 +269,7 @@ export default function ProductModify() {
     // -----------------------------
     // 3) 수정 폼 제출
     // -----------------------------
-    const onSubmit = (e) => {
+    const onModifySubmit = (e) => {
         e.preventDefault();
 
         try {
@@ -251,12 +297,12 @@ export default function ProductModify() {
             }
 
             // 4) 가격
-            formData.append("price", price);
+            formData.append("price", priceValue);
 
             //판매가, 할인율 입력된 경우에만
-            if (salePrice && discountRate) {
-                formData.append("salePrice", salePrice); //판매가
-                formData.append("discount", discountRate); //할인율
+            if (salePriceValue && discountRateValue) {
+                formData.append("salePrice", salePriceValue); //판매가
+                formData.append("discount", discountRateValue); //할인율
             }
 
             // 5) 옵션 JSON
@@ -285,16 +331,15 @@ export default function ProductModify() {
             // 7) 상품 공개 유무
             formData.append("visibleYn", visible);
 
+            formData.append("sellerId", "ss123");
+            formData.append("num", productIdx);
+
             // 8) 서버 전송
-            const productModifyUrl = `/seller/product/modify/${productIdx}`;
-            myAxios()
+            const productModifyUrl = `/product/myProductModify`;
+            myAxios(token, setToken)
                 .post(productModifyUrl, formData)
                 .then((res) => {
-                    console.log(res);
-                    console.log(res.data);
-
                     if (res.data.success === true) {
-                        let productIdx = res.data.productIdx;
                         alert(res.data.message);
                         navigate(`/seller/productDetail/${productIdx}`); //상품 상세 페이지로 이동
                     } else {
@@ -309,7 +354,7 @@ export default function ProductModify() {
             alert("수정사항 등록 중 오류 발생");
         }
     };
-    //폼 제출 end
+    //수정 폼 제출 end
 
     return (
         <>
@@ -320,7 +365,7 @@ export default function ProductModify() {
                 <div className="mainFrame regiFrame">
                     <div className="headerFrame">
                         <i className="bi bi-pencil-square" />
-                        <span>상품 수정</span>
+                        <span>상품 상세 / 수정 / 삭제</span>
                     </div>
 
                     <div className="bodyFrame">
@@ -353,7 +398,7 @@ export default function ProductModify() {
                                     {/* 기존 첨부된 이미지 미리보기 */}
                                     {oldThumb && !newThumbFile && (
                                         <div className="preview-wrap">
-                                            <img src={oldThumb.url} className="preview-img" />
+                                            <img src={`${baseUrl}/imageView?type=product&filename=${oldThumb.filename}`} className="preview-img" />
                                         </div>
                                     )}
 
@@ -391,9 +436,10 @@ export default function ProductModify() {
                                 {/* 이미지 미리보기 */}
                                 <div className="img_previewBox">
                                     {/* 기존 첨부된 이미지 미리보기 */}
+
                                     {oldAddImages.map((img) => (
                                         <div key={`old-${img.idx}`} className="preview-wrap">
-                                            <img src={img.url} className="preview-img" />
+                                            <img src={`${baseUrl}/imageView?type=product&filename=${img.filename}`} className="preview-img" />
                                             <button type="button" className="delete-btn" onClick={() => deleteOldAddImage(img.idx)}>
                                                 <i className="bi bi-x" />
                                             </button>
@@ -438,7 +484,7 @@ export default function ProductModify() {
                                     {/* 기존 첨부된 이미지 미리보기 */}
                                     {oldDetailImages.map((img) => (
                                         <div key={`old-${img.idx}`} className="preview-wrap">
-                                            <img src={img.url} className="preview-img" />
+                                            <img src={`${baseUrl}/imageView?type=product&filename=${img.filename}`} className="preview-img" />
                                             <button type="button" className="delete-btn" onClick={() => deleteOldDetailImage(img.idx)}>
                                                 <i className="bi bi-x" />
                                             </button>
@@ -499,7 +545,6 @@ export default function ProductModify() {
                                         value={price}
                                         onChange={(e) => {
                                             handlePrice(e.target.value);
-                                            setPrice(e.target.value);
                                         }}
                                     />
                                     {/* invalid */}
@@ -510,16 +555,13 @@ export default function ProductModify() {
 
                             <div className="position-relative input_set mb-4">
                                 <FormGroup className="position-relative">
-                                    <Label for="examplePassword" className="input_title">
-                                        판매가
-                                    </Label>
+                                    <Label className="input_title">판매가</Label>
                                     <div className="unit_set">
                                         <Input
                                             className=" unit"
                                             value={salePrice}
                                             onChange={(e) => {
                                                 handleSalePrice(e.target.value);
-                                                setSalePrice(e.target.value);
                                             }}
                                         />
                                         {/* invalid */}
@@ -529,16 +571,13 @@ export default function ProductModify() {
                                 </FormGroup>
 
                                 <FormGroup className="position-relative">
-                                    <Label for="examplePassword" className="input_title">
-                                        할인율
-                                    </Label>
+                                    <Label className="input_title">할인율</Label>
                                     <div className="unit_set">
                                         <Input
                                             className=" unit"
                                             value={discountRate}
                                             onChange={(e) => {
                                                 handleDiscountRate(e.target.value);
-                                                setDiscountRate(e.target.value);
                                             }}
                                         />
                                         {/* invalid */}
@@ -707,13 +746,21 @@ export default function ProductModify() {
 
                         {/* 등록 버튼 */}
                         <div className="btn_part">
-                            <button type="button" className="primary-button saveBtn" onClick={onSubmit}>
-                                <i class="bi bi-bookmark-check"></i> 저장
+                            <button type="button" className="primary-button saveBtn" onClick={onModifySubmit}>
+                                <i className="bi bi-bookmark-check"></i> 저장
                             </button>
-                            <button type="button" className="sub-button saveBtn">
-                                <i class="bi bi-trash"></i> 삭제
+                            <button
+                                type="button"
+                                className="sub-button saveBtn"
+                                onClick={() => {
+                                    setIsWarningModalOpen(true);
+                                }}
+                            >
+                                <i className="bi bi-trash"></i> 삭제
                             </button>
                         </div>
+
+                        <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} productIdx={productIdx} productName={productName} />
                     </div>
                 </div>
             </main>

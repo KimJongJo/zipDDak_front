@@ -69,7 +69,7 @@ export default function OrderList() {
         if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
         if (keyword) params.append("keyword", keyword);
 
-        const orderListUrl = `/seller/order/myOrderList?${params.toString()}`;
+        const orderListUrl = `/order/myOrderList?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(orderListUrl)

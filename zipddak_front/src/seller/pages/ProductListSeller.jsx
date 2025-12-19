@@ -8,10 +8,13 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function ProductList() {
     const pageTitle = usePageTitle("상품 조회 리스트");
     const navigate = useNavigate();
+    const [token, setToken] = useAtom(tokenAtom);
 
     const [myProductList, setMyProductList] = useState([]);
     const [myProductCount, setmyProductCount] = useState(0);
@@ -22,9 +25,9 @@ export default function ProductList() {
     const [categories, setCategories] = useState([]);
     const [categoryMap, setCategoryMap] = useState({}); //리스트에 매핑할 카테고리Map
     useEffect(() => {
-        myAxios()
+        myAxios(token, setToken)
             // .get(`/seller/product/categories?sellerId=${sellerId}`)
-            .get(`/seller/product/categories?sellerId=ss123`)
+            .get(`/product/categories?sellerId=ss123`)
             .then((res) => {
                 setCategories(res.data); // 필터에 카테고리명 매핑
 
@@ -44,8 +47,8 @@ export default function ProductList() {
         const category = selectedCategory.join(",");
         const status = selectedStatus.join(",");
 
-        myAxios()
-            .get("/seller/product/myProductList", {
+        myAxios(token, setToken)
+            .get("/product/myProductList", {
                 params: {
                     sellerId: "ss123",
                     page,
@@ -118,8 +121,8 @@ export default function ProductList() {
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
-        const productListUrl = `/seller/product/myProductList` + `?sellerId=ss123` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
-        myAxios()
+        const productListUrl = `/product/myProductList` + `?sellerId=ss123` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
+        myAxios(token, setToken)
             .get(productListUrl)
             .then((res) => {
                 const data = res.data;
