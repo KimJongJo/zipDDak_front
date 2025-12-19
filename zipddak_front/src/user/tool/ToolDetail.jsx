@@ -9,51 +9,49 @@ import { myAxios } from "../../config";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ToolDetail() {
-
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const { toolIdx } = useParams();
-
+    console.log(toolIdx);
+    console.log(token);
     const [tool, setTool] = useState(null);
     const navigate = useNavigate();
 
     const [ownerTool, setOwnerTool] = useState();
     const [ownerCnt, setOwnerCnt] = useState();
 
-
     const getTool = () => {
-
         const params = {
-
             toolIdx: toolIdx,
-            username: user.username
+            username: user.username,
         };
 
+        token &&
+            myAxios(token, setToken)
+                .get(`/tool/detail`, { params })
+                .then((res) => {
+                    console.log(res.data);
+                    setTool(res.data);
 
-        token && myAxios(token, setToken).get(`/tool/detail`, { params })
-            .then(res => {
-                console.log(res.data);
-                setTool(res.data);
+                    const ownerParam = {
+                        username: user.username,
+                        owner: res.data.owner,
+                        toolIdx: toolIdx,
+                    };
 
-                const ownerParam = {
-                    username: user.username,
-                    owner: res.data.owner,
-                    toolIdx: toolIdx
-                };
-
-                return myAxios(token, setToken).get(`/tool/owner`, {
-                    params: ownerParam
+                    return myAxios(token, setToken).get(`/tool/owner`, {
+                        params: ownerParam,
+                    });
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setOwnerTool(res.data.cards);
+                    setOwnerCnt(res.data.totalCount);
+                })
+                .catch((err) => {
+                    console.log(err);
                 });
-            })
-            .then(res => {
-                console.log(res.data);
-                setOwnerTool(res.data.cards);
-                setOwnerCnt(res.data.totalCount);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    }
+    };
 
     useEffect(() => {
         if (toolIdx && token) {
@@ -62,17 +60,17 @@ export default function ToolDetail() {
     }, [toolIdx, token]);
 
     //유저 주소 자르기
-    const userAddressString = user?.addr1 || '';
-    const userAdress = userAddressString.split(' ').slice(1, 3).join(' ');
+    const userAddressString = user?.addr1 || "";
+    const userAdress = userAddressString.split(" ").slice(1, 3).join(" ");
 
     //공구 주소 자르기
-    const toolAddressString = tool?.addr1 || '';
-    const toolAdress = toolAddressString.split(' ').slice(1, 3).join(' ');
+    const toolAddressString = tool?.addr1 || "";
+    const toolAdress = toolAddressString.split(" ").slice(1, 3).join(" ");
 
     //바로 대여
     const directApply = () => {
         navigate(`/zipddak/tool/apply/${toolIdx}`);
-    }
+    };
 
     if (!tool) {
         return <div>로딩중...</div>;
@@ -97,9 +95,7 @@ export default function ToolDetail() {
                         </div>
                     </div>
                     <div className="d-info-box">
-                        <div className="d-tool-image">
-                            {/* <img src={`${tool.storagePath}/${tool.fileRename}`} /> */}
-                        </div>
+                        <div className="d-tool-image">{/* <img src={`${tool.storagePath}/${tool.fileRename}`} /> */}</div>
                         <div className="d-infos">
                             <div className="infomation">
                                 <div className="d-point">
@@ -128,41 +124,42 @@ export default function ToolDetail() {
                                     </div> */}
 
                                     <div className="d-price">
-                                        {tool.freeRental?
-                                        <span className="dt orange">무료대여</span>
-                                       :
-                                       <>
-                                        <span className="od">1일</span>
-                                        <span className="tp">{tool.rentalPrice.toLocaleString()}</span>
-                                        <span className="tp">원</span>
-                                        </>
-                                         }
+                                        {tool.freeRental ? (
+                                            <span className="dt orange">무료대여</span>
+                                        ) : (
+                                            <>
+                                                <span className="od">1일</span>
+                                                <span className="tp">{tool.rentalPrice.toLocaleString()}</span>
+                                                <span className="tp">원</span>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="d-price">
-                                        {tool.postCharge == 0 ?
+                                        {tool.postCharge == 0 ? (
                                             <>
-                                            <Package />
-                                            <span className="dt orange">무료배송</span>
+                                                <Package />
+                                                <span className="dt orange">무료배송</span>
                                             </>
-                                            :
+                                        ) : (
                                             <>
                                                 <Package />
                                                 <span className="dt">배송비</span>
                                                 <span className="dt">{tool.postCharge.toLocaleString()}</span>
                                                 <span className="dt">원</span>
-                                            </>}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 
                                 <div className="short-info">{tool.contnet}</div>
                             </div>
                             <div className="rentalBtn">
-                                {tool.quickRental &&
-                                    <Button className="tertiary-button long-button"
-                                        onClick={directApply}>바로대여</Button>
-                                }
+                                {tool.quickRental && (
+                                    <Button className="tertiary-button long-button" onClick={directApply}>
+                                        바로대여
+                                    </Button>
+                                )}
                                 <Button className="primary-button long-button">대여문의</Button>
-
                             </div>
                         </div>
                     </div>
@@ -203,22 +200,13 @@ export default function ToolDetail() {
                             <div className="de-map"></div>
                             <div className="mapinfo">
                                 <span className="map-label">거래 희망장소</span>
-                                <span>{ }</span>
+                                <span>{}</span>
                             </div>
                         </div>
                     </div>
                     <div className="moreTool">
                         <span className="de-label">'{tool.nickname}' 의 다른 공구</span>
-                        <div className="morecards">
-
-                            {
-                                Array.isArray(ownerTool) &&
-                                ownerTool.slice(0, 6).map(toolCard => (
-                                    <Tool key={toolCard.toolIdx} tool={toolCard} />
-                                ))
-
-                            }
-                        </div>
+                        <div className="morecards">{Array.isArray(ownerTool) && ownerTool.slice(0, 6).map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} />)}</div>
                     </div>
                 </div>
                 <div className="d-tab-review"></div>
