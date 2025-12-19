@@ -26,7 +26,7 @@ export default function SignStore1() {
                             <div className="info">작성해주신 정보를 바탕으로 카테고리별 담당 MD가 입점을 검토하여 이메일을 드립니다.</div>
                         </div>
                     </div>
-                    <a href="/zipddak/signUp/stroe2" className="mainButton">
+                    <a href="/zipddak/signUp/store2" className="mainButton">
                         <Button className="primary-button signStroeMainBottom">입점 신청 하기</Button>
                     </a>
                     <div className="signStoreFooter"></div>

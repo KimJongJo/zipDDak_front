@@ -1,12 +1,19 @@
 import "../css/StoreInfo.css";
 import Product from "./Product";
 import { useState, useEffect, useRef, useCallback } from "react";
-import { baseUrl } from "../../config";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Input } from "reactstrap";
+import { baseUrl, myAxios } from "../../config";
+import { userAtom } from "../../atoms";
+import { tokenAtom } from "../../atoms";
+import { useAtomValue, useAtom } from "jotai/react";
+import { useNavigate } from "react-router";
 
 export default function StoreInfo() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
     const { sellerId } = useParams();
     const [sellerInfo, setSellerInfo] = useState({});
     const [productList, setProductList] = useState([]);
@@ -99,7 +106,9 @@ export default function StoreInfo() {
     };
 
     useEffect(() => {
-        axios.get(`${baseUrl}/seller?sellerId=${sellerId}&username=rlawhdwh`).then((res) => {
+        if (!sellerId) return;
+
+        axios.get(`${baseUrl}/storeInfo?sellerId=${sellerId}&username=${user.username}`).then((res) => {
             setSellerInfo(res.data);
             setSellerCate(res.data.handleItemCateIdx ? res.data.handleItemCateIdx.split(",").map(Number) : []);
             setBestProductList(res.data.bestProductList);
@@ -107,15 +116,17 @@ export default function StoreInfo() {
     }, [sellerId]);
 
     useEffect(() => {
+        if (!sellerId) return;
+
         setProductList([]); // 초기화
         setPage(1); // 1페이지로 리셋
         setHasMore(true);
 
-        axios.get(`${baseUrl}/getProductList?sellerId=${sellerId}&page=1&cateNo=${cateNo}&username=rlawhdwh`).then((res) => {
+        axios.get(`${baseUrl}/getProductList?sellerId=${sellerId}&page=1&cateNo=${cateNo}&username=${user.username}`).then((res) => {
             setProductList(res.data);
             setPage(2); // 다음 요청은 2페이지
         });
-    }, [cateNo]);
+    }, [cateNo, sellerId]);
 
     useEffect(() => {
         // 첫 페이지는 카테고리 함수에서 처리함 → 여기서 무시
