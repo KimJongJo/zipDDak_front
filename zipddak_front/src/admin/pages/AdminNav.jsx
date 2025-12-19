@@ -72,9 +72,9 @@ export default function AdminNav() {
                                 <li>
                                     <button onClick={() => navigate("/admin/membership")}>멤버십 내역</button>
                                 </li>
-                                <li>
+                                {/* <li>
                                     <button onClick={() => navigate("/admin/reports")}>신고 내역</button>
-                                </li>
+                                </li> */}
                             </ul>
                         </li>
 
@@ -87,12 +87,12 @@ export default function AdminNav() {
                         </li>
 
                         {/* 1:1 문의 */}
-                        <li className="menu-item single">
+                        {/* <li className="menu-item single">
                             <button onClick={() => navigate("/admin/inquirys")}>
                                 <i className="bi bi-chat-dots admin-sidebar-icon"></i>
                                 <span className="font-18 semibold">1 : 1 문의</span>
                             </button>
-                        </li>
+                        </li> */}
 
                         {/* 통계 */}
                         <li className="menu-item single">
