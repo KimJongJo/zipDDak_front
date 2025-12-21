@@ -33,7 +33,7 @@ export default function Mypage() {
 
   const navTitleStyle = {
     display: "flex",
-    padding: "10px",
+    padding: "6px 10px",
     alignItems: "center",
     gap: "10px",
     color: "#303441",
@@ -44,7 +44,7 @@ export default function Mypage() {
   };
   const navStyle = {
     display: "flex",
-    padding: "16px 10px",
+    padding: "12px 10px",
     alignItems: "center",
     gap: "10px",
     color: "#303441",
