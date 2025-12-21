@@ -109,6 +109,7 @@ export default function StoreInfo() {
         if (!sellerId) return;
 
         axios.get(`${baseUrl}/storeInfo?sellerId=${sellerId}&username=${user.username}`).then((res) => {
+            console.log(res.data);
             setSellerInfo(res.data);
             setSellerCate(res.data.handleItemCateIdx ? res.data.handleItemCateIdx.split(",").map(Number) : []);
             setBestProductList(res.data.bestProductList);
@@ -138,21 +139,25 @@ export default function StoreInfo() {
 
     return (
         <div className="body-div">
-            <div className="StoreInfo-main-div">
+            <div style={{ padding: "72px 16px" }} className="StoreInfo-main-div">
                 {/* 자제 업체 정보 */}
-                <div className="store-info-top-div">
+                <div style={{ backgroundImage: 'url("/배너테스트.png")', backgroundSize: "860px 250px", backgroundRepeat: "no-repeat" }} className="store-info-top-div">
                     {/* 업체 정보 */}
-                    <div className="store-info-top-left">
+                    <div style={{ width: "845px", padding: "30px 15px" }} className="store-info-top-left">
                         {/* 정보 위쪽 */}
                         <div>
                             <div className="store-info-name-report">
                                 {/* 업체명 */}
-                                <span className="font-24 semibold">{sellerInfo.brandName}</span>
+                                <span style={{ fontSize: "25px", fontWeight: "600" }} className="font-24 semibold">
+                                    {sellerInfo.brandName}
+                                </span>
                                 <button onClick={toggle} value={sellerInfo.sellerIdx} className="store-report-button">
-                                    <i className="bi bi-exclamation-triangle font-20"></i>
+                                    <i style={{ fontSize: "16px" }} className="bi bi-exclamation-triangle font-20"></i>
                                 </button>
                             </div>
-                            <div className="font-16">{sellerInfo.introduction}</div>
+                            <div style={{ fontSize: "16px" }} className="font-16">
+                                {sellerInfo.introduction}
+                            </div>
                         </div>
                         <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
                             <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
@@ -239,25 +244,31 @@ export default function StoreInfo() {
                         </Modal>
                         {/* 정보 아래쪽 */}
                         <div>
-                            <div className="store-info-under-div">
-                                <i className="bi bi-telephone font-20"></i>
-                                <span className="font-15 margin-left-10">{sellerInfo.managerTel}</span>
+                            <div style={{ height: "30px" }} className="store-info-under-div">
+                                <i style={{ fontSize: "20px" }} className="bi bi-telephone font-20"></i>
+                                <span style={{ fontSize: "15px" }} className="font-15 margin-left-10">
+                                    {sellerInfo?.managerTel?.replace(/[^0-9]/g, "").replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3")}
+                                </span>
                             </div>
-                            <div className="store-info-under-div">
-                                <i className="bi bi-house-door font-20"></i>
-                                <span className="font-15 margin-left-10">{sellerInfo.compAddr1 + " " + sellerInfo.compAddr2}</span>
+                            <div style={{ height: "30px" }} className="store-info-under-div">
+                                <i style={{ fontSize: "20px" }} className="bi bi-house-door font-20"></i>
+                                <span style={{ fontSize: "15px" }} className="font-15 margin-left-10">
+                                    {sellerInfo.compAddr1 + " " + sellerInfo.compAddr2}
+                                </span>
                             </div>
                         </div>
                     </div>
                     {/* 업체 이미지 */}
                     <div>
-                        <img className="store-info-img" src={sellerInfo.logoFileStorage + "/" + sellerInfo.logoFileRename} />
+                        <img style={{ border: "none" }} className="store-info-img" src={`${baseUrl}/imageView?type=seller&filename=${sellerInfo.logoFileRename}`} />
                     </div>
                 </div>
 
                 {/* 베스트 상품 */}
                 <div className="">
-                    <span className="font-18 semibold">베스트 상품</span>
+                    <span style={{ fontSize: "18px", fontWeight: "600" }} className="font-18 semibold">
+                        베스트 상품
+                    </span>
                     <div className="store-best-product">
                         {bestProductList.map((product) => (
                             <Product product={product} toggleFavorite={() => toggleFavorite(product.productIdx)} />

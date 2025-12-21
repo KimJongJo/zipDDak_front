@@ -9,13 +9,11 @@ import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 import { useNavigate, useParams } from "react-router-dom";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
-import DaumPostcode from 'react-daum-postcode';
-import { Modal as AddrModal } from 'antd';
-import { MapTool } from '../../main/component/Tool';
-
+import DaumPostcode from "react-daum-postcode";
+import { Modal as AddrModal } from "antd";
+import { MapTool } from "../../main/component/Tool";
 
 export default function ApplyTool() {
-
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
@@ -32,7 +30,6 @@ export default function ApplyTool() {
 
 
     const [rental, setRental] = useState({
-
         // rentalIdx: '',
         rentalCode: '',
         startDate: today,
@@ -41,76 +38,73 @@ export default function ApplyTool() {
         directRental: true,
         postCharge: 0,
         postRental: false,
-        zonecode: '',
-        addr1: '',
-        addr2: '',
-        postRequest: '배송시 요청사항 없음',
-        paymentType: '',
-        satus: '',
-        borrower: '',
-        owner: '',
-        paymentIdx: '',
-        createdAt: '',
+        zonecode: "",
+        addr1: "",
+        addr2: "",
+        postRequest: "배송시 요청사항 없음",
+        paymentType: "",
+        satus: null,
+        borrower: user.username,
+        owner: "",
+        paymentIdx: "",
+        createdAt: "",
 
-        toolIdx: '',
-        phone: ''
-
+        toolIdx: toolIdx,
+        phone: "",
     });
 
     //대상 공구
     const targetTool = () => {
-
         console.log(" myAxios 여기");
 
-        token && myAxios(token, setToken).get(`/tool/detail`, {
-            params: {
-                toolIdx: toolIdx,
-                username: user.username
-            }
-        })
-            .then(res => {
-                console.log(res.data);
-                setTool(res.data);
-            })
-            .catch(err => {
-                console.log(err);
-            })
-
-    }
+        token &&
+            myAxios(token, setToken)
+                .get(`/tool/detail`, {
+                    params: {
+                        toolIdx: toolIdx,
+                        username: user.username,
+                    },
+                })
+                .then((res) => {
+                    console.log(res.data);
+                    setTool(res.data);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+    };
 
     useEffect(() => {
-        console.log("1.useEffect 왜 안돼")
+        console.log("1.useEffect 왜 안돼");
         if (toolIdx) {
             targetTool();
         }
-    }, [toolIdx])
+    }, [toolIdx]);
 
     //툴 정보
     useEffect(() => {
         if (tool) {
-            setRental(prev => ({
+            setRental((prev) => ({
                 ...prev,
                 toolIdx: tool.idx,
                 owner: tool.owner,
-                postCharge: tool.postCharge
+                postCharge: tool.postCharge,
             }));
         }
     }, [tool]);
 
-
     //직접 입력
     const ChangeInput = (e) => {
-        setRental({ ...rental, [e.target.name]: e.target.value })
-    }
-
+        setRental({ ...rental, [e.target.name]: e.target.value });
+    };
 
     //거래방식
     const [rentalType, setRentalType] = useState(false);
     useEffect(() => {
-        setRental(prev => ({
+        setRental((prev) => ({
             ...prev,
             directRental: rentalType === "DIRECT",
-            postRental: rentalType === "POST"
+            postRental: rentalType === "POST",
         }));
     }, [rentalType]);
 
@@ -120,34 +114,33 @@ export default function ApplyTool() {
         setRental({
             ...rental,
             zonecode: data.zonecode,
-            addr1: data.roadAddress
-                || data.address
+            addr1: data.roadAddress || data.address,
         });
-    }
+    };
 
     const closeHandler = (state) => {
         setIsAddOpen(false);
-    }
+    };
 
     //주소지 설정
     const [useProfile, setUseProfile] = useState(true);
     useEffect(() => {
         if (useProfile && user) {
-            setRental(prev => ({
+            setRental((prev) => ({
                 ...prev,
                 addr1: user.addr1 ?? "",
                 addr2: user.addr2 ?? "",
-                zonecode: user.zonecode ?? ""
+                zonecode: user.zonecode ?? "",
             }));
         }
 
         if (!useProfile) {
             // 직접 입력 → 초기화
-            setRental(prev => ({
+            setRental((prev) => ({
                 ...prev,
                 addr1: "",
                 addr2: "",
-                zonecode: ""
+                zonecode: "",
             }));
         }
     }, [useProfile, user]);
@@ -156,7 +149,7 @@ export default function ApplyTool() {
     const [paymentType, setPaymentType] = useState(null);
 
     useEffect(() => {
-        setRental(prev => ({ ...prev, paymentType }));
+        setRental((prev) => ({ ...prev, paymentType }));
     }, [paymentType]);
 
 
@@ -165,12 +158,12 @@ export default function ApplyTool() {
 
     const totalDate = (e) => {
         const { name, value } = e.target;
-        setRental(prev => ({ ...prev, [name]: value }));
+        setRental((prev) => ({ ...prev, [name]: value }));
 
         // 총일수 계산
-        if (name === 'startDate' || name === 'endDate') {
-            const start = name === 'startDate' ? value : rental.startDate;
-            const end = name === 'endDate' ? value : rental.endDate;
+        if (name === "startDate" || name === "endDate") {
+            const start = name === "startDate" ? value : rental.startDate;
+            const end = name === "endDate" ? value : rental.endDate;
 
             if (start && end) {
                 const startTime = new Date(start).getTime();
@@ -215,7 +208,6 @@ export default function ApplyTool() {
 
     //대여 등록
     const doRental = () => {
-
         if (!rental.startDate || !rental.endDate) {
             alert("대여기간을 선택해주세요.");
             return;
@@ -259,9 +251,7 @@ export default function ApplyTool() {
 
         // 테스트 경우 클라이언트 키가 노출되어도 상관 없음
         // 실제 운영하는 환경에서는 서버에서 clientKey를 내려주고 클라이언트 요청시 가져와서 사용
-        const tossPayments = await loadTossPayments(
-            "test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD"
-        );
+        const tossPayments = await loadTossPayments("test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD");
 
         await tossPayments.requestPayment({
             method: "CARD",
@@ -288,7 +278,7 @@ export default function ApplyTool() {
                             <div className="profileImage"></div>
                             <div className="userInfo">
                                 <span className="nick">{tool.nickname}닉네임</span>
-                                <span className="loca">{ }지역</span>
+                                <span className="loca">{}지역</span>
                             </div>
                         </div>
                         <Button className="primary-button">대여문의</Button>
