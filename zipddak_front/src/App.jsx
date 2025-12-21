@@ -155,6 +155,7 @@ function App() {
         <Routes>
             <Route path="/auth/token" element={<Token />} />
             <Route path="/zipddak/*" element={<UserLayout />}>
+                <Route path="message" element={<Message />} />
                 {/* 일반사용자 로그인 */}
                 <Route path="login" element={<Login />} />
                 <Route path="signUp/user" element={<SignUser />} />
@@ -176,10 +177,17 @@ function App() {
                 <Route path="tool/modify/:toolIdx" element={<ModifyTool />} />
                 <Route path="tool/apply/:toolIdx" element={<ApplyTool />} />
 
+                {/* 일반사용자 전문가찾기 */}
+                <Route path="experts" element={<Experts />} />
+                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
+                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
+                <Route path="findExpert" element={<FindExpert />} />
+
                 {/* 일반사용자 커뮤니티 */}
                 <Route path="community" element={<CommunityList />} />
                 <Route path="community/write" element={<ComForm />} />
-                <Route path="community/:communityIdx" element={<Comdetail />} />
+                <Route path="community/:communityId" element={<Comdetail />} />
+                <Route path="community/modify/:modifyCommunityId" element={<ComForm />} />
 
                 {/* 일반사용자 자재구매 */}
                 <Route path="productList" element={<ProductList />} />
@@ -192,14 +200,9 @@ function App() {
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
 
-                {/* 일반사용자 전문가찾기 */}
-                <Route path="experts" element={<Experts />} />
-                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
-                <Route path="findExpert" element={<FindExpert />} />
-
                 {/* 일반사용자 마이페이지 */}
                 <Route path="mypage/*" element={<Mypage />}>
+                    <Route index element={<Navigate to="expert/works" replace />} />
                     <Route path="account" element={<Account />} />
                     <Route path="expert/works" element={<MyWorks />} />
                     <Route path="expert/works/detail/:matchingIdx" element={<MyWorksDetail />} />
@@ -229,6 +232,7 @@ function App() {
                 <Route path="requests/detail/:requestIdx" element={<PublicRequestDetail />} />
                 {/* 전문가 마이페이지 */}
                 <Route path="mypage/*" element={<ExpertMypage />}>
+                    <Route index element={<Navigate to="works" replace />} />
                     <Route path="works" element={<ExpertMyWorks />} />
                     <Route path="works/detail/:matchingIdx" element={<ExpertMyWorksDetail />} />
                     <Route path="sent/estimates" element={<SentEstimates />} />
@@ -270,24 +274,6 @@ function App() {
                 <Route path="exchangeDetail" element={<ExchangeDetail />} />
                 <Route path="settleDetail" element={<SettleDetail />} />
             </Route>
-
-            <Route path="rentalList" element={<AdminRentalRecords />} />
-            <Route path="rentalList/:rentalId" element={<AdminRentalDetail />} />
-            <Route path="salesList" element={<AdminSalesHistory />} />
-            <Route path="salesList/:saleId" element={<AdminSalesDetail />} />
-            <Route path="matching/:matchingId" element={<AdminMatchingDetail />} />
-            <Route path="reports" element={<AdminReportList />} />
-            <Route path="reports/:reportId" element={<AdminReportDetail />} />
-            <Route path="payments" element={<PaymentHistory />} />
-            <Route path="payments/:paymentId" element={<AdminPaymentDetail />} />
-            <Route path="membership" element={<AdminMembership />} />
-
-            <Route path="settlementList" element={<AdminSettlementList />} />
-
-            <Route path="inquiryList" element={<InquiryList />} />
-            <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
-
-            <Route path="dashboard" element={<Dashboard />} />
 
             {/* 전문가 */}
             <Route path="admin/*" element={<AdminLayout />}>
