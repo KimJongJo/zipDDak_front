@@ -199,11 +199,11 @@ function App() {
           element={<ComForm />}
         />
 
-                {/* 일반사용자 자재구매 */}
-                <Route path="productList" element={<ProductList />} />
-                <Route path="product/:productId" element={<ProductDetail />} />
-                <Route path="productOrder" element={<ProductOrder />} />
-                <Route path="productOrderComplete" element={<ProductOrderComplate />} />
+        {/* 일반사용자 자재구매 */}
+        <Route path="productList" element={<ProductList />} />
+        <Route path="product/:productId" element={<ProductDetail />} />
+        <Route path="productOrder" element={<ProductOrder />} />
+        <Route path="productOrderComplete" element={<ProductOrderComplate />} />
 
         <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
