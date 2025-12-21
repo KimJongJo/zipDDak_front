@@ -47,7 +47,7 @@ export default function Header({ direction, ...args }) {
     setUser(initUser);
     setToken(null);
     setAlarms([]);
-    navigate("/zipddak/login");
+    navigate("/login");
   };
 
   // 알림 확인
@@ -90,8 +90,8 @@ export default function Header({ direction, ...args }) {
       <div className="Userheader">
         <>
           {/* 로고 */}
-          <a href="/zipddak/main">
-            <img src="/zipddak-logo.svg" />
+          <a href="/zipddak/main" >
+            <img src="/zipddak_smile.png" style={{width:"150px"}}/>
           </a>
 
           <div className="userBox">
@@ -356,7 +356,7 @@ export default function Header({ direction, ...args }) {
               </>
             ) : (
               // 로그인 안 한 경우
-              <a href="/zipddak/login" className="loginSign">
+              <a href="/login" className="loginSign">
                 <CircleUserRound size={20} />
                 <span className="te">로그인/회원가입</span>
               </a>
@@ -424,7 +424,7 @@ export default function Header({ direction, ...args }) {
           <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div>
         </ModalBody>
         <div className="row-cm header-modal-button">
-          <Button className="primary-button" onClick={() => setModal(false)}>
+          <Button className="secondary-button" onClick={() => setModal(false)}>
             취소
           </Button>
           <Button className="primary-button" onClick={goToExpertmodal}>

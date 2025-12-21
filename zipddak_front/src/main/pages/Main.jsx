@@ -1,16 +1,16 @@
 import "../../css/common.css";
 import "../css/Main.css";
 import { Button } from "reactstrap";
-import { Search, CirclePlus, MapPin, ArrowRight } from "lucide-react";
+import { Search, CirclePlus, MapPin, ArrowRight, UserStar, Store, MessageSquareHeart } from "lucide-react";
 import Expertmain from "../component/Expert";
 import Expert from "../../user/expert/Expert";
 import { Toolmain } from "../component/Tool";
 import { Community } from "../component/Community";
 import Product from "../../user/product/Product";
 import { useEffect, useState } from "react";
-import { myAxios } from "../../config";
+import { myAxios, baseUrl } from "../../config";
 import { useAtom } from "jotai";
-import { keywordAtom, tokenAtom, userAtom } from "../../atoms";
+import { tokenAtom, userAtom } from "../../atoms";
 import { useNavigate } from "react-router";
 
 export default function Main() {
@@ -29,13 +29,13 @@ export default function Main() {
     const navigate = useNavigate();
 
     //검색
-    const [searchKeyword, setSearchKeyword] = useAtom(keywordAtom);
+    const [searchKeyword, setSearchKeyword] = useState();
 
     const mainSearch = (e) => {
         e.preventDefault();
 
         if (searchKeyword.trim()) {
-            navigate(`/zipddak/main/search?keyword=${searchKeyword.trim()}`);
+            navigate(`/zipddak/main/search/${searchKeyword.trim()}`);
         } else {
             alert("검색어를 입력해주세요.");
         }
@@ -71,7 +71,7 @@ export default function Main() {
 
     //상품 리스트
     const [pCategory, setPCategory] = useState();
-    const [pActiveCategory, setPActiveCategory] = useState(1);
+    const [pActiveCategory, setPActiveCategory] = useState(0);
 
     const productCategory = (categoryNo) => {
         setPCategory(categoryNo);
@@ -80,7 +80,7 @@ export default function Main() {
 
     const productList = () => {
         const usernamePharam = user ? user.username : "";
-        const categoryPharam = pCategory ? pCategory : 1;
+        const categoryPharam = pCategory ? pCategory : 0;
         const keywordPharam = "";
 
         let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
@@ -95,19 +95,41 @@ export default function Main() {
             .then((res) => {
                 console.log(res.data);
                 setProduct(res.data.cards);
+                favoriteProduct(res.data.cards.productIdx);
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
+     // 관심 상품 토글
+    const favoriteToggle = async (productIdx) => {
+        if (user.username === "") {
+            navigate("/zipddak/login");
+            return;
+        }
+        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
+            productIdx,
+            username: user.username,
+        });
+
+        setProduct(prev =>
+    prev.map(t =>
+      t.productIdx === productIdx
+        ? { ...t, favorite: !t.favorite }
+        : t
+    )
+  );
+    };
+
     useEffect(() => {
         productList();
-    }, [user.username, pCategory]);
+    }, [ user.username,pCategory]);
+
 
     //공구 리스트
     const [tCategory, setTcategory] = useState();
-    const [tActiveCategory, setTActiveCategory] = useState(83);
+    const [tActiveCategory, setTActiveCategory] = useState(0);
 
     const toolCategory = (categoryNo) => {
         setTcategory(categoryNo);
@@ -116,10 +138,10 @@ export default function Main() {
 
     const toolList = () => {
         const usernamePharam = user ? user.username : "";
-        const categoryPharam = tCategory ? tCategory : 83;
+        const categoryPharam = tCategory ? tCategory : 0;
         const keywordPharam = "";
 
-        let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}&username=${usernamePharam}`;
+        let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
         if (usernamePharam) {
             url += `&username=${usernamePharam}`;
         }
@@ -131,19 +153,47 @@ export default function Main() {
             .then((res) => {
                 console.log(res.data);
                 setTool(res.data.cards);
+                
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
+        // 관심 공구 토글
+      const toggleFavorite = async (toolIdx) => {
+  if (!user.username) {
+    navigate("/zipddak/login");
+    return;
+  }
+
+  await myAxios(token, setToken).post(
+    `${baseUrl}/user/favoriteToggle/tool`,
+    {
+      toolIdx,
+      username: user.username,
+    }
+  );
+
+  setTool(prev =>
+    prev.map(t =>
+      t.toolIdx === toolIdx
+        ? { ...t, favorite: !t.favorite }
+        : t
+    )
+  );
+};
+
+   
+
     useEffect(() => {
         toolList();
+        
     }, [user.username, tCategory]);
 
     //커뮤니티 리스트
-    const [cCategory, setCCategory] = useState(76);
-    const [cActiveCategory, setCActiveCategory] = useState(76);
+    const [cCategory, setCCategory] = useState(0);
+    const [cActiveCategory, setCActiveCategory] = useState(0);
 
     const communityCategory = (categoryNo) => {
         setCCategory(categoryNo);
@@ -151,7 +201,7 @@ export default function Main() {
     };
 
     const communityList = () => {
-        const categoryPharam = cCategory ? cCategory : 76;
+        const categoryPharam = cCategory ? cCategory : 0;
 
         const tokenPharam = token ? token : null;
 
@@ -160,6 +210,7 @@ export default function Main() {
             .then((res) => {
                 console.log(res.data);
                 setCommunity(res.data.cards);
+                
             })
             .catch((err) => {
                 console.log(err);
@@ -168,7 +219,9 @@ export default function Main() {
 
     useEffect(() => {
         communityList();
-    }, [cCategory]);
+        
+    }, [user.username,cCategory]);
+
 
     return (
         <>
@@ -177,7 +230,7 @@ export default function Main() {
                     <div className="search">
                         <input className="search-input" type="text" placeholder="통합검색" onChange={(e) => setSearchKeyword(e.target.value)} />
                     </div>
-                    <Button className="primary-button" type="submit">
+                    <Button className="primary-button btn-pd" type="submit">
                         <div className="sbutton">
                             <Search size={18} />
                             <span className="btxt">검색</span>
@@ -193,7 +246,10 @@ export default function Main() {
                 <div className="card-box">
                     <div className="top">
                         <div className="title-box">
-                            <div className="title-main-main">추천 전문가</div>
+                            <div className="title-main-main">
+                                <UserStar />
+                                <span>추천 전문가</span>
+                            </div>
                             <div className="more" onClick={() => navigate(`/zipddak/experts`)}>
                                 <span>전체보기</span>
                                 <CirclePlus size={14} />
@@ -219,10 +275,8 @@ export default function Main() {
                     </div>
 
                     <div className="expert-cards">
-                        {Array.isArray(expert) && expert.map((expertCard) => <Expert key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
-                        <div className="card-more">
-                            <ArrowRight />
-                        </div>
+                        {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
+
                     </div>
                 </div>
 
@@ -230,7 +284,7 @@ export default function Main() {
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
-                                <MapPin size={24} color="#FF5833" />
+                                <MapPin size={24} />
                                 <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
                                 {/* <MapPin size={24} color='#FF5833'/> */}
                             </div>
@@ -240,6 +294,10 @@ export default function Main() {
                             </div>
                         </div>
                         <div className="main-category">
+                            <div className={tActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => toolCategory(0)}>
+                                전체
+                            </div>
+
                             <div className={tActiveCategory === 83 ? "category-item active" : "category-item"} onClick={() => toolCategory(83)}>
                                 전동공구
                             </div>
@@ -262,7 +320,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -271,6 +329,7 @@ export default function Main() {
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
+                                <Store />
                                 <span>자재 마켓</span>
                             </div>
                             <div className="more" onClick={() => navigate(`/zipddak/productList`)}>
@@ -279,6 +338,10 @@ export default function Main() {
                             </div>
                         </div>
                         <div className="main-category">
+                            <div className={pActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => productCategory(0)}>
+                                전체
+                            </div>
+
                             <div className={pActiveCategory === 1 ? "category-item active" : "category-item"} onClick={() => productCategory(1)}>
                                 주방
                             </div>
@@ -326,7 +389,7 @@ export default function Main() {
                     </div>
 
                     <div className="product-cards">
-                        {Array.isArray(product) && product.map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite} />)}
+                        {Array.isArray(product) && product.map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={favoriteToggle} />)}
                     </div>
                 </div>
 
@@ -334,6 +397,7 @@ export default function Main() {
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
+                                <MessageSquareHeart />
                                 <span>커뮤니티</span>
                             </div>
                             <div className="more" onClick={() => navigate(`/zipddak/community`)}>
@@ -342,6 +406,9 @@ export default function Main() {
                             </div>
                         </div>
                         <div className="main-category">
+                            <div className={cActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => communityCategory(0)}>
+                                전체
+                            </div>
                             <div className={cActiveCategory === 76 ? "category-item active" : "category-item"} onClick={() => communityCategory(76)}>
                                 우리집 자랑
                             </div>
@@ -373,12 +440,9 @@ export default function Main() {
                     </div>
 
                     <div className="community-cards">
-                        <div className="grid-cm">{Array.isArray(community) && community.map((communityCard) => <Community key={communityCard.communityIdx} community={communityCard} />)}</div>
-                        {/* <div className="row-cm maincom">
-                            {community.map((comm) => {
-                                <Community community={comm} />;
-                            })}
-                        </div> */}
+                        <div className="grid-cm">
+                            {Array.isArray(community) && community.map((communityCard) =>
+                                <Community key={communityCard.communityId} community={communityCard} />)}</div>
                     </div>
                 </div>
             </div>

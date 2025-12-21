@@ -6,7 +6,7 @@ import { userAtom, tokenAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { myAxios } from "../../config";
+import { myAxios, baseUrl } from "../../config";
 
 export default function ToolMain() {
     const [user, setUser] = useAtom(userAtom);
@@ -107,6 +107,7 @@ export default function ToolMain() {
                 }
 
                 setOffset(offsetParam + sizeParam);
+
             })
             .catch((err) => {
                 console.log(err);
@@ -115,7 +116,7 @@ export default function ToolMain() {
 
     // 최초 & 필터 변경 시
     useEffect(() => {
-        setTool([]);
+        setTool([])
         toolList(false, INIT_SIZE, 0);
     }, [user?.username, checkedCategory, tWay, tOrder, rentalTool, keyword]);
 
@@ -138,6 +139,31 @@ export default function ToolMain() {
         );
     }, [tool]);
 
+    // 관심 토글
+    const toggleFavorite = async (toolIdx) => {
+        if (!user.username) {
+            navigate("/zipddak/login");
+            return;
+        }
+
+        await myAxios(token, setToken).post(
+            `${baseUrl}/user/favoriteToggle/tool`,
+            {
+                toolIdx,
+                username: user.username,
+            }
+        );
+
+        setTool(prev =>
+            prev.map(t =>
+                t.toolIdx === toolIdx
+                    ? { ...t, favorite: !t.favorite }
+                    : t
+            )
+        );
+    };
+
+
     return (
         <>
             <div className="tool-container">
@@ -153,17 +179,21 @@ export default function ToolMain() {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter") searchTool();
+                                        if (e.key === 'Enter')
+                                            searchTool();
                                     }}
                                 ></input>
-                                <Search size={15} style={{ cursor: "pointer" }} onClick={searchTool} />
+                                <Search size={15} style={{ cursor: "pointer" }}
+                                    onClick={searchTool}
+
+                                />
                             </div>
                         </div>
                         <div className="t-filter">
                             <span className="f-label">지역검색</span>
                             <div className="location-box">
                                 <input className="location" type="text" placeholder="동네찾기" readOnly></input>
-                                <Button className="primary-button mapBtn">
+                                <Button className="secondary-button mapBtn">
                                     <MapPinned size={20} />
                                 </Button>
                             </div>
@@ -236,7 +266,15 @@ export default function ToolMain() {
                     <div className={`maplist ${openMap ? "open" : ""}`}>
                         <div className="map"></div>
                         <div className="list">
-                            <div className="list-card">{Array.isArray(tool) && tool.map((toolCard) => <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
+                            <div className="list-card">
+
+                                {Array.isArray(tool) &&
+                                    tool.map(toolCard => (
+                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                                    ))
+                                }
+
+                            </div>
 
                             <div className="c-btn">
                                 <div className="m-btn">
@@ -267,7 +305,7 @@ export default function ToolMain() {
                             </div>
                         </div>
 
-                        <Button className="primary-button" onClick={() => navigate(`/zipddak/tool/regist`)}>
+                        <Button className="primary-button nonePd" onClick={() => navigate(`/zipddak/tool/regist`)}>
                             <Hammer size={22} />
                             <span className="btn-text">내 공구 등록하기</span>
                         </Button>
@@ -280,7 +318,13 @@ export default function ToolMain() {
                         </FormGroup>
                     </div>
 
-                    <div className="toolMaincards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
+                    <div className="toolMaincards">
+                        {Array.isArray(tool) &&
+                            tool.map(toolCard => (
+                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                            ))
+                        }
+                    </div>
 
                     <div
                         className="moreBtn"

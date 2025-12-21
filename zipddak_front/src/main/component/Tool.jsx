@@ -11,6 +11,8 @@ import { useAtom } from "jotai";
 
 export function Tool({ tool, toggleFavorite }) {
 
+    const [user, setUsre] = useAtom(userAtom);
+
     const toolAddrString = tool.addr1;
     const toolAddress = toolAddrString.split(' ').slice(1, 3).join(' ');
 
@@ -19,12 +21,12 @@ export function Tool({ tool, toggleFavorite }) {
     return (
         <div className="Tool-card" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image">
-                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        username && toggleFavorite();
+                        user.username && toggleFavorite();
                     }}
                     className="favorite-icon"
                 >
@@ -47,20 +49,23 @@ export function Tool({ tool, toggleFavorite }) {
 
 export function Toolmain({ tool, toggleFavorite }) {
 
+    const [user, setUsre] = useAtom(userAtom);
+
     const toolAddrString = tool.addr1;
     const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
 
     const navigate = useNavigate();
 
+
     return (
         <div className="Tool-card-m" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-m">
-                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        username && toggleFavorite();
+                        user.username && toggleFavorite(tool.toolIdx);
                     }}
                     className="favorite-icon"
                 >
@@ -100,7 +105,8 @@ export function ToolL({ tool, toggleFavorite }) {
     return (
         <div className="Tool-card-L" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-L">
-               <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                {console.log(tool.sumbnail)}
+               <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -143,7 +149,7 @@ export function MapTool({ tool, toggleFavorite }) {
     return (
         <div className="tool-h">
             <div className="tool-image-h" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
-                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -197,10 +203,10 @@ export function MyToolCard({ tool,onChanged }) {
 
     return (
 
-        <a href="#" className="myTool">
+        <div className="myTool" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="row-cm myTool-card">
                 <div className="myTool-image">
-                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+                <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 {
                     Tool.toolStatus &&
                     (<div className="tool-status-badge">대여중</div>)
@@ -220,8 +226,8 @@ export function MyToolCard({ tool,onChanged }) {
                                 <Calendar />
                                 <div className="col-cm myTool-status">
                                     <div className="myTool-rental-status">대여상태</div>
-                                    <div className="myTool-rental-type">{tool.satus=="ABLE"&& "대여가능" }
-                                        {tool.satus=="INABLE"&& "대여중" }{tool.satus=="DELETE"&& "대여중지" }</div>
+                                    <div className={tool.satus=="STOP"? "myTool-rental-type orange":"myTool-rental-type"}>{tool.satus=="ABLE"&& "대여가능" }
+                                        {tool.satus=="INABLE"&& "대여중" }{tool.satus=="STOP"&& "대여중지" }</div>
                                 </div>
                             </div>
                             <div className="row-cm rentalBox">
@@ -237,17 +243,20 @@ export function MyToolCard({ tool,onChanged }) {
                         </div>
                         <div className="myTool-button">
                             {tool.satus != "INABLE"&&
-                                <Button className={tool.satus=="ABLE"? "secondary-button" :"secondary-button rentalDisable"}
-                            onClick={stopRental}>{tool.satus=="ABLE"? "대여가능" : "대여중지"}</Button>}
+                                <Button className={tool.satus=="ABLE"? "secondary-button rentalAble" :"secondary-button rentalDisable"}
+                            onClick={(e)=>{stopRental(); e.stopPropagation();}}>
+                                {tool.satus=="ABLE"? "대여가능" : "대여중지"}</Button>}
+                            
                             <Button className="secondary-button"
-                            onClick={()=> navigate(`/zipddak/tool/modify/${tool.toolIdx}`)}>수정</Button>
+                            onClick={(e)=> {navigate(`/zipddak/tool/modify/${tool.toolIdx}`); e.stopPropagation();}}>수정</Button>
+                            
                             <Button className="secondary-button"
-                            onClick={deleteTool}>삭제</Button>
+                            onClick={(e)=>{deleteTool(); e.stopPropagation();}}>삭제</Button>
                         </div>
                     </div>
                 </div>
             </div>
-        </a>
+        </div>
 
     )
 }

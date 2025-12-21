@@ -12,6 +12,7 @@
     display: flex;
     padding: 18px 15px;
     gap: 10px;
+    cursor: pointer;
 }
 
 .Com-image {

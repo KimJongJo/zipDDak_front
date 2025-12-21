@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Input } from "reactstrap";
+import { Input, ModalHeader, ModalBody } from "reactstrap";
 import "../css/FindExpert.css";
 import { Modal as AddrModal } from "antd";
 import { Modal } from "reactstrap";
@@ -29,6 +29,11 @@ export default function FindExpert() {
 
     const [requestForm, setRequestForm] = useState({});
     const [files, setFiles] = useState([]);
+
+    // 알림 모달
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    // 모달 안에 들어갈 메세지
+    const [modalMessage, setModalMessage] = useState("");
 
     const serviceOptions = ["수리", "인테리어", "시공견적컨설팅"];
 
@@ -268,6 +273,23 @@ export default function FindExpert() {
         setInputValue(""); // 입력 초기화
     };
 
+    useEffect(() => {
+        if (!user || !token) return;
+        myAxios(token, setToken)
+            .get(`${baseUrl}/user/requestCheck?username=${user.username}`)
+            .then((res) => {
+                if (res.data) {
+                    setModalMessage("이미 진행중인 견적요청이 있습니다. 마이페이지로 넘어갑니다.");
+                    setIsModalOpen(true);
+                    setTimeout(() => {
+                        setIsModalOpen(false);
+                        navigate("/zipddak/mypage/expert/requests/active");
+                    }, 2000);
+                    return;
+                }
+            });
+    }, [token, user]);
+
     return (
         <div className="chat-window">
             {messages.map((msg) => (
@@ -488,6 +510,25 @@ export default function FindExpert() {
                         </button>
                     </div>
                 </div>
+            </Modal>
+
+            {/* 알림 모달창 */}
+            <Modal isOpen={isModalOpen} className="mypage-modal" style={{ width: "380px" }}>
+                <ModalBody>
+                    <div
+                        style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "8px",
+                            whiteSpace: "nowrap",
+                            fontSize: "14px",
+                        }}
+                    >
+                        <p>{modalMessage}</p>
+                    </div>
+                </ModalBody>
             </Modal>
 
             {isAddOpen && (
