@@ -64,8 +64,8 @@ export default function Best() {
                                 <span className="s-count">100</span>
                             </div>
 
-                            <Button className='primary-button'>
-                                <div >
+                            <Button className=' tertiary-button nonePd'>
+                                <div className='row-cm'>
                                     <span>마켓 둘러보기</span>
                                     <ArrowRight size={15} />
                                 </div>

@@ -121,13 +121,14 @@ import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
+import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
 
 function App() {
   return (
     <Routes>
       <Route path="/auth/token" element={<Token />} />
-      <Route path="/zipddak/*" element={<UserLayout />}>
-        {/* 일반사용자 로그인 */}
+
+       {/* 일반사용자 로그인 */}
         <Route path="login" element={<Login />} />
         <Route path="signUp/user" element={<SignUser />} />
         <Route path="signUp/expert" element={<SignExpert />} />
@@ -135,12 +136,14 @@ function App() {
         <Route path="signUp/store2" element={<SignStore2 />} />
         <Route path="signUp/store3" element={<SignStore3 />} />
 
+      <Route path="/zipddak/*" element={<UserLayout />}>
+
         {/* 일반사용자 메인 */}
         <Route path="main" element={<Main />} />
-        <Route path="main/search" element={<MainSearch />} />
+        <Route path="main/search/:search" element={<MainSearch />} />
         <Route path="main/best" element={<Best />} />
         <Route path="market/return/:orderId" element={<MarketReturnForm />} />
-
+        <Route path="map" element={<KakaoMapTestPage />} />
 
 
         {/* 일반사용자 공구대여 */}

@@ -321,7 +321,9 @@ export default function SignExpert() {
         <>
             <div className="signUp-box">
                 <div className="SignExpert">
-                    <div className="logo"></div>
+                    <a href="/zipddak/main" >
+                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                    </a>
                     <div className="title">전문가 회원가입</div>
 
                     <div className="tabs" id="tabs">

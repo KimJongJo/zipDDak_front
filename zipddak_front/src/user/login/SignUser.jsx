@@ -195,7 +195,7 @@ export default function SignUser() {
             .then(res => {
                 if (res.data == true) {
                     setMessage("회원가입 완료!")
-                    navigate(`/zipddak/login`);
+                    
                 } else {
                     setMessage("회원가입 실패")
                 }
@@ -214,7 +214,10 @@ export default function SignUser() {
         <>
             <div className="signUp-box">
                 <div className="signUser">
-                    <div className="logo"></div>
+                    {/* <div className="logo"></div> */}
+                    <a href="/zipddak/main" >
+                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                    </a>
                     <div className="title">회원가입</div>
 
                     <div className="sns_login">
@@ -485,7 +488,10 @@ export default function SignUser() {
                     <ModalBody>
                         {message}
                     </ModalBody>
-                    <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                    <div className="row-cm centerbutton">
+                    <Button color="secondary-button" onClick={() => {setModal(false);}} >취소</Button>
+                    <Button color="primary-button" onClick={() => {setModal(false); navigate(`/login`);}} >확인</Button>
+                    </div>
                 </Modal>
             </div>
 

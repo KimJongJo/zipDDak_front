@@ -41,7 +41,7 @@
     padding: 32px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 40px;
     border: 1px solid #eff1f5;
 }
 
@@ -291,4 +291,10 @@
     width: 300px;
     height: 200px;
     background-color: #eff1f5;
+}
+
+.appTool-btn {
+    margin: 40px 0;
+    gap: 12px;
+    justify-content: flex-end;
 }
