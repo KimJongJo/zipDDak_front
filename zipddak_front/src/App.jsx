@@ -123,6 +123,34 @@ import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
 
 function App() {
+    const [alarm, setAlarm] = useState();
+
+    const user = useAtomValue(userAtom);
+    const setFcmToken = useSetAtom(fcmTokenAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [alarms, setAlarms] = useAtom(alarmsAtom);
+
+    useEffect(() => {
+        registerServiceWorker();
+        navigator.serviceWorker.ready.then(() => {
+            firebaseReqPermission(setFcmToken, setAlarm);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (user.username) {
+            myAxios(token, setToken)
+                .get(`/notificationList?username=${user.username}`)
+                .then((res) => {
+                    setAlarms(res.data);
+                });
+        }
+    }, [user.username]);
+
+    useEffect(() => {
+        Boolean(alarm) && setAlarms((prev) => [...prev, alarm]);
+    }, [alarm]);
+
     return (
         <Routes>
             <Route path="/auth/token" element={<Token />} />
