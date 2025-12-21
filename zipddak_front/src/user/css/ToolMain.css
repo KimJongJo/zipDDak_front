@@ -48,7 +48,7 @@
 }
 
 .f-label {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -302,9 +302,9 @@
     align-items: center;
     justify-content: center;
 
-    height: 34px;
-    padding: 12px;
-    font-size: 14px;
+    /* height: 32px; */
+    padding: 8px 12px;
+    font-size: 13px;
     font-weight: 500;
     background-color: #F2F2F7;
     border-radius: 16px;

@@ -16,7 +16,7 @@
     width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   margin-bottom: 20px;
 }
 
@@ -27,11 +27,22 @@
     gap: 8px;
 }
 
+.ownerOnly {
+    margin-bottom: 20px;
+}
+
 .profileImage {
     width: 48px;
     height: 48px;
     border-radius: 50%;
     background-color: #F1F3F7;
+    overflow: hidden;
+}
+
+.profileImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .userInfo {
@@ -64,9 +75,18 @@
 
 .d-tool-image {
     width: 645px;
-    height: 470px;
+    min-height: 360px;
+    max-height: 470px;
     background-color: #F1F3F7;
     border-radius: 8px;
+    overflow: hidden;
+}
+
+.d-tool-image img
+{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .infomation {
@@ -192,12 +212,20 @@
     padding: 15px 30px;
     color: #8E8E93;
     cursor: pointer;
+     flex-shrink: 0;
 }
 
 .d-nav.active,
 .d-nav:active {
     color: #303441;
     border-bottom: 2px solid;
+}
+
+.editTool {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 20px;
+    cursor: pointer;
 }
 
 /* 탭1 */
@@ -214,19 +242,29 @@
 
 .detailImage {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 60px;
     margin-bottom: 40px;
+    
 }
 
 .dimgs {
-    width: 900px;
-    height: 470px;
-    background-color: #F1F3F7;
-    border-radius: 8px;
+    max-width: 850px;
+    /* max-height: 470px; */
+    /* background-color: #F1F3F7; */
+    /* border-radius: 8px; */
     position: relative;
+    overflow: hidden;
 }
+
+.detailImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 
 .imgNav {
     position: absolute;
@@ -255,8 +293,12 @@
 .de-three {
     width: 100%;
     display: flex;
-    margin-bottom: 40px;
+
 }
+
+/* .de-two {
+    margin: 20px 0;
+} */
 
 .de-three {
     flex-direction: column;
@@ -270,7 +312,7 @@
 
     display: flex;
     flex-direction: column;
-    
+    margin: 20px 0;
 }
 
 .de-map {
@@ -303,4 +345,8 @@
     gap: 20px;
 
     justify-items: start;   /* 카드 왼쪽 정렬 */
+}
+
+.toolDetailPage {
+    margin: 40px 0;
 }

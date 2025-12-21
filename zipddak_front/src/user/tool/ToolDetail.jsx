@@ -1,118 +1,227 @@
 import "../css/ToolDetail.css";
-import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft, Package } from "lucide-react";
-import { Button } from "reactstrap";
+import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft, Package, Rocket } from "lucide-react";
+import { Button, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { Tool } from "../../main/component/Tool";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useEffect, useState } from "react";
-import { myAxios } from "../../config";
+import { myAxios, baseUrl } from "../../config";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function ToolDetail() {
-    const [user, setUser] = useAtom(userAtom);
-    const [token, setToken] = useAtom(tokenAtom);
-    const { toolIdx } = useParams();
-    console.log(toolIdx);
-    console.log(token);
-    const [tool, setTool] = useState(null);
-    const navigate = useNavigate();
+  const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+  const { toolIdx } = useParams();
+  console.log(toolIdx);
+  console.log(token);
+  const [tool, setTool] = useState(null);
+  const navigate = useNavigate();
 
-    const [ownerTool, setOwnerTool] = useState();
-    const [ownerCnt, setOwnerCnt] = useState();
+  const [ownerTool, setOwnerTool] = useState();
+  const [ownerCnt, setOwnerCnt] = useState();
 
-    const getTool = () => {
-        const params = {
-            toolIdx: toolIdx,
+  //공구 상세
+  const getTool = () => {
+    const params = {
+      toolIdx: toolIdx,
+      username: user.username,
+    };
+
+    token &&
+      myAxios(token, setToken)
+        .get(`/tool/detail`, { params })
+        .then((res) => {
+          console.log(res.data);
+          setTool(res.data);
+
+          const ownerParam = {
             username: user.username,
-        };
+            owner: res.data.owner,
+            toolIdx: toolIdx,
+          };
 
-        token &&
-            myAxios(token, setToken)
-                .get(`/tool/detail`, { params })
-                .then((res) => {
-                    console.log(res.data);
-                    setTool(res.data);
+          return myAxios(token, setToken).get(`/tool/owner`, {
+            params: ownerParam,
+          });
+        })
+        .then((res) => {
+          console.log(res.data);
+          setOwnerTool(res.data.cards);
+          setOwnerCnt(res.data.totalCount);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+  };
 
-                    const ownerParam = {
-                        username: user.username,
-                        owner: res.data.owner,
-                        toolIdx: toolIdx,
-                    };
-
-                    return myAxios(token, setToken).get(`/tool/owner`, {
-                        params: ownerParam,
-                    });
-                })
-                .then((res) => {
-                    console.log(res.data);
-                    setOwnerTool(res.data.cards);
-                    setOwnerCnt(res.data.totalCount);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-    };
-
-    useEffect(() => {
-        if (toolIdx && token) {
-            getTool();
-        }
-    }, [toolIdx, token]);
-
-    //유저 주소 자르기
-    const userAddressString = user?.addr1 || "";
-    const userAdress = userAddressString.split(" ").slice(1, 3).join(" ");
-
-    //공구 주소 자르기
-    const toolAddressString = tool?.addr1 || "";
-    const toolAdress = toolAddressString.split(" ").slice(1, 3).join(" ");
-
-    //바로 대여
-    const directApply = () => {
-        console.log("toolIdx:", toolIdx);
-        navigate(`/zipddak/tool/apply/${toolIdx}`);
-    };
-
-    if (!tool) {
-        return <div>로딩중...</div>;
+  useEffect(() => {
+    if (toolIdx && token) {
+      getTool();
+      favoriteTool(toolIdx);
     }
+  }, [toolIdx, token]);
 
-    return (
-        <>
-            <div className="detail-container">
-                <div className="d-info">
-                    <div className="d-top">
-                        <div className="d-user">
-                            <div className="profileImage"></div>
-                            <div className="userInfo">
-                                <span className="nick">{tool.nickname}</span>
-                                <span className="loca">{toolAdress}</span>
-                            </div>
-                        </div>
-                        <div className="top-icons">
-                            <Heart />
-                            <Share2 />
-                            <CircleAlert />
-                        </div>
-                    </div>
-                    <div className="d-info-box">
-                        <div className="d-tool-image">{/* <img src={`${tool.storagePath}/${tool.fileRename}`} /> */}</div>
-                        <div className="d-infos">
-                            <div className="infomation">
-                                <div className="d-point">
-                                    <div className="d-points">
-                                        {tool.postRental && <div className="points">택배거래</div>}
-                                        {tool.directRental && <div className="points">직거래</div>}
-                                        <div className="points">{tool.categoryName}</div>
-                                    </div>
-                                    <span className="createdate">{tool.createdate}</span>
-                                </div>
+  //유저 주소 자르기
+  const userAddressString = user?.addr1 || "";
+  const userAdress = userAddressString.split(" ").slice(1, 3).join(" ");
 
-                                <div className="d-option">
-                                    <span className="ca">{tool.categoryName}</span>
-                                    <span className="na">{tool.name}</span>
+  //공구 주소 자르기
+  const toolAddressString = tool?.addr1 || "";
+  const toolAdress = toolAddressString.split(" ").slice(1, 3).join(" ");
 
-                                    {/* <div className="d-ectInfo">
+  //바로 대여
+  const directApply = () => {
+    console.log("toolIdx:", toolIdx);
+    navigate(`/zipddak/tool/apply/${toolIdx}`);
+  };
+
+  //이미지
+  const images = [tool?.img0, tool?.img1, tool?.img2, tool?.img3, tool?.img4].filter(Boolean);
+
+  //탭
+  const tab1 = "tab1";
+  const tab2 = "tab2";
+  const [activeTab, setActiveTab] = useState(tab1);
+  const tabHandler = (tab) => {
+    console.log(tab);
+    setActiveTab(tab);
+  }
+
+  //리뷰
+  const [reviews, setReviews] = useState([]);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [pageInfo, setPageInfo] = useState({
+    curPage: 1,
+    allPage: 0,
+  });
+
+  const [activeOrder, setActiveOrder] = useState(0);
+
+  const toolReview = (page = 1) => {
+
+    const tokenParam = token ? token : null;
+    console.log(activeOrder);
+
+    myAxios(tokenParam, setToken).get(`tool/review?toolIdx=${toolIdx}&page=${page}&orderNo=${activeOrder}`)
+
+      .then(res => {
+        console.log(res.data);
+        setReviews(res.data.reviews); // 해당 페이지 리뷰만 저장
+        setReviewPage(page)
+        setPageInfo({
+          curPage: page,
+          allPage: Math.ceil(res.data.totalCount / 5), // 5 = 한 페이지 리뷰 수
+        });
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+
+  useEffect(() => {
+    if (activeTab === tab2) {
+      toolReview(1);
+    }
+  }, [activeOrder, activeTab]);
+
+
+  // 하트 공구
+
+  const [toolFavorite, setToolFavorite] = useState(false);
+
+  const favoriteTool = (idx) => {
+
+    token && myAxios(token, setToken).get(`${baseUrl}/main/heartTool`,
+      {
+        params: {
+          toolIdx: idx,
+          username: user.username,
+        }
+      })
+      .then(res => {
+        console.log("favorite", res.data);
+        setToolFavorite(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+  };
+
+
+  // 관심 토글
+
+  const favoriteToggle = async (toolIdx) => {
+    if (user.username === "") {
+      navigate("/zipddak/login");
+      return;
+    }
+    await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle/tool`, {
+      toolIdx,
+      username: user.username,
+    });
+
+    setToolFavorite(prev => !prev);
+  };
+
+
+  //tool삭제
+  const deleteTool = async () => {
+    myAxios(token, setToken).post(`/tool/delete`, {
+      toolIdx: tool.toolIdx,
+      username: user.username
+    });
+
+    onChanged();
+
+  }
+
+  if (!tool) {
+    return <div>로딩중...</div>;
+  }
+
+  return (
+    <>
+      <div className="detail-container">
+        <div className="d-info">
+          <div className="d-top">
+
+            <div className="top-icons">
+              <button onClick={() => favoriteToggle(tool.toolIdx)}
+                style={{ cursor: "pointer", backgroundColor: "transparent", border: "none" }}>
+                {toolFavorite ? (
+                  <Heart fill="#ff5833" stroke="#ff5833" />
+                ) : (
+                  <Heart stroke="#999" />
+                )}
+              </button>
+              <Share2 />
+              <CircleAlert />
+            </div>
+          </div>
+          <div className="d-info-box">
+            <div className="d-tool-image">
+              <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+            </div>
+            <div className="d-infos">
+              <div className="infomation">
+                <div className="d-point">
+                  <div className="d-points">
+                    {/* <div className="points">{tool.categoryName}</div> */}
+                    {tool.quickRental && <div className="points">바로대여</div>}
+                    {tool.postRental && <div className="points">택배거래</div>}
+                    {tool.directRental && <div className="points">직거래</div>}
+
+                  </div>
+                  <span className="createdate">{tool.createdate}</span>
+                </div>
+
+                <div className="d-option">
+                  <span className="ca">{tool.categoryName}</span>
+                  <span className="na">{tool.name}</span>
+
+                  {/* <div className="d-ectInfo">
                                         <div className="ic">
                                             <Heart size={18} />
                                             {tool.favorite}
@@ -124,94 +233,283 @@ export default function ToolDetail() {
                                         </div>
                                     </div> */}
 
-                                    <div className="d-price">
-                                        {tool.freeRental ? (
-                                            <span className="dt orange">무료대여</span>
-                                        ) : (
-                                            <>
-                                                <span className="od">1일</span>
-                                                <span className="tp">{tool.rentalPrice.toLocaleString()}</span>
-                                                <span className="tp">원</span>
-                                            </>
-                                        )}
-                                    </div>
-                                    <div className="d-price">
-                                        {tool.postCharge == 0 ? (
-                                            <>
-                                                <Package />
-                                                <span className="dt orange">무료배송</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Package />
-                                                <span className="dt">배송비</span>
-                                                <span className="dt">{tool.postCharge.toLocaleString()}</span>
-                                                <span className="dt">원</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="short-info">{tool.contnet}</div>
-                            </div>
-                            <div className="rentalBtn">
-                                {tool.quickRental && (
-                                    <Button className="tertiary-button long-button" onClick={directApply}>
-                                        바로대여
-                                    </Button>
-                                )}
-                                <Button className="primary-button long-button">대여문의</Button>
-                            </div>
-                        </div>
-                    </div>
+                  <div className="d-price">
+                    {tool.freeRental ? (
+                      <span className="dt orange">무료대여</span>
+                    ) : (
+                      <>
+                        <span className="od">1일</span>
+                        <span className="tp">{tool.rentalPrice.toLocaleString()}</span>
+                        <span className="tp">원</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="d-price">
+                    {tool.postCharge == 0 ? (
+                      <>
+                        <Package />
+                        <span className="dt orange">무료배송</span>
+                      </>
+                    ) : (
+                      <>
+                        <Package />
+                        <span className="dt">배송비</span>
+                        <span className="dt">{tool.postCharge.toLocaleString()}</span>
+                        <span className="dt">원</span>
+                      </>
+                    )}
+                  </div>
                 </div>
 
-                <div className="d-tab-nav">
-                    <div className="d-nav active">공구상세</div>
-                    <div className="d-nav">리뷰</div>
-                </div>
+                <div className="short-info">{tool.contnet}</div>
+              </div>
 
-                <div className="d-tab">
-                    <div className="de-label">상세이미지</div>
-                    <div className="detailImage">
-                        <div className="fbBtn">
-                            <ArrowLeft />
-                        </div>
-                        <div className="dimgs">
-                            <div className="imgNav">
-                                <div className="dots">
-                                    <Dot size={30} />
-                                    <Dot size={30} />
-                                    <Dot size={30} />
-                                    <Dot size={30} />
-                                    <Dot size={30} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="fbBtn">
-                            <ArrowRight />
-                        </div>
-                    </div>
-                    <div className="de-two">
-                        <div className="de-three">
-                            <div className="de-label">상세설명</div>
-                            <div>{tool.content}</div>
-                        </div>
-                        <div className="de-favlocation">
-                            <div className="de-map"></div>
-                            <div className="mapinfo">
-                                <span className="map-label">거래 희망장소</span>
-                                <span>{}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="moreTool">
-                        <span className="de-label">'{tool.nickname}' 의 다른 공구</span>
-                        <div className="morecards">{Array.isArray(ownerTool) && ownerTool.slice(0, 6).map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} />)}</div>
-                    </div>
-                </div>
-                <div className="d-tab-review"></div>
+              <div className="rentalBtn">
+                {tool.quickRental && (
+                  <Button className="tertiary-button long-button" onClick={directApply}>
+                    <Rocket size={18} />
+                    <span>바로대여</span>
+                  </Button>
+                )}
+                <Button className="primary-button long-button">
+                  <MessageCircle size={18} />
+                  <span>대여문의</span>
+                </Button>
+              </div>
             </div>
-        </>
-    );
+          </div>
+        </div>
+        <div className="row-cm ownerOnly">
+          <div className="d-user">
+            <div className="profileImage">
+              <img src={`http://localhost:8080/imageView?type=profile&filename=${tool.ownerProfile}`} alt="유저" />
+            </div>
+            <div className="userInfo">
+              <span className="nick">{tool.nickname}</span>
+              <span className="loca">{toolAdress}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="d-tab-nav">
+          <div className={activeTab === tab1 ? "d-nav active" : "d-nav"}
+            onClick={() => tabHandler(tab1)}>공구상세</div>
+          <div className={activeTab === tab2 ? "d-nav active" : "d-nav"}
+            onClick={() => { tabHandler(tab2); toolReview(); }}>리뷰</div>
+
+          {user.username == tool.owner &&
+            <div className="row-cm editTool">
+              <div className="createdate">수정</div>
+              <div className="createdate" onClick={deleteTool}>삭제</div>
+            </div>
+          }
+        </div>
+
+        {activeTab == tab1 &&
+          <div className="d-tab">
+            <div className="de-label">상세이미지</div>
+
+            <div className="detailImage">
+
+              {images.length > 0 &&
+                images.map((imgFile, index) => (
+                  <div className="dimgs" key={index}>
+                    <img
+                      src={`http://localhost:8080/imageView?type=tool&filename=${imgFile}`}
+                      alt={`공구`}
+                    />
+                  </div>
+                ))
+              }
+
+
+            </div>
+
+            <div className="line"></div>
+            <div className="de-two">
+              <div className="de-three">
+                <div className="de-label">상세설명</div>
+                <div>{tool.content}</div>
+              </div>
+              <div className="de-favlocation">
+                <div className="de-map"></div>
+                <div className="mapinfo">
+                  <span className="map-label">거래 희망장소</span>
+                  <span>{ }</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="line"></div>
+            <div className="moreTool">
+              {Array.isArray(ownerTool) && <span className="de-label">'{tool.nickname}' 의 다른 공구</span>}
+              <div className="morecards">{Array.isArray(ownerTool) && ownerTool.slice(0, 6).map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} />)}</div>
+            </div>
+          </div>
+        }
+
+        {/* ------------------------------------------------- */}
+
+        {activeTab == tab2 &&
+          <div className="d-tab review">
+            <div className="de-label">이 공구의 리뷰</div>
+
+
+            <div className="mypage-chipList">
+              <div className={activeOrder === 0 ? "mypage-chipList isActive" : "mypage-chipList"}
+                onClick={() => setActiveOrder(0)}>최신순</div>
+
+              <div className={activeOrder === 1 ? "mypage-chipList isActive" : "mypage-chipList"}
+                onClick={() => setActiveOrder(1)}>별점 높은 순</div>
+
+              <div className={activeOrder === 2 ? "mypage-chipList isActive" : "mypage-chipList"}
+                onClick={() => setActiveOrder(2)}>별점 낮은 순</div>
+
+            </div>
+
+
+            {reviews.map((review) => (
+              <table style={{ width: "100%" }} key={review.reviewToolIdx}>
+                <tbody>
+                  <tr style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.10)" }}>
+                    <td>
+                      <div
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          padding: "30px 0",
+                          flexDirection: "column",
+                          gap: "20px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+
+                          <div
+                            style={{
+                              width: "48px",
+                              height: "48px",
+                              borderRadius: "50%",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <img
+                              src={`http://localhost:8080/imageView?type=tool&filename=${review.writerImg}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          </div>
+                          <div className="">{review.writer}</div>
+
+                        </div>
+                        <div className="review-star">
+                          {[1, 2, 3, 4, 5].map((num) => (
+                            <i
+                              key={num}
+                              className={`bi ${review.score >= num ? "bi-star-fill" : "bi-star"
+                                }`}
+                              style={{
+                                fontSize: "18px",
+                                color: "rgba(247, 196, 68, 1)",
+                              }}
+                            ></i>
+                          ))}
+                        </div>
+                        {review.img1 !== null && (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                            }}
+                          >
+                            {[review.img1, review.img2, review.img3]
+                              .filter(Boolean)
+                              .map((img, idx) => (
+                                <img
+                                  key={idx}
+                                  src={`http://localhost:8080/imageView?type=review&filename=${img}`}
+                                  width="80px"
+                                  height="80px"
+                                />
+                              ))}
+                          </div>
+                        )}
+                        <p
+                          style={{
+                            color: "#303441",
+                            fontSize: "14px",
+                            fontWeight: "400",
+                            lineHeight: "22px",
+                          }}
+                        >
+                          {review.content}
+                        </p>
+                      </div>
+                    </td>
+                    <td
+                      style={{
+                        width: "150px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          color: "#303441",
+                          textAlign: "center",
+                          fontSize: "14px",
+                          fontWeight: "400",
+                        }}
+                      >
+                        {review.createdate}
+                      </p>
+                    </td>
+                    <td
+                      style={{
+                        width: "118px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            ))}
+
+            <div className="toolDetailPage">
+              <Pagination className="my-pagination">
+                {Array.from({ length: pageInfo.allPage }, (_, i) => (
+                  <PaginationItem
+                    key={i}
+                    active={i + 1 === pageInfo.curPage}>
+                    <PaginationLink
+                      onClick={() => toolReview(i + 1)}
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+              </Pagination>
+            </div>
+
+          </div>
+        }
+      </div>
+    </>
+  );
 }

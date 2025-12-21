@@ -121,6 +121,7 @@ import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
+import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
 
 function App() {
   const [alarm, setAlarm] = useState();
@@ -202,7 +203,7 @@ function App() {
         <Route path="productList" element={<ProductList />} />
         <Route path="product/:productId" element={<ProductDetail />} />
         <Route path="productOrder" element={<ProductOrder />} />
-        <Route path="productOrderComplate" element={<ProductOrderComplate />} />
+        <Route path="productOrderComplete" element={<ProductOrderComplate />} />
 
         <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 

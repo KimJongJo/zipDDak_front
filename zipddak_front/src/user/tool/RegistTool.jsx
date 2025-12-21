@@ -17,7 +17,7 @@ export default function RegistTool() {
 
     const [tool, setTool] = useState({
         toolIdx:null, name: '', category: '83', rentalPrice: null, freeRental: false, content: '', tradeAddr: '주소',
-        directRental: false, postRental: false, freePost: false, postCharge: null, zonecode: "", addr1: "",
+        directRental: false, postRental: false, freePost: false, postCharge: 0, zonecode: "", addr1: "",
         addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
         img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
         settleBank: "", settleAccount: "", settleHost: ""
@@ -103,7 +103,7 @@ export default function RegistTool() {
     }, [freePost]);
 
     //주소지 설정
-    const [useProfile, setUseProfile] = useState(true);
+    const [useProfile, setUseProfile] = useState(false);
     useEffect(() => {
         if (useProfile && user) {
             setTool(prev => ({
@@ -214,7 +214,7 @@ export default function RegistTool() {
                     alert("공구 등록 실패")
                 }
                 const toolIdx = res.data;
-                navigate(`zipddak/tool/${toolIdx}`);
+                navigate(`/zipddak/tool/${toolIdx}`);
 
             })
             .catch(err => {
@@ -501,7 +501,7 @@ export default function RegistTool() {
                                         onChange={useProfile ? undefined : ChangeInput}
                                     />
 
-                                    <Input name="settleBank" type="select" className="toolBank pqSelect"
+                                    <Input name="postRequest" type="select" className="toolBank pqSelect"
                                         value={tool.postRequest} onChange={ChangeInput}>
                                         <option value={"배송시 요청사항 없음"}>배송시 요청사항</option>
                                         <option value={"문앞에 놔주세요"}>문앞에 놔주세요</option>

@@ -26,9 +26,3 @@ export const alarmsAtom = atomWithStorage(
     [],
     createJSONStorage(() => sessionStorage),
 );
-
-export const keywordAtom = atomWithStorage(
-    "mainKeyword",
-    null,
-    createJSONStorage(() => sessionStorage),
-);
