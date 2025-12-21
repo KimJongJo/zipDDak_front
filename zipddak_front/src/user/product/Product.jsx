@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Product.css";
 import { useNavigate } from "react-router";
+import { baseUrl } from "../../config";
 
 export default function Product({ product, toggleFavorite, label }) {
     const navigate = useNavigate();
@@ -11,12 +12,13 @@ export default function Product({ product, toggleFavorite, label }) {
         <div onClick={() => navigate(`/zipddak/product/${product.productIdx}`)} style={{ cursor: "pointer" }} className="Product-card">
             {/* 자재 이미지 */}
             <div className="product-image">
-                <img src={`${product.storagePath}/${product.fileRename}`} alt="상품" />
+                <img src={`${baseUrl}/imageView?type=product&filename=${product.fileRename}`} alt="상품" />
 
                 {/*베스트 라벨 */}
                 {label && <div className="product-index-label">{label}</div>}
 
                 <button
+                    style={{ backgroundColor: "transparent" }}
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음

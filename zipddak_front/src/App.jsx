@@ -193,7 +193,7 @@ function App() {
                 <Route path="productList" element={<ProductList />} />
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
-                <Route path="productOrderComplate" element={<ProductOrderComplate />} />
+                <Route path="productOrderComplete" element={<ProductOrderComplate />} />
 
                 <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
