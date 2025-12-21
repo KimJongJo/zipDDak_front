@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
 
 export default function RequestActive() {
@@ -12,6 +12,7 @@ export default function RequestActive() {
   const [costList, setCostList] = useState([]); // 견적서 비용 상세
   const [selectedExpertIdx, setSelectedExpertIdx] = useState(null); // 선택한 전문가 id
   const [selectedExpertUsername, setSelectedExpertUsername] = useState(null); // 선택한 전문가 username
+  const [expert, setExpert] = useState(null);
 
   const [open, setOpen] = useState(true);
 
@@ -47,6 +48,7 @@ export default function RequestActive() {
         setEstimate(res.data.estimateDetail);
         setCostList(res.data.costList);
         setSelectedExpertUsername(res.data.expertUsername);
+        setExpert(res.data.expertDetail);
       })
       .catch((err) => {
         console.log(err);
@@ -69,7 +71,9 @@ export default function RequestActive() {
   };
 
   // 채팅하기
-  const chat = () => {
+  const chat = (e) => {
+    e.preventDefault();
+
     myAxios(token, setToken)
       .post("http://localhost:8080/message-room", {
         type: "EXPERT",
@@ -79,6 +83,7 @@ export default function RequestActive() {
       })
       .then((res) => {
         const roomId = res.data;
+        window.scrollTo(0, 0);
         navigate(`/zipddak/message?roomId=${roomId}`);
       });
   };
@@ -916,20 +921,75 @@ export default function RequestActive() {
                   {/* 전문가 정보 */}
                   <div>
                     <h3 className="mypage-sectionTitle">전문가 정보</h3>
-                    <button className="primary-button" onClick={chat}>
-                      채팅하기
-                    </button>
-                    {/* {expertList.map((expert, index) => (
-          <div
-            key={expert.expertIdx}
-            ref={expertList.length === index + 1 ? lastProductRef : null}
-          >
-            <Expert
-              expert={expert}
-              style={{ flex: "0 0 32%", boxSizing: "border-box" }}
-            />
-          </div>
-        ))} */}
+                    <div
+                      style={{ cursor: "pointer", marginTop: "20px" }}
+                      onClick={() => {
+                        window.scrollTo(0, 0);
+                        navigate(`/zipddak/expertProfile/${expert.expertIdx}`);
+                      }}
+                      className="expert-div"
+                    >
+                      <div className="expert-img-div">
+                        <img
+                          className="expert-img"
+                          src={`${baseUrl}/imageView?type=expert&filename=${expert.profileImage}`}
+                        />
+                        <div className="expert-name-div">
+                          <span className="font-14 semibold">
+                            {expert.activityName}
+                          </span>
+                          <span className="font-13">{expert.mainService}</span>
+                        </div>
+                      </div>
+
+                      {/* 별점 */}
+                      <div className="expert-star-div">
+                        <i className="bi bi-star-fill expert-star"></i>
+                        <span className="font-13 medium">
+                          {expert.avgScore}
+                        </span>
+                        <span className="font-12 expert-review-count">
+                          ({expert.reviewCount})
+                        </span>
+                      </div>
+
+                      <div className="expert-info-div">
+                        <div className="expert-career-div">
+                          <span className="font-13">
+                            <i className="bi bi-geo-alt font-11"></i>
+                            {expert.activityArea}
+                          </span>
+                        </div>
+
+                        {/* 경력 + 고용 */}
+                        <div className="expert-career-div">
+                          <span className="font-13">
+                            <i className="bi bi-award font-11"></i>경력
+                            {expert.careerCount < 12
+                              ? "1년 미만"
+                              : `${Math.floor(expert.careerCount / 12)}년`}
+                          </span>
+                          <i className="bi bi-dot font-11"></i>
+                          <span className="font-13">
+                            <i className="bi bi-emoji-smile font-11"></i>고용
+                            {expert.matchingCount}회
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        className="primary-button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          chat(e);
+                        }}
+                        style={{
+                          color: "#FF5833",
+                          backgroundColor: "#fff",
+                        }}
+                      >
+                        채팅하기
+                      </button>
+                    </div>
                   </div>
                 </>
               )}

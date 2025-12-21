@@ -84,7 +84,7 @@ export default function Mypage() {
             cursor: "pointer",
           }}
           onClick={() => {
-            window.scrollTo(0, 0);
+            // window.scrollTo(0, 0);
             navigate("/zipddak/mypage");
           }}
         >
@@ -131,7 +131,7 @@ export default function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>공구 대여</p>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/tools/my"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -143,7 +143,7 @@ export default function Mypage() {
               내 공구
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/tools/rentals"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -159,7 +159,7 @@ export default function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>전문가 찾기</p>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/expert/works"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -171,7 +171,7 @@ export default function Mypage() {
               시공·수리 내역
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/expert/requests/active"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -183,7 +183,7 @@ export default function Mypage() {
               진행중인 견적 요청
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/expert/requests/history"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -199,7 +199,7 @@ export default function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>마켓</p>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/market/orders"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -211,7 +211,7 @@ export default function Mypage() {
               주문·배송조회
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/market/returns"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -227,7 +227,7 @@ export default function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>내 활동</p>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/likes"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -239,7 +239,7 @@ export default function Mypage() {
               관심
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/reviews"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -251,7 +251,7 @@ export default function Mypage() {
               후기
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/community"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -263,7 +263,7 @@ export default function Mypage() {
               게시물
             </NavLink>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/inquiries"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -279,7 +279,7 @@ export default function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>내 정보</p>
             <NavLink
-              onClick={() => window.scrollTo(0, 0)}
+              // onClick={() => window.scrollTo(0, 0)}
               to="/zipddak/mypage/account"
               style={({ isActive }) => ({
                 ...navStyle,
