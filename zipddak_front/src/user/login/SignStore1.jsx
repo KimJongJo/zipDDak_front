@@ -8,7 +8,9 @@ export default function SignStore1() {
                 <div className="signStore1">
                     <div className="signStoreHeader">
                         <div className="s_headerItem">
-                            <div className="logo"></div>
+                            <a href="/zipddak/main" >
+                            <img src="/zipddak_smile.png" style={{width:"120px"}}/>
+                            </a>
                             <div className="headerTitle">입점신청</div>
                         </div>
                     </div>

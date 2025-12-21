@@ -121,6 +121,7 @@ import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
+import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
 
 function App() {
     const [alarm, setAlarm] = useState();
