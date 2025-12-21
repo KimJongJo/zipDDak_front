@@ -34,6 +34,11 @@ export default function ProductDetail() {
     const [files, setFiles] = useState([]);
     const [inquireContent, setInquireContent] = useState("");
 
+    // 알림 모달
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    // 모달 안에 들어갈 메세지
+    const [modalMessage, setModalMessage] = useState("");
+
     // 관심 유무
     const [favorite, setFavorite] = useState(false);
     // 리뷰 현재 페이지
@@ -147,7 +152,12 @@ export default function ProductDetail() {
 
     const writeInquire = () => {
         if (!inquireContent) {
-            alert("내용을 입력해주세요");
+            setModalMessage("내용을 입력해주세요");
+            setIsModalOpen(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+            }, 1500);
+
             return;
         }
 
@@ -164,14 +174,19 @@ export default function ProductDetail() {
         });
 
         myAxios(token, setToken)
-            .post(`${baseUrl}/writeInquire`, formData, {
+            .post(`${baseUrl}/user/writeInquire`, formData, {
                 headers: {
                     "Content-Type": "multipary/form-data",
                 },
             })
             .then((res) => {
                 console.log(res.data);
-                alert("등록되었습니다.");
+                setModalMessage("문의가 등록되었습니다.");
+                toggle();
+                setIsModalOpen(true);
+                setTimeout(() => {
+                    setIsModalOpen(false);
+                }, 1500);
             });
     };
 
@@ -259,7 +274,11 @@ export default function ProductDetail() {
         }
 
         if (orderList.length === 0) {
-            alert("한개 이상의 상품을 담아야합니다.");
+            setModalMessage("한 개 이상의 상품을 담아주세요");
+            setIsModalOpen(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+            }, 1500);
             return;
         }
 
@@ -306,6 +325,8 @@ export default function ProductDetail() {
     }, []);
 
     useEffect(() => {
+        if (!user) return;
+
         myAxios(token, setToken)
             .get(`${baseUrl}/product?productId=${productId}&username=${user.username}`)
             .then((res) => {
@@ -327,21 +348,27 @@ export default function ProductDetail() {
                 // 구매 목록 초기화
                 setOrderList([]);
             });
-    }, []);
+    }, [user]);
 
     return (
         <div className="body-div">
-            <div className="ProductDetail-main-div">
+            <div style={{ padding: "72px 16px", marginTop: "0" }} className="ProductDetail-main-div">
                 {/* 상품 상세 상단 */}
                 <div className="detail-top">
                     {/* 좌측 상품 이미지 */}
                     <div>
                         {/* 메인 이미지 */}
-                        <div>
-                            <img className="detail-main-img" src="/images/이미지테스트.png"></img>
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <img style={{ border: "none" }} className="detail-main-img" src={`${baseUrl}/imageView?type=product&filename=${product.thumbnail}`}></img>
                         </div>
                         {/* 이미지 리스트 */}
-                        <div></div>
+                        <div style={{ marginTop: "30px", display: "flex", justifyContent: "center", gap: "15px" }}>
+                            {product.img1 && <img style={{ width: "120px", height: "120px" }} src={`${baseUrl}/imageView?type=product&filename=${product.img1}`}></img>}
+                            {product.img2 && <img style={{ width: "120px", height: "120px" }} src={`${baseUrl}/imageView?type=product&filename=${product.img2}`}></img>}
+                            {product.img3 && <img style={{ width: "120px", height: "120px" }} src={`${baseUrl}/imageView?type=product&filename=${product.img3}`}></img>}
+                            {product.img4 && <img style={{ width: "120px", height: "120px" }} src={`${baseUrl}/imageView?type=product&filename=${product.img4}`}></img>}
+                            {product.img5 && <img style={{ width: "120px", height: "120px" }} src={`${baseUrl}/imageView?type=product&filename=${product.img5}`}></img>}
+                        </div>
                     </div>
 
                     {/* 우측 구매 항목 */}
@@ -354,7 +381,15 @@ export default function ProductDetail() {
                             </div>
 
                             {/* 업체명 */}
-                            <span className="product-store-name">{product.brandName}</span>
+                            <span
+                                onClick={() => {
+                                    navigate(`/zipddak/storeInfo/${product.sellerIdx}`);
+                                }}
+                                style={{ cursor: "pointer" }}
+                                className="product-store-name"
+                            >
+                                {product.brandName}
+                            </span>
 
                             <div className="detail-product-name-div">
                                 {/* 상품 이름 */}
@@ -531,7 +566,11 @@ export default function ProductDetail() {
                                                 navigate("/zipddak/login");
                                             } else {
                                                 if (orderList.length === 0) {
-                                                    alert("한 개 이상의 상품을 담아야합니다.");
+                                                    setModalMessage("한 개 이상의 상품을 담아주세요");
+                                                    setIsModalOpen(true);
+                                                    setTimeout(() => {
+                                                        setIsModalOpen(false);
+                                                    }, 1500);
                                                 } else {
                                                     navigate("/zipddak/productOrder");
                                                 }
@@ -564,7 +603,8 @@ export default function ProductDetail() {
                         <div className="detail-bottom-left">
                             {/* 상품 정보 */}
                             <div ref={infoRef}>
-                                <img className="test-img-test" src="/images/이미지테스트.png"></img>
+                                <img className="test-img-test" src={`${baseUrl}/imageView?type=product&filename=${product.detailImg1}`}></img>
+                                {product.detailImg2 && <img className="test-img-test" src={`${baseUrl}/imageView?type=product&filename=${product.detailImg2}`}></img>}
                             </div>
 
                             {/* 리뷰 */}
@@ -638,7 +678,18 @@ export default function ProductDetail() {
                                                     <span className="detail-bottom-review-created">{review.createdate}</span>
                                                 </div>
                                             </div>
-                                            <img className="detail-bottom-review-img" src="/images/이미지테스트.png" />
+                                            <div style={{ display: "flex", gap: "15px" }}>
+                                                {review.img1Name && (
+                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img1Name}`} />
+                                                )}
+                                                {review.img2Name && (
+                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img2Name}`} />
+                                                )}
+                                                {review.img3Name && (
+                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img3Name}`} />
+                                                )}
+                                            </div>
+
                                             <div className="detail-bottom-review-content">{review.content}</div>
                                         </div>
                                     ))}
@@ -756,6 +807,11 @@ export default function ProductDetail() {
 
                                                         if (files.length > 3) {
                                                             e.target.value = ""; // 초기화
+                                                            setModalMessage("파일은 최대 3장입니다.");
+                                                            setIsModalOpen(true);
+                                                            setTimeout(() => {
+                                                                setIsModalOpen(false);
+                                                            }, 1500);
                                                             return;
                                                         }
 
@@ -775,7 +831,6 @@ export default function ProductDetail() {
                                                     type="button"
                                                     onClick={() => {
                                                         writeInquire();
-                                                        toggle();
                                                     }}
                                                 >
                                                     등록하기
@@ -958,6 +1013,25 @@ export default function ProductDetail() {
                                             </button>
                                         </div>
                                     </div>
+                                </Modal>
+
+                                {/* 알림 모달창 */}
+                                <Modal isOpen={isModalOpen} className="mypage-modal" style={{ width: "380px" }}>
+                                    <ModalBody>
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "column",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                gap: "8px",
+                                                whiteSpace: "nowrap",
+                                                fontSize: "14px",
+                                            }}
+                                        >
+                                            <p>{modalMessage}</p>
+                                        </div>
+                                    </ModalBody>
                                 </Modal>
                             </div>
                         </div>
