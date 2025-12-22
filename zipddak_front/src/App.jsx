@@ -160,18 +160,19 @@ function App() {
 
     return (
         <Routes>
-            <Route path="/auth/token" element={<Token />} />
 
             {/* 일반사용자 로그인 */}
-            <Route path="login" element={<Login />} />
-            <Route path="signUp/user" element={<SignUser />} />
-            <Route path="signUp/expert" element={<SignExpert />} />
-            <Route path="signUp/store1" element={<SignStore1 />} />
-            <Route path="signUp/store2" element={<SignStore2 />} />
-            <Route path="signUp/store3" element={<SignStore3 />} />
+                <Route path="login" element={<Login />} />
+                <Route path="signUp/user" element={<SignUser />} />
+                <Route path="signUp/expert" element={<SignExpert />} />
+                <Route path="signUp/store1" element={<SignStore1 />} />
+                <Route path="signUp/store2" element={<SignStore2 />} />
+                <Route path="signUp/store3" element={<SignStore3 />} />
 
+            <Route path="/auth/token" element={<Token />} />
             <Route path="/zipddak/*" element={<UserLayout />}>
                 <Route path="message" element={<Message />} />
+                
 
                 {/* 일반사용자 메인 */}
                 <Route path="main" element={<Main />} />
