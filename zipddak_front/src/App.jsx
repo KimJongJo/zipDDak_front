@@ -124,234 +124,202 @@ import { myAxios } from "./config.jsx";
 import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
 
 function App() {
-  const [alarm, setAlarm] = useState();
+    const [alarm, setAlarm] = useState();
 
-  const user = useAtomValue(userAtom);
-  const setFcmToken = useSetAtom(fcmTokenAtom);
-  const [token, setToken] = useAtom(tokenAtom);
-  const [alarms, setAlarms] = useAtom(alarmsAtom);
+    const user = useAtomValue(userAtom);
+    const setFcmToken = useSetAtom(fcmTokenAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [alarms, setAlarms] = useAtom(alarmsAtom);
 
-  // Firebase 초기화 & 권한 요청
-  useEffect(() => {
-    registerServiceWorker();
-    navigator.serviceWorker.ready.then(() => {
-      firebaseReqPermission(setFcmToken, setAlarm);
-    });
-  }, []);
-
-  // 서버에 저장된 알림 목록 조회
-  useEffect(() => {
-    if (user.username) {
-      myAxios(token, setToken)
-        .get(`/notificationList?username=${user.username}`)
-        .then((res) => {
-          setAlarms(res.data);
+    // Firebase 초기화 & 권한 요청
+    useEffect(() => {
+        registerServiceWorker();
+        navigator.serviceWorker.ready.then(() => {
+            firebaseReqPermission(setFcmToken, setAlarm);
         });
-    }
-  }, [user.username]);
+    }, []);
 
-  // 실시간 FCM 알림 반영
-  useEffect(() => {
-    if (!alarm) return;
-    if (alarm.receiver !== user.username) return;
+    // 서버에 저장된 알림 목록 조회
+    useEffect(() => {
+        if (user.username) {
+            myAxios(token, setToken)
+                .get(`/notificationList?username=${user.username}`)
+                .then((res) => {
+                    setAlarms(res.data);
+                });
+        }
+    }, [user.username]);
 
-    setAlarms((prev) => [...prev, alarm]);
-  }, [alarm]);
+    // 실시간 FCM 알림 반영
+    useEffect(() => {
+        if (!alarm) return;
+        if (alarm.receiver !== user.username) return;
 
-  return (
-    <Routes>
-      <Route path="/auth/token" element={<Token />} />
+        setAlarms((prev) => [...prev, alarm]);
+    }, [alarm]);
 
-      {/* 일반사용자 로그인 */}
-      <Route path="login" element={<Login />} />
-      <Route path="signUp/user" element={<SignUser />} />
-      <Route path="signUp/expert" element={<SignExpert />} />
-      <Route path="signUp/store1" element={<SignStore1 />} />
-      <Route path="signUp/store2" element={<SignStore2 />} />
-      <Route path="signUp/store3" element={<SignStore3 />} />
+    return (
+        <Routes>
+            <Route path="/auth/token" element={<Token />} />
 
-      <Route path="/zipddak/*" element={<UserLayout />}>
-        <Route path="message" element={<Message />} />
+            {/* 일반사용자 로그인 */}
+            <Route path="login" element={<Login />} />
+            <Route path="signUp/user" element={<SignUser />} />
+            <Route path="signUp/expert" element={<SignExpert />} />
+            <Route path="signUp/store1" element={<SignStore1 />} />
+            <Route path="signUp/store2" element={<SignStore2 />} />
+            <Route path="signUp/store3" element={<SignStore3 />} />
 
-        {/* 일반사용자 메인 */}
-        <Route path="main" element={<Main />} />
-        <Route path="main/search/:search" element={<MainSearch />} />
-        <Route path="main/best" element={<Best />} />
-        <Route path="market/return/:orderId" element={<MarketReturnForm />} />
-        <Route path="map" element={<KakaoMapTestPage />} />
+            <Route path="/zipddak/*" element={<UserLayout />}>
+                <Route path="message" element={<Message />} />
 
-        {/* 일반사용자 공구대여 */}
-        <Route path="tool" element={<ToolMain />} />
-        <Route path="tool/:toolIdx" element={<ToolDetail />} />
-        <Route path="tool/regist" element={<RegistTool />} />
-        <Route path="tool/modify/:toolIdx" element={<ModifyTool />} />
-        <Route path="tool/apply/:toolIdx" element={<ApplyTool />} />
+                {/* 일반사용자 메인 */}
+                <Route path="main" element={<Main />} />
+                <Route path="main/search/:search" element={<MainSearch />} />
+                <Route path="main/best" element={<Best />} />
 
-        {/* 일반사용자 전문가찾기 */}
-        <Route path="experts" element={<Experts />} />
-        <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-        <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
-        <Route path="findExpert" element={<FindExpert />} />
+                <Route path="map" element={<KakaoMapTestPage />} />
 
-        {/* 일반사용자 커뮤니티 */}
-        <Route path="community" element={<CommunityList />} />
-        <Route path="community/write" element={<ComForm />} />
-        <Route path="community/:communityId" element={<Comdetail />} />
-        <Route
-          path="community/modify/:modifyCommunityId"
-          element={<ComForm />}
-        />
+                {/* 일반사용자 공구대여 */}
+                <Route path="tool" element={<ToolMain />} />
+                <Route path="tool/:toolIdx" element={<ToolDetail />} />
+                <Route path="tool/regist" element={<RegistTool />} />
+                <Route path="tool/modify/:toolIdx" element={<ModifyTool />} />
+                <Route path="tool/apply/:toolIdx" element={<ApplyTool />} />
 
-        {/* 일반사용자 자재구매 */}
-        <Route path="productList" element={<ProductList />} />
-        <Route path="product/:productId" element={<ProductDetail />} />
-        <Route path="productOrder" element={<ProductOrder />} />
-        <Route path="productOrderComplete" element={<ProductOrderComplate />} />
+                {/* 일반사용자 전문가찾기 */}
+                <Route path="experts" element={<Experts />} />
+                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
+                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
+                <Route path="findExpert" element={<FindExpert />} />
 
-        <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
+                {/* 일반사용자 커뮤니티 */}
+                <Route path="community" element={<CommunityList />} />
+                <Route path="community/write" element={<ComForm />} />
+                <Route path="community/:communityId" element={<Comdetail />} />
+                <Route path="community/modify/:modifyCommunityId" element={<ComForm />} />
 
-        {/* 일반사용자 장바구니 */}
-        <Route path="cart" element={<Cart />} />
+                {/* 일반사용자 자재구매 */}
+                <Route path="productList" element={<ProductList />} />
+                <Route path="product/:productId" element={<ProductDetail />} />
+                <Route path="productOrder" element={<ProductOrder />} />
+                <Route path="productOrderComplete" element={<ProductOrderComplate />} />
 
-        {/* 일반사용자 마이페이지 */}
-        <Route path="mypage/*" element={<Mypage />}>
-          <Route index element={<Navigate to="expert/works" replace />} />
-          <Route path="account" element={<Account />} />
-          <Route path="expert/works" element={<MyWorks />} />
-          <Route
-            path="expert/works/detail/:matchingIdx"
-            element={<MyWorksDetail />}
-          />
-          <Route path="expert/requests/active" element={<RequestActive />} />
-          <Route path="expert/requests/history" element={<RequestHistory />} />
-          <Route path="inquiries" element={<Inquiries />} />
-          <Route path="inquiries/write" element={<InquiryForm />} />
-          <Route path="community" element={<Community />} />
-          <Route path="likes" element={<Likes />} />
-          <Route path="reviews" element={<Reviews />} />
-          <Route path="market/orders" element={<MarketOrders />} />
-          <Route path="market/returns" element={<MarketReturns />} />
-          <Route
-            path="market/detail/:orderIdx"
-            element={<MarketOrderDetail />}
-          />
-          <Route
-            path="market/exchange/:orderIdx"
-            element={<MarketExchangeForm />}
-          />
-          <Route path="tools/my" element={<MyTool />} />
-          <Route path="tools/rentals" element={<ToolLent />} />
-          <Route
-            path="tools/rentals/borrowed/:rentalIdx"
-            element={<ToolBorrowDetail />}
-          />
-          <Route
-            path="tools/rentals/lent/:rentalIdx"
-            element={<ToolLentDetail />}
-          />
-          {/* <Route path="tools/rentals/:rentalIdx" element={<ToolLentDetail />} /> */}
-        </Route>
-      </Route>
+                <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
-      {/* 전문가 */}
-      <Route path="/expert/*" element={<ExpertLayout />}>
-        <Route path="profile/edit" element={<ProfileForm />} />
-        <Route path="requests" element={<PublicRequest />} />
-        <Route
-          path="requests/detail/:requestIdx"
-          element={<PublicRequestDetail />}
-        />
-        {/* 전문가 마이페이지 */}
-        <Route path="mypage/*" element={<ExpertMypage />}>
-          <Route index element={<Navigate to="works" replace />} />
-          <Route path="works" element={<ExpertMyWorks />} />
-          <Route
-            path="works/detail/:matchingIdx"
-            element={<ExpertMyWorksDetail />}
-          />
-          <Route path="sent/estimates" element={<SentEstimates />} />
-          <Route
-            path="sent/estimate/:estimateIdx"
-            element={<SentEstimateDetail />}
-          />
-          <Route path="receive/requests" element={<ReceiveRequests />} />
-          <Route
-            path="receive/request/:requestIdx"
-            element={<ReceiveRequestDetail />}
-          />
-          <Route path="inquiries" element={<ExpertInquiries />} />
-          <Route path="inquiries/write" element={<ExpertInquiryForm />} />
-          <Route path="community" element={<ExpertCommunity />} />
-          <Route path="account" element={<ExpertAccount />} />
-          <Route path="settlement" element={<Settlement />} />
-          <Route path="membership" element={<Membership />} />
-        </Route>
-      </Route>
+                {/* 일반사용자 장바구니 */}
+                <Route path="cart" element={<Cart />} />
 
-      {/* 자재판매자  */}
-      <Route path="seller/*" element={<SellerLayout />}>
-        <Route path="mainhome" element={<SellerHome />} />
-        <Route path="productRegist" element={<ProductRegist />} />
-        <Route path="productList" element={<SellerPdList />} />
-        <Route path="orderList" element={<OrderList />} />
-        <Route path="shippingList" element={<ShippingList />} />
-        <Route path="returnList" element={<ReturnList />} />
-        <Route path="exchangeList" element={<ExchangeList />} />
+                {/* 일반사용자 마이페이지 */}
+                <Route path="mypage/*" element={<Mypage />}>
+                    <Route index element={<Navigate to="expert/works" replace />} />
+                    <Route path="account" element={<Account />} />
+                    <Route path="expert/works" element={<MyWorks />} />
+                    <Route path="expert/works/detail/:matchingIdx" element={<MyWorksDetail />} />
+                    <Route path="expert/requests/active" element={<RequestActive />} />
+                    <Route path="expert/requests/history" element={<RequestHistory />} />
+                    <Route path="inquiries" element={<Inquiries />} />
+                    <Route path="inquiries/write" element={<InquiryForm />} />
+                    <Route path="community" element={<Community />} />
+                    <Route path="likes" element={<Likes />} />
+                    <Route path="reviews" element={<Reviews />} />
+                    <Route path="market/orders" element={<MarketOrders />} />
+                    <Route path="market/returns" element={<MarketReturns />} />
+                    <Route path="market/return/:orderIdx" element={<MarketReturnForm />} />
+                    <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
+                    <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
+                    <Route path="tools/my" element={<MyTool />} />
+                    <Route path="tools/rentals" element={<ToolLent />} />
+                    <Route path="tools/rentals/borrowed/:rentalIdx" element={<ToolBorrowDetail />} />
+                    <Route path="tools/rentals/lent/:rentalIdx" element={<ToolLentDetail />} />
+                    {/* <Route path="tools/rentals/:rentalIdx" element={<ToolLentDetail />} /> */}
+                </Route>
+            </Route>
 
-        <Route path="salesStatistics" element={<SalesStatistics />} />
-        <Route path="settleList" element={<SettleList />} />
-        <Route path="pdInquireList" element={<InquireProduct />} />
-        <Route path="gnrInquireList" element={<InquireGeneral />} />
+            {/* 전문가 */}
+            <Route path="/expert/*" element={<ExpertLayout />}>
+                <Route path="profile/edit" element={<ProfileForm />} />
+                <Route path="requests" element={<PublicRequest />} />
+                <Route path="requests/detail/:requestIdx" element={<PublicRequestDetail />} />
+                {/* 전문가 마이페이지 */}
+                <Route path="mypage/*" element={<ExpertMypage />}>
+                    <Route index element={<Navigate to="works" replace />} />
+                    <Route path="works" element={<ExpertMyWorks />} />
+                    <Route path="works/detail/:matchingIdx" element={<ExpertMyWorksDetail />} />
+                    <Route path="sent/estimates" element={<SentEstimates />} />
+                    <Route path="sent/estimate/:estimateIdx" element={<SentEstimateDetail />} />
+                    <Route path="receive/requests" element={<ReceiveRequests />} />
+                    <Route path="receive/request/:requestIdx" element={<ReceiveRequestDetail />} />
+                    <Route path="inquiries" element={<ExpertInquiries />} />
+                    <Route path="inquiries/write" element={<ExpertInquiryForm />} />
+                    <Route path="community" element={<ExpertCommunity />} />
+                    <Route path="account" element={<ExpertAccount />} />
+                    <Route path="settlement" element={<Settlement />} />
+                    <Route path="membership" element={<Membership />} />
+                </Route>
+            </Route>
 
-        <Route path="myProfile" element={<MyProfile />} />
-        <Route path="myInfo" element={<MyInfo />} />
+            {/* 자재판매자  */}
+            <Route path="seller/*" element={<SellerLayout />}>
+                <Route path="mainhome" element={<SellerHome />} />
+                <Route path="productRegist" element={<ProductRegist />} />
+                <Route path="productList" element={<SellerPdList />} />
+                <Route path="orderList" element={<OrderList />} />
+                <Route path="shippingList" element={<ShippingList />} />
+                <Route path="returnList" element={<ReturnList />} />
+                <Route path="exchangeList" element={<ExchangeList />} />
 
-        <Route path="ask" element={<AskToManager />} />
-        <Route path="productDetail/:productIdx" element={<ProductModify />} />
-        <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
-        <Route path="shippingDetail" element={<ShippingDetail />} />
-        <Route path="returnDetail/:refundIdx" element={<ReturnDetail />} />
-        <Route path="exchangeDetail" element={<ExchangeDetail />} />
-        <Route path="settleDetail" element={<SettleDetail />} />
-      </Route>
+                <Route path="salesStatistics" element={<SalesStatistics />} />
+                <Route path="settleList" element={<SettleList />} />
+                <Route path="pdInquireList" element={<InquireProduct />} />
+                <Route path="gnrInquireList" element={<InquireGeneral />} />
 
-      {/* 전문가 */}
-      <Route path="admin/*" element={<AdminLayout />}>
-        {/* 회원 관리 */}
-        <Route path="users" element={<AdminUserList />} />
-        <Route path="users/:username" element={<AdminUserDetail />} />
-        <Route path="experts" element={<AdminExpertList />} />
-        <Route path="experts/:expertIdx" element={<AdminExpertDetail />} />
-        <Route path="sellers" element={<AdminStoreList />} />
-        <Route path="sellers/:sellerIdx" element={<AdminStoreDetail />} />
-        <Route path="switchRequest" element={<AdminSwitchAccountRequests />} />
+                <Route path="myProfile" element={<MyProfile />} />
+                <Route path="myInfo" element={<MyInfo />} />
 
-        {/* 이용 내역 */}
-        <Route path="rentals" element={<AdminRentalRecords />} />
-        <Route path="rentals/:rentalIdx" element={<AdminRentalDetail />} />
-        <Route path="salesHistory" element={<AdminSalesHistory />} />
-        <Route path="salesHistory/:saleIdx" element={<AdminSalesDetail />} />
-        <Route path="payment" element={<PaymentHistory />} />
-        <Route path="payment/:paymentIdx" element={<AdminPaymentDetail />} />
-        <Route path="membership" element={<AdminMembership />} />
-        <Route path="reports" element={<AdminReportList />} />
-        <Route
-          path="reports/:type/:reportIdx"
-          element={<AdminReportDetail />}
-        />
+                <Route path="ask" element={<AskToManager />} />
+                <Route path="productDetail/:productIdx" element={<ProductModify />} />
+                <Route path="orderDetail/:orderIdx" element={<OrderDetail />} />
+                <Route path="shippingDetail" element={<ShippingDetail />} />
+                <Route path="returnDetail/:refundIdx" element={<ReturnDetail />} />
+                <Route path="exchangeDetail" element={<ExchangeDetail />} />
+                <Route path="settleDetail" element={<SettleDetail />} />
+            </Route>
 
-        {/* 정산 */}
-        <Route path="settlements" element={<AdminSettlementList />} />
+            {/* 전문가 */}
+            <Route path="admin/*" element={<AdminLayout />}>
+                {/* 회원 관리 */}
+                <Route path="users" element={<AdminUserList />} />
+                <Route path="users/:username" element={<AdminUserDetail />} />
+                <Route path="experts" element={<AdminExpertList />} />
+                <Route path="experts/:expertIdx" element={<AdminExpertDetail />} />
+                <Route path="sellers" element={<AdminStoreList />} />
+                <Route path="sellers/:sellerIdx" element={<AdminStoreDetail />} />
+                <Route path="switchRequest" element={<AdminSwitchAccountRequests />} />
 
-        {/* 1:1 문의 */}
-        <Route path="inquirys" element={<InquiryList />} />
-        <Route path="inquirys/:inquiryIdx" element={<InquiryReturn />} />
+                {/* 이용 내역 */}
+                <Route path="rentals" element={<AdminRentalRecords />} />
+                <Route path="rentals/:rentalIdx" element={<AdminRentalDetail />} />
+                <Route path="salesHistory" element={<AdminSalesHistory />} />
+                <Route path="salesHistory/:saleIdx" element={<AdminSalesDetail />} />
+                <Route path="payment" element={<PaymentHistory />} />
+                <Route path="payment/:paymentIdx" element={<AdminPaymentDetail />} />
+                <Route path="membership" element={<AdminMembership />} />
+                <Route path="reports" element={<AdminReportList />} />
+                <Route path="reports/:type/:reportIdx" element={<AdminReportDetail />} />
 
-        {/* 통계 */}
-        <Route path="dashbord" element={<Dashboard />} />
-      </Route>
-    </Routes>
-  );
+                {/* 정산 */}
+                <Route path="settlements" element={<AdminSettlementList />} />
+
+                {/* 1:1 문의 */}
+                <Route path="inquirys" element={<InquiryList />} />
+                <Route path="inquirys/:inquiryIdx" element={<InquiryReturn />} />
+
+                {/* 통계 */}
+                <Route path="dashbord" element={<Dashboard />} />
+            </Route>
+        </Routes>
+    );
 }
 
 export default App;

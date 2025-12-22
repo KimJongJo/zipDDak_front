@@ -8,12 +8,14 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
+import { tokenAtom, userAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
 export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 리스트");
     const navigate = useNavigate();
+
+    const [user, setUser] = useAtom(userAtom);
 
     const [myOrderList, setMyOrderList] = useState([]);
     const [myOrderCount, setMyOrderCount] = useState(0);
@@ -62,7 +64,7 @@ export default function OrderList() {
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         params.append("page", page);
 
         if (searchDate) params.append("searchDate", searchDate);
@@ -97,8 +99,10 @@ export default function OrderList() {
 
     // 최초 1회 로딩
     useEffect(() => {
+        if (!user) return;
+
         submit(1);
-    }, []);
+    }, [user]);
 
     return (
         <>

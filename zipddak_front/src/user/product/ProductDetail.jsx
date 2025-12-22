@@ -401,17 +401,33 @@ export default function ProductDetail() {
                             <div className="detail-product-div-under">
                                 <div className="detail-price-review-div">
                                     <div>
-                                        <div className="detail-sale-div">
-                                            {/* 세일 퍼센트 */}
-                                            <span className="detail-sale-percent">{product.discount}%</span>
-                                            {/* 정가 */}
-                                            <del className="detail-default-price">{product?.price?.toLocaleString()}원</del>
-                                        </div>
-                                        <div>
-                                            {/* 판매 가격 */}
-                                            <span className="detail-sale-price">{product?.salePrice?.toLocaleString()}</span>
-                                            <span className="won">원</span>
-                                        </div>
+                                        {product.discount ? (
+                                            <>
+                                                <div className="detail-sale-div">
+                                                    {/* 세일 퍼센트 */}
+                                                    <span className="detail-sale-percent">{product.discount}%</span>
+                                                    {/* 정가 */}
+                                                    <del className="detail-default-price">{product?.price?.toLocaleString()}원</del>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                                                    {/* 판매 가격 */}
+                                                    <span className="detail-sale-price">{product?.salePrice?.toLocaleString()}</span>
+                                                    <span style={{ marginLeft: "0" }} className="won">
+                                                        원
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                                                    {/* 판매 가격 */}
+                                                    <span className="detail-sale-price">{product?.price?.toLocaleString()}</span>
+                                                    <span style={{ marginLeft: "0" }} className="won">
+                                                        원
+                                                    </span>
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                     <div className="detail-review" style={{ display: "flex", alignItems: "center" }}>
                                         <div
@@ -480,7 +496,7 @@ export default function ProductDetail() {
                                     <div className="detail-select-div">
                                         <select onChange={(e) => handleOptionChange(e.target.value, "top")} className="detail-select" defaultValue={"none"}>
                                             <option value="none" disabled>
-                                                규격
+                                                옵션
                                             </option>
                                             {Object.keys(productOption).map((option) => (
                                                 <option key={option} value={option}>
@@ -492,7 +508,7 @@ export default function ProductDetail() {
                                     <div className="detail-select-div">
                                         <select onChange={(e) => handleOption(e.target.value, "top")} className="detail-select" value={selectOptionInfo.optionId || "none"}>
                                             <option value="none" disabled>
-                                                색상
+                                                선택
                                             </option>
                                             {/* 점 표기법으로 접근하면 undefined */}
                                             {/* 대괄호 표기법으로 접근해야 접근이 가능 */}

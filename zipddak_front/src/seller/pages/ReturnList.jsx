@@ -7,10 +7,15 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
+import { tokenAtom, userAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai";
 
 export default function ReturnList() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 리스트");
     const navigate = useNavigate();
+
+    const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
 
     const [myRefundList, setMyRefundList] = useState([]);
     const [myRefundCount, setMyRefundCount] = useState(0);
@@ -49,20 +54,13 @@ export default function ReturnList() {
     //날짜 변경 시 자동 검색
     useEffect(() => {
         submit(1);
-    }, [searchOrderDate]);
-    useEffect(() => {
-        submit(1);
-    }, [searchRequestDate]);
-    // 필터 변경 시 자동 submit
-    useEffect(() => {
-        submit(1);
-    }, [selectedStatus]);
+    }, [searchOrderDate, searchRequestDate, selectedStatus, user]);
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         params.append("page", page);
 
         if (keyword) params.append("keyword", keyword);

@@ -274,7 +274,18 @@ export default function FindExpert() {
     };
 
     useEffect(() => {
-        if (!user || !token) return;
+        if (!user) return;
+        //
+        if (user.username === "") {
+            setModalMessage("로그인 후 견적요청을 할 수 있습니다.");
+            setIsModalOpen(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+                navigate("/login");
+            }, 1500);
+            return;
+        }
+
         myAxios(token, setToken)
             .get(`${baseUrl}/user/requestCheck?username=${user.username}`)
             .then((res) => {
@@ -288,7 +299,7 @@ export default function FindExpert() {
                     return;
                 }
             });
-    }, [token, user]);
+    }, [user]);
 
     return (
         <div className="chat-window">
