@@ -9,9 +9,12 @@ import { useState } from "react";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 
-export function Tool({ tool, toggleFavoriteTool }) {
+export function Tool({ tool, toggleFavorite }) {
+<<<<<<< HEAD
+=======
 
     const [user, setUsre] = useAtom(userAtom);
+>>>>>>> main
 
     const toolAddrString = tool.addr1;
     const toolAddress = toolAddrString.split(' ').slice(1, 3).join(' ');
@@ -21,12 +24,16 @@ export function Tool({ tool, toggleFavoriteTool }) {
     return (
         <div className="Tool-card" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image">
+<<<<<<< HEAD
+                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+=======
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+>>>>>>> main
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        user.username && toggleFavoriteTool(tool.toolidx);
+                        user.username && toggleFavorite();
                     }}
                     className="favorite-icon"
                 >
@@ -48,6 +55,11 @@ export function Tool({ tool, toggleFavoriteTool }) {
 }
 
 export function Toolmain({ tool, toggleFavorite }) {
+<<<<<<< HEAD
+
+    const toolAddrString = tool.addr1;
+    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+=======
 
     const [user, setUsre] = useAtom(userAtom);
 
@@ -99,10 +111,16 @@ export function ToolL({ tool, toggleFavorite }) {
 
     const toolAddrString = tool.addr1;
     const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+>>>>>>> main
 
     const navigate = useNavigate();
 
     return (
+<<<<<<< HEAD
+        <div className="Tool-card-m" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
+            <div className="tool-image-m">
+                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+=======
         <div className="Tool-card-L" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-L">
                 {console.log(tool.sumbnail)}
@@ -150,6 +168,7 @@ export function MapTool({ tool, toggleFavorite }) {
         <div className="tool-h">
             <div className="tool-image-h" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+>>>>>>> main
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -263,6 +282,40 @@ export function MapTool({ tool, toggleFavorite }) {
 }
 
 export function MyToolCard({ tool,onChanged }) {
+<<<<<<< HEAD
+
+     const navigate = useNavigate();
+
+     const [user, setUser]= useAtom(userAtom);
+     const [token,setToken]=useAtom(tokenAtom);
+
+    //대여중지 변경
+    const stopRental = async () => {
+    await myAxios(token, setToken).post('/tool/stop', {
+        toolIdx: tool.toolIdx,
+        username: user.username
+    });
+    onChanged();
+};
+
+    //tool삭제
+    const deleteTool = async()=> {
+        myAxios(token,setToken).post(`/tool/delete`,{
+                toolIdx:tool.toolIdx,
+                username:user.username
+            });
+        
+        onChanged();
+        
+    }
+
+    return (
+
+        <a href="#" className="myTool">
+            <div className="row-cm myTool-card">
+                <div className="myTool-image">
+                <img src={`${tool.storagePath}/${tool.fileRename}`} alt="공구" />
+=======
 
      const navigate = useNavigate();
 
@@ -295,6 +348,7 @@ export function MyToolCard({ tool,onChanged }) {
             <div className="row-cm myTool-card">
                 <div className="myTool-image">
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+>>>>>>> main
                 {
                     Tool.toolStatus &&
                     (<div className="tool-status-badge">대여중</div>)
@@ -314,8 +368,13 @@ export function MyToolCard({ tool,onChanged }) {
                                 <Calendar />
                                 <div className="col-cm myTool-status">
                                     <div className="myTool-rental-status">대여상태</div>
+<<<<<<< HEAD
+                                    <div className="myTool-rental-type">{tool.satus=="ABLE"&& "대여가능" }
+                                        {tool.satus=="INABLE"&& "대여중" }{tool.satus=="DELETE"&& "대여중지" }</div>
+=======
                                     <div className={tool.satus=="STOP"? "myTool-rental-type orange":"myTool-rental-type"}>{tool.satus=="ABLE"&& "대여가능" }
                                         {tool.satus=="INABLE"&& "대여중" }{tool.satus=="STOP"&& "대여중지" }</div>
+>>>>>>> main
                                 </div>
                             </div>
                             <div className="row-cm rentalBox">
@@ -331,6 +390,14 @@ export function MyToolCard({ tool,onChanged }) {
                         </div>
                         <div className="myTool-button">
                             {tool.satus != "INABLE"&&
+<<<<<<< HEAD
+                                <Button className={tool.satus=="ABLE"? "secondary-button" :"secondary-button rentalDisable"}
+                            onClick={stopRental}>{tool.satus=="ABLE"? "대여가능" : "대여중지"}</Button>}
+                            <Button className="secondary-button"
+                            onClick={()=> navigate(`/zipddak/tool/modify/${tool.toolIdx}`)}>수정</Button>
+                            <Button className="secondary-button"
+                            onClick={deleteTool}>삭제</Button>
+=======
                                 <Button className={tool.satus=="ABLE"? "secondary-button rentalAble" :"secondary-button rentalDisable"}
                             onClick={(e)=>{stopRental(); e.stopPropagation();}}>
                                 {tool.satus=="ABLE"? "대여가능" : "대여중지"}</Button>}
@@ -340,6 +407,7 @@ export function MyToolCard({ tool,onChanged }) {
                             
                             <Button className="secondary-button"
                             onClick={(e)=>{deleteTool(); e.stopPropagation();}}>삭제</Button>
+>>>>>>> main
                         </div>
                     </div>
                 </div>
