@@ -550,7 +550,12 @@ export default function MyWorksDetail() {
             fontSize: "14px",
           }}
           onClick={() => {
+<<<<<<< HEAD
             navigate(`/expert/mypage/works?page=${page}`);
+=======
+            navigate(`/zipddak/mypage/expert/works?page=${page}`);
+            window.scrollTo(0, 0);
+>>>>>>> main
           }}
         >
           목록

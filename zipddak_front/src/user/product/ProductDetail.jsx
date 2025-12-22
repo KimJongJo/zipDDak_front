@@ -84,8 +84,8 @@ export default function ProductDetail() {
             prevList.map((option) =>
                 option.optionId === optionId
                     ? { ...option, count: option.count + 1 } // count 1 증가
-                    : option
-            )
+                    : option,
+            ),
         );
     };
 
@@ -97,16 +97,16 @@ export default function ProductDetail() {
                     .map((option) =>
                         option.optionId === optionId
                             ? { ...option, count: option.count - 1 } // count 1 감소
-                            : option
+                            : option,
                     )
-                    .filter((option) => option.count > 0) // 0보다 큰것만 보이게
+                    .filter((option) => option.count > 0), // 0보다 큰것만 보이게
         );
     };
 
     // 삭제
     const deleteOption = (optionId) => {
         setOrderList(
-            (prevList) => prevList.filter((option) => option.optionId !== optionId) // 선택한걸 제외한 것만 남기게
+            (prevList) => prevList.filter((option) => option.optionId !== optionId), // 선택한걸 제외한 것만 남기게
         );
     };
 
@@ -679,15 +679,9 @@ export default function ProductDetail() {
                                                 </div>
                                             </div>
                                             <div style={{ display: "flex", gap: "15px" }}>
-                                                {review.img1Name && (
-                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img1Name}`} />
-                                                )}
-                                                {review.img2Name && (
-                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img2Name}`} />
-                                                )}
-                                                {review.img3Name && (
-                                                    <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img3Name}`} />
-                                                )}
+                                                {review.img1Name && <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img1Name}`} />}
+                                                {review.img2Name && <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img2Name}`} />}
+                                                {review.img3Name && <img style={{ border: "none" }} className="detail-bottom-review-img" src={`${baseUrl}/imageView?type=review&filename=${review.img3Name}`} />}
                                             </div>
 
                                             <div className="detail-bottom-review-content">{review.content}</div>
@@ -781,14 +775,7 @@ export default function ProductDetail() {
                                         <span className="ask-title">문의하기</span>
                                     </ModalHeader>
                                     <div className="ask-modal-body">
-                                        <Input
-                                            onChange={(e) => setInquireContent(e.target.value)}
-                                            style={{ fontSize: "14px" }}
-                                            className="ask-modal-body-input"
-                                            type="textarea"
-                                            placeholder="문의하실 내용을 입력해주세요"
-                                            rows={5}
-                                        />
+                                        <Input onChange={(e) => setInquireContent(e.target.value)} style={{ fontSize: "14px" }} className="ask-modal-body-input" type="textarea" placeholder="문의하실 내용을 입력해주세요" rows={5} />
                                         <div>
                                             <div style={{ margin: "15px 0" }}>
                                                 <span>첨부 이미지 파일은 최대 3장입니다.</span>
@@ -894,8 +881,7 @@ export default function ProductDetail() {
                                         <div>1. 이미 설치하거나 사용한 제품은 재판매가 어렵기 때문에 반품 불가.</div>
                                         <div>2. 제품의 포장이나 라벨이 훼손되어 상품 가치가 감소한 경우.</div>
                                         <div>
-                                            3. 배송 후 일정 기간 <span className="detail-bottom-return-third-div-span">(예: 7일, 14일 등)</span> 이상 지난 경우, 또는 날씨·환경으로 인해 제품 가치가
-                                            감소한 경우.
+                                            3. 배송 후 일정 기간 <span className="detail-bottom-return-third-div-span">(예: 7일, 14일 등)</span> 이상 지난 경우, 또는 날씨·환경으로 인해 제품 가치가 감소한 경우.
                                         </div>
                                     </div>
                                 </div>

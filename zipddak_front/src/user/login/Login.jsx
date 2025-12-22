@@ -52,14 +52,13 @@ export default function Login() {
             });
     };
 
-
     return (
         <>
             <div className="signUp-box">
                 <div className="login">
                     {/* <div className="logo"></div> */}
                     <a href="/zipddak/main">
-                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                     </a>
                     <div className="title">로그인</div>
 
@@ -86,8 +85,8 @@ export default function Login() {
 
                     <div className="line1"></div>
 
-                    <form className="input_form">
-                        
+                    {/* <form className="input_form"> */}
+                    <div className="input_form">
                         <div className="input_parts">
                             <div className="input_label">이메일</div>
                             <Input name="username" placeholder="이메일을 입력해주세요." type="email" onChange={(e) => setUsername(e.target.value)} />
@@ -117,8 +116,7 @@ export default function Login() {
                                 </Button>
                             </div>
                         </div>
-                        
-                    </form>
+                    </div>
 
                     <div className="loginFooter">
                         <div className="input_detail">아직 회원이 아니신가요?</div>

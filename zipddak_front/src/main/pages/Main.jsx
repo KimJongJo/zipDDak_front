@@ -276,6 +276,11 @@ export default function Main() {
 
                     <div className="expert-cards">
                         {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={toggleFavorite} />)}
+                        {Array.isArray(expert) && expert.map((expertCard) => <Expert key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
+                        <div className="card-more">
+                            <ArrowRight />
+                        </div>
+
 
                     </div>
                 </div>
@@ -321,6 +326,8 @@ export default function Main() {
                     </div>
 
                     <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
+
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -440,9 +447,12 @@ export default function Main() {
                     </div>
 
                     <div className="community-cards">
-                        <div className="grid-cm">
-                            {Array.isArray(community) && community.map((communityCard) =>
-                                <Community key={communityCard.communityId} community={communityCard} />)}</div>
+                        <div className="grid-cm">{Array.isArray(community) && community.map((communityCard) => <Community key={communityCard.communityIdx} community={communityCard} />)}</div>
+                        {/* <div className="row-cm maincom">
+                            {community.map((comm) => {
+                                <Community community={comm} />;
+                            })}
+                        </div> */}
                     </div>
                 </div>
             </div>
