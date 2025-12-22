@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
+import { tokenAtom, userAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
 export default function ProductRegist() {
@@ -22,6 +22,7 @@ export default function ProductRegist() {
     const pageTitle = usePageTitle("상품관리 > 상품 등록");
     const navigate = useNavigate();
     const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
 
     //상품명 입력
     const [productName, setProductName] = useState("");
@@ -139,6 +140,9 @@ export default function ProductRegist() {
 
         try {
             const formData = new FormData();
+
+            // 0) 판매업체
+            formData.append("username", user.username);
 
             // 1) 상품명
             formData.append("name", productName);
