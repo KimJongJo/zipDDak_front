@@ -39,6 +39,7 @@ export default function ReturnDetail() {
     const [selectedItem, setSelectedItem] = useState(null);
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
 
     //테이블 체크박스 상태
     const {
@@ -97,8 +98,8 @@ export default function ReturnDetail() {
     };
     //초기화면 로딩
     useEffect(() => {
-        getRefundRequestDetail();
-    }, []);
+        user.username && getRefundRequestDetail();
+    }, [user]);
 
     // 데이터 로딩 전에는 렌더링 막기
     if (!reqOrder) {
@@ -197,11 +198,18 @@ export default function ReturnDetail() {
                                                                 reqItems.map((it) => (
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>
-                                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)} />
+                                                                            <Input
+                                                                                type="checkbox"
+                                                                                checked={checkedItems.has(it.orderItemIdx)}
+                                                                                onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)}
+                                                                            />
                                                                         </td>
                                                                         <td>{it.rowNumber}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "60px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "60px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -409,11 +417,18 @@ export default function ReturnDetail() {
                                                                 {acceptedItems.map((it) => (
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>
-                                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)} />
+                                                                            <Input
+                                                                                type="checkbox"
+                                                                                checked={checkedItems.has(it.orderItemIdx)}
+                                                                                onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)}
+                                                                            />
                                                                         </td>
                                                                         <td>{it.rowNumber}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "40px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -678,7 +693,10 @@ export default function ReturnDetail() {
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>{it.rowNumber}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "40px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -724,8 +742,26 @@ export default function ReturnDetail() {
                             </div>
                         )}
                     </div>
-                    <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={setIsRejectModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} rejectType="반품 거절" />
-                    <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={setIsAcceptModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} acceptType="반품 접수" />
+                    <ModalReject
+                        rejectModalOpen={isRejectModalOpen}
+                        setRejectModalOpen={setIsRejectModalOpen}
+                        selectedItems={getSelected()}
+                        targetItemIdx={selectedItem}
+                        idx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        resetChecked={resetChecked}
+                        rejectType="반품 거절"
+                    />
+                    <ModalAccept
+                        acceptModalOpen={isAcceptModalOpen}
+                        setAcceptModalOpen={setIsAcceptModalOpen}
+                        selectedItems={getSelected()}
+                        targetItemIdx={selectedItem}
+                        idx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        resetChecked={resetChecked}
+                        acceptType="반품 접수"
+                    />
                     <ModalTrackingRegist
                         trackingModalOpen={isTrackingModalOpen}
                         setTrackingModalOpen={setIsTrackingModalOpen}

@@ -16,6 +16,9 @@ export default function ReturnList() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
+    const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
+
     const [myRefundList, setMyRefundList] = useState([]);
     const [myRefundCount, setMyRefundCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
@@ -53,14 +56,7 @@ export default function ReturnList() {
     //날짜 변경 시 자동 검색
     useEffect(() => {
         submit(1);
-    }, [searchOrderDate]);
-    useEffect(() => {
-        submit(1);
-    }, [searchRequestDate]);
-    // 필터 변경 시 자동 submit
-    useEffect(() => {
-        submit(1);
-    }, [selectedStatus]);
+    }, [searchOrderDate, searchRequestDate, selectedStatus, user]);
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {

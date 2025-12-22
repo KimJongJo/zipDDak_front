@@ -22,6 +22,7 @@ import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom, useAtomValue } from "jotai";
 
 export default function ProductModify() {
+    const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
@@ -158,7 +159,7 @@ export default function ProductModify() {
     // 2) 기존 상품 불러오기
     // -----------------------------
     useEffect(() => {
-        if (!productIdx) return;
+        if (!productIdx || !user) return;
 
         const params = new URLSearchParams();
         params.append("sellerId", user.username);
@@ -272,7 +273,7 @@ export default function ProductModify() {
                     navigate(`/seller/productList`); //상품 리스트로 이동
                 }
             });
-    }, [productIdx]);
+    }, [productIdx, user]);
 
     // -----------------------------
     // 3) 수정 폼 제출
@@ -282,6 +283,7 @@ export default function ProductModify() {
 
         try {
             const formData = new FormData();
+
             // 1) 상품명
             formData.append("name", productName);
 
@@ -521,7 +523,13 @@ export default function ProductModify() {
                                     {categories.map((cat) => (
                                         <FormGroup key={cat.categoryIdx} check inline className="mt-2">
                                             <Label check>
-                                                <Input type="radio" name="productCategory" value={cat.categoryIdx} checked={String(selectedCategory) === String(cat.categoryIdx)} onChange={(e) => setSelectedCategory(e.target.value)} />
+                                                <Input
+                                                    type="radio"
+                                                    name="productCategory"
+                                                    value={cat.categoryIdx}
+                                                    checked={String(selectedCategory) === String(cat.categoryIdx)}
+                                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                                />
                                                 {cat.name}
                                             </Label>
                                         </FormGroup>
@@ -533,7 +541,13 @@ export default function ProductModify() {
                                         {subCategories.map((sub) => (
                                             <FormGroup check inline key={sub.categoryIdx}>
                                                 <Label check>
-                                                    <Input type="radio" name="productSubCategory" value={sub.categoryIdx} checked={String(selectedSubCategory) === String(sub.categoryIdx)} onChange={(e) => setSelectedSubCategory(e.target.value)} />
+                                                    <Input
+                                                        type="radio"
+                                                        name="productSubCategory"
+                                                        value={sub.categoryIdx}
+                                                        checked={String(selectedSubCategory) === String(sub.categoryIdx)}
+                                                        onChange={(e) => setSelectedSubCategory(e.target.value)}
+                                                    />
                                                     {sub.name}
                                                 </Label>
                                             </FormGroup>
@@ -691,7 +705,12 @@ export default function ProductModify() {
                                                                     <span className="blankSpace">~</span>
                                                                 </Label>
                                                                 <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom">
-                                                                    <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="small-button2"
+                                                                        style={{ marginBottom: "2px" }}
+                                                                        onClick={() => removeValueLine(optionIdx, valueIdx)}
+                                                                    >
                                                                         <i className="bi bi-dash-lg"></i>
                                                                     </button>
                                                                 </Tippy>

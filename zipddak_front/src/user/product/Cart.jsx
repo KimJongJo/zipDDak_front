@@ -72,7 +72,6 @@ export default function Cart() {
         let totalShippingFee = 0;
 
         groupedCart.forEach((store) => {
-            // 배송 단위별 그룹핑
             const shippingGroups = store.productList.reduce((acc, product) => {
                 if (!acc[product.postType]) acc[product.postType] = [];
                 acc[product.postType].push(product);
@@ -80,34 +79,36 @@ export default function Cart() {
             }, {});
 
             Object.values(shippingGroups).forEach((products) => {
-                // 묶음배송인지 확인
                 const isBundleGroup = products[0].postType === "bundle";
 
                 if (!isBundleGroup) {
-                    // ★ 개별배송(single)
+                    // ★ 개별배송
                     products.forEach((product) => {
                         if (checkedItems[product.cartIdx]) {
-                            totalPrice += (product.productSalePrice + product.optionPrice) * product.quantity;
+                            const basePrice = (product.productSalePrice ?? product.price) + product.optionPrice;
+
+                            totalPrice += basePrice * product.quantity;
                             totalShippingFee += product.postCharge * product.quantity;
                         }
                     });
                 } else {
-                    // ★ 묶음배송(bundle)
-                    let bundleCheckedAmount = 0; // 체크된 상품들의 합계
-                    let hasChecked = false; // 이 묶음 그룹에 체크된 상품이 있는지
+                    // ★ 묶음배송
+                    let bundleCheckedAmount = 0;
+                    let hasChecked = false;
 
                     products.forEach((product) => {
                         if (checkedItems[product.cartIdx]) {
                             hasChecked = true;
-                            bundleCheckedAmount += (product.productSalePrice + product.optionPrice) * product.quantity;
-                            totalPrice += (product.productSalePrice + product.optionPrice) * product.quantity;
+
+                            const basePrice = (product.productSalePrice ?? product.price) + product.optionPrice;
+
+                            bundleCheckedAmount += basePrice * product.quantity;
+                            totalPrice += basePrice * product.quantity;
                         }
                     });
 
-                    // 묶음배송인데 체크된 상품이 1개도 없으면 배송비 계산할 필요 없음
                     if (!hasChecked) return;
 
-                    // ★ 묶음배송의 무료배송 조건 체크
                     if (bundleCheckedAmount < store.freeChargeAmount) {
                         totalShippingFee += store.basicPostCharge;
                     }
@@ -380,7 +381,11 @@ export default function Cart() {
                                                             </td>
 
                                                             <td style={{ textAlign: "center" }}>
-                                                                <span className="font-14 medium">{((product.productSalePrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
+                                                                {product.productSalePrice ? (
+                                                                    <span className="font-14 medium">{((product.productSalePrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
+                                                                ) : (
+                                                                    <span className="font-14 medium">{((product.productPrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
+                                                                )}
                                                             </td>
 
                                                             <td style={{ textAlign: "center" }}>

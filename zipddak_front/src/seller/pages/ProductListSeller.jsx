@@ -12,6 +12,7 @@ import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 
 export default function ProductList() {
+    const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품 조회 리스트");
     const navigate = useNavigate();
     const [user, setUser] = useAtom(userAtom);
@@ -26,6 +27,8 @@ export default function ProductList() {
     const [categories, setCategories] = useState([]);
     const [categoryMap, setCategoryMap] = useState({}); //리스트에 매핑할 카테고리Map
     useEffect(() => {
+        if (!user) return;
+
         myAxios(token, setToken)
             // .get(`/seller/product/categories?sellerId=${sellerId}`)
             .get(`/product/categories?sellerId=${user.username}`)
@@ -37,7 +40,7 @@ export default function ProductList() {
                 setCategoryMap(map);
             })
             .catch((err) => console.error(err));
-    }, []);
+    }, [user]);
 
     // 필터 상태값
     const [selectedStatus, setSelectedStatus] = useState([]);
@@ -276,7 +279,10 @@ export default function ProductList() {
                                                     myProductList.map((myProduct) => (
                                                         <tr key={myProduct.productIdx} onClick={() => navigate(`/seller/productDetail/${myProduct.productIdx}`)}>
                                                             <td className={table.img_cell} style={{ padding: "0" }}>
-                                                                <img src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "50%" }} />
+                                                                <img
+                                                                    src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"}
+                                                                    style={{ width: "50%" }}
+                                                                />
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>

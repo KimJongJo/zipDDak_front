@@ -15,6 +15,8 @@ export default function OrderList() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 리스트");
     const navigate = useNavigate();
 
+    const [user, setUser] = useAtom(userAtom);
+
     const [myOrderList, setMyOrderList] = useState([]);
     const [myOrderCount, setMyOrderCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);
@@ -100,8 +102,10 @@ export default function OrderList() {
 
     // 최초 1회 로딩
     useEffect(() => {
+        if (!user) return;
+
         submit(1);
-    }, []);
+    }, [user]);
 
     return (
         <>

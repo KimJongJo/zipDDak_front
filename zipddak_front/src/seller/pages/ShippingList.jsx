@@ -16,6 +16,9 @@ export default function ShippingList() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
+    const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
+
     const [myShippingList, setMyShippingList] = useState([]);
     const [myShippingCount, setMyShippingCount] = useState(0);
     const [pageBtn, setPageBtn] = useState([]);

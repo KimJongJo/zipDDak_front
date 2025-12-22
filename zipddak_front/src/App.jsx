@@ -178,7 +178,7 @@ function App() {
                 <Route path="main" element={<Main />} />
                 <Route path="main/search/:search" element={<MainSearch />} />
                 <Route path="main/best" element={<Best />} />
-                <Route path="market/return/:orderId" element={<MarketReturnForm />} />
+
                 <Route path="map" element={<KakaoMapTestPage />} />
 
                 {/* 일반사용자 공구대여 */}
@@ -226,6 +226,7 @@ function App() {
                     <Route path="reviews" element={<Reviews />} />
                     <Route path="market/orders" element={<MarketOrders />} />
                     <Route path="market/returns" element={<MarketReturns />} />
+                    <Route path="market/return/:orderIdx" element={<MarketReturnForm />} />
                     <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
                     <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
                     <Route path="tools/my" element={<MyTool />} />

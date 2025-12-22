@@ -37,10 +37,19 @@ export default function Product({ product, toggleFavorite, label }) {
                 {/* 자재이름 */}
                 <div className="product-name">{product.name}</div>
                 <div>
-                    {/* 세일 퍼센트 */}
-                    <span className="sale">{product.discount}%</span>
-                    {/* 세일 가격 */}
-                    <span className="sale-price">{product.salePrice?.toLocaleString()}</span>
+                    {product.discount ? (
+                        <>
+                            {/* 세일 퍼센트 */}
+                            <span className="sale">{product.discount}%</span>
+                            <del>
+                                <span>{product.price?.toLocaleString()} </span>
+                            </del>
+                            {/* 세일 가격 */}
+                            <span className="sale-price">{product.salePrice?.toLocaleString()}원</span>
+                        </>
+                    ) : (
+                        <span className="sale-price">{product.price?.toLocaleString()}원</span>
+                    )}
                 </div>
                 <div>
                     <i className="bi bi-star-fill star-icon"></i>
