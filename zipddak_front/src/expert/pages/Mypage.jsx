@@ -1,35 +1,33 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
-import "../css/mypage.css";
-import { baseUrl, myAxios } from "../../config";
+import "../../user/css/mypage.css";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
+import { baseUrl, myAxios } from "../../config";
 
-export default function Mypage() {
+export function Mypage() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     // 전문가 <-> 고객 전환
     const expertToggle = () => {
-        if (user.role === "USER") {
-            navigate("/zipddak/signUp/expert");
-            return;
-        }
-
         myAxios(token, setToken)
             .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
             .then((res) => {
-                if (res.data) {
-                    setUser(res.data);
-                    navigate("/expert/mypage");
-                }
+                setUser(res.data);
+                navigate("/zipddak/mypage");
             })
             .catch((err) => {
                 console.log(err);
             });
     };
+
+    const isReceiveActive = location.pathname.startsWith("/expert/mypage/receive");
+    const isSentActive = location.pathname.startsWith("/expert/mypage/sent");
+    const isWorksActive = location.pathname.startsWith("/expert/mypage/works");
 
     const navTitleStyle = {
         display: "flex",
@@ -85,7 +83,7 @@ export default function Mypage() {
                     }}
                     onClick={() => {
                         // window.scrollTo(0, 0);
-                        navigate("/zipddak/mypage");
+                        navigate("/expert/mypage");
                     }}
                 >
                     마이페이지
@@ -99,167 +97,132 @@ export default function Mypage() {
                         gap: "16px",
                     }}
                 >
-                    <img src={`${baseUrl}/imageView?type=profile&filename=${user.profile}`} width="96px" height="96px" style={{ borderRadius: "999px" }} />
-                    {user.role === "USER" ? (
+                    <img src={`${baseUrl}/imageView?type=expert&filename=${user.profile}`} width="96px" height="96px" style={{ borderRadius: "12px" }} />
+                    <div
+                        style={{
+                            width: "100%",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "6px",
+                        }}
+                    >
                         <button
                             className="secondary-button"
-                            style={{ width: "160px", height: "33px" }}
+                            style={{
+                                width: "100%",
+                                height: "33px",
+                                fontSize: "12px",
+                            }}
                             onClick={() => {
-                                navigate("/zipddak/signUp/expert");
+                                // window.scrollTo(0, 0);
+                                navigate("/expert/profile/edit");
                             }}
                         >
-                            전문가 가입
+                            프로필 수정
                         </button>
-                    ) : (
+
                         <button
                             className="secondary-button"
-                            style={{ width: "160px", height: "33px" }}
+                            style={{
+                                width: "100%",
+                                height: "33px",
+                                fontSize: "12px",
+                                backgroundColor: "#293341",
+                                color: "#fff",
+                            }}
                             onClick={() => {
                                 expertToggle();
                             }}
                         >
-                            전문가로 전환
+                            일반 사용자로 전환
                         </button>
-                    )}
+                    </div>
                 </div>
                 <nav>
                     <div style={{ padding: " 10px 0 14px 0" }}>
-                        <p style={navTitleStyle}>공구 대여</p>
+                        <p style={navTitleStyle}>전문가 활동</p>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/tools/my"
-                            style={({ isActive }) => ({
+                            to="/expert/mypage/works"
+                            style={{
                                 ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
+                                backgroundColor: isWorksActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                            }}
                         >
-                            내 공구
+                            작업내역
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/tools/rentals"
-                            style={({ isActive }) => ({
+                            to="/expert/mypage/receive/requests"
+                            style={{
                                 ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
+                                backgroundColor: isReceiveActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                            }}
                         >
-                            대여 내역
-                        </NavLink>
-                    </div>
-
-                    <div style={{ padding: " 10px 0 14px 0" }}>
-                        <p style={navTitleStyle}>전문가 찾기</p>
-                        <NavLink
-                            // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/expert/works"
-                            style={({ isActive }) => ({
-                                ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
-                        >
-                            시공·수리 내역
+                            받은 요청서
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/expert/requests/active"
-                            style={({ isActive }) => ({
+                            to="/expert/mypage/sent/estimates"
+                            style={{
                                 ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
+                                backgroundColor: isSentActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                            }}
                         >
-                            진행중인 견적 요청
-                        </NavLink>
-                        <NavLink
-                            // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/expert/requests/history"
-                            style={({ isActive }) => ({
-                                ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
-                        >
-                            과거 견적 요청
+                            보낸 견적서
                         </NavLink>
                     </div>
 
                     <div style={{ padding: " 10px 0 14px 0" }}>
-                        <p style={navTitleStyle}>마켓</p>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/market/orders"
+                            to="/expert/mypage/settlement"
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
                             })}
                         >
-                            주문·배송조회
+                            매출정산 관리
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/market/returns"
+                            to="/expert/mypage/membership"
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
                             })}
                         >
-                            취소·교환·반품 내역
-                        </NavLink>
-                    </div>
-
-                    <div style={{ padding: " 10px 0 14px 0" }}>
-                        <p style={navTitleStyle}>내 활동</p>
-                        <NavLink
-                            // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/likes"
-                            style={({ isActive }) => ({
-                                ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
-                        >
-                            관심
+                            내 멤버십
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/reviews"
+                            to="/expert/mypage/community"
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
                             })}
                         >
-                            후기
+                            내 게시글
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/community"
+                            to="/expert/mypage/inquiries"
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
                             })}
                         >
-                            게시물
+                            1:1 문의내역
                         </NavLink>
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/inquiries"
+                            to="/expert/mypage/account"
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
                             })}
                         >
-                            1:1문의내역
-                        </NavLink>
-                    </div>
-
-                    <div style={{ padding: " 10px 0 14px 0" }}>
-                        <p style={navTitleStyle}>내 정보</p>
-                        <NavLink
-                            // onClick={() => window.scrollTo(0, 0)}
-                            to="/zipddak/mypage/account"
-                            style={({ isActive }) => ({
-                                ...navStyle,
-                                backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
-                            })}
-                        >
-                            회원정보수정
+                            정산계좌 관리
                         </NavLink>
                     </div>
                 </nav>
