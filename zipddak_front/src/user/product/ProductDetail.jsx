@@ -227,7 +227,7 @@ export default function ProductDetail() {
     // 관심 토글
     const favoriteToggle = async (productIdx) => {
         if (user.username === "") {
-            navigate("/zipddak/login");
+            navigate("/login");
             return;
         }
         await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
@@ -269,7 +269,7 @@ export default function ProductDetail() {
     // 장바구니에 담기
     const addCart = () => {
         if (user.username === "") {
-            navigate("/zipddak/login");
+            navigate("/login");
             return;
         }
 
@@ -563,7 +563,7 @@ export default function ProductDetail() {
                                     <button
                                         onClick={() => {
                                             if (user.username === "") {
-                                                navigate("/zipddak/login");
+                                                navigate("/login");
                                             } else {
                                                 if (orderList.length === 0) {
                                                     setModalMessage("한 개 이상의 상품을 담아주세요");
@@ -716,7 +716,7 @@ export default function ProductDetail() {
                                         className="detail-bottom-ask-button"
                                         onClick={() => {
                                             if (user.username === "") {
-                                                navigate("/zipddak/login");
+                                                navigate("/login");
                                             } else {
                                                 setModal(true);
                                             }
@@ -986,7 +986,7 @@ export default function ProductDetail() {
                                     <button
                                         onClick={() => {
                                             if (user.username === "") {
-                                                navigate("/zipddak/login");
+                                                navigate("/login");
                                             } else {
                                                 if (orderList.length === 0) {
                                                     alert("한 개 이상의 상품을 담아야 합니다.");
