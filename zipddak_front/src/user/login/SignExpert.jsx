@@ -297,7 +297,7 @@ export default function SignExpert() {
                     if (res.data == true) {
                         console.log(res);
                         setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.");
-                        navigate(`/zipddak/login`);
+                        navigate(`/login`);
                     } else {
                         setMessage("전문가 회원가입 실패");
                     }
@@ -318,8 +318,8 @@ export default function SignExpert() {
         <>
             <div className="signUp-box">
                 <div className="SignExpert">
-                    <a href="/zipddak/main" >
-                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                    <a href="/zipddak/main">
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                     </a>
                     <div className="title">전문가 회원가입</div>
 

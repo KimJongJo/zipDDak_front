@@ -19,6 +19,8 @@ export default function Experts() {
     const [hasMore, setHasMore] = useState(true); // 더 불러올 데이터 존재 여부
     const observer = useRef();
 
+    const [flag, setFlag] = useState(false);
+
     // 검색창에 있는 text 가져오기
     const inputRef = useRef(null);
     const [keyword, setKeyword] = useState("");
@@ -84,6 +86,15 @@ export default function Experts() {
         setHasMore(true);
     };
 
+    const filterReset = () => {
+        setExpertList([]);
+        setAddExpertList([]);
+        setPage(1);
+        setHasMore(true);
+        setKeyword("");
+        setFlag(!flag);
+    };
+
     // 첫 화면을 불러올때
 
     useEffect(() => {
@@ -91,7 +102,7 @@ export default function Experts() {
             console.log(res.data);
             setAddExpertList(res.data);
         });
-    }, [selectMajor]);
+    }, [selectMajor, flag]);
 
     useEffect(() => {
         if (!hasMore) return;
@@ -122,19 +133,22 @@ export default function Experts() {
                 </div>
                 {/* 검색바 + 전문가 프로필 */}
                 <div className="experts-search-expert-div">
-                    {/* 검색바 */}
-                    <div className="experts-search-bar-div">
-                        <Input onChange={(e) => setKeyword(e.target.value)} ref={inputRef} placeholder="위치 및 전문가 명을 검색해주세요" className="experts-search-bar-input font-14" />
-                        <button onClick={keywordSearch} className="experts-search-bar-button">
-                            <i className="bi bi-search "></i>
+                    <div style={{ display: "flex", gap: "15px" }}>
+                        {/* 검색바 */}
+                        <div className="experts-search-bar-div">
+                            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} ref={inputRef} placeholder="검색어를 입력해주세요" className="experts-search-bar-input font-14" />
+                            <button onClick={keywordSearch} className="experts-search-bar-button">
+                                <i className="bi bi-search "></i>
+                            </button>
+                        </div>
+                        <button onClick={filterReset} style={{ height: "45px", border: "none", borderRadius: "5px", backgroundColor: "lightgray", color: "#ffffff" }}>
+                            초기화
                         </button>
                     </div>
 
                     {/* 추천 전문가(광고) + 견적 요청 버튼 */}
                     <div className="experts-add-expert-div">
-                        <span className="font-18 semibold add-experts-span">
-                            추천 전문가<span className="font-14 semibold add">(광고)</span>
-                        </span>
+                        <span className="font-18 semibold add-experts-span">추천 전문가</span>
                         <button onClick={() => navigate("/zipddak/findExpert")} type="button" className="experts-request-button font-14 semibold">
                             견적 요청
                         </button>
@@ -158,6 +172,8 @@ export default function Experts() {
                             />
                         ))}
                     </div>
+
+                    <div style={{ width: "100%", height: "1px", backgroundColor: "lightgray", display: "flex", justifyContent: "center" }}></div>
 
                     {/* 전문가 + 정렬 필터 */}
                     <div className="experts-search-expert-sort">
