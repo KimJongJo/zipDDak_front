@@ -18,10 +18,11 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
+import { tokenAtom, userAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
 export default function ProductModify() {
+    const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
@@ -157,10 +158,10 @@ export default function ProductModify() {
     // 2) 기존 상품 불러오기
     // -----------------------------
     useEffect(() => {
-        if (!productIdx) return;
+        if (!productIdx || !user) return;
 
         const params = new URLSearchParams();
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         params.append("num", productIdx);
 
         const productDetailUrl = `/product/myProductDetail?${params.toString()}`;
@@ -271,7 +272,7 @@ export default function ProductModify() {
                     navigate(`/seller/productList`); //상품 리스트로 이동
                 }
             });
-    }, [productIdx]);
+    }, [productIdx, user]);
 
     // -----------------------------
     // 3) 수정 폼 제출
@@ -281,6 +282,7 @@ export default function ProductModify() {
 
         try {
             const formData = new FormData();
+
             // 1) 상품명
             formData.append("name", productName);
 
@@ -338,7 +340,7 @@ export default function ProductModify() {
             // 7) 상품 공개 유무
             formData.append("visibleYn", visible);
 
-            formData.append("sellerId", "ss123");
+            formData.append("sellerId", user.username);
             formData.append("num", productIdx);
 
             // 8) 서버 전송
@@ -520,7 +522,13 @@ export default function ProductModify() {
                                     {categories.map((cat) => (
                                         <FormGroup key={cat.categoryIdx} check inline className="mt-2">
                                             <Label check>
-                                                <Input type="radio" name="productCategory" value={cat.categoryIdx} checked={String(selectedCategory) === String(cat.categoryIdx)} onChange={(e) => setSelectedCategory(e.target.value)} />
+                                                <Input
+                                                    type="radio"
+                                                    name="productCategory"
+                                                    value={cat.categoryIdx}
+                                                    checked={String(selectedCategory) === String(cat.categoryIdx)}
+                                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                                />
                                                 {cat.name}
                                             </Label>
                                         </FormGroup>
@@ -532,7 +540,13 @@ export default function ProductModify() {
                                         {subCategories.map((sub) => (
                                             <FormGroup check inline key={sub.categoryIdx}>
                                                 <Label check>
-                                                    <Input type="radio" name="productSubCategory" value={sub.categoryIdx} checked={String(selectedSubCategory) === String(sub.categoryIdx)} onChange={(e) => setSelectedSubCategory(e.target.value)} />
+                                                    <Input
+                                                        type="radio"
+                                                        name="productSubCategory"
+                                                        value={sub.categoryIdx}
+                                                        checked={String(selectedSubCategory) === String(sub.categoryIdx)}
+                                                        onChange={(e) => setSelectedSubCategory(e.target.value)}
+                                                    />
                                                     {sub.name}
                                                 </Label>
                                             </FormGroup>
@@ -690,7 +704,12 @@ export default function ProductModify() {
                                                                     <span className="blankSpace">~</span>
                                                                 </Label>
                                                                 <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom">
-                                                                    <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="small-button2"
+                                                                        style={{ marginBottom: "2px" }}
+                                                                        onClick={() => removeValueLine(optionIdx, valueIdx)}
+                                                                    >
                                                                         <i className="bi bi-dash-lg"></i>
                                                                     </button>
                                                                 </Tippy>

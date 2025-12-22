@@ -8,10 +8,11 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
+import { tokenAtom, userAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
 export default function ProductList() {
+    const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품 조회 리스트");
     const navigate = useNavigate();
     const [token, setToken] = useAtom(tokenAtom);
@@ -25,9 +26,11 @@ export default function ProductList() {
     const [categories, setCategories] = useState([]);
     const [categoryMap, setCategoryMap] = useState({}); //리스트에 매핑할 카테고리Map
     useEffect(() => {
+        if (!user) return;
+
         myAxios(token, setToken)
             // .get(`/seller/product/categories?sellerId=${sellerId}`)
-            .get(`/product/categories?sellerId=ss123`)
+            .get(`/product/categories?sellerId=${user.username}`)
             .then((res) => {
                 setCategories(res.data); // 필터에 카테고리명 매핑
 
@@ -36,7 +39,7 @@ export default function ProductList() {
                 setCategoryMap(map);
             })
             .catch((err) => console.error(err));
-    }, []);
+    }, [user]);
 
     // 필터 상태값
     const [selectedStatus, setSelectedStatus] = useState([]);
@@ -50,7 +53,7 @@ export default function ProductList() {
         myAxios(token, setToken)
             .get("/product/myProductList", {
                 params: {
-                    sellerId: "ss123",
+                    sellerId: user.username,
                     page,
                     category: category || null,
                     status: status || null,
@@ -121,7 +124,8 @@ export default function ProductList() {
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
-        const productListUrl = `/product/myProductList` + `?sellerId=ss123` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
+        const productListUrl =
+            `/product/myProductList` + `?sellerId=${user.username}` + `&page=${page}` + `&status=${selectedStatus.join(",")}` + `&category=${selectedCategory.join(",")}` + `&keyword=${keyword}`;
         myAxios(token, setToken)
             .get(productListUrl)
             .then((res) => {
@@ -266,7 +270,10 @@ export default function ProductList() {
                                                     myProductList.map((myProduct) => (
                                                         <tr key={myProduct.productIdx} onClick={() => navigate(`/seller/productDetail/${myProduct.productIdx}`)}>
                                                             <td className={table.img_cell} style={{ padding: "0" }}>
-                                                                <img src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "50%" }} />
+                                                                <img
+                                                                    src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"}
+                                                                    style={{ width: "50%" }}
+                                                                />
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
