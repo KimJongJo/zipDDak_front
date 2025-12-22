@@ -29,6 +29,7 @@ export default function ToolLent() {
     const [images, setImages] = useState([]);
     const [files, setFiles] = useState([]);
     const [rating, setRating] = useState(0);
+    
     // 후기 이미지 업로드
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
