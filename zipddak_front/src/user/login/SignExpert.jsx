@@ -318,8 +318,8 @@ export default function SignExpert() {
         <>
             <div className="signUp-box">
                 <div className="SignExpert">
-                    <a href="/zipddak/main" >
-                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                    <a href="/zipddak/main">
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                     </a>
                     <div className="title">전문가 회원가입</div>
 
@@ -376,13 +376,7 @@ export default function SignExpert() {
                                                     {repairCategory.repair1.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
@@ -396,13 +390,7 @@ export default function SignExpert() {
                                                     {repairCategory.repair2.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
@@ -416,13 +404,7 @@ export default function SignExpert() {
                                                     {repairCategory.repair3.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
@@ -462,13 +444,7 @@ export default function SignExpert() {
                                                     {interiorCategory.interior1.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
@@ -481,13 +457,7 @@ export default function SignExpert() {
                                                     {interiorCategory.interior2.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
@@ -500,13 +470,7 @@ export default function SignExpert() {
                                                     {interiorCategory.interior3.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                                <Input
-                                                                    type="checkbox"
-                                                                    name={c.categoryIdx}
-                                                                    value={c.categoryIdx}
-                                                                    checked={checkedCategory.includes(c.categoryIdx)}
-                                                                    onChange={handleCategoryCheck}
-                                                                />
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
                                                                 {c.name}
                                                             </Label>
                                                         </div>
