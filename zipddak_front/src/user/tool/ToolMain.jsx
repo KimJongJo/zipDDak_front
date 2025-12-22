@@ -14,6 +14,7 @@ export default function ToolMain() {
 
     const [tool, setTool] = useState([]);
     const navigate = useNavigate();
+
     const [offset, setOffset] = useState(0);
     const INIT_SIZE = 15;
     const MORE_SIZE = 5;
@@ -265,7 +266,15 @@ export default function ToolMain() {
                     <div className={`maplist ${openMap ? "open" : ""}`}>
                         <div className="map"></div>
                         <div className="list">
-                            <div className="list-card">{Array.isArray(tool) && tool.map((toolCard) => <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
+                            <div className="list-card">
+
+                                {Array.isArray(tool) &&
+                                    tool.map(toolCard => (
+                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                                    ))
+                                }
+
+                            </div>
 
                             <div className="c-btn">
                                 <div className="m-btn">
@@ -309,7 +318,13 @@ export default function ToolMain() {
                         </FormGroup>
                     </div>
 
-                    <div className="toolMaincards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
+                    <div className="toolMaincards">
+                        {Array.isArray(tool) &&
+                            tool.map(toolCard => (
+                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                            ))
+                        }
+                    </div>
 
                     <div
                         className="moreBtn"

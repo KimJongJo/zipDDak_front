@@ -95,7 +95,7 @@ export default function RegistTool() {
 
     useEffect(() => {
         if (freeRental) {
-            setTool((prev) => ({
+            setTool(prev => ({
                 ...prev,
                 postCharge: 0
             }));
@@ -223,8 +223,11 @@ export default function RegistTool() {
 
     };
 
-    //취소
-    const cancal = () => {};
+    //취소 
+    const cancal = () => {
+
+    }
+
 
     return (
         <>
@@ -617,10 +620,10 @@ export default function RegistTool() {
 
                 <Modal isOpen={modal}>
                     <ModalHeader>회원가입</ModalHeader>
-                    <ModalBody>{message}</ModalBody>
-                    <Button color="primary" onClick={() => setModal(false)}>
-                        확인
-                    </Button>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                    <Button color="primary" onClick={() => setModal(false)} >확인</Button>
                 </Modal>
 
 
