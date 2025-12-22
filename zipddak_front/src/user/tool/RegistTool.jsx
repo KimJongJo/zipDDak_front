@@ -16,8 +16,8 @@ export default function RegistTool() {
     const [token, setToken] = useAtom(tokenAtom);
 
     const [tool, setTool] = useState({
-        toolIdx:null, name: '', category: '83', rentalPrice: 0, freeRental: false, content: '', tradeAddr: '주소',
-        directRental: false, postRental: false, freePost: false, postCharge: 0, zonecode: "", addr1: "",
+        toolIdx: null, name: '', category: '83', rentalPrice: '', freeRental: false, content: '', tradeAddr: '주소',
+        directRental: false, postRental: false, freePost: false, postCharge: '', zonecode: "", addr1: "",
         addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
         img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
         settleBank: "", settleAccount: "", settleHost: ""
@@ -159,11 +159,12 @@ export default function RegistTool() {
 
     //등록
     const regist = () => {
-
-        checkOption();
+        console.log("why ")
 
         const submitTool = {
-            ...tool,
+            name: tool.name,
+            rentalPrice: tool.rentalPrice,
+            content: tool.content,
             category: tCategory,
             satus: toolStatus,
             freeRental,
@@ -172,8 +173,17 @@ export default function RegistTool() {
             directRental,
             freePost,
             owner: user.username,
+            postCharge: tool.postCharge,
+            zonecode: tool.zonecode,
+            addr1: tool.addr1,
+            addr2: tool.addr2,
+            settleBank: tool.settleBank,
+            settleAccount: tool.settleAccount,
+            settleHost: tool.settleHost,
+            postRequest: tool.postRequest
         };
 
+        if (!checkOption(submitTool)) return;
 
         const formData = new FormData();
         formData.append(
@@ -189,14 +199,14 @@ export default function RegistTool() {
             formData.append("images", img.file);
         });
 
-
         token && myAxios(token, setToken).post("/tool/regist", formData)
+        
             .then(res => {
-
+                console.log("inAxios");
                 if (res.data) {
                     setMessage("공구 등록 완료!")
                     setModal(true);
-                    
+
                 } else {
                     setMessage("공구 등록 실패")
                     setModal(true);
@@ -208,7 +218,7 @@ export default function RegistTool() {
             .catch(err => {
                 console.log(err);
             })
-          
+
     };
 
     //취소 
@@ -217,19 +227,24 @@ export default function RegistTool() {
     }
 
     //항목확인
-    const checkOption = () => {
-        
-        if(tool.name == null){
+    const checkOption = (submitTool) => {
+
+        if (!submitTool.name) {
             setMessage("공구 이름을 등록해주세요")
             setModal(true);
+            return false;
             
-        }else if (tool.rentalPrice == null){
+        } else if (submitTool.rentalPrice === "" || submitTool.rentalPrice == null) {
             setMessage("공구 1일 대여 금액을 설정해주세요")
             setModal(true);
-        }else if (tool.zonecode && tool.addr1 && tool.addr2 ==null ){
+            return false;
+           
+        } else if (!submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2) {
             setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요")
             setModal(true);
+            return false;
         }
+        return true;
 
     }
 
@@ -378,7 +393,7 @@ export default function RegistTool() {
                             <div className="check-col">
                                 <div className="won">
                                     <Input type="number" name="rentalPrice" className="wonInput" placeholder="1일 대여비"
-                                        value={freeRental ? 0 : Number(tool.rentalPrice)}
+                                        value={tool.rentalPrice}
                                         readOnly={freeRental}
                                         onChange={ChangeInput}
                                     />
@@ -442,7 +457,7 @@ export default function RegistTool() {
                                 <div className="check-col">
                                     <div className="won">
                                         <Input type="number" name="postCharge" className="wonInput" placeholder="배송비"
-                                            value={freePost ? 0 : Number(tool.postCharge)}
+                                            value={tool.postCharge}
                                             readOnly={freePost}
                                             onChange={ChangeInput}
                                         />
