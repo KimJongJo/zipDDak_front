@@ -9,14 +9,14 @@ import ModalSettleCalc from "../component/ModalSettleCalc";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { useState, useEffect, useRef } from "react";
-import { useAtom } from "jotai/react";
-
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 import { myAxios } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
 
 export default function SalesStatistics() {
     const pageTitle = usePageTitle("정산관리 > 매출 통계 조회");
 
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     const [cardData, setCardData] = useState(null);
@@ -26,7 +26,7 @@ export default function SalesStatistics() {
     //초기화면 카드 로딩
     useEffect(() => {
         const params = new URLSearchParams();
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         const salesInfoUrl = `/sales/mySalesCard?${params.toString()}`;
 
         myAxios(token, setToken)
@@ -86,7 +86,7 @@ export default function SalesStatistics() {
                     period: selectedSalesPeriod.toUpperCase(),
                     startDate,
                     endDate,
-                    sellerId: "ss123",
+                    sellerId: user.username,
                 },
             })
             .then((res) => {
@@ -261,7 +261,7 @@ export default function SalesStatistics() {
                             </div>
                         </div>
 
-                        <ModalSettleCalc settleCalcModalOpen={isSettleCalcModalOpen} setSettleCalcModalOpen={setIsSettleCalcModalOpen} sellerId="ss123" />
+                        <ModalSettleCalc settleCalcModalOpen={isSettleCalcModalOpen} setSettleCalcModalOpen={setIsSettleCalcModalOpen} sellerId={user.username} />
                     </div>
                 </div>
             </main>

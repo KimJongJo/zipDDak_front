@@ -9,7 +9,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 // component
 import DeliveryTab from "../component/ProductDeliveryTab";
 import PickupTab from "../component/ProductPickupTab";
-import ModalWarning from "../component/ModalWarning";
+import ModalPdDelete from "../component/ModalPdDelete";
 
 // library
 import { useState, useEffect } from "react";
@@ -18,16 +18,16 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai/react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ProductModify() {
-    const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //경고 모달 상태
 
     // -----------------------------
     // 상품 정보 state
@@ -522,13 +522,7 @@ export default function ProductModify() {
                                     {categories.map((cat) => (
                                         <FormGroup key={cat.categoryIdx} check inline className="mt-2">
                                             <Label check>
-                                                <Input
-                                                    type="radio"
-                                                    name="productCategory"
-                                                    value={cat.categoryIdx}
-                                                    checked={String(selectedCategory) === String(cat.categoryIdx)}
-                                                    onChange={(e) => setSelectedCategory(e.target.value)}
-                                                />
+                                                <Input type="radio" name="productCategory" value={cat.categoryIdx} checked={String(selectedCategory) === String(cat.categoryIdx)} onChange={(e) => setSelectedCategory(e.target.value)} />
                                                 {cat.name}
                                             </Label>
                                         </FormGroup>
@@ -540,13 +534,7 @@ export default function ProductModify() {
                                         {subCategories.map((sub) => (
                                             <FormGroup check inline key={sub.categoryIdx}>
                                                 <Label check>
-                                                    <Input
-                                                        type="radio"
-                                                        name="productSubCategory"
-                                                        value={sub.categoryIdx}
-                                                        checked={String(selectedSubCategory) === String(sub.categoryIdx)}
-                                                        onChange={(e) => setSelectedSubCategory(e.target.value)}
-                                                    />
+                                                    <Input type="radio" name="productSubCategory" value={sub.categoryIdx} checked={String(selectedSubCategory) === String(sub.categoryIdx)} onChange={(e) => setSelectedSubCategory(e.target.value)} />
                                                     {sub.name}
                                                 </Label>
                                             </FormGroup>
@@ -704,12 +692,7 @@ export default function ProductModify() {
                                                                     <span className="blankSpace">~</span>
                                                                 </Label>
                                                                 <Tippy content="선택값을 삭제하려면 클릭하세요" theme="custom">
-                                                                    <button
-                                                                        type="button"
-                                                                        className="small-button2"
-                                                                        style={{ marginBottom: "2px" }}
-                                                                        onClick={() => removeValueLine(optionIdx, valueIdx)}
-                                                                    >
+                                                                    <button type="button" className="small-button2" style={{ marginBottom: "2px" }} onClick={() => removeValueLine(optionIdx, valueIdx)}>
                                                                         <i className="bi bi-dash-lg"></i>
                                                                     </button>
                                                                 </Tippy>
@@ -779,14 +762,14 @@ export default function ProductModify() {
                                 type="button"
                                 className="sub-button saveBtn"
                                 onClick={() => {
-                                    setIsWarningModalOpen(true);
+                                    setIsDeleteModalOpen(true);
                                 }}
                             >
                                 <i className="bi bi-trash"></i> 삭제
                             </button>
                         </div>
 
-                        <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} productIdx={productIdx} productName={productName} />
+                        <ModalPdDelete deleteModalOpen={isDeleteModalOpen} setDeleteModalOpen={setIsDeleteModalOpen} productIdx={productIdx} productName={productName} />
                     </div>
                 </div>
             </main>

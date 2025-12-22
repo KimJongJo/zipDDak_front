@@ -3,10 +3,11 @@ import { Input, Modal, ModalHeader, ModalBody } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
-import { tokenAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai/react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ModalSettleCalc({ settleCalcModalOpen, setSettleCalcModalOpen, sellerId, productName }) {
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const [selectedSalesMonth, setSelectedSalesMonth] = useState(null);
 
@@ -18,7 +19,7 @@ export default function ModalSettleCalc({ settleCalcModalOpen, setSettleCalcModa
 
         try {
             const params = new URLSearchParams();
-            params.append("sellerId", "ss123");
+            params.append("sellerId", user.username);
             params.append("month", selectedSalesMonth); //선택한 날짜 그대로 발송
 
             const showSalesHistoryUrl = `/settle/showMySalesHistory?${params.toString()}`;
