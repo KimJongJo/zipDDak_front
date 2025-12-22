@@ -121,12 +121,12 @@ export default function ProductList() {
 
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore],
+        [loading, hasMore]
     );
 
     const toggleFavorite = async (productIdx) => {
         if (user.username === "") {
-            navigate("/zipddak/login");
+            navigate("/login");
             return;
         }
 

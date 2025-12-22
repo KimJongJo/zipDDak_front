@@ -344,21 +344,16 @@
     background-color: #eff1f5 !important;
 }
 
-<<<<<<< HEAD
-=======
 .rentalDisable:hover {
    border: 1px solid #e1e4ed;
     background: #fff;
     color: #303441;
 }
 
->>>>>>> main
 .orangeColor {
     color: #ff5833;
 }
 
-<<<<<<< HEAD
-=======
 .rentalAble:hover {
     color: #303441;
     background-color: #eff1f5;
@@ -372,7 +367,6 @@
 .rentalAble:hover .text::before {
     content: "대여중지";
 }
->>>>>>> main
 
 
 

@@ -7,14 +7,10 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
 
 export default function ShippingList() {
     const pageTitle = usePageTitle("주문관리 > 배송 관리");
     const navigate = useNavigate();
-    const [user, setUser] = useAtom(userAtom);
-    const [token, setToken] = useAtom(tokenAtom);
 
     const [myShippingList, setMyShippingList] = useState([]);
     const [myShippingCount, setMyShippingCount] = useState(0);
@@ -62,7 +58,7 @@ export default function ShippingList() {
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", user.username);
+        params.append("sellerId", "ss123");
         params.append("page", page);
 
         if (keyword) params.append("keyword", keyword);
@@ -71,7 +67,7 @@ export default function ShippingList() {
 
         const shippingListUrl = `/shipping/myShippingList?${params.toString()}`;
 
-        myAxios(token, setToken)
+        myAxios()
             .get(shippingListUrl)
             .then((res) => {
                 const data = res.data;

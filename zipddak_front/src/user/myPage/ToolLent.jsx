@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import { useState } from "react";
-import { Input, Pagination, PaginationItem, PaginationLink } from "reactstrap";
-
-export default function ToolLent() {
-    const [status, setStatus] = useState("전체");
-=======
 import { use, useState, useEffect, useRef } from "react";
 import { Input, Pagination, PaginationItem, PaginationLink, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { useNavigate } from "react-router";
@@ -24,7 +17,6 @@ export default function ToolLent() {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [page, setPage] = useState(1);
->>>>>>> main
 
     const [rentalList, setRentalList] = useState([]);
     const [pageInfo, setPageInfo] = useState({});
@@ -225,10 +217,6 @@ export default function ToolLent() {
                 <div className="mypage-layout">
                     <h1 className="mypage-title">공구대여 내역</h1>
                     <div className="tabs">
-<<<<<<< HEAD
-                        <div className="tab_nav">빌린 공구</div>
-                        <div className="tab_nav">빌려준 공구</div>
-=======
                         <div
                             style={rentalCate === 1 ? { color: "black", borderBottom: "2px solid black" } : {}}
                             onClick={() => {
@@ -249,22 +237,10 @@ export default function ToolLent() {
                         >
                             빌려준 공구
                         </div>
->>>>>>> main
                     </div>
 
                     <div>
                         {/* 날짜 선택 */}
-<<<<<<< HEAD
-                        <div
-                            style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "10px",
-                                margin: "0 0 14px 0",
-                            }}
-                        >
-                            <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input> - <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input>
-=======
                         <div style={{ display: "flex", justifyContent: "space-between" }}>
                             <div
                                 style={{
@@ -284,7 +260,6 @@ export default function ToolLent() {
                                 <option value={4}>대여중</option>
                                 <option value={5}>반납완료</option>
                             </Input>
->>>>>>> main
                         </div>
 
                         <table className="mypage-table" style={{ width: "918px" }}>
@@ -298,16 +273,6 @@ export default function ToolLent() {
                                 </tr>
                             </thead>
                             <tbody>
-<<<<<<< HEAD
-                                {workList.map((work) => (
-                                    <tr key={work.workId} style={{ cursor: "pointer" }} onClick={() => {}}>
-                                        <td style={{ textAlign: "left", fontSize: "13px" }}>
-                                            <p style={{ fontWeight: "600", fontSize: "14px" }}>{work.categoryName}</p>
-                                            <p style={{ margin: "6px 0" }}>{work.region}</p>
-                                            <p>
-                                                {work.workType} · {work.budget} · {work.preferredDate}
-                                            </p>
-=======
                                 {rentalList.map((rental) => (
                                     <tr
                                         key={rental.rentalIdx}
@@ -323,7 +288,6 @@ export default function ToolLent() {
                                         <td style={{ textAlign: "left", fontSize: "13px" }}>
                                             <img style={{ width: "80px", height: "80px", marginRight: "15px" }} src={`${baseUrl}/imageView?type=tool&filename=${rental.toolImg}`} alt="" />
                                             <span>{rental.toolName}</span>
->>>>>>> main
                                         </td>
                                         {rentalCate === 2 && <td>{rental.borrowName}</td>}
 
@@ -339,18 +303,7 @@ export default function ToolLent() {
                                                 fontWeight: "500",
                                             }}
                                         >
-<<<<<<< HEAD
-                                            <p>{work.workStartDate.slice(0, 10)}</p>-<p>{work.workEndDate.slice(0, 10)}</p>
-                                        </td>
-                                        <td
-                                            style={{
-                                                fontWeight: "500",
-                                            }}
-                                        >
-                                            {Number(work.paymentAmount).toLocaleString()}원
-=======
                                             {rental.amount?.toLocaleString()}원
->>>>>>> main
                                         </td>
                                         <td>
                                             <div
@@ -361,12 +314,6 @@ export default function ToolLent() {
                                                     gap: "6px",
                                                 }}
                                             >
-<<<<<<< HEAD
-                                                <span style={{ fontSize: "16px", fontWeight: "700" }}>{WORK_STATUS_LABEL[work.workStatus]}</span>
-                                                {work.workStatus === "COMPLETED" && (
-                                                    <button className="primary-button" style={{ width: "60px", height: "33px" }} onClick={() => {}}>
-                                                        후기작성
-=======
                                                 <span style={rental.state === "RENTAL" ? { color: "#FF5833", fontSize: "16px", fontWeight: "700" } : { fontSize: "16px", fontWeight: "700" }}>
                                                     {rental.state === "PAYED" ? "결제완료" : rental.state === "DELIVERY" ? "배송중" : rental.state === "RENTAL" ? "대여중" : "반납완료"}
                                                 </span>
@@ -382,7 +329,6 @@ export default function ToolLent() {
                                                         }}
                                                     >
                                                         리뷰작성
->>>>>>> main
                                                     </button>
                                                 ) : rentalCate === 1 && rental.state === "DELIVERY" ? (
                                                     <button
@@ -539,19 +485,6 @@ export default function ToolLent() {
                             </tbody>
                         </table>
                     </div>
-<<<<<<< HEAD
-                    <Pagination className="my-pagination">
-                        <PaginationItem active>
-                            <PaginationLink>1</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink>2</PaginationLink>
-                        </PaginationItem>
-                        <PaginationItem>
-                            <PaginationLink>3</PaginationLink>
-                        </PaginationItem>
-                    </Pagination>
-=======
 
                     {/* 알림 모달창 */}
                     <Modal isOpen={isModalOpen} className="mypage-modal" style={{ width: "380px" }}>
@@ -793,7 +726,6 @@ export default function ToolLent() {
                             </PaginationItem>
                         </Pagination>
                     </div>
->>>>>>> main
                 </div>
             </div>
         </>

@@ -407,7 +407,6 @@ export default function FindExpert() {
                                                 setRequestForm({ ...requestForm, budget: e.target.value });
                                                 setInputValue(e.target.value);
                                             }}
-                                            placeholder="(단위 : 만원)"
                                         />
                                         <button
                                             className="font-14 money-button"
