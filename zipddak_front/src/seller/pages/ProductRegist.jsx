@@ -21,7 +21,6 @@ export default function ProductRegist() {
     //탭 타이틀 설정
     const pageTitle = usePageTitle("상품관리 > 상품 등록");
     const navigate = useNavigate();
-    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const [user, setUser] = useAtom(userAtom);
 
