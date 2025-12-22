@@ -121,11 +121,7 @@ export function Mypage() {
                 fontSize: "12px",
               }}
               onClick={() => {
-<<<<<<< HEAD
-                window.scrollTo(0, 0);
-=======
                 // window.scrollTo(0, 0);
->>>>>>> main
                 navigate("/expert/profile/edit");
               }}
             >
@@ -165,11 +161,7 @@ export function Mypage() {
               작업내역
             </NavLink>
             <NavLink
-<<<<<<< HEAD
-              onClick={() => window.scrollTo(0, 0)}
-=======
               // onClick={() => window.scrollTo(0, 0)}
->>>>>>> main
               to="/expert/mypage/receive/requests"
               style={{
                 ...navStyle,

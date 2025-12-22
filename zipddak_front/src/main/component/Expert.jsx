@@ -24,12 +24,7 @@ export default function Expertmain({ expert }) {
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
-<<<<<<< HEAD
-                 <img className="expert-img" 
-                 src={`${expert.storagePath}/${expert.fileRename}`} alt="전문가" />
-=======
                  <img className="expert-img"  src={`http://localhost:8080/imageView?type=expert&filename=${expert.imgFileRename}`} alt="전문가" />
->>>>>>> main
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>

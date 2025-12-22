@@ -2,11 +2,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { Input } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
-<<<<<<< HEAD
-import { myAxios } from "../../config";
-=======
 import { baseUrl, myAxios } from "../../config";
->>>>>>> main
 import { useNavigate } from "react-router";
 
 export default function RequestActive() {
@@ -16,10 +12,7 @@ export default function RequestActive() {
   const [costList, setCostList] = useState([]); // 견적서 비용 상세
   const [selectedExpertIdx, setSelectedExpertIdx] = useState(null); // 선택한 전문가 id
   const [selectedExpertUsername, setSelectedExpertUsername] = useState(null); // 선택한 전문가 username
-<<<<<<< HEAD
-=======
   const [expert, setExpert] = useState(null);
->>>>>>> main
 
   const [open, setOpen] = useState(true);
 
@@ -55,10 +48,7 @@ export default function RequestActive() {
         setEstimate(res.data.estimateDetail);
         setCostList(res.data.costList);
         setSelectedExpertUsername(res.data.expertUsername);
-<<<<<<< HEAD
-=======
         setExpert(res.data.expertDetail);
->>>>>>> main
       })
       .catch((err) => {
         console.log(err);
@@ -81,13 +71,9 @@ export default function RequestActive() {
   };
 
   // 채팅하기
-<<<<<<< HEAD
-  const chat = () => {
-=======
   const chat = (e) => {
     e.preventDefault();
 
->>>>>>> main
     myAxios(token, setToken)
       .post("http://localhost:8080/message-room", {
         type: "EXPERT",
@@ -97,10 +83,7 @@ export default function RequestActive() {
       })
       .then((res) => {
         const roomId = res.data;
-<<<<<<< HEAD
-=======
         window.scrollTo(0, 0);
->>>>>>> main
         navigate(`/zipddak/message?roomId=${roomId}`);
       });
   };
@@ -938,22 +921,6 @@ export default function RequestActive() {
                   {/* 전문가 정보 */}
                   <div>
                     <h3 className="mypage-sectionTitle">전문가 정보</h3>
-<<<<<<< HEAD
-                    <button className="primary-button" onClick={chat}>
-                      채팅하기
-                    </button>
-                    {/* {expertList.map((expert, index) => (
-          <div
-            key={expert.expertIdx}
-            ref={expertList.length === index + 1 ? lastProductRef : null}
-          >
-            <Expert
-              expert={expert}
-              style={{ flex: "0 0 32%", boxSizing: "border-box" }}
-            />
-          </div>
-        ))} */}
-=======
                     <div
                       style={{ cursor: "pointer", marginTop: "20px" }}
                       onClick={() => {
@@ -1023,7 +990,6 @@ export default function RequestActive() {
                         채팅하기
                       </button>
                     </div>
->>>>>>> main
                   </div>
                 </>
               )}
