@@ -84,11 +84,16 @@ export default function Cart() {
                 if (!isBundleGroup) {
                     // ★ 개별배송
                     products.forEach((product) => {
+                        console.log(product);
                         if (checkedItems[product.cartIdx]) {
-                            const basePrice = (product.productSalePrice ?? product.price) + product.optionPrice;
+                            const salePrice = Number(product.productSalePrice ?? 0);
+                            const normalPrice = Number(product.productPrice ?? product.price ?? 0);
+                            const option = Number(product.optionPrice ?? 0);
 
-                            totalPrice += basePrice * product.quantity;
-                            totalShippingFee += product.postCharge * product.quantity;
+                            const basePrice = salePrice > 0 ? salePrice + option : normalPrice + option;
+
+                            totalPrice += basePrice * Number(product.quantity ?? 1);
+                            totalShippingFee += Number(product.postCharge ?? 0) * Number(product.quantity ?? 1);
                         }
                     });
                 } else {
