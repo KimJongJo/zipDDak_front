@@ -16,7 +16,7 @@ export default function RegistTool() {
     const [token, setToken] = useAtom(tokenAtom);
 
     const [tool, setTool] = useState({
-        toolIdx:null, name: '', category: '83', rentalPrice: null, freeRental: false, content: '', tradeAddr: '주소',
+        toolIdx:null, name: '', category: '83', rentalPrice: 0, freeRental: false, content: '', tradeAddr: '주소',
         directRental: false, postRental: false, freePost: false, postCharge: 0, zonecode: "", addr1: "",
         addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
         img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
@@ -160,6 +160,8 @@ export default function RegistTool() {
     //등록
     const regist = () => {
 
+        checkOption();
+
         const submitTool = {
             ...tool,
             category: tCategory,
@@ -187,31 +189,17 @@ export default function RegistTool() {
             formData.append("images", img.file);
         });
 
-        // ⭐⭐⭐ 여기
-        // for (let [key, value] of formData.entries()) {
-        //     console.log("FormData key:", key);
-        //     console.log("FormData value:", value);
-
-        //     new Blob(
-        //         [JSON.stringify(submitTool)],
-        //         { type: "application/json; charset=utf-8" }
-        //     )
-
-        //     if (value instanceof Blob) {
-        //         value.text().then(text => {
-        //             console.log("Blob 내용:", text);
-        //         });
-        //     }
-        // }
-
 
         token && myAxios(token, setToken).post("/tool/regist", formData)
             .then(res => {
 
                 if (res.data) {
-                    alert("공구등록 완료")
+                    setMessage("공구 등록 완료!")
+                    setModal(true);
+                    
                 } else {
-                    alert("공구 등록 실패")
+                    setMessage("공구 등록 실패")
+                    setModal(true);
                 }
                 const toolIdx = res.data;
                 navigate(`/zipddak/tool/${toolIdx}`);
@@ -220,7 +208,7 @@ export default function RegistTool() {
             .catch(err => {
                 console.log(err);
             })
-
+          
     };
 
     //취소 
@@ -229,13 +217,21 @@ export default function RegistTool() {
     }
 
     //항목확인
-    // const checkOption = () => {
-    //     if(tool.name == null){
-    //         setMessage("공구 이름을 등록해주세요")
-    //     }else if (tool.rentalPrice == null){
-    //         setMessage("공구 1일 대여 금액을 설정해주세요")
-    //     }else if ()
-    // }
+    const checkOption = () => {
+        
+        if(tool.name == null){
+            setMessage("공구 이름을 등록해주세요")
+            setModal(true);
+            
+        }else if (tool.rentalPrice == null){
+            setMessage("공구 1일 대여 금액을 설정해주세요")
+            setModal(true);
+        }else if (tool.zonecode && tool.addr1 && tool.addr2 ==null ){
+            setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요")
+            setModal(true);
+        }
+
+    }
 
 
     return (
@@ -382,7 +378,7 @@ export default function RegistTool() {
                             <div className="check-col">
                                 <div className="won">
                                     <Input type="number" name="rentalPrice" className="wonInput" placeholder="1일 대여비"
-                                        value={freeRental ? 0 : Number(tool.rentalPrice)}
+                                        value={tool.rentalPrice}
                                         readOnly={freeRental}
                                         onChange={ChangeInput}
                                     />
@@ -446,7 +442,7 @@ export default function RegistTool() {
                                 <div className="check-col">
                                     <div className="won">
                                         <Input type="number" name="postCharge" className="wonInput" placeholder="배송비"
-                                            value={freePost ? 0 : Number(tool.postCharge)}
+                                            value={tool.postCharge}
                                             readOnly={freePost}
                                             onChange={ChangeInput}
                                         />
@@ -632,7 +628,7 @@ export default function RegistTool() {
                     <ModalBody>
                         {message}
                     </ModalBody>
-                    <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                    <Button color="primary-button" onClick={() => setModal(false)} >확인</Button>
                 </Modal>
 
 

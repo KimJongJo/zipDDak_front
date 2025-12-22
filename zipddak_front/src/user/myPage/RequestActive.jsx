@@ -19,6 +19,7 @@ export default function RequestActive() {
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
+  
 
   // 진행중인 요청서 조회
   const getRequest = () => {
