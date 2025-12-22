@@ -1,5 +1,5 @@
 import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle, ChevronUp, Pointer, RotateCcw } from "lucide-react";
-import { Button, FormGroup, Input, Label } from "reactstrap";
+import { Button, FormGroup, Input, Label, Modal, ModalBody, ModalHeader, ModalFooter } from "reactstrap";
 import "../css/ToolMain.css";
 import { ToolL, MapTool, Toolmain } from "../../main/component/Tool";
 import { userAtom, tokenAtom } from "../../atoms";
@@ -14,6 +14,7 @@ export default function ToolMain() {
 
     const [tool, setTool] = useState([]);
     const navigate = useNavigate();
+    const [modal, setModal] = useState(false);
 
     const [offset, setOffset] = useState(0);
     const INIT_SIZE = 15;
@@ -305,7 +306,12 @@ export default function ToolMain() {
                             </div>
                         </div>
 
-                        <Button className="primary-button nonePd" onClick={() => navigate(`/zipddak/tool/regist`)}>
+                        <Button className="primary-button nonePd" onClick={() => {
+                            if(user.username){
+                                navigate(`/zipddak/tool/regist`)
+                                return;
+                            }
+                             setModal(true)}}>
                             <Hammer size={22} />
                             <span className="btn-text">내 공구 등록하기</span>
                         </Button>
@@ -337,6 +343,23 @@ export default function ToolMain() {
                     </div>
                 </div>
             </div>
+
+             <Modal isOpen={modal}>
+                <ModalHeader>공구 등록</ModalHeader>
+                <ModalBody>
+                    <div>공구 등록을 위해서는 로그인이 필요합니다</div>
+                    {/* <div className="space-px"> </div>
+                    <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div> */}
+                </ModalBody>
+                <div className="row-cm header-modal-button">
+                    <Button className="secondary-button" onClick={() => setModal(false)}>
+                        취소
+                    </Button>
+                    <Button className="primary-button" onClick={()=> navigate(`/login`)}>
+                        확인
+                    </Button>
+                </div>
+            </Modal>
         </>
     );
 }
