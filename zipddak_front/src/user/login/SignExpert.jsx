@@ -2,31 +2,40 @@ import { Form, FormGroup, Label, Input, Button, Col, UncontrolledAccordion, Acco
 import "../css/Signup.css";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config";
-import { useNavigate } from 'react-router-dom'
-import DaumPostcode from 'react-daum-postcode';
-import { Modal as AddrModal } from 'antd'
-import qs from 'qs';
+import { useNavigate } from "react-router-dom";
+import DaumPostcode from "react-daum-postcode";
+import { Modal as AddrModal } from "antd";
+import qs from "qs";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 
 export default function SignExpert() {
-
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     const [expert, setExpert] = useState({
-        username: '', activityName: '', zonecode: '', addr1: '', addr2: '',
-        employeeCount: 0, businessLicense: '', businessLicensePdfId: null, settleBank: '', settleAccount: '', settleHost: '',
-        createdAt: null, providedServiceIdx: ''
-    })
+        username: "",
+        activityName: "",
+        zonecode: "",
+        addr1: "",
+        addr2: "",
+        employeeCount: 0,
+        businessLicense: "",
+        businessLicensePdfId: null,
+        settleBank: "",
+        settleAccount: "",
+        settleHost: "",
+        createdAt: null,
+        providedServiceIdx: "",
+    });
 
     const [modal, setModal] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const navigate = useNavigate();
 
     const changeInput = (e) => {
-        setExpert({ ...expert, [e.target.name]: e.target.value })
-    }
+        setExpert({ ...expert, [e.target.name]: e.target.value });
+    };
 
     //테스트용 axios
     const signUpapi = myAxios(null, null);
@@ -35,26 +44,26 @@ export default function SignExpert() {
     const [activeTab, setActiveTab] = useState(1);
     const handleTab = (e) => {
         setActiveTab(e);
-        document.getElementById("tabs").scrollIntoView({ behavior: "smooth" })
-    }
+        document.getElementById("tabs").scrollIntoView({ behavior: "smooth" });
+    };
 
     //전문가 분야 체크
     const [majorservice, setMajorService] = useState({
         majorCategory1: false,
         majorCategory2: false,
-        majorCategory3: false
-    })
+        majorCategory3: false,
+    });
 
     const [repairCategory, setRepairCategory] = useState({
         repair1: [],
         repair2: [],
-        repair3: []
+        repair3: [],
     });
 
     const [interiorCategory, setInteriorCategory] = useState({
         interior1: [],
         interior2: [],
-        interior3: []
+        interior3: [],
     });
 
     const [counselCategory, setCounselCategory] = useState();
@@ -64,24 +73,23 @@ export default function SignExpert() {
     const checkMajor = (e) => {
         const { name, checked } = e.target;
 
-        setMajorService(prev => ({
+        setMajorService((prev) => ({
             ...prev,
-            [name]: checked
+            [name]: checked,
         }));
 
-        if (name === 'majorCategory1' && !checked) {
+        if (name === "majorCategory1" && !checked) {
             setCounselCategory("75");
         }
 
-        if (name === 'majorCategory2' && !checked) {
+        if (name === "majorCategory2" && !checked) {
             setRepairCategory({ repair1: [], repair2: [], repair3: [] });
-            setCheckedCategory(prev => prev.filter(id => ![...repairCategory.repair1, ...repairCategory.repair2, ...repairCategory.repair3].includes(id)));
+            setCheckedCategory((prev) => prev.filter((id) => ![...repairCategory.repair1, ...repairCategory.repair2, ...repairCategory.repair3].includes(id)));
         }
 
-
-        if (name === 'majorCategory3' && !checked) {
+        if (name === "majorCategory3" && !checked) {
             setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
-            setCheckedCategory(prev => prev.filter(id => ![...interiorCategory.interior1, ...interiorCategory.interior2, ...interiorCategory.interior3].includes(id)));
+            setCheckedCategory((prev) => prev.filter((id) => ![...interiorCategory.interior1, ...interiorCategory.interior2, ...interiorCategory.interior3].includes(id)));
         }
     };
 
@@ -94,7 +102,7 @@ export default function SignExpert() {
             try {
                 const repair = await signUpapi.get("/signUpExpertCategory", {
                     params: { parentIdx: [23, 44, 74] },
-                    paramsSerializer: params => qs.stringify(params, { arrayFormat: "repeat" })
+                    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" }),
                 });
 
                 // 방어: 요청이 취소되거나 실패하면 res가 없을 수 있음
@@ -102,20 +110,19 @@ export default function SignExpert() {
                     setRepairCategory({
                         repair1: repair.data["24"] || [],
                         repair2: repair.data["31"] || [],
-                        repair3: repair.data["37"] || []
+                        repair3: repair.data["37"] || [],
                     });
 
                     setInteriorCategory({
                         interior1: repair.data["45"] || [],
                         interior2: repair.data["55"] || [],
-                        interior3: repair.data["65"] || []
+                        interior3: repair.data["65"] || [],
                     });
                 } else {
                     // 안전히 빈배열로 초기화
                     setRepairCategory({ repair1: [], repair2: [], repair3: [] });
                     setInteriorCategory({ interior1: [], interior2: [], interior3: [] });
                 }
-
             } catch (err) {
                 // 취소된 요청은 무시, 그 외는 로깅
                 if (err?.code === "ERR_CANCELED" || err?.message?.includes("canceled")) {
@@ -133,7 +140,6 @@ export default function SignExpert() {
         preload();
     }, []); // 빈 deps: 최초 1회
 
-
     //카테고리 String으로 가져가기
     const [checkedCategory, setCheckedCategory] = useState([]);
 
@@ -141,11 +147,11 @@ export default function SignExpert() {
         const idx = Number(e.target.value);
         const checked = e.target.checked;
 
-        setCheckedCategory(prev => {
+        setCheckedCategory((prev) => {
             if (checked) {
                 return [...prev, idx];
             } else {
-                return prev.filter(v => v !== idx);
+                return prev.filter((v) => v !== idx);
             }
         });
     };
@@ -154,19 +160,17 @@ export default function SignExpert() {
         return checkedCategory.join(",");
     };
 
-
     //파일
     const fileRef = useRef(null);
     const [file, setFile] = useState();
     const [fileName, setFileName] = useState();
-
 
     //활동명
     const [nickValid, setNickValid] = useState(null);
     useEffect(() => {
         const nicknameRule = /^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{2,20}$/;
 
-        if (expert.activityName === '') {
+        if (expert.activityName === "") {
             setNickValid(null);
         } else {
             setNickValid(nicknameRule.test(expert.activityName));
@@ -178,7 +182,7 @@ export default function SignExpert() {
     useEffect(() => {
         const licenseNum = /^[0-9]{13}$/;
 
-        if (expert.businessLicense === '') {
+        if (expert.businessLicense === "") {
             setLicenseValid(null);
         } else {
             setLicenseValid(licenseNum.test(expert.businessLicense));
@@ -191,15 +195,13 @@ export default function SignExpert() {
         setExpert({
             ...expert,
             zonecode: data.zonecode,
-            addr1: data.roadAddress?.trim()
-                ? data.roadAddress
-                : data.address
+            addr1: data.roadAddress?.trim() ? data.roadAddress : data.address,
         });
-    }
+    };
 
     const closeHandler = (state) => {
         setIsAddOpen(false);
-    }
+    };
 
     //약관동의
     const [agree, setAgree] = useState({
@@ -207,8 +209,8 @@ export default function SignExpert() {
         necessary1: false,
         necessary2: false,
         service1: false,
-        service2: false
-    })
+        service2: false,
+    });
 
     const handleAllCheck = (e) => {
         const checked = e.target.checked;
@@ -218,10 +220,9 @@ export default function SignExpert() {
             necessary1: checked,
             necessary2: checked,
             service1: checked,
-            service2: checked
+            service2: checked,
         });
-
-    }
+    };
 
     const handleSingleCheck = (e) => {
         const { name, checked } = e.target;
@@ -231,47 +232,42 @@ export default function SignExpert() {
             [name]: checked,
         };
 
-        const allChecked =
-            newAgree.service1 &&
-            newAgree.service2 &&
-            newAgree.necessary1 &&
-            newAgree.necessary2
+        const allChecked = newAgree.service1 && newAgree.service2 && newAgree.necessary1 && newAgree.necessary2;
 
         setAgree({
             ...newAgree,
             all: allChecked,
-        })
-    }
+        });
+    };
 
     //회원가입
     const submit = (e) => {
         e.preventDefault();
 
         //선택한 카테고리를 db에 문자열로 저장
-        const providedServiceIdx = makeProvidedServiceIdx()
-        setExpert({ ...expert, providedServiceIdx: providedServiceIdx })
+        const providedServiceIdx = makeProvidedServiceIdx();
+        setExpert({ ...expert, providedServiceIdx: providedServiceIdx });
 
         if (!expert.activityName?.trim()) {
             alert("활동명을 입력해주세요.");
             return;
         } else if (!expert.businessLicense?.trim()) {
-            alert("사업자등록번호를 입력해주세요")
+            alert("사업자등록번호를 입력해주세요");
             return;
             // } else if (!expert.businessLicensePdfId?.trim()) {
             //     alert("사업자 등록증을 첨부해주세요")
             //     return;
         } else if (!expert.addr1?.trim()) {
-            alert("주소를 입력해주세요")
+            alert("주소를 입력해주세요");
             return;
         } else if (!providedServiceIdx?.trim()) {
-
             alert("제공서비스는 최소 한가지 이상 선택해주세요");
             return;
         } else if (!expert.settleAccount?.trim()) {
-            alert("정산계좌를 입력해주세요")
+            alert("정산계좌를 입력해주세요");
             return;
         } else if (!agree.necessary1 && !agree.necessary2) {
-            alert("필수약관의 동의가 필요합니다.")
+            alert("필수약관의 동의가 필요합니다.");
             return;
         }
 
@@ -290,64 +286,63 @@ export default function SignExpert() {
         formData.append("providedServiceIdx", providedServiceIdx);
         formData.append("businessLicense", expert.businessLicense);
 
+        formData.forEach((value, key) => {
+            console.log(key, value);
+        });
 
         try {
-            myAxios(token,setToken).post('/joinExpert', formData,
-                { headers: { "Content-Type": "multipart/form-data" } })
-                .then(res => {
+            myAxios(token, setToken)
+                .post("/joinExpert", formData, { headers: { "Content-Type": "multipart/form-data" } })
+                .then((res) => {
                     if (res.data == true) {
                         console.log(res);
-                        setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.")
+                        setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.");
                         navigate(`/zipddak/login`);
                     } else {
-                        setMessage("전문가 회원가입 실패")
+                        setMessage("전문가 회원가입 실패");
                     }
                 })
-                .catch(err => {
-                    console.log(err)
-                    setMessage("전문가 회원가입 중 오류가 발생했습니다.")
+                .catch((err) => {
+                    console.log(err);
+                    setMessage("전문가 회원가입 중 오류가 발생했습니다.");
                 })
                 .finally(() => {
                     setModal(true);
-                })
+                });
         } catch (err) {
             console.log(err);
         }
-
-    }
-
+    };
 
     return (
         <>
             <div className="signUp-box">
                 <div className="SignExpert">
-                    <div className="logo"></div>
+                    <a href="/zipddak/main">
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
+                    </a>
                     <div className="title">전문가 회원가입</div>
 
                     <div className="tabs" id="tabs">
-                        <div className={`tab_nav tab1 ${activeTab === 1 ? "active" : ""}`}
-                            onClick={() => handleTab(1)}
-                        >전문분야 선택</div>
+                        <div className={`tab_nav tab1 ${activeTab === 1 ? "active" : ""}`} onClick={() => handleTab(1)}>
+                            전문분야 선택
+                        </div>
 
-                        <div className={`tab_nav tab2 ${activeTab === 2 ? "active" : ""}`}
-                            onClick={() => handleTab(2)}>
-                            필수분야 입력</div>
+                        <div className={`tab_nav tab2 ${activeTab === 2 ? "active" : ""}`} onClick={() => handleTab(2)}>
+                            필수분야 입력
+                        </div>
                     </div>
 
-                    {activeTab === 1 &&
+                    {activeTab === 1 && (
                         <div className="tab1 active">
                             <div className="title2">어떤 전문가로 활동하실 수 있나요?</div>
 
                             <div className="experts_category">
                                 <FormGroup check>
                                     <Label check>
-                                    <Input
-                                        type="checkbox"
-                                        name={75}
-                                        value={75}
-                                        checked={checkedCategory.includes(75)}
-                                        onChange={handleCategoryCheck} />
-                                    시공견적 컨설팅</Label>
+                                        <Input type="checkbox" name={75} value={75} checked={checkedCategory.includes(75)} onChange={handleCategoryCheck} />
+                                        시공견적 컨설팅
+                                    </Label>
                                 </FormGroup>
                                 <div className="line"></div>
                                 <span>컨설팅 전문가</span>
@@ -356,9 +351,10 @@ export default function SignExpert() {
                             <div className="ecategory_part">
                                 <div className="experts_category">
                                     <FormGroup check>
-                                         <Label check>
-                                        <Input type="checkbox" name="majorCategory2" checked={majorservice.majorCategory2} onChange={checkMajor} /> 
-                                       수리</Label>
+                                        <Label check>
+                                            <Input type="checkbox" name="majorCategory2" checked={majorservice.majorCategory2} onChange={checkMajor} />
+                                            수리
+                                        </Label>
                                     </FormGroup>
                                     <div className="line"></div>
                                     <div className="row-cm expca">
@@ -367,75 +363,66 @@ export default function SignExpert() {
                                         <span>수도/보일러/전기</span>
                                     </div>
                                 </div>
-                                {
-                                    majorservice.majorCategory2 &&
+                                {majorservice.majorCategory2 && (
                                     <UncontrolledAccordion stayOpen>
                                         <AccordionItem>
                                             <AccordionHeader>수리 상세서비스</AccordionHeader>
                                             <AccordionBody>
                                                 <div className="categoryCheck-box">
-                                                    <div><span>가전제품 수리</span></div>
+                                                    <div>
+                                                        <span>가전제품 수리</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {repairCategory.repair1.map(c => (
-
+                                                    {repairCategory.repair1.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck} />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
 
                                                     <div className="line"></div>
-                                                    <div><span>문/창문 수리</span></div>
+                                                    <div>
+                                                        <span>문/창문 수리</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {repairCategory.repair2.map(c => (
-
+                                                    {repairCategory.repair2.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck}
-                                                            />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
 
                                                     <div className="line"></div>
-                                                    <div><span>수도/보일러/전기 수리</span></div>
+                                                    <div>
+                                                        <span>수도/보일러/전기 수리</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {repairCategory.repair3.map(c => (
-
+                                                    {repairCategory.repair3.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck}
-                                                            />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
-
                                                 </div>
                                             </AccordionBody>
                                         </AccordionItem>
                                     </UncontrolledAccordion>
-                                }
+                                )}
                             </div>
 
                             <div className="ecategory_part">
                                 <div className="experts_category">
                                     <FormGroup check>
                                         <Label check>
-                                        <Input type="checkbox" name="majorCategory3" checked={majorservice.majorCategory3} onChange={checkMajor} />
-                                        인테리어</Label>
+                                            <Input type="checkbox" name="majorCategory3" checked={majorservice.majorCategory3} onChange={checkMajor} />
+                                            인테리어
+                                        </Label>
                                     </FormGroup>
                                     <div className="line"></div>
                                     <div className="row-cm expca">
@@ -444,76 +431,68 @@ export default function SignExpert() {
                                         <span>바닥시공</span>
                                     </div>
                                 </div>
-                                {
-                                    majorservice.majorCategory3 &&
+                                {majorservice.majorCategory3 && (
                                     <UncontrolledAccordion stayOpen>
                                         <AccordionItem>
                                             <AccordionHeader>인테리어 상세서비스</AccordionHeader>
                                             <AccordionBody>
                                                 <div className="categoryCheck-box">
-                                                    <div><span>부분 인테리어</span></div>
+                                                    <div>
+                                                        <span>부분 인테리어</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {interiorCategory.interior1.map(c => (
+                                                    {interiorCategory.interior1.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck}
-                                                            />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
                                                     <div className="line"></div>
-                                                    <div><span>벽/천장 시공</span></div>
+                                                    <div>
+                                                        <span>벽/천장 시공</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {interiorCategory.interior2.map(c => (
+                                                    {interiorCategory.interior2.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck}
-                                                            />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
                                                     <div className="line"></div>
-                                                    <div><span>바닥시공</span></div>
+                                                    <div>
+                                                        <span>바닥시공</span>
+                                                    </div>
                                                     <div className="line"></div>
-                                                    {interiorCategory.interior3.map(c => (
+                                                    {interiorCategory.interior3.map((c) => (
                                                         <div key={c.categoryIdx} className="form-check">
                                                             <Label check>
-                                                            <Input type="checkbox"
-                                                                name={c.categoryIdx}
-                                                                value={c.categoryIdx}
-                                                                checked={checkedCategory.includes(c.categoryIdx)}
-                                                                onChange={handleCategoryCheck}
-                                                            />
-                                                            {c.name}</Label>
+                                                                <Input type="checkbox" name={c.categoryIdx} value={c.categoryIdx} checked={checkedCategory.includes(c.categoryIdx)} onChange={handleCategoryCheck} />
+                                                                {c.name}
+                                                            </Label>
                                                         </div>
                                                     ))}
                                                 </div>
                                             </AccordionBody>
                                         </AccordionItem>
                                     </UncontrolledAccordion>
-                                }
+                                )}
                             </div>
 
                             <div className="mainButton long-button">
-                                <Button className="primary-button long-button"
-                                    onClick={() => setActiveTab(2)}
-                                >다음으로</Button>
+                                <Button className="primary-button long-button" onClick={() => setActiveTab(2)}>
+                                    다음으로
+                                </Button>
                             </div>
-
                         </div>
-                    }
+                    )}
 
                     {/* -------------------------------------------------------------- */}
 
-                    {activeTab === 2 &&
+                    {activeTab === 2 && (
                         <div className="tab2">
                             <div className="title2">상세정보 입력</div>
                             <Form>
@@ -523,23 +502,11 @@ export default function SignExpert() {
                                             <div className="input_label">활동명(회사이름)</div>
                                             <span className="necc">*</span>
                                         </div>
-                                        <Input
-                                            name="activityName"
-                                            placeholder="활동명(2~20자)"
-                                            type="text"
-                                            onChange={changeInput}
-                                            valid={nickValid === true}
-                                            invalid={nickValid === false}
-                                        />
+                                        <Input name="activityName" placeholder="활동명(2~20자)" type="text" onChange={changeInput} valid={nickValid === true} invalid={nickValid === false} />
 
-                                        {nickValid === true &&
-                                            <FormFeedback valid></FormFeedback>
-                                        }
-                                        {nickValid === false &&
-                                            <FormFeedback invalid></FormFeedback>
-                                        }
+                                        {nickValid === true && <FormFeedback valid></FormFeedback>}
+                                        {nickValid === false && <FormFeedback invalid></FormFeedback>}
                                     </div>
-
 
                                     <div className="input_parts">
                                         <div className="input_label">직원수</div>
@@ -548,10 +515,12 @@ export default function SignExpert() {
                                             name="employeeCount"
                                             placeholder="숫자로만 입력"
                                             type="number"
-                                            onChange={(e) => setExpert({
-                                                ...expert,
-                                                employeeCount: e.target.value ? Number(e.target.value) : null
-                                            })}
+                                            onChange={(e) =>
+                                                setExpert({
+                                                    ...expert,
+                                                    employeeCount: e.target.value ? Number(e.target.value) : null,
+                                                })
+                                            }
                                         />
                                     </div>
 
@@ -560,21 +529,10 @@ export default function SignExpert() {
                                             <div className="input_label">사업자등록번호</div>
                                             <span className="necc">*</span>
                                         </div>
-                                        <Input
-                                            name="businessLicense"
-                                            placeholder="숫자로만 13자"
-                                            type="text"
-                                            onChange={changeInput}
-                                            valid={licenseValid === true}
-                                            invalid={licenseValid === false}
-                                        />
+                                        <Input name="businessLicense" placeholder="숫자로만 13자" type="text" onChange={changeInput} valid={licenseValid === true} invalid={licenseValid === false} />
 
-                                        {licenseValid === true &&
-                                            <FormFeedback valid></FormFeedback>
-                                        }
-                                        {licenseValid === false &&
-                                            <FormFeedback invalid>숫자 13자리 입력</FormFeedback>
-                                        }
+                                        {licenseValid === true && <FormFeedback valid></FormFeedback>}
+                                        {licenseValid === false && <FormFeedback invalid>숫자 13자리 입력</FormFeedback>}
                                     </div>
 
                                     <div className="input_parts">
@@ -591,26 +549,18 @@ export default function SignExpert() {
                                                 accept="application/pdf"
                                                 onChange={(e) => {
                                                     const selectedFile = e.target.files[0];
-                                                    setFile(selectedFile);          // 파일은 따로 저장
-                                                    setFileName(selectedFile?.name || "");  // 화면 표시용
+                                                    setFile(selectedFile); // 파일은 따로 저장
+                                                    setFileName(selectedFile?.name || ""); // 화면 표시용
                                                 }}
                                             />
 
                                             {/* 파일명 표시용 input */}
-                                            <Input
-                                                name="businessLicensePdfId"
-                                                placeholder="*pdf파일 첨부"
-                                                type="text"
-                                                value={fileName}
-                                                onChange={changeInput}
-                                                readOnly
-                                            />
-                                            <Button className="tertiary-button"
-                                                onClick={() => fileRef.current.click()}
-                                            >파일 첨부</Button>
+                                            <Input name="businessLicensePdfId" placeholder="*pdf파일 첨부" type="text" value={fileName} onChange={changeInput} readOnly />
+                                            <Button className="tertiary-button" onClick={() => fileRef.current.click()}>
+                                                파일 첨부
+                                            </Button>
                                         </div>
                                     </div>
-
 
                                     <div className="input_parts">
                                         <div className="row-cm">
@@ -618,26 +568,15 @@ export default function SignExpert() {
                                             <span className="necc">*</span>
                                         </div>
                                         <div className="input_detail">정산이 이루어지는 계좌입니다</div>
-                                        <Input name="settleBank" type="select" className="code-box"
-                                            value={expert.settleBank} onChange={changeInput}>
+                                        <Input name="settleBank" type="select" className="code-box" value={expert.settleBank} onChange={changeInput}>
                                             <option>은행 선택</option>
                                             <option value={"국민은행"}>국민은행</option>
                                             <option value={"신한은행"}>신한은행</option>
                                             <option value={"농협은행"}>농협은행</option>
                                             <option value={"카카오뱅크"}>카카오뱅크</option>
                                         </Input>
-                                        <Input
-                                            name="settleAccount"
-                                            placeholder="'-'제외 숫자로만 계좌번호 입력"
-                                            type="text"
-                                            onChange={changeInput}
-                                        />
-                                        <Input
-                                            name="settleHost"
-                                            placeholder="예금주"
-                                            type="text"
-                                            onChange={changeInput}
-                                        />
+                                        <Input name="settleAccount" placeholder="'-'제외 숫자로만 계좌번호 입력" type="text" onChange={changeInput} />
+                                        <Input name="settleHost" placeholder="예금주" type="text" onChange={changeInput} />
                                     </div>
 
                                     <div className="input_parts">
@@ -647,29 +586,15 @@ export default function SignExpert() {
                                         </div>
                                         <div className="input_detail">활동지역이 노출됩니다</div>
                                         <div className="input_post">
-                                            <Input
-                                                className="code-box"
-                                                name="zonecode"
-                                                placeholder="우편번호"
-                                                type="text"
-                                                value={expert.zonecode} readOnly />
-                                            <Button className="primary-button"
-                                                onClick={() => setIsAddOpen(!isAddOpen)}>주소찾기
+                                            <Input className="code-box" name="zonecode" placeholder="우편번호" type="text" value={expert.zonecode} readOnly />
+                                            <Button className="primary-button" onClick={() => setIsAddOpen(!isAddOpen)}>
+                                                주소찾기
                                             </Button>
                                         </div>
 
-                                        <Input
-                                            name="addr1"
-                                            placeholder="도로명/지번 주소"
-                                            type="text"
-                                            value={expert.addr1} readOnly />
+                                        <Input name="addr1" placeholder="도로명/지번 주소" type="text" value={expert.addr1} readOnly />
 
-                                        <Input
-                                            name="addr2"
-                                            placeholder="상세주소"
-                                            type="text"
-                                            onChange={changeInput}
-                                        />
+                                        <Input name="addr2" placeholder="상세주소" type="text" onChange={changeInput} />
                                     </div>
 
                                     <div className="input_parts">
@@ -682,11 +607,7 @@ export default function SignExpert() {
                                             <div className="conditionAll">
                                                 <FormGroup check>
                                                     <Label check className="check_All">
-                                                    <Input type="checkbox"
-                                                        name="all"
-                                                        checked={agree.all}
-                                                        onChange={handleAllCheck} />
-                                                    
+                                                        <Input type="checkbox" name="all" checked={agree.all} onChange={handleAllCheck} />
                                                         전체동의
                                                     </Label>
                                                 </FormGroup>
@@ -695,54 +616,41 @@ export default function SignExpert() {
                                             <div className="conditionOption">
                                                 <FormGroup check className="condition-check">
                                                     <Label check className="condition-label">
-                                                    <Input type="checkbox"
-                                                        name="necessary1"
-                                                        checked={agree.necessary1}
-                                                        onChange={handleSingleCheck}
-                                                    />
-                                                    이용약관<span className="necct">(필수)</span></Label>
-                                                </FormGroup>
-                                                <FormGroup check className="condition-check">
-                                                     <Label check className="condition-label">
-                                                    <Input type="checkbox"
-                                                        name="necessary2"
-                                                        checked={agree.necessary2}
-                                                        onChange={handleSingleCheck}
-                                                    />
-                                                   만 14세 이상입니다<span className="necct">(필수)</span></Label>
+                                                        <Input type="checkbox" name="necessary1" checked={agree.necessary1} onChange={handleSingleCheck} />
+                                                        이용약관<span className="necct">(필수)</span>
+                                                    </Label>
                                                 </FormGroup>
                                                 <FormGroup check className="condition-check">
                                                     <Label check className="condition-label">
-                                                    <Input type="checkbox"
-                                                        name="service1"
-                                                        checked={agree.service1}
-                                                        onChange={handleSingleCheck}
-                                                    />
-                                                   개인정보 수집 및 이용동의(선택)</Label>
+                                                        <Input type="checkbox" name="necessary2" checked={agree.necessary2} onChange={handleSingleCheck} />만 14세 이상입니다
+                                                        <span className="necct">(필수)</span>
+                                                    </Label>
                                                 </FormGroup>
                                                 <FormGroup check className="condition-check">
                                                     <Label check className="condition-label">
-                                                    <Input type="checkbox"
-                                                        name="service2"
-                                                        checked={agree.service2}
-                                                        onChange={handleSingleCheck}
-                                                    />
-                                                    개인정보 마케팅 활용동의(선택)</Label>
+                                                        <Input type="checkbox" name="service1" checked={agree.service1} onChange={handleSingleCheck} />
+                                                        개인정보 수집 및 이용동의(선택)
+                                                    </Label>
                                                 </FormGroup>
-
+                                                <FormGroup check className="condition-check">
+                                                    <Label check className="condition-label">
+                                                        <Input type="checkbox" name="service2" checked={agree.service2} onChange={handleSingleCheck} />
+                                                        개인정보 마케팅 활용동의(선택)
+                                                    </Label>
+                                                </FormGroup>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="mainButton">
-                                        <Button className="primary-button long-button"
-                                            onClick={submit}
-                                        >전문가 회원가입하기</Button>
+                                        <Button className="primary-button long-button" onClick={submit}>
+                                            전문가 회원가입하기
+                                        </Button>
                                     </div>
                                 </div>
                             </Form>
                         </div>
-                    }
+                    )}
                     <div className="loginFooter">
                         <div className="input_detail">이미 아이디가 있으신가요?</div>
                         <a>
@@ -752,23 +660,21 @@ export default function SignExpert() {
                     <div className="loginFooter"></div>
                 </div>
                 <Modal isOpen={modal}>
-                    <ModalHeader >회원가입</ModalHeader>
-                    <ModalBody>
-                        {message}
-                    </ModalBody>
+                    <ModalHeader>회원가입</ModalHeader>
+                    <ModalBody>{message}</ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={() => setModal(false)} >확인</Button>
+                        <Button color="primary" onClick={() => setModal(false)}>
+                            확인
+                        </Button>
                     </ModalFooter>
                 </Modal>
             </div>
 
-            {
-                isAddOpen &&
-                <AddrModal title='주소찾기'
-                    open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+            {isAddOpen && (
+                <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
                     <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
                 </AddrModal>
-            }
+            )}
         </>
     );
 }

@@ -63,6 +63,7 @@ export default function MyTool() {
             <div className="card-box">
                 <div className="top">
                     <div className="title-box">
+<<<<<<< HEAD
                         <div className="title-main-main">
                             <span>공구대여</span>
                         </div>
@@ -78,6 +79,23 @@ export default function MyTool() {
                             onClick={() => setActiveState(2)}>대여중</div>
 
                         <div className={activeState === 3 ? "category-item active" : "category-item"}
+=======
+                        <div className="mypage-title">
+                            <span>공구대여</span>
+                        </div>
+                    </div>
+                    <div className="mypage-chipList">
+                        <div className={activeState === 0 ? "mypage-chipList isActive" : "mypage-chipList"}
+                            onClick={() => setActiveState(0)}>전체</div>
+
+                        <div className={activeState === 1 ? "mypage-chipList isActive" : "mypage-chipList"}
+                            onClick={() => setActiveState(1)}>대여가능</div>
+
+                        <div className={activeState === 2 ? "mypage-chipList isActive" : "mypage-chipList"}
+                            onClick={() => setActiveState(2)}>대여중</div>
+
+                        <div className={activeState === 3 ? "mypage-chipList isActive" : "mypage-chipList"}
+>>>>>>> main
                             onClick={() => setActiveState(3)}>대여중지</div>
 
                     </div>

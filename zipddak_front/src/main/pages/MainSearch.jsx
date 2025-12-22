@@ -1,7 +1,7 @@
 import "../../css/common.css";
 import "../css/Main.css";
 import { Button } from "reactstrap";
-import { Search, CirclePlus, MapPin, ArrowRight } from "lucide-react";
+import { Search, CirclePlus, MapPin, ArrowRight, UserStar, Store, MessageSquareHeart } from "lucide-react";
 import Expertmain from "../component/Expert";
 import Expert from "../../user/expert/Expert";
 import { Toolmain, Tool } from "../component/Tool";
@@ -10,8 +10,8 @@ import { Products } from '../component/Product'
 import { useEffect, useState } from "react";
 import { myAxios } from "../../config";
 import { useAtom, useAtomValue } from "jotai";
-import { tokenAtom, userAtom, keywordAtom} from "../../atoms";
-import { useNavigate } from "react-router";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useNavigate, useParams } from "react-router";
 
 
 export default function MainSearch() {
@@ -24,17 +24,17 @@ export default function MainSearch() {
   const [tool, setTool] = useState([]);
   const [community, setCommunity] = useState([]);
 
-  const mainKeyword = useAtomValue(keywordAtom);
-  const [keyword, setKeyword] = useState(mainKeyword || '');
+  const { search } = useParams();
+  const [keyword, setKeyword] = useState(search || '');
 
   //공구 주소 자르기
-  const userAddressString = user?.addr1 || ''; 
+  const userAddressString = user?.addr1 || '';
   const userAdress = userAddressString.split(' ').slice(0, 2).join(' ');
 
   const navigate = useNavigate();
 
   //검색
-  const [inputValue, setInputValue] = useState(mainKeyword || '');
+  const [inputValue, setInputValue] = useState(search || '');
 
   const mainSearch = (e) => {
     e.preventDefault();
@@ -42,11 +42,17 @@ export default function MainSearch() {
     const submittedKeyword = inputValue.trim();
 
     if (!submittedKeyword) {
+<<<<<<< HEAD
         alert('검색어를 입력해주세요.');
         setKeyword(''); 
         return; 
+=======
+      alert('검색어를 입력해주세요.');
+      setKeyword('');
+      return;
+>>>>>>> main
     }
-    
+
     setKeyword(submittedKeyword);
 
   }
@@ -64,7 +70,7 @@ export default function MainSearch() {
   const expertList = () => {
 
     const categoryPharam = eCategory ? eCategory : 1;
-    const keywordPharam = keyword? keyword:'';
+    const keywordPharam = keyword ? keyword : '';
 
     myAxios(token, setToken).get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
       .then((res) => {
@@ -82,12 +88,17 @@ export default function MainSearch() {
 
     expertList();
 
-  }, [user.username, eCategory,keyword])
+  }, [user.username, eCategory, keyword])
 
 
   //상품 리스트
+<<<<<<< HEAD
   const [pCategory, setPCategory] = useState();
   const [pActiveCategory, setPActiveCategory] = useState(1);
+=======
+  const [pCategory, setPCategory] = useState(0);
+  const [pActiveCategory, setPActiveCategory] = useState(0);
+>>>>>>> main
   const [productLength, setProductLength] = useState(0);
 
   const productCategory = (categoryNo) => {
@@ -98,15 +109,23 @@ export default function MainSearch() {
   const productList = () => {
 
     const usernamePharam = user ? user.username : '';
-    const categoryPharam = pCategory ? pCategory : 1;
-    const keywordPharam = keyword? keyword:'';
+    const categoryPharam = pCategory ? pCategory : 0;
+    const keywordPharam = keyword ? keyword : '';
 
     let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+<<<<<<< HEAD
       if (usernamePharam) {
         url += `&username=${usernamePharam}`;
       }
 
       const tokenPharam = token? token : null;
+=======
+    if (usernamePharam) {
+      url += `&username=${usernamePharam}`;
+    }
+
+    const tokenPharam = token ? token : null;
+>>>>>>> main
 
     myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
@@ -124,11 +143,16 @@ export default function MainSearch() {
 
     productList();
 
-  }, [user.username, pCategory,keyword])
+  }, [user.username, pCategory, keyword])
 
   //공구 리스트
+<<<<<<< HEAD
   const [tCategory, setTcategory] = useState();
   const [tActiveCategory, setTActiveCategory] = useState(83);
+=======
+  const [tCategory, setTcategory] = useState(0);
+  const [tActiveCategory, setTActiveCategory] = useState(0);
+>>>>>>> main
   const [toolLength, setToolLength] = useState(0);
 
   const toolCategory = (categoryNo) => {
@@ -139,16 +163,25 @@ export default function MainSearch() {
   const toolList = () => {
 
     const usernamePharam = user ? user.username : '';
-    const categoryPharam = tCategory ? tCategory : 1;
-    const keywordPharam = keyword? keyword:'';
+    const categoryPharam = tCategory ? tCategory : 0;
+    const keywordPharam = keyword ? keyword : '';
 
     let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+<<<<<<< HEAD
       if (usernamePharam) {
         url += `&username=${usernamePharam}`;
       }
 
       const tokenPharam = token? token : null;
   
+=======
+    if (usernamePharam) {
+      url += `&username=${usernamePharam}`;
+    }
+
+    const tokenPharam = token ? token : null;
+
+>>>>>>> main
 
     myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
@@ -166,12 +199,17 @@ export default function MainSearch() {
 
     toolList();
 
-  }, [user.username, tCategory,keyword])
+  }, [user.username, tCategory, keyword])
 
 
   //커뮤니티 리스트
+<<<<<<< HEAD
   const [cCategory, setCCategory] = useState();
   const [cActiveCategory, setCActiveCategory] = useState(76);
+=======
+  const [cCategory, setCCategory] = useState(0);
+  const [cActiveCategory, setCActiveCategory] = useState(0);
+>>>>>>> main
 
   const communityCategory = (categoryNo) => {
     setCCategory(categoryNo);
@@ -180,8 +218,13 @@ export default function MainSearch() {
 
   const communityList = () => {
 
+<<<<<<< HEAD
     const categoryPharam = tCategory ? tCategory : 76;
     const keywordPharam = '';
+=======
+    const categoryPharam = tCategory ? tCategory : 0;
+    const keywordPharam = keyword ? keyword : '';
+>>>>>>> main
 
     const tokenPharam = token ? token : null;
 
@@ -197,8 +240,16 @@ export default function MainSearch() {
   }
 
   useEffect(() => {
+<<<<<<< HEAD
 
     communityList();
+=======
+
+    communityList();
+
+  }, [cCategory])
+
+>>>>>>> main
 
   }, [cCategory])
 
@@ -212,60 +263,73 @@ export default function MainSearch() {
   return (
     <>
       <div className="Main-container">
-       
-          <form className="search-form" onSubmit={mainSearch}>
-            <div className="search">
-              <input
-                className="search-input"
-                type="text"
-                placeholder="통합검색"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
 
-              />
+        <form className="search-form" onSubmit={mainSearch}>
+          <div className="search">
+            <input
+              className="search-input"
+              type="text"
+              placeholder="통합검색"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+
+            />
+          </div>
+          <Button className="primary-button" type="submit">
+            <div className="sbutton">
+              <Search size={18} />
+              <span className="btxt">검색</span>
             </div>
-            <Button className="primary-button" type="submit">
-              <div className="sbutton">
-                <Search size={18} />
-                <span className="btxt">검색</span>
-              </div>
-            </Button>
-          </form>
-      
+          </Button>
+        </form>
+
 
         <div className="search-result">
-          <span className="reuslt">{mainKeyword? mainKeyword:keyword}</span>
+          <span className="reuslt">{keyword ? keyword : search}</span>
           <span>에 대한 검색결과</span>
         </div>
 
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
+                <UserStar />
                 <span>추천 전문가</span>
                 <span className="s-count">{expertLength}</span>
               </div>
-              <div className="more" onClick={()=>navigate(`/zipddak/experts?keyword=${keyword.trim()}`)}>
+              <div className="more" onClick={() => navigate(`/zipddak/experts`)}>
                 <span>전체보기</span>
                 <CirclePlus size={14} />
               </div>
             </div>
+             {expert.length > 0 ?
+             <>
             <div className="main-category">
-              <div className={eActiveCategory === 0? "category-item active" : "category-item"}
-              onClick={()=>expertCategory(0)}>전체</div>
+              <div className={eActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => expertCategory(0)}>
+                전체
+              </div>
 
-              <div className={eActiveCategory === 23? "category-item active" : "category-item"}
-              onClick={()=>expertCategory(23)}>시공/견적 컨설팅</div>
+              <div className={eActiveCategory === 23 ? "category-item active" : "category-item"} onClick={() => expertCategory(23)}>
+                시공/견적 컨설팅
+              </div>
 
-              <div className={eActiveCategory === 44? "category-item active" : "category-item"}
-              onClick={()=>expertCategory(44)}>수리</div>
+              <div className={eActiveCategory === 44 ? "category-item active" : "category-item"} onClick={() => expertCategory(44)}>
+                수리
+              </div>
 
-              <div className={eActiveCategory === 74? "category-item active" : "category-item"}
-              onClick={()=>expertCategory(74)}>인테리어</div>
+              <div className={eActiveCategory === 74 ? "category-item active" : "category-item"} onClick={() => expertCategory(74)}>
+                인테리어
+              </div>
             </div>
+              </>
+              :
+              <div className="line"></div>
+             }
           </div>
+          {expert.length > 0 ?
 
           <div className="expert-cards">
+<<<<<<< HEAD
            {Array.isArray(expert) &&
             expert.map(expertCard=> (
               <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
@@ -274,38 +338,65 @@ export default function MainSearch() {
             <div className="card-more">
               <ArrowRight />
             </div>
+=======
+            {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
+
           </div>
+          :
+          <div className="cards">
+          <span>검색결과가 없습니다!</span>
+>>>>>>> main
+          </div>
+          }
         </div>
 
         <div className="card-box">
           <div className="top">
             <div className="title-box">
+<<<<<<< HEAD
               <div className="title-main">
                 <MapPin size={24} color="#FF5833" />
                 <span>{user?.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
+=======
+              <div className="title-main-main">
+                <MapPin size={24} />
+                <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
+>>>>>>> main
                 <span className="s-count">{toolLength}</span>
               </div>
-              <div className="more" onClick={()=>navigate(`/zipddak/tool?keyword=${keyword.trim()}`)}>
+              <div className="more" onClick={() => navigate(`/zipddak/tool`)}>
                 <span>전체보기</span>
                 <CirclePlus size={14} />
               </div>
             </div>
+
+            {tool.length > 0 ?
             <div className="main-category">
-              <div className={tActiveCategory === 83? "category-item active" : "category-item"}
-              onClick={()=>toolCategory(83)}>전동공구</div>
+              <div className={tActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => toolCategory(0)}>
+                전체
+              </div>
 
-              <div className={tActiveCategory === 84? "category-item active" : "category-item"}
-              onClick={()=>toolCategory(84)}>일반공구</div>
+              <div className={tActiveCategory === 83 ? "category-item active" : "category-item"} onClick={() => toolCategory(83)}>
+                전동공구
+              </div>
 
-              <div className={tActiveCategory === 85? "category-item active" : "category-item"}
-              onClick={()=>toolCategory(85)}>생활용품</div>
+              <div className={tActiveCategory === 84 ? "category-item active" : "category-item"} onClick={() => toolCategory(84)}>
+                일반공구
+              </div>
 
-              <div className={tActiveCategory === 86? "category-item active" : "category-item"}
-              onClick={()=>toolCategory(86)}>기타공구</div>
+              <div className={tActiveCategory === 85 ? "category-item active" : "category-item"} onClick={() => toolCategory(85)}>
+                생활용품
+              </div>
 
-              <div className={tActiveCategory === 87? "category-item active" : "category-item"}
-              onClick={()=>toolCategory(87)}>찾아요</div>
+              <div className={tActiveCategory === 86 ? "category-item active" : "category-item"} onClick={() => toolCategory(86)}>
+                기타공구
+              </div>
+
+              <div className={tActiveCategory === 87 ? "category-item active" : "category-item"} onClick={() => toolCategory(87)}>
+                찾아요
+              </div>
             </div>
+<<<<<<< HEAD
           </div>
 
           <div className="tool-cards">
@@ -314,82 +405,145 @@ export default function MainSearch() {
               tool.map(toolCard =>(
                 <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite}/>
               ))
+=======
+            :
+            <div className="line"></div>
+>>>>>>> main
             }
           </div>
+
+          {tool.length > 0 ?
+
+            <div className="cards">
+            <div className="morecards">
+              {Array.isArray(tool) && tool.map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}
+              </div>
+            </div>
+            
+          :
+          <div className="cards">
+          <span>검색결과가 없습니다!</span>
+          </div>
+          }
+
+          
         </div>
 
         {/* <div className="advertise"></div> */}
 
+
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
+                <Store />
                 <span>자재 마켓</span>
                 <span className="s-count">{productLength}</span>
               </div>
-              <div className="more" onClick={()=>navigate(`/zipddak/productList?keyword=${keyword.trim()}`)}>
+              <div className="more" onClick={() => navigate(`/zipddak/productList`)}>
                 <span>전체보기</span>
                 <CirclePlus size={14} />
               </div>
             </div>
-                  <div className="main-category">
-              <div className={pActiveCategory === 1? "category-item active" : "category-item"}
-              onClick={()=>productCategory(1)}>주방</div>
 
-              <div className={pActiveCategory === 6? "category-item active" : "category-item"}
-              onClick={()=>productCategory(6)}>욕실</div>
+             {product.length > 0 ?
+            <div className="main-category">
+              <div className={pActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => productCategory(0)}>
+                전체
+              </div>
 
-              <div className={pActiveCategory === 14? "category-item active" : "category-item"}
-              onClick={()=>productCategory(14)} >중문/도어</div>
+              <div className={pActiveCategory === 1 ? "category-item active" : "category-item"} onClick={() => productCategory(1)}>
+                주방
+              </div>
 
-              <div className={pActiveCategory === 15? "category-item active" : "category-item"}
-              onClick={()=>productCategory(15)} >창호/폴딩도어</div>
+              <div className={pActiveCategory === 6 ? "category-item active" : "category-item"} onClick={() => productCategory(6)}>
+                욕실
+              </div>
 
-              <div className={pActiveCategory === 16? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(16)} >벽지/장판/마루</div>
+              <div className={pActiveCategory === 14 ? "category-item active" : "category-item"} onClick={() => productCategory(14)}>
+                중문/도어
+              </div>
 
-              <div className={pActiveCategory === 17? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(17)} >타일</div>
+              <div className={pActiveCategory === 15 ? "category-item active" : "category-item"} onClick={() => productCategory(15)}>
+                창호/폴딩도어
+              </div>
 
-              <div className={pActiveCategory === 18? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(18)} >시트/필름</div>
+              <div className={pActiveCategory === 16 ? "category-item active" : "category-item"} onClick={() => productCategory(16)}>
+                벽지/장판/마루
+              </div>
 
-              <div className={pActiveCategory === 19? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(19)} >스위치/콘센트</div>
+              <div className={pActiveCategory === 17 ? "category-item active" : "category-item"} onClick={() => productCategory(17)}>
+                타일
+              </div>
 
-              <div className={pActiveCategory === 20? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(20)} >커튼/블라인드</div>
+              <div className={pActiveCategory === 18 ? "category-item active" : "category-item"} onClick={() => productCategory(18)}>
+                시트/필름
+              </div>
 
-              <div className={pActiveCategory === 21? "category-item active" : "category-item"}  
-              onClick={()=>productCategory(21)} >페인트</div>
+              <div className={pActiveCategory === 19 ? "category-item active" : "category-item"} onClick={() => productCategory(19)}>
+                스위치/콘센트
+              </div>
 
-              <div className={pActiveCategory === 22? "category-item active" : "category-item"} 
-              onClick={()=>productCategory(22)} >조명</div>
+              <div className={pActiveCategory === 20 ? "category-item active" : "category-item"} onClick={() => productCategory(20)}>
+                커튼/블라인드
+              </div>
+
+              <div className={pActiveCategory === 21 ? "category-item active" : "category-item"} onClick={() => productCategory(21)}>
+                페인트
+              </div>
+
+              <div className={pActiveCategory === 22 ? "category-item active" : "category-item"} onClick={() => productCategory(22)}>
+                조명
+              </div>
             </div>
+            :
+             <div className="line"></div>
+             }
           </div>
 
+<<<<<<< HEAD
           <div className="product-cards">
             {Array.isArray(product) &&
               product.map (productCard=> (
                 <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>
               ))
             }
-          </div>
-        </div>
+=======
 
+            {product.length > 0 ?
+
+          <div className="cards">
+            <div className="morecards">
+            {Array.isArray(product) && product.map((productCard) => <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite} />)}
+>>>>>>> main
+          </div>
+
+
+          </div>
+          :
+          <div className="cards">
+          <span>검색결과가 없습니다!</span>
+          </div>
+          }
+        </div>
+        
         <div className="card-box">
           <div className="top">
             <div className="title-box">
-              <div className="title-main">
+              <div className="title-main-main">
+                <MessageSquareHeart />
                 <span>커뮤니티</span>
                 <span className="s-count">{community.length}</span>
               </div>
-              <div className="more" onClick={()=>navigate(`/zipddak/community?keyword=${keyword.trim()}`)}>
+              <div className="more" onClick={() => navigate(`/zipddak/community`)}>
                 <span>전체보기</span>
                 <CirclePlus size={14} />
               </div>
             </div>
+
+            {community.length > 0 ?
             <div className="main-category">
+<<<<<<< HEAD
                <div className={cActiveCategory === 76? "category-item active" : "category-item"}
               onClick={()=>communityCategory(76)}>우리집 자랑</div>
 
@@ -410,8 +564,53 @@ export default function MainSearch() {
 
               <div className={cActiveCategory === 82? "category-item active" : "category-item"}
               onClick={()=>communityCategory(82)}>자유</div>
+=======
+              <div className={cActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => communityCategory(0)}>
+                전체
+              </div>
+              <div className={cActiveCategory === 76 ? "category-item active" : "category-item"} onClick={() => communityCategory(76)}>
+                우리집 자랑
+              </div>
+
+              <div className={cActiveCategory === 77 ? "category-item active" : "category-item"} onClick={() => communityCategory(77)}>
+                자재 토론회
+              </div>
+
+              <div className={cActiveCategory === 78 ? "category-item active" : "category-item"} onClick={() => communityCategory(78)}>
+                나만의 노하우
+              </div>
+
+              <div className={cActiveCategory === 79 ? "category-item active" : "category-item"} onClick={() => communityCategory(79)}>
+                전문가에게 묻다
+              </div>
+
+              <div className={cActiveCategory === 80 ? "category-item active" : "category-item"} onClick={() => communityCategory(80)}>
+                함께해요
+              </div>
+
+              <div className={cActiveCategory === 81 ? "category-item active" : "category-item"} onClick={() => communityCategory(81)}>
+                전문가 소식
+              </div>
+
+              <div className={cActiveCategory === 82 ? "category-item active" : "category-item"} onClick={() => communityCategory(82)}>
+                자유
+              </div>
+>>>>>>> main
             </div>
+            :
+            <div className="line"></div>
+}
+          
+
+           {community.length > 0 ?
+
+         <div className="community-cards">
+            <div className="grid-cm">
+              {Array.isArray(community) && community.map((communityCard) =>
+                <Community key={communityCard.communityId} community={communityCard} />)}
+                </div>
           </div>
+<<<<<<< HEAD
 
           <div className="community-cards">
              <div className="grid-cm">
@@ -422,7 +621,14 @@ export default function MainSearch() {
               }
             </div>
           
+=======
+          :
+          <div className="cards">
+          <span>검색결과가 없습니다!</span>
+>>>>>>> main
           </div>
+          }
+        </div>
         </div>
       </div>
     </>

@@ -48,7 +48,7 @@
 }
 
 .f-label {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
 }
 
@@ -195,7 +195,8 @@
 }
 
 .tool-h {
-    width: 330px;
+    /* width: 330px; */
+    width: 400px;
     height: 130px;
     border: #eff1f5 1px solid;
     border-radius: 8px; 
@@ -233,6 +234,9 @@
 .tool-info-h {
     /* width: 100%; */
     margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .tool-address-h {
@@ -298,9 +302,9 @@
     align-items: center;
     justify-content: center;
 
-    height: 34px;
-    padding: 12px;
-    font-size: 14px;
+    /* height: 32px; */
+    padding: 8px 12px;
+    font-size: 13px;
     font-weight: 500;
     background-color: #F2F2F7;
     border-radius: 16px;

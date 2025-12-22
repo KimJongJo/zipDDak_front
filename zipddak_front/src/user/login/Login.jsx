@@ -57,7 +57,9 @@ export default function Login() {
             <div className="signUp-box">
                 <div className="login">
                     {/* <div className="logo"></div> */}
-                    <img src="/zipddak-logo.svg" />
+                    <a href="/zipddak/main">
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
+                    </a>
                     <div className="title">로그인</div>
 
                     <div className="sns_login">
@@ -83,6 +85,7 @@ export default function Login() {
 
                     <div className="line1"></div>
 
+                    {/* <form className="input_form"> */}
                     <div className="input_form">
                         <div className="input_parts">
                             <div className="input_label">이메일</div>
@@ -96,19 +99,19 @@ export default function Login() {
 
                         <div className="col-cm">
                             <div className="login_options">
-                                <FormGroup check>
+                                {/* <FormGroup check>
                                     <Label check>
                                         <Input type="checkbox" />
                                         로그인 유지
                                     </Label>
-                                </FormGroup>
+                                </FormGroup> */}
                                 <a href="">
                                     <span>아이디/비밀번호 찾기</span>
                                 </a>
                             </div>
 
                             <div className="mainButton loginStep">
-                                <Button className="primary-button long-button" onClick={submit}>
+                                <Button className="primary-button long-button" onClick={submit} type="submit">
                                     로그인
                                 </Button>
                             </div>
@@ -117,7 +120,7 @@ export default function Login() {
 
                     <div className="loginFooter">
                         <div className="input_detail">아직 회원이 아니신가요?</div>
-                        <a href="/zipddak/signUp/user">
+                        <a href="/signUp/user">
                             <div className="input_detail2">회원가입</div>
                         </a>
                     </div>

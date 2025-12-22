@@ -121,6 +121,7 @@ import { useEffect, useState } from "react";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
+import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
 
 function App() {
     const [alarm, setAlarm] = useState();
@@ -130,6 +131,7 @@ function App() {
     const [token, setToken] = useAtom(tokenAtom);
     const [alarms, setAlarms] = useAtom(alarmsAtom);
 
+    // Firebase 초기화 & 권한 요청
     useEffect(() => {
         registerServiceWorker();
         navigator.serviceWorker.ready.then(() => {
@@ -137,6 +139,7 @@ function App() {
         });
     }, []);
 
+    // 서버에 저장된 알림 목록 조회
     useEffect(() => {
         if (user.username) {
             myAxios(token, setToken)
@@ -147,41 +150,47 @@ function App() {
         }
     }, [user.username]);
 
+    // 실시간 FCM 알림 반영
     useEffect(() => {
-        Boolean(alarm) && setAlarms((prev) => [...prev, alarm]);
+        if (!alarm) return;
+        if (alarm.receiver !== user.username) return;
+
+        setAlarms((prev) => [...prev, alarm]);
     }, [alarm]);
 
     return (
         <Routes>
             <Route path="/auth/token" element={<Token />} />
+
+            {/* 일반사용자 로그인 */}
+            <Route path="login" element={<Login />} />
+            <Route path="signUp/user" element={<SignUser />} />
+            <Route path="signUp/expert" element={<SignExpert />} />
+            <Route path="signUp/store1" element={<SignStore1 />} />
+            <Route path="signUp/store2" element={<SignStore2 />} />
+            <Route path="signUp/store3" element={<SignStore3 />} />
+
             <Route path="/zipddak/*" element={<UserLayout />}>
                 <Route path="message" element={<Message />} />
-                {/* 일반사용자 로그인 */}
-                <Route path="login" element={<Login />} />
-                <Route path="signUp/user" element={<SignUser />} />
-                <Route path="signUp/expert" element={<SignExpert />} />
-                <Route path="signUp/store1" element={<SignStore1 />} />
-                <Route path="signUp/store2" element={<SignStore2 />} />
-                <Route path="signUp/store3" element={<SignStore3 />} />
 
                 {/* 일반사용자 메인 */}
                 <Route path="main" element={<Main />} />
-                <Route path="main/search" element={<MainSearch />} />
+                <Route path="main/search/:search" element={<MainSearch />} />
                 <Route path="main/best" element={<Best />} />
                 <Route path="market/return/:orderId" element={<MarketReturnForm />} />
+                <Route path="map" element={<KakaoMapTestPage />} />
 
                 {/* 일반사용자 공구대여 */}
                 <Route path="tool" element={<ToolMain />} />
                 <Route path="tool/:toolIdx" element={<ToolDetail />} />
                 <Route path="tool/regist" element={<RegistTool />} />
                 <Route path="tool/modify/:toolIdx" element={<ModifyTool />} />
-                <Route path="tool/apply" element={<ApplyTool />} />
-                {/* <Route path="apply/:toolIdx" element={<ApplyTool />} /> */}
+                <Route path="tool/apply/:toolIdx" element={<ApplyTool />} />
 
                 {/* 일반사용자 전문가찾기 */}
                 <Route path="experts" element={<Experts />} />
                 <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-                <Route path="expertMatchPayment/:estimateIdx" element={<ExpertMatchPayment />} />
+                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
                 <Route path="findExpert" element={<FindExpert />} />
 
                 {/* 일반사용자 커뮤니티 */}
@@ -194,7 +203,7 @@ function App() {
                 <Route path="productList" element={<ProductList />} />
                 <Route path="product/:productId" element={<ProductDetail />} />
                 <Route path="productOrder" element={<ProductOrder />} />
-                <Route path="productOrderComplate" element={<ProductOrderComplate />} />
+                <Route path="productOrderComplete" element={<ProductOrderComplate />} />
 
                 <Route path="storeInfo/:sellerId" element={<StoreInfo />} />
 
@@ -219,9 +228,10 @@ function App() {
                     <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
                     <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
                     <Route path="tools/my" element={<MyTool />} />
-                    <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
-                    <Route path="tool/lent" element={<ToolLent />} />
-                    <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
+                    <Route path="tools/rentals" element={<ToolLent />} />
+                    <Route path="tools/rentals/borrowed/:rentalIdx" element={<ToolBorrowDetail />} />
+                    <Route path="tools/rentals/lent/:rentalIdx" element={<ToolLentDetail />} />
+                    {/* <Route path="tools/rentals/:rentalIdx" element={<ToolLentDetail />} /> */}
                 </Route>
             </Route>
 
@@ -275,25 +285,7 @@ function App() {
                 <Route path="settleDetail" element={<SettleDetail />} />
             </Route>
 
-            <Route path="rentalList" element={<AdminRentalRecords />} />
-            <Route path="rentalList/:rentalId" element={<AdminRentalDetail />} />
-            <Route path="salesList" element={<AdminSalesHistory />} />
-            <Route path="salesList/:saleId" element={<AdminSalesDetail />} />
-            <Route path="matching/:matchingId" element={<AdminMatchingDetail />} />
-            <Route path="reports" element={<AdminReportList />} />
-            <Route path="reports/:reportId" element={<AdminReportDetail />} />
-            <Route path="payments" element={<PaymentHistory />} />
-            <Route path="payments/:paymentId" element={<AdminPaymentDetail />} />
-            <Route path="membership" element={<AdminMembership />} />
-
-            <Route path="settlementList" element={<AdminSettlementList />} />
-
-            <Route path="inquiryList" element={<InquiryList />} />
-            <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
-
-            <Route path="dashboard" element={<Dashboard />} />
-
-            {/* 사이트관리자 */}
+            {/* 전문가 */}
             <Route path="admin/*" element={<AdminLayout />}>
                 {/* 회원 관리 */}
                 <Route path="users" element={<AdminUserList />} />

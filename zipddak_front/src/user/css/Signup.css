@@ -225,7 +225,7 @@
 
 .login_options{
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
 }
 
 .mainButton {
@@ -425,4 +425,9 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.centerbutton {
+    justify-content: center;
+    align-items: center;
 }

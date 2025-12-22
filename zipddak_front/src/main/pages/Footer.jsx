@@ -10,7 +10,11 @@ export default function Footer() {
                 <div className="etc_menu">
                     <div className="other_menu">
                         <span className="pointer">
+<<<<<<< HEAD
                             <a href="/zipddak/signUp/store1">입점 신청</a>
+=======
+                            <a href="/signUp/store1">입점 신청</a>
+>>>>>>> main
                         </span>
                         {/* <span className="pointer">
                             <a href="/seller/ask">일대일 문의</a>

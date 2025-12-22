@@ -6,14 +6,30 @@ export default function Expertmain({ expert }) {
 
     return (
         <div className="expert-div-main"
-         onClick={() => {
+         style={{ cursor: "pointer" }}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.zIndex = 10;
+                e.currentTarget.style.transform = "scale(1.03)";
+                e.currentTarget.style.transitionDuration = "0.1s";
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.zIndex = 1;
+                e.currentTarget.style.transform = "scale(1)";
+            }}
+            onClick={() => {
                 navigate(`/zipddak/expertProfile/${expert.expertIdx}`);
-            }}>
+            }}
+            
+        >
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
+<<<<<<< HEAD
                  <img className="expert-img" 
                  src={`${expert.storagePath}/${expert.fileRename}`} alt="전문가" />
+=======
+                 <img className="expert-img"  src={`http://localhost:8080/imageView?type=expert&filename=${expert.imgFileRename}`} alt="전문가" />
+>>>>>>> main
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>
