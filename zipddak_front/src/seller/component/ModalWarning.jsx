@@ -5,38 +5,45 @@ import modal from "../css/modal.module.css";
 import { tokenAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
-export default function ModalWarning({ warningModalOpen, setWarningModalOpen, info, refresh, type, warningType }) {
-    const [token, setToken] = useAtom(tokenAtom);
-    console.log(info);
-    console.log(info.refundIdx);
+export default function ModalWarning({ warningModalOpen, setWarningModalOpen, productIdx, productName }) {
+    console.log("productId ; " + productIdx);
+    console.log("productNamess ; " + productName);
 
-    const actionHandling = async () => {
+    const navigate = useNavigate();
+
+    const truncate = (text, maxLength = 15) => {
+        if (!text) return "";
+        return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
+    };
+
+    const [token, setToken] = useAtom(tokenAtom);
+
+    const productDelete = async () => {
         try {
+            console.log("productIdx : " + productIdx);
+
+            const formData = new FormData();
+            formData.append("sellerId", "ss123");
+            formData.append("num", productIdx);
+
             // 8) 서버 전송
-            if (warningType == "수거완료") {
-                myAxios(token, setToken)
-                    .post("/pickupComplated", {
-                        num: info.refundIdx,
-                        postComp: info.pickupPostComp,
-                        trackingNumber: info.pickupTrackingNo,
-                        claimType: type,
-                    })
-                    .then((res) => {
-                        if (res.data.success === true) {
-                            alert("수거완료 처리되었습니다.");
-                            console.log(res.data.pickupCompletedAt);
-                            if (refresh) refresh();
-                        } else {
-                            alert("수거완료 처리 실패.");
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            }
+            const producDeleteUrl = `/product/myProductDelete`;
+            myAxios(token, setToken)
+                .post(producDeleteUrl, formData)
+                .then((res) => {
+                    if (res.data.success === true) {
+                        alert(res.data.message);
+                        navigate(`/seller/productList`); //상품 리스트로 이동
+                    } else {
+                        alert(res.data.message);
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         } catch (err) {
             console.error(err);
-            alert("요청 처리 실패");
+            alert("상품 삭제 실패");
         }
     };
 
@@ -44,19 +51,21 @@ export default function ModalWarning({ warningModalOpen, setWarningModalOpen, in
         <>
             <Modal isOpen={warningModalOpen} toggle={() => setWarningModalOpen(false)} className={[modal.modalFrame, modal.refundModalFrame].join(" ")}>
                 <ModalHeader toggle={() => setWarningModalOpen(false)} className={[modal.modalHeader, modal.refundModalHeader].join(" ")}>
-                    {warningType} 처리
+                    상품 삭제
                 </ModalHeader>
                 <ModalBody className={[modal.modalBody, modal.refundModalBody].join(" ")}>
                     <div className={modal.refundModalContent}>
                         <div className={modal.descRefundModalColumn}>
-                            <p>{warningType} 처리하시겠습니까?</p>
-                            {warningType != "수거완료" && <p style={{ color: "red" }}>처리 후 복구할 수 없습니다.</p>}
+                            <p>
+                                <span>{truncate(productName)}</span> 상품을 삭제 처리하시겠습니까?
+                            </p>
+                            <p style={{ color: "red" }}>처리 후 복구할 수 없습니다.</p>
                         </div>
                     </div>
 
                     <div className="btn_part">
-                        <button className="primary-button" style={{ width: "100%", height: "33px" }} onClick={actionHandling}>
-                            저장
+                        <button className="primary-button" style={{ width: "100%", height: "33px" }} onClick={productDelete}>
+                            삭제
                         </button>
                         <button className="sub-button" style={{ width: "100%", height: "33px" }} onClick={() => setWarningModalOpen(false)}>
                             취소

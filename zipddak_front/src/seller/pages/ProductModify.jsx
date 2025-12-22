@@ -9,7 +9,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 // component
 import DeliveryTab from "../component/ProductDeliveryTab";
 import PickupTab from "../component/ProductPickupTab";
-import ModalPdDelete from "../component/ModalPdDelete";
+import ModalWarning from "../component/ModalWarning";
 
 // library
 import { useState, useEffect } from "react";
@@ -18,16 +18,15 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 
 export default function ProductModify() {
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
-    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //경고 모달 상태
+    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
 
     // -----------------------------
     // 상품 정보 state
@@ -161,7 +160,7 @@ export default function ProductModify() {
         if (!productIdx) return;
 
         const params = new URLSearchParams();
-        params.append("sellerId", user.username);
+        params.append("sellerId", "ss123");
         params.append("num", productIdx);
 
         const productDetailUrl = `/product/myProductDetail?${params.toString()}`;
@@ -339,7 +338,7 @@ export default function ProductModify() {
             // 7) 상품 공개 유무
             formData.append("visibleYn", visible);
 
-            formData.append("sellerId", user.username);
+            formData.append("sellerId", "ss123");
             formData.append("num", productIdx);
 
             // 8) 서버 전송
@@ -761,14 +760,14 @@ export default function ProductModify() {
                                 type="button"
                                 className="sub-button saveBtn"
                                 onClick={() => {
-                                    setIsDeleteModalOpen(true);
+                                    setIsWarningModalOpen(true);
                                 }}
                             >
                                 <i className="bi bi-trash"></i> 삭제
                             </button>
                         </div>
 
-                        <ModalPdDelete deleteModalOpen={isDeleteModalOpen} setDeleteModalOpen={setIsDeleteModalOpen} productIdx={productIdx} productName={productName} />
+                        <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} productIdx={productIdx} productName={productName} />
                     </div>
                 </div>
             </main>

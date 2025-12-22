@@ -271,11 +271,8 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* 2개씩 한 행 */
   gap: 15px; /* 카드 간 간격 */
-<<<<<<< HEAD
-=======
 }
 
 .nonePd {
     padding: 8px 10px !important;
->>>>>>> main
 }
