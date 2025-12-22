@@ -298,3 +298,8 @@
     gap: 12px;
     justify-content: flex-end;
 }
+
+.oFont {
+    font-size: 15px;
+    font-weight: 500;
+}

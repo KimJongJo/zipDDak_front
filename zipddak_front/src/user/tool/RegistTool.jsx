@@ -16,11 +16,11 @@ export default function RegistTool() {
     const [token, setToken] = useAtom(tokenAtom);
 
     const [tool, setTool] = useState({
-        toolIdx: null, name: '', category: '83', rentalPrice: '', freeRental: false, content: '', tradeAddr: '주소',
+        toolIdx: null, name: '', category: '83', rentalPrice: '', freeRental: false, content: '',
         directRental: false, postRental: false, freePost: false, postCharge: '', zonecode: "", addr1: "",
         addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
         img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
-        settleBank: "", settleAccount: "", settleHost: ""
+        settleBank: "", settleAccount: "", settleHost: "", tradeAddr1:"", tradeAddr2:"", tradeZonecode:""
     })
 
 
@@ -64,10 +64,26 @@ export default function RegistTool() {
                 || data.address
         });
     }
-
-    const closeHandler = (state) => {
+     const closeHandler = (state) => {
         setIsAddOpen(false);
     }
+
+    const [isAddOpen2, setIsAddOpen2] = useState(false);
+
+     const complateHandler2 = (data) => {
+        setTool({
+            ...tool,
+            tradeZonecode: data.zonecode,
+            tradeAddr1: data.roadAddress
+                || data.address
+        });
+    }
+
+     const closeHandler2 = (state) => {
+        setIsAddOpen(false);
+    }
+
+   
 
     //카테고리
     const [tCategory, setTCategory] = useState(83);
@@ -162,25 +178,13 @@ export default function RegistTool() {
         console.log("why ")
 
         const submitTool = {
-            name: tool.name,
-            rentalPrice: tool.rentalPrice,
-            content: tool.content,
-            category: tCategory,
-            satus: toolStatus,
+            ...tool,
             freeRental,
             quickRental,
             postRental,
             directRental,
             freePost,
-            owner: user.username,
-            postCharge: tool.postCharge,
-            zonecode: tool.zonecode,
-            addr1: tool.addr1,
-            addr2: tool.addr2,
-            settleBank: tool.settleBank,
-            settleAccount: tool.settleAccount,
-            settleHost: tool.settleHost,
-            postRequest: tool.postRequest
+            
         };
 
         if (!checkOption(submitTool)) return;
@@ -261,7 +265,10 @@ export default function RegistTool() {
 
                     <div className="regToolForm">
                         <div className="options">
+                             <div className="row-cm" style={{gap:"5px"}}>
                             <span className="o-label">공구명</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                             <Input placeholder="상품명을 입력하세요" name="name" type="text"
                                 onChange={ChangeInput}
                             />
@@ -344,7 +351,10 @@ export default function RegistTool() {
 
 
                         <div className="options">
+                              <div className="row-cm" style={{gap:"5px"}}>
                             <span className="o-label">카테고리</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check><Input name="category" type="radio"
@@ -389,7 +399,10 @@ export default function RegistTool() {
                         </div>
 
                         <div className="options">
+                            <div className="row-cm" style={{gap:"5px"}}>
                             <span className="o-label">1일 대여비</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <div className="won">
                                     <Input type="number" name="rentalPrice" className="wonInput" placeholder="1일 대여비"
@@ -417,7 +430,10 @@ export default function RegistTool() {
                         </div>
 
                         <div className="options">
+                            <div className="row-cm" style={{gap:"5px"}}>
                             <span className="o-label">결제옵션</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check><Input type="checkbox" defaultChecked /> 문의후 대여</Label>
@@ -433,7 +449,10 @@ export default function RegistTool() {
                         </div>
 
                         <div className="options">
+                             <div className="row-cm" style={{gap:"5px"}}>
                             <span className="o-label">거래방식</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check><Input name="postRental" type="checkbox"
@@ -475,7 +494,10 @@ export default function RegistTool() {
 
                         {postRental &&
                             <div className="options">
-                                <span className="o-label">받을주소</span>
+                                 <div className="row-cm" style={{gap:"5px"}}>
+                            <span className="o-label">받을 주소</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                                 <div className="post-box">
                                     {user.addr1 &&
                                         <FormGroup check>
@@ -541,8 +563,44 @@ export default function RegistTool() {
 
                         {directRental &&
                             <div className="options">
-                                <span className="o-label">거래 희망장소</span>
-                                <div className="check-col">
+                                 <div className="row-cm" style={{gap:"5px"}}>
+                            <span className="o-label">거래 희망장소</span>
+                            <span className="orange oFont">*</span>
+                            </div>
+                                <div className="post-box">
+                                    
+                                    <div className="check-col">
+                                        <Input
+                                            className="zonecodeInput"
+                                            type="text"
+                                            name="tradeZonecode"
+                                            placeholder="우편번호"
+                                            value={tool.tradeZonecode}
+                                            readOnly
+                                        />
+                                        
+                                            <Button className="primary-button"
+                                                onClick={() => setIsAddOpen(!isAddOpen)}
+                                            >주소검색</Button>
+
+                                    </div>
+                                    <Input
+                                        type="text"
+                                        name="tradeAddr1"
+                                        placeholder="지번/도로명주소"
+                                        value={tool.tradeAddr1}
+                                        readOnly
+                                    />
+                                    <Input
+                                        type="text"
+                                        name="tradeAddr2"
+                                        placeholder="상세주소"
+                                        onChange={ChangeInput}
+                                    />
+
+                                    
+                                </div>
+                                {/* <div className="check-col">
                                     <div className="location-box">
                                         <input className="location" type="text" placeholder="지도에서 찾기" readOnly></input>
                                         <div className="">
@@ -552,13 +610,24 @@ export default function RegistTool() {
                                         </div>
                                     </div>
                                     <Input type="text" name="location" placeholder="" readOnly />
-                                </div>
+                                </div> */}
                             </div>
+                        }
+
+                         {
+                            isAddOpen &&
+                            <AddrModal title='만나서 결제주소찾기'
+                                open={isAddOpen} footer={null} onCancel={() => setIsAddOpen2(false)}>
+                                <DaumPostcode onComplete={complateHandler2} onClose={closeHandler2} />
+                            </AddrModal>
                         }
 
                         <div className="options">
                             <div className="row-cm">
-                                <div className="o-label">계좌번호</div>
+                                 <div className="row-cm" style={{gap:"5px"}}>
+                            <span className="o-label">계좌번호</span>
+                            <span className="orange oFont">*</span>
+                            </div>
                                 {/* <span className="necc">*</span> */}
                             </div>
                             {user.settleAccount &&
@@ -574,7 +643,7 @@ export default function RegistTool() {
                                     onChange={() => setUserBank(false)}
                                 /> 직접 입력</Label>
                             </FormGroup>
-                            <div className="input_detail">정산이 이루어지는 계좌입니다</div>
+                            <div className="input_detail">정산이 이루어지는 계좌입니다. 마이페이지의 정산계좌로 등록됩니다.</div>
                             {userBank ?
 
                                 <Input name="settleBank" type="text" className="toolBank sbSelect"
