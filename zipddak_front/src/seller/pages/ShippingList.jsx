@@ -7,12 +7,14 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom"; //페이지 이동
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ShippingList() {
     const pageTitle = usePageTitle("주문관리 > 배송 관리");
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     const [token, setToken] = useAtom(tokenAtom);
     const [user, setUser] = useAtom(userAtom);
@@ -72,7 +74,7 @@ export default function ShippingList() {
 
         const shippingListUrl = `/shipping/myShippingList?${params.toString()}`;
 
-        myAxios()
+        myAxios(token, setToken)
             .get(shippingListUrl)
             .then((res) => {
                 const data = res.data;

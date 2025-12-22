@@ -9,7 +9,7 @@ import { priceFormat } from "../js/priceFormat.jsx";
 // component
 import DeliveryTab from "../component/ProductDeliveryTab";
 import PickupTab from "../component/ProductPickupTab";
-import ModalWarning from "../component/ModalWarning";
+import ModalPdDelete from "../component/ModalPdDelete";
 
 // library
 import { useState, useEffect } from "react";
@@ -18,16 +18,17 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai/react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ProductModify() {
     const [user, setUser] = useAtom(userAtom);
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //경고 모달 상태
 
     // -----------------------------
     // 상품 정보 state
@@ -779,14 +780,14 @@ export default function ProductModify() {
                                 type="button"
                                 className="sub-button saveBtn"
                                 onClick={() => {
-                                    setIsWarningModalOpen(true);
+                                    setIsDeleteModalOpen(true);
                                 }}
                             >
                                 <i className="bi bi-trash"></i> 삭제
                             </button>
                         </div>
 
-                        <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} productIdx={productIdx} productName={productName} />
+                        <ModalPdDelete deleteModalOpen={isDeleteModalOpen} setDeleteModalOpen={setIsDeleteModalOpen} productIdx={productIdx} productName={productName} />
                     </div>
                 </div>
             </main>

@@ -1,14 +1,37 @@
 import { menu_data, NAV_MENUS } from "../js/menu_data.jsx";
 import { useState, useRef, useEffect } from "react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom } from "jotai";
+
+import UserInfoBox from "../component/UserInfoBox.jsx";
 
 const Header = () => {
+    const [user] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     const [openMenu, setOpenMenu] = useState(null);
     const [hoverMenu, setHoverMenu] = useState(null);
+    const [openUserInfo, setOpenUserInfo] = useState(false);
+    const [userinfoPos, setUserinfoPos] = useState({ x: 0, y: 0 });
     const menuRef = useRef(null);
 
+    //메뉴 토글 로직
     const toggleMenu = (key) => {
         setOpenMenu((prev) => (prev === key ? null : key));
         setHoverMenu(null); // 클릭 시 hover 상태는 무시
+    };
+
+    // 클릭 위치 기준으로 UserInfoBox 좌표 계산
+    const handleUserInfoClick = (e) => {
+        e.stopPropagation();
+
+        const rect = e.currentTarget.getBoundingClientRect();
+
+        setUserinfoPos({
+            x: rect.left + window.scrollX,
+            y: rect.bottom + window.scrollY + 4,
+        });
+
+        setOpenUserInfo((prev) => !prev); // 박스 오픈 토글
     };
 
     // Hover 상태
@@ -19,7 +42,7 @@ const Header = () => {
     //     if (!openMenu) setHoverMenu(null);
     // };
 
-    // 외부 클릭 시 닫기
+    // 메뉴 외부 클릭 시 닫기
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -49,15 +72,19 @@ const Header = () => {
                     </ul>
                 </nav>
 
-                <div className="user_info">
-                    {/* <div className="alarm_icon">
+                {user?.username && (
+                    <div className="user_info">
+                        {/* <div className="alarm_icon">
                         <i className="bi bi-bell pointer"></i>
                     </div> */}
-                    <div className="user_icon pointer">
-                        <img src="/userIcon.svg" />
-                        <i className="bi bi-chevron-down"></i>
+                        <div className="user_icon pointer" onClick={handleUserInfoClick}>
+                            <img src="/userIcon.svg" />
+                            <i className="bi bi-chevron-down"></i>
+                        </div>
                     </div>
-                </div>
+                )}
+
+                {user?.username && openUserInfo && <UserInfoBox pos={userinfoPos} userId={user.username} onClose={() => setOpenUserInfo(false)} />}
             </header>
         </>
     );

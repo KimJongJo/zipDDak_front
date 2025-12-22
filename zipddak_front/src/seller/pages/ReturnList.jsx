@@ -6,13 +6,15 @@ import usePageTitle from "../js/usePageTitle.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { myAxios } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai";
+import { myAxios, baseUrl } from "../../config.jsx";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ReturnList() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 리스트");
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     const [token, setToken] = useAtom(tokenAtom);
     const [user, setUser] = useAtom(userAtom);
@@ -70,7 +72,7 @@ export default function ReturnList() {
 
         const refundListUrl = `/refund/myRefundList?${params.toString()}`;
 
-        myAxios()
+        myAxios(token, setToken)
             .get(refundListUrl)
             .then((res) => {
                 const data = res.data;

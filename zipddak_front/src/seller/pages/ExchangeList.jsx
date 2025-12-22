@@ -7,11 +7,15 @@ import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } f
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { myAxios } from "../../config.jsx";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ProductRegist() {
     const pageTitle = usePageTitle("주문관리 > 교환 관리");
 
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     const [myExchangeList, setMyExchangeList] = useState([]);
     const [myExchangeCount, setMyExchangeCount] = useState(0);
@@ -63,7 +67,7 @@ export default function ProductRegist() {
     const submit = (page = 1) => {
         const params = new URLSearchParams();
 
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         params.append("page", page);
 
         if (keyword) params.append("keyword", keyword);

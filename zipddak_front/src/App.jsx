@@ -96,6 +96,7 @@ import MyProfile from "./seller/pages/MyProfile.jsx";
 import MyInfo from "./seller/pages/MyInfo.jsx";
 import AskToManager from "./seller/pages/AskToManager.jsx";
 import ProductModify from "./seller/pages/ProductModify.jsx";
+import SellerLogin from "./seller/pages/SellerLogin.jsx";
 //자재판매자 임시링크
 import OrderDetail from "./seller/pages/OrderDetail.jsx";
 import ShippingDetail from "./seller/pages/ShippingDetail.jsx";
@@ -260,6 +261,8 @@ function App() {
             </Route>
 
             {/* 자재판매자  */}
+            <Route path="seller/sellerLogin" element={<SellerLogin />} />
+
             <Route path="seller/*" element={<SellerLayout />}>
                 <Route path="mainhome" element={<SellerHome />} />
                 <Route path="productRegist" element={<ProductRegist />} />
