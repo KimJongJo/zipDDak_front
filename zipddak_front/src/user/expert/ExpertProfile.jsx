@@ -226,7 +226,7 @@ export default function ExpertProfile() {
                 <div className="expertProfile-detail-info-div">
                     <div className="expertProfile-img-div">
                         {/* 이미지 */}
-                        <img className="expertProfile-img" src={"/images/기본회원프로필.jpg"} />
+                        <img className="expertProfile-img" src={expertProfile.imgFileRename ? `${baseUrl}/imageView?type=expert&filename=${expertProfile.imgFileRename}` : `/default-profile.png`} />
 
                         {/* 견적요청 버튼, 관심, 신고 */}
                         <div className="expertProfile-request-div">

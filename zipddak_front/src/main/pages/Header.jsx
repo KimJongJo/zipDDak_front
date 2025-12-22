@@ -62,7 +62,7 @@ export default function Header({ direction, ...args }) {
     // 전문가 가입
     const goToExpertmodal = () => {
         setModal(false);
-        navigate("/zipddak/signUp/expert");
+        navigate("/signUp/expert");
     };
 
     return (
