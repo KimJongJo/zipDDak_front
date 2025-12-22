@@ -106,6 +106,7 @@ export default function ToolMain() {
                 }
 
                 setOffset(offsetParam + sizeParam);
+
             })
             .catch((err) => {
                 console.log(err);
@@ -114,7 +115,7 @@ export default function ToolMain() {
 
     // 최초 & 필터 변경 시
     useEffect(() => {
-        setTool([]);
+        setTool([])
         toolList(false, INIT_SIZE, 0);
     }, [user?.username, checkedCategory, tWay, tOrder, rentalTool, keyword]);
 
@@ -133,7 +134,7 @@ export default function ToolMain() {
     useEffect(() => {
         console.log(
             "tool ids:",
-            tool.map((t) => t.toolIdx),
+            tool.map((t) => t.toolIdx)
         );
     }, [tool]);
 
@@ -144,13 +145,23 @@ export default function ToolMain() {
             return;
         }
 
-        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle/tool`, {
-            toolIdx,
-            username: user.username,
-        });
+        await myAxios(token, setToken).post(
+            `${baseUrl}/user/favoriteToggle/tool`,
+            {
+                toolIdx,
+                username: user.username,
+            }
+        );
 
-        setTool((prev) => prev.map((t) => (t.toolIdx === toolIdx ? { ...t, favorite: !t.favorite } : t)));
+        setTool(prev =>
+            prev.map(t =>
+                t.toolIdx === toolIdx
+                    ? { ...t, favorite: !t.favorite }
+                    : t
+            )
+        );
     };
+
 
     return (
         <>
@@ -167,10 +178,14 @@ export default function ToolMain() {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === "Enter") searchTool();
+                                        if (e.key === 'Enter')
+                                            searchTool();
                                     }}
                                 ></input>
-                                <Search size={15} style={{ cursor: "pointer" }} onClick={searchTool} />
+                                <Search size={15} style={{ cursor: "pointer" }}
+                                    onClick={searchTool}
+
+                                />
                             </div>
                         </div>
                         <div className="t-filter">
@@ -240,7 +255,11 @@ export default function ToolMain() {
                     <div className="title-main">
                         <MapPin size={24} color="#FF5833" />
                         <span>{user.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
-                        {openMap ? <ChevronDown size={30} className="map-show" onClick={() => setOpenMap((prev) => !prev)} /> : <ChevronUp size={30} className="map-close" onClick={() => setOpenMap((prev) => !prev)} />}
+                        {openMap ? (
+                            <ChevronDown size={30} className="map-show" onClick={() => setOpenMap((prev) => !prev)} />
+                        ) : (
+                            <ChevronUp size={30} className="map-close" onClick={() => setOpenMap((prev) => !prev)} />
+                        )}
                     </div>
 
                     <div className={`maplist ${openMap ? "open" : ""}`}>

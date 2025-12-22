@@ -33,7 +33,7 @@ export function Mypage() {
 
   const navTitleStyle = {
     display: "flex",
-    padding: "6px 10px",
+    padding: "10px",
     alignItems: "center",
     gap: "10px",
     color: "#303441",
@@ -44,7 +44,7 @@ export function Mypage() {
   };
   const navStyle = {
     display: "flex",
-    padding: "12px 10px",
+    padding: "16px 10px",
     alignItems: "center",
     gap: "10px",
     color: "#303441",
@@ -84,7 +84,7 @@ export function Mypage() {
             cursor: "pointer",
           }}
           onClick={() => {
-            // window.scrollTo(0, 0);
+            window.scrollTo(0, 0);
             navigate("/expert/mypage");
           }}
         >
@@ -121,11 +121,7 @@ export function Mypage() {
                 fontSize: "12px",
               }}
               onClick={() => {
-<<<<<<< HEAD
                 window.scrollTo(0, 0);
-=======
-                // window.scrollTo(0, 0);
->>>>>>> main
                 navigate("/expert/profile/edit");
               }}
             >
@@ -153,7 +149,7 @@ export function Mypage() {
           <div style={{ padding: " 10px 0 14px 0" }}>
             <p style={navTitleStyle}>전문가 활동</p>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/works"
               style={{
                 ...navStyle,
@@ -165,11 +161,7 @@ export function Mypage() {
               작업내역
             </NavLink>
             <NavLink
-<<<<<<< HEAD
               onClick={() => window.scrollTo(0, 0)}
-=======
-              // onClick={() => window.scrollTo(0, 0)}
->>>>>>> main
               to="/expert/mypage/receive/requests"
               style={{
                 ...navStyle,
@@ -181,7 +173,7 @@ export function Mypage() {
               받은 요청서
             </NavLink>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/sent/estimates"
               style={{
                 ...navStyle,
@@ -196,7 +188,7 @@ export function Mypage() {
 
           <div style={{ padding: " 10px 0 14px 0" }}>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/settlement"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -208,7 +200,7 @@ export function Mypage() {
               매출정산 관리
             </NavLink>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/membership"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -220,7 +212,7 @@ export function Mypage() {
               내 멤버십
             </NavLink>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/community"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -232,7 +224,7 @@ export function Mypage() {
               내 게시글
             </NavLink>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/inquiries"
               style={({ isActive }) => ({
                 ...navStyle,
@@ -244,7 +236,7 @@ export function Mypage() {
               1:1 문의내역
             </NavLink>
             <NavLink
-              // onClick={() => window.scrollTo(0, 0)}
+              onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/account"
               style={({ isActive }) => ({
                 ...navStyle,
