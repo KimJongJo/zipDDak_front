@@ -112,8 +112,8 @@ export default function RegistTool() {
     const [freePost, setFreePost] = useState(false);
 
     useEffect(() => {
-        if (freeRental) {
-            setTool((prev) => ({
+        if (freePost) {
+            setTool(prev => ({
                 ...prev,
                 postCharge: 0,
             }));
@@ -144,7 +144,7 @@ export default function RegistTool() {
     }, [useProfile, user]);
 
     //계좌
-    const [userBank, setUserBank] = useState(true);
+    const [userBank, setUserBank] = useState(false);
     useEffect(() => {
         if (userBank && user) {
             // 기본 계좌 사용
@@ -231,8 +231,20 @@ export default function RegistTool() {
                 });
     };
 
-    //취소
-    const cancal = () => {};
+    //취소 
+    const cancal = () => {
+
+    }
+
+    //항목확인
+    // const checkOption = () => {
+    //     if(tool.name == null){
+    //         setMessage("공구 이름을 등록해주세요")
+    //     }else if (tool.rentalPrice == null){
+    //         setMessage("공구 1일 대여 금액을 설정해주세요")
+    //     }else if ()
+    // }
+
 
     return (
         <>
@@ -520,11 +532,11 @@ export default function RegistTool() {
                 </div>
 
                 <Modal isOpen={modal}>
-                    <ModalHeader>회원가입</ModalHeader>
-                    <ModalBody>{message}</ModalBody>
-                    <Button color="primary" onClick={() => setModal(false)}>
-                        확인
-                    </Button>
+                    <ModalHeader>공구등록</ModalHeader>
+                    <ModalBody>
+                        {message}
+                    </ModalBody>
+                    <Button color="primary" onClick={() => setModal(false)} >확인</Button>
                 </Modal>
             </div>
         </>

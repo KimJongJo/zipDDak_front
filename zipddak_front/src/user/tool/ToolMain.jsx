@@ -1,7 +1,7 @@
 import { Search, MapPinned, ChevronDown, MapPin, Heart, ChevronLeft, ChevronRight, Hammer, PlusCircle, ChevronUp, Pointer, RotateCcw } from "lucide-react";
-import { Button, FormGroup, Input, Label } from "reactstrap";
+import { Button, FormGroup, Input, Label, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import "../css/ToolMain.css";
-import { ToolL, MapTool, Toolmain } from "../../main/component/Tool";
+import { MapTool, Toolmain } from "../../main/component/Tool";
 import { userAtom, tokenAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import { useState, useEffect } from "react";
@@ -14,6 +14,8 @@ export default function ToolMain() {
 
     const [tool, setTool] = useState([]);
     const navigate = useNavigate();
+    const [modal, setModal] = useState();
+
     const [offset, setOffset] = useState(0);
     const INIT_SIZE = 15;
     const MORE_SIZE = 5;
@@ -138,7 +140,7 @@ export default function ToolMain() {
     }, [tool]);
 
     // 관심 토글
-    const toggleFavorite = async (toolIdx) => {
+    const toggleFavoriteTool = async (toolIdx) => {
         if (!user.username) {
             navigate("/zipddak/login");
             return;
@@ -246,7 +248,15 @@ export default function ToolMain() {
                     <div className={`maplist ${openMap ? "open" : ""}`}>
                         <div className="map"></div>
                         <div className="list">
-                            <div className="list-card">{Array.isArray(tool) && tool.map((toolCard) => <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
+                            <div className="list-card">
+
+                                {Array.isArray(tool) &&
+                                    tool.map(toolCard => (
+                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavoriteTool} />
+                                    ))
+                                }
+
+                            </div>
 
                             <div className="c-btn">
                                 <div className="m-btn">
@@ -277,7 +287,11 @@ export default function ToolMain() {
                             </div>
                         </div>
 
-                        <Button className="primary-button nonePd" onClick={() => navigate(`/zipddak/tool/regist`)}>
+                        <Button className="primary-button nonePd" onClick={() => {
+                            if(user.username){
+                                 navigate(`/zipddak/tool/regist`)
+                            }
+                            setModal(true)}}>
                             <Hammer size={22} />
                             <span className="btn-text">내 공구 등록하기</span>
                         </Button>
@@ -290,7 +304,13 @@ export default function ToolMain() {
                         </FormGroup>
                     </div>
 
-                    <div className="toolMaincards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
+                    <div className="toolMaincards">
+                        {Array.isArray(tool) &&
+                            tool.map(toolCard => (
+                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />
+                            ))
+                        }
+                    </div>
 
                     <div
                         className="moreBtn"
@@ -303,6 +323,23 @@ export default function ToolMain() {
                     </div>
                 </div>
             </div>
+
+             <Modal isOpen={modal}>
+        <ModalHeader>공구 등록</ModalHeader>
+        <ModalBody>
+          <div>공구를 등록하려면 로그인이 필요합니다!</div>
+          {/* <div className="space-px"> </div>
+          <div>사업자등록증이 요구되며, 승인까지 최대 일주일이 소요됩니다.</div> */}
+        </ModalBody>
+        <div className="row-cm header-modal-button">
+          <Button className="secondary-button" onClick={() => setModal(false)}>
+            취소
+          </Button>
+          <Button className="primary-button" onClick={()=> navigate(`/login`)} >
+            확인
+          </Button>
+        </div>
+      </Modal>
         </>
     );
 }
