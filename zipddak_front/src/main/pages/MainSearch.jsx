@@ -42,9 +42,15 @@ export default function MainSearch() {
     const submittedKeyword = inputValue.trim();
 
     if (!submittedKeyword) {
+<<<<<<< HEAD
+        alert('검색어를 입력해주세요.');
+        setKeyword(''); 
+        return; 
+=======
       alert('검색어를 입력해주세요.');
       setKeyword('');
       return;
+>>>>>>> main
     }
 
     setKeyword(submittedKeyword);
@@ -86,8 +92,13 @@ export default function MainSearch() {
 
 
   //상품 리스트
+<<<<<<< HEAD
+  const [pCategory, setPCategory] = useState();
+  const [pActiveCategory, setPActiveCategory] = useState(1);
+=======
   const [pCategory, setPCategory] = useState(0);
   const [pActiveCategory, setPActiveCategory] = useState(0);
+>>>>>>> main
   const [productLength, setProductLength] = useState(0);
 
   const productCategory = (categoryNo) => {
@@ -102,11 +113,19 @@ export default function MainSearch() {
     const keywordPharam = keyword ? keyword : '';
 
     let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+<<<<<<< HEAD
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+=======
     if (usernamePharam) {
       url += `&username=${usernamePharam}`;
     }
 
     const tokenPharam = token ? token : null;
+>>>>>>> main
 
     myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
@@ -127,8 +146,13 @@ export default function MainSearch() {
   }, [user.username, pCategory, keyword])
 
   //공구 리스트
+<<<<<<< HEAD
+  const [tCategory, setTcategory] = useState();
+  const [tActiveCategory, setTActiveCategory] = useState(83);
+=======
   const [tCategory, setTcategory] = useState(0);
   const [tActiveCategory, setTActiveCategory] = useState(0);
+>>>>>>> main
   const [toolLength, setToolLength] = useState(0);
 
   const toolCategory = (categoryNo) => {
@@ -143,12 +167,21 @@ export default function MainSearch() {
     const keywordPharam = keyword ? keyword : '';
 
     let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+<<<<<<< HEAD
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+  
+=======
     if (usernamePharam) {
       url += `&username=${usernamePharam}`;
     }
 
     const tokenPharam = token ? token : null;
 
+>>>>>>> main
 
     myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
@@ -170,8 +203,13 @@ export default function MainSearch() {
 
 
   //커뮤니티 리스트
+<<<<<<< HEAD
+  const [cCategory, setCCategory] = useState();
+  const [cActiveCategory, setCActiveCategory] = useState(76);
+=======
   const [cCategory, setCCategory] = useState(0);
   const [cActiveCategory, setCActiveCategory] = useState(0);
+>>>>>>> main
 
   const communityCategory = (categoryNo) => {
     setCCategory(categoryNo);
@@ -180,8 +218,13 @@ export default function MainSearch() {
 
   const communityList = () => {
 
+<<<<<<< HEAD
+    const categoryPharam = tCategory ? tCategory : 76;
+    const keywordPharam = '';
+=======
     const categoryPharam = tCategory ? tCategory : 0;
     const keywordPharam = keyword ? keyword : '';
+>>>>>>> main
 
     const tokenPharam = token ? token : null;
 
@@ -197,12 +240,20 @@ export default function MainSearch() {
   }
 
   useEffect(() => {
+<<<<<<< HEAD
+
+    communityList();
+=======
 
     communityList();
 
   }, [cCategory])
 
+>>>>>>> main
 
+  }, [cCategory])
+
+  
   //전체보기
   const searchMore = () => {
 
@@ -278,12 +329,23 @@ export default function MainSearch() {
           {expert.length > 0 ?
 
           <div className="expert-cards">
+<<<<<<< HEAD
+           {Array.isArray(expert) &&
+            expert.map(expertCard=> (
+              <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
+            ))
+           }
+            <div className="card-more">
+              <ArrowRight />
+            </div>
+=======
             {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
 
           </div>
           :
           <div className="cards">
           <span>검색결과가 없습니다!</span>
+>>>>>>> main
           </div>
           }
         </div>
@@ -291,9 +353,15 @@ export default function MainSearch() {
         <div className="card-box">
           <div className="top">
             <div className="title-box">
+<<<<<<< HEAD
+              <div className="title-main">
+                <MapPin size={24} color="#FF5833" />
+                <span>{user?.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
+=======
               <div className="title-main-main">
                 <MapPin size={24} />
                 <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
+>>>>>>> main
                 <span className="s-count">{toolLength}</span>
               </div>
               <div className="more" onClick={() => navigate(`/zipddak/tool`)}>
@@ -328,8 +396,19 @@ export default function MainSearch() {
                 찾아요
               </div>
             </div>
+<<<<<<< HEAD
+          </div>
+
+          <div className="tool-cards">
+
+            {Array.isArray(tool) &&
+              tool.map(toolCard =>(
+                <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite}/>
+              ))
+=======
             :
             <div className="line"></div>
+>>>>>>> main
             }
           </div>
 
@@ -422,12 +501,21 @@ export default function MainSearch() {
              }
           </div>
 
+<<<<<<< HEAD
+          <div className="product-cards">
+            {Array.isArray(product) &&
+              product.map (productCard=> (
+                <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>
+              ))
+            }
+=======
 
             {product.length > 0 ?
 
           <div className="cards">
             <div className="morecards">
             {Array.isArray(product) && product.map((productCard) => <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite} />)}
+>>>>>>> main
           </div>
 
 
@@ -455,6 +543,28 @@ export default function MainSearch() {
 
             {community.length > 0 ?
             <div className="main-category">
+<<<<<<< HEAD
+               <div className={cActiveCategory === 76? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(76)}>우리집 자랑</div>
+
+              <div className={cActiveCategory === 77? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(77)}>자재 토론회</div>
+
+              <div className={cActiveCategory === 78? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(78)}>나만의 노하우</div>
+
+              <div className={cActiveCategory === 79? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(79)}>전문가에게 묻다</div>
+
+              <div className={cActiveCategory === 80? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(80)}>함께해요</div>
+
+              <div className={cActiveCategory === 81? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(81)}>전문가 소식</div>
+
+              <div className={cActiveCategory === 82? "category-item active" : "category-item"}
+              onClick={()=>communityCategory(82)}>자유</div>
+=======
               <div className={cActiveCategory === 0 ? "category-item active" : "category-item"} onClick={() => communityCategory(0)}>
                 전체
               </div>
@@ -485,6 +595,7 @@ export default function MainSearch() {
               <div className={cActiveCategory === 82 ? "category-item active" : "category-item"} onClick={() => communityCategory(82)}>
                 자유
               </div>
+>>>>>>> main
             </div>
             :
             <div className="line"></div>
@@ -499,9 +610,22 @@ export default function MainSearch() {
                 <Community key={communityCard.communityId} community={communityCard} />)}
                 </div>
           </div>
+<<<<<<< HEAD
+
+          <div className="community-cards">
+             <div className="grid-cm">
+               {Array.isArray(community) &&
+                community.map(communityCard => (
+                  <Community key={communityCard.communityIdx} product={communityCard} />
+                ))
+              }
+            </div>
+          
+=======
           :
           <div className="cards">
           <span>검색결과가 없습니다!</span>
+>>>>>>> main
           </div>
           }
         </div>

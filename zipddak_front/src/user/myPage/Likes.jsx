@@ -3,7 +3,8 @@ import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { Eye, MessageCircle, Heart } from "lucide-react";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom, useAtomValue } from "jotai";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
+import { useNavigate } from "react-router";
 
 export default function Likes() {
   const [tab, setTab] = useState("공구");
@@ -23,6 +24,8 @@ export default function Likes() {
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
+
+  const navigate = useNavigate();
 
   // 관심 상품목록 조회
   const getProductLikes = (page) => {
@@ -264,9 +267,18 @@ export default function Likes() {
           }}
         >
           {expertLikes.map((expert) => (
-            <a href="#" className="expert-div-main">
+            <div
+              style={{ cursor: "pointer", height: "190px" }}
+              onClick={() => {
+                navigate(`/zipddak/expertProfile/${expert.expertIdx}`);
+              }}
+              className="expert-div"
+            >
               <div className="expert-img-div">
-                <img className="expert-img" src={expert.profileImage} />
+                <img
+                  className="expert-img"
+                  src={`${baseUrl}/imageView?type=expert&filename=${expert.profileImage}`}
+                />
                 <div className="expert-name-div">
                   <span className="font-14 semibold">
                     {expert.activityName}
@@ -296,7 +308,9 @@ export default function Likes() {
                 <div className="expert-career-div">
                   <span className="font-13">
                     <i className="bi bi-award font-11"></i>경력
-                    {expert.careerCount / 12}년
+                    {expert.careerCount < 12
+                      ? "1년 미만"
+                      : `${Math.floor(expert.careerCount / 12)}년`}
                   </span>
                   <i className="bi bi-dot font-11"></i>
                   <span className="font-13">
@@ -305,7 +319,7 @@ export default function Likes() {
                   </span>
                 </div>
               </div>
-            </a>
+            </div>
           ))}
         </div>
       )}

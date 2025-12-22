@@ -88,7 +88,7 @@ export default function StoreInfo() {
 
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore]
+        [loading, hasMore],
     );
 
     const toggleFavorite = async (productIdx) => {
@@ -185,40 +185,19 @@ export default function StoreInfo() {
                                             </label>
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center" }}>
-                                            <Input
-                                                value="CONDITION_BREACH"
-                                                onChange={(e) => setReportReason(e.target.value)}
-                                                type="radio"
-                                                name="reason"
-                                                id="CONDITION_BREACH"
-                                                style={{ marginRight: "20px" }}
-                                            />{" "}
+                                            <Input value="CONDITION_BREACH" onChange={(e) => setReportReason(e.target.value)} type="radio" name="reason" id="CONDITION_BREACH" style={{ marginRight: "20px" }} />{" "}
                                             <label htmlFor="CONDITION_BREACH" className="font-14">
                                                 거래 조건 불이행
                                             </label>
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center" }}>
-                                            <Input
-                                                value="TERMS_NOT_MET"
-                                                onChange={(e) => setReportReason(e.target.value)}
-                                                type="radio"
-                                                name="reason"
-                                                id="TERMS_NOT_MET"
-                                                style={{ marginRight: "20px" }}
-                                            />{" "}
+                                            <Input value="TERMS_NOT_MET" onChange={(e) => setReportReason(e.target.value)} type="radio" name="reason" id="TERMS_NOT_MET" style={{ marginRight: "20px" }} />{" "}
                                             <label htmlFor="TERMS_NOT_MET" className="font-14">
                                                 부적절한 언행 및 서비스
                                             </label>
                                         </div>
                                         <div style={{ display: "flex", alignItems: "center" }}>
-                                            <Input
-                                                value="DEAL_VIOLATION"
-                                                onChange={(e) => setReportReason(e.target.value)}
-                                                type="radio"
-                                                name="reason"
-                                                id="DEAL_VIOLATION"
-                                                style={{ marginRight: "20px" }}
-                                            />{" "}
+                                            <Input value="DEAL_VIOLATION" onChange={(e) => setReportReason(e.target.value)} type="radio" name="reason" id="DEAL_VIOLATION" style={{ marginRight: "20px" }} />{" "}
                                             <label htmlFor="DEAL_VIOLATION" className="font-14">
                                                 사기 의심 행위
                                             </label>

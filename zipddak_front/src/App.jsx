@@ -131,6 +131,7 @@ function App() {
     const [token, setToken] = useAtom(tokenAtom);
     const [alarms, setAlarms] = useAtom(alarmsAtom);
 
+    // Firebase 초기화 & 권한 요청
     useEffect(() => {
         registerServiceWorker();
         navigator.serviceWorker.ready.then(() => {
@@ -138,6 +139,7 @@ function App() {
         });
     }, []);
 
+    // 서버에 저장된 알림 목록 조회
     useEffect(() => {
         if (user.username) {
             myAxios(token, setToken)
@@ -148,8 +150,12 @@ function App() {
         }
     }, [user.username]);
 
+    // 실시간 FCM 알림 반영
     useEffect(() => {
-        Boolean(alarm) && setAlarms((prev) => [...prev, alarm]);
+        if (!alarm) return;
+        if (alarm.receiver !== user.username) return;
+
+        setAlarms((prev) => [...prev, alarm]);
     }, [alarm]);
 
     return (
@@ -170,9 +176,10 @@ function App() {
 
                 {/* 일반사용자 메인 */}
                 <Route path="main" element={<Main />} />
-                <Route path="main/search" element={<MainSearch />} />
+                <Route path="main/search/:search" element={<MainSearch />} />
                 <Route path="main/best" element={<Best />} />
                 <Route path="market/return/:orderId" element={<MarketReturnForm />} />
+                <Route path="map" element={<KakaoMapTestPage />} />
 
                 {/* 일반사용자 공구대여 */}
                 <Route path="tool" element={<ToolMain />} />

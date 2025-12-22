@@ -14,10 +14,10 @@
 
 .d-top {
     width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 20px;
 }
 
 .d-user {
@@ -35,7 +35,7 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
     overflow: hidden;
 }
 
@@ -59,7 +59,7 @@
 .loca {
     font-size: 13px;
     font-weight: 500;
-    color: #8E8E93;
+    color: #8e8e93;
 }
 
 .top-icons {
@@ -77,13 +77,12 @@
     width: 645px;
     min-height: 360px;
     max-height: 470px;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
     border-radius: 8px;
     overflow: hidden;
 }
 
-.d-tool-image img
-{
+.d-tool-image img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -94,7 +93,7 @@
 }
 
 .d-infos {
-     width: 500px;
+    width: 500px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -106,7 +105,7 @@
     align-items: flex-end;
     justify-content: space-between;
     padding-bottom: 15px;
-    border-bottom: #F1F3F7 1px solid;
+    border-bottom: #f1f3f7 1px solid;
 }
 
 .d-points {
@@ -116,7 +115,7 @@
 }
 
 .points {
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
     font-size: 13px;
     font-weight: 600;
 
@@ -125,7 +124,7 @@
 }
 
 .createdate {
-    color: #8E8E93;
+    color: #8e8e93;
 }
 
 .d-option {
@@ -138,7 +137,7 @@
 .ca {
     font-size: 15px;
     font-weight: 500;
-    color: #8E8E93;
+    color: #8e8e93;
 }
 
 .na {
@@ -146,7 +145,7 @@
     font-weight: 500;
 }
 
-.d-price, 
+.d-price,
 .d-ectInfo,
 .ic,
 .rentalBtn {
@@ -158,7 +157,7 @@
 .od {
     font-size: 20px;
     font-weight: 500;
-    color: #FF5833;
+    color: #ff5833;
 }
 
 .tp {
@@ -173,7 +172,7 @@
 }
 
 .orange {
-    color: #FF5833;
+    color: #ff5833;
 }
 
 .d-ectInfo {
@@ -188,11 +187,11 @@
 
 .short-info {
     margin: 15px 0;
-    border-top: #F1F3F7 1px solid;
+    border-top: #f1f3f7 1px solid;
     padding: 10px;
 }
 
-.rentalBtn{
+.rentalBtn {
     justify-content: center;
     gap: 10px;
 }
@@ -200,7 +199,7 @@
 /* 네이게이션 */
 .d-tab-nav {
     width: 100%;
-    border-bottom: #F1F3F7 1px solid;
+    border-bottom: #f1f3f7 1px solid;
 
     display: flex;
     align-items: center;
@@ -210,9 +209,9 @@
     font-size: 16px;
     font-weight: 600;
     padding: 15px 30px;
-    color: #8E8E93;
+    color: #8e8e93;
     cursor: pointer;
-     flex-shrink: 0;
+    flex-shrink: 0;
 }
 
 .d-nav.active,
@@ -247,7 +246,6 @@
     justify-content: center;
     gap: 60px;
     margin-bottom: 40px;
-    
 }
 
 .dimgs {
@@ -265,7 +263,6 @@
     object-fit: contain;
 }
 
-
 .imgNav {
     position: absolute;
     bottom: 15px;
@@ -278,7 +275,7 @@
 }
 
 .fbBtn {
-    border: #F1F3F7 1px solid;
+    border: #f1f3f7 1px solid;
     border-radius: 8px;
     width: 40px;
     height: 40px;
@@ -293,7 +290,6 @@
 .de-three {
     width: 100%;
     display: flex;
-
 }
 
 /* .de-two {
@@ -307,7 +303,7 @@
 .de-favlocation {
     width: 435px;
     height: 410px;
-    border: #F1F3F7 1px solid;
+    border: #f1f3f7 1px solid;
     border-radius: 8px;
 
     display: flex;
@@ -318,7 +314,7 @@
 .de-map {
     width: 435px;
     height: 285px;
-    background-color: #F1F3F7;
+    background-color: #f1f3f7;
     border-radius: 8px 8px 0 0;
 }
 
@@ -344,7 +340,7 @@
     grid-template-columns: repeat(6, 1fr); /* 6칸 고정 */
     gap: 20px;
 
-    justify-items: start;   /* 카드 왼쪽 정렬 */
+    justify-items: start; /* 카드 왼쪽 정렬 */
 }
 
 .toolDetailPage {

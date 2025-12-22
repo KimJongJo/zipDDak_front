@@ -8,12 +8,13 @@ import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useState, useEffect, useRef } from "react";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai/react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ProductList() {
     const pageTitle = usePageTitle("상품 조회 리스트");
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     const [myProductList, setMyProductList] = useState([]);
@@ -27,7 +28,7 @@ export default function ProductList() {
     useEffect(() => {
         myAxios(token, setToken)
             // .get(`/seller/product/categories?sellerId=${sellerId}`)
-            .get(`/product/categories?sellerId=ss123`)
+            .get(`/product/categories?sellerId=${user.username}`)
             .then((res) => {
                 setCategories(res.data); // 필터에 카테고리명 매핑
 
@@ -50,7 +51,7 @@ export default function ProductList() {
         myAxios(token, setToken)
             .get("/product/myProductList", {
                 params: {
-                    sellerId: "ss123",
+                    sellerId: user.username,
                     page,
                     category: category || null,
                     status: status || null,
