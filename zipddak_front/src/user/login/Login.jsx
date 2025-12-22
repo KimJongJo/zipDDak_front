@@ -3,14 +3,16 @@ import "../css/Signup.css";
 import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
 import { useState } from "react";
-import { userAtom, tokenAtom } from "../../atoms";
-import { useAtom, useSetAtom } from "jotai";
+import { userAtom, tokenAtom, alarmsAtom, fcmTokenAtom } from "../../atoms";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 export default function Login() {
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
     const [token, setToken] = useAtom(tokenAtom);
+    const fcmToken = useAtomValue(fcmTokenAtom);
     const setUser = useSetAtom(userAtom);
+    const setAlarms = useSetAtom(alarmsAtom);
 
     const navigate = useNavigate();
 
@@ -18,7 +20,7 @@ export default function Login() {
         let formData = new FormData();
         formData.append("username", username);
         formData.append("password", password);
-        formData.append("fcmToken", "fcmToken");
+        formData.append("fcmToken", fcmToken);
 
         myAxios(null, setToken)
             .post(`/login`, formData)
@@ -28,21 +30,20 @@ export default function Login() {
 
                 if (res) {
                     setUser(res.data);
-                    // myAxios(res.headers.authorization,setToken).post(`/user/alarms`)
-                    // .then(res=> {
-                    //     console.log(res)
-                    //     console.log(res.data)
-                    //     setAlarms(res.data);
-                    //     navigate("/")
-                    // })
-                }
+                    setToken(res.headers.authorization);
 
-                if (res.data.role == "USER" || res.data.type == "EXPERT") {
+                    myAxios(res.headers.authorization, setToken)
+                        .get(`/notificationList?username=${res.data.username}`)
+                        .then((res) => {
+                            setAlarms(res.data);
+                        });
+                }
+                if (res.data.role == "USER" || res.data.role == "EXPERT") {
                     navigate("/zipddak/main");
                 } else if (res.data.role == "APPROVAL_SELLER") {
                     navigate("/seller/mainhome");
                 } else if (res.data.role == "ADMIN") {
-                    navigate("/admin/userList");
+                    navigate("/admin/dashbord");
                 }
             })
             .catch((err) => {
@@ -55,7 +56,8 @@ export default function Login() {
         <>
             <div className="signUp-box">
                 <div className="login">
-                    <div className="logo"></div>
+                    {/* <div className="logo"></div> */}
+                    <img src="/zipddak-logo.svg" />
                     <div className="title">로그인</div>
 
                     <div className="sns_login">
@@ -95,7 +97,10 @@ export default function Login() {
                         <div className="col-cm">
                             <div className="login_options">
                                 <FormGroup check>
-                                    <Input type="checkbox" /> <Label check>로그인 유지</Label>
+                                    <Label check>
+                                        <Input type="checkbox" />
+                                        로그인 유지
+                                    </Label>
                                 </FormGroup>
                                 <a href="">
                                     <span>아이디/비밀번호 찾기</span>

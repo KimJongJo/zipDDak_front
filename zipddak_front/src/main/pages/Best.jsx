@@ -16,12 +16,16 @@ export default function Best() {
 
     const bestList = () => {
 
-        if (!token) {
-            return;
-        }
         const usernamePharam = user ? user.username : '';
 
-        myAxios(token, setToken).get(`/main/best?username=${usernamePharam}`)
+        let url = `/main/best`;
+        if (usernamePharam) {
+            url += `?username=${usernamePharam}`;
+        }
+
+        const tokenPharam = token ? token : null;
+
+        myAxios(tokenPharam, setToken).get(url)
             .then(res => {
                 setProduct(res.data);
             })
@@ -97,7 +101,7 @@ export default function Best() {
                                             key={productCard.productIdx}
                                             product={productCard}
                                             toggleFavorite={productCard.isFavorite}
-                                            label={startingIndex + indexInRow + 1} 
+                                            label={startingIndex + indexInRow + 1}
                                         />
                                     ))}
                                 </div>

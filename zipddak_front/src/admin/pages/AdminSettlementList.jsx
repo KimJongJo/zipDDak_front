@@ -1,18 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../css/AdminUserList.css";
 import AdminSidebar from "./AdminNav";
 import { Input, Table, Modal, ModalBody } from "reactstrap";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { baseUrl, myAxios } from "../../config";
+import AdminPaging from "./AdminPaging";
 
 export default function AdminSettlementList() {
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
     // 전문 서비스
     const [defaultMajor, setDefaultMajor] = useState(1);
 
+    const today = new Date();
+
+    const prevMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const prevMonthStr = `${prevMonthDate.getFullYear()}-${(prevMonthDate.getMonth() + 1).toString().padStart(2, "0")}`;
+
+    // 기본값을 저번 달로 설정
+    const [month, setMonth] = useState(prevMonthStr);
+
+    const [flag, setFlag] = useState(true);
+
+    // 속성명
+    const [page, setPage] = useState(1);
+
+    const [comment, setcomment] = useState("");
+
     // 활동 상태
     const [defaultState, setDefaultState] = useState(1);
-    // 속성명
-    const [defaultColumn, setDefaultColumn] = useState(1);
-    // 검색 키워드
-    const [keyword, setKeyword] = useState("");
+
+    const [settlementList, setSettlementList] = useState([]);
+    const [pageInfo, setPageInfo] = useState({});
+
+    const [selectSettlement, setSelectSettlement] = useState({});
 
     const userState = [
         {
@@ -27,35 +49,15 @@ export default function AdminSettlementList() {
 
     const clearFilter = () => {
         setDefaultState(1);
-        setDefaultColumn(1);
-        setKeyword("");
+        setMonth(prevMonthStr);
     };
 
     // const testUser = [];
 
-    const testUser = [
-        {
-            rentalNo: 1,
-            productName: "홍길동",
-            provider: 10000000, // 빌려준 사람
-            renter: 10000000, // 빌린 사람
-            rentalDate: "정산완료",
-        },
-        {
-            rentalNo: 1,
-            productName: "홍길동",
-            provider: 10000000, // 빌려준 사람
-            renter: 10000000, // 빌린 사람
-            rentalDate: "정산완료",
-        },
-        {
-            rentalNo: 1,
-            productName: "홍길동",
-            provider: 10000000, // 빌려준 사람
-            renter: 10000000, // 빌린 사람
-            rentalDate: "정산완료",
-        },
-    ];
+    const handlePageClick = (pageNum) => {
+        if (pageNum < 1 || pageNum > pageInfo.allPage) return;
+        setPage(pageNum);
+    };
 
     const [useCate, setCate] = useState(1);
 
@@ -93,9 +95,48 @@ export default function AdminSettlementList() {
         accountNum: "000000-00-000000",
     };
 
+    const search = () => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/settlement?type=${useCate}&month=${month}&state=${defaultState}&page=${page}`)
+            .then((res) => {
+                console.log(res.data);
+                setSettlementList(res.data.list);
+                setPageInfo(res.data.pageInfo);
+            });
+    };
+
+    useEffect(() => {
+        if (!token) return;
+
+        search();
+    }, [token, month, defaultMajor, defaultState, page, useCate, flag]);
+
+    const settlementDetail = (settlementIdx) => {
+        myAxios(token, setToken)
+            .get(`${baseUrl}/admin/settlementDetail?settlementIdx=${settlementIdx}`)
+            .then((res) => {
+                console.log(res.data);
+                setSelectSettlement(res.data);
+            });
+    };
+
+    const settlementComplate = () => {
+        myAxios(token, setToken)
+            .post(`${baseUrl}/admin/settlementComplate`, {
+                settlementIdx: selectSettlement.settlementIdx,
+                comment: comment,
+            })
+            .then((res) => {
+                if (res.data) {
+                    toggle();
+                    setFlag(!flag);
+                }
+            });
+    };
+
     return (
         <div className="admin-body-div">
-            <AdminSidebar />
+            {/* <AdminSidebar /> */}
             {/* 회원 관리 */}
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
@@ -140,31 +181,9 @@ export default function AdminSettlementList() {
                             ))}
                         </div>
 
-                        <div className="admin-filter-line-div-top">
-                            <Input className="admin-filter-input-date font-13" type="date" />
-                            <span className="font-22 medium">~</span>
-                            <Input className="admin-filter-input-date font-13" type="date" />
-                        </div>
-
                         {/* 우측 검색 필터 */}
                         <div className="admin-userList-filter-right">
-                            {/* 필터 select */}
-                            <select className="admin-userList-filter-select font-13" name="" id="">
-                                <option value="">전체</option>
-                                <option value="">공구명</option>
-                                <option value="">빌려준 사람</option>
-                                <option value="">빌린 사람</option>
-                            </select>
-
-                            {/* 검색 input */}
-                            <div className="admin-userList-search-div">
-                                <i className="bi bi-search"></i>
-                                <Input onChange={(e) => setKeyword(e.target.value)} className="font-12 admin-userList-search-input" placeholder="검색어를 입력해주세요" />
-                            </div>
-
-                            {/* 검색 버튼 */}
-                            <button className="admin-userList-search-button font-13 medium">검색</button>
-
+                            <Input value={month} max={prevMonthStr} onChange={(e) => setMonth(e.target.value)} type="month" id="monthInput" className="admin-filter-input-date font-13" />
                             {/* 초기화 버튼 */}
                             <button onClick={clearFilter} className="admin-userList-clean-button font-13 medium">
                                 초기화
@@ -174,7 +193,7 @@ export default function AdminSettlementList() {
                 </div>
 
                 <div>
-                    {testUser.length === 0 ? (
+                    {settlementList.length === 0 ? (
                         <div
                             style={{
                                 height: "45px",
@@ -184,7 +203,7 @@ export default function AdminSettlementList() {
                                 borderBottom: "1px solid #eaecf0",
                             }}
                         >
-                            <span className="font-12 medium">회원 정보를 검색해주세요.</span>
+                            <span className="font-12 medium">정산 해줄 회원이 없습니다.</span>
                         </div>
                     ) : (
                         <div className="admin-userList-table-div">
@@ -192,40 +211,58 @@ export default function AdminSettlementList() {
                                 <thead>
                                     <tr>
                                         <td>
-                                            <span className="font-14 medium">정산일</span>
+                                            <span className="font-14 medium">정산번호</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">대상</span>
+                                            <span className="font-14 medium">대상아이디</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">대상이름</span>
                                         </td>
                                         <td>
                                             <span className="font-14 medium">총 금액</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">정산 금액</span>
+                                            <span className="font-14 medium">수수료</span>
                                         </td>
                                         <td>
-                                            <span className="font-14 medium">상태</span>
+                                            <span className="font-14 medium">정산금액</span>
+                                        </td>
+                                        <td>
+                                            <span className="font-14 medium">정산상태</span>
                                         </td>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {testUser.map((rental) => (
-                                        <tr key={rental.rentalNo} onClick={toggle}>
+                                    {settlementList.map((settlement) => (
+                                        <tr
+                                            onClick={() => {
+                                                settlementDetail(settlement.settlementIdx);
+                                                toggle();
+                                            }}
+                                            key={settlement.settlementIdx}
+                                        >
                                             <td>
-                                                <span className="font-14">{rental.rentalNo}</span>
+                                                <span className="font-14">{settlement.settlementIdx}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.productName}</span>
+                                                <span className="font-14">{settlement.username}</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.provider.toLocaleString()}원</span>
+                                                <span className="font-14">{settlement.name}</span>
                                             </td>
 
                                             <td>
-                                                <span className="font-14">{rental.renter.toLocaleString()}원</span>
+                                                <span className="font-14">{settlement.totalAmount?.toLocaleString()}원</span>
                                             </td>
                                             <td>
-                                                <span className="font-14">{rental.rentalDate}</span>
+                                                <span className="font-14">{settlement.feeRate}%</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{settlement.settlementTotalAmount?.toLocaleString()}원</span>
+                                            </td>
+                                            <td>
+                                                <span className="font-14">{settlement.state === "PENDING" ? "정산대기" : "정산완료"}</span>
                                             </td>
                                         </tr>
                                     ))}
@@ -243,50 +280,58 @@ export default function AdminSettlementList() {
                                                 <tbody>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd admin-modal-firstTd">
-                                                            <span className="font-14">대상자</span>
+                                                            <span className="font-14">정산번호</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.userName}</span>
+                                                            <span className="font-14">{selectSettlement.settlementIdx}</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd">
-                                                            <span className="font-14">대상 타입</span>
+                                                            <span className="font-14">대상아이디</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.major}</span>
+                                                            <span className="font-14">{selectSettlement.username}</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd">
-                                                            <span className="font-14">기간</span>
+                                                            <span className="font-14">대상이름</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.userName}</span>
+                                                            <span className="font-14">{selectSettlement.name}</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd">
-                                                            <span className="font-14">정산 상태</span>
+                                                            <span className="font-14">대상유형</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.businessNumber}</span>
+                                                            <span className="font-14">{selectSettlement.userType === "EXPERT" ? "전문가" : "판매업체"}</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd">
-                                                            <span className="font-14">총 거래금액</span>
+                                                            <span className="font-14">정산 기간</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.address}</span>
+                                                            <span className="font-14">{selectSettlement.month?.toString().slice(0, 7)}</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
                                                         <td className="admin-userList-switchId-modal-table-trtd">
-                                                            <span className="font-14">총 수수료</span>
+                                                            <span className="font-14">총 금액</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.peopleCount}</span>
+                                                            <span className="font-14">{selectSettlement.totalAmount}</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="admin-userList-switchId-modal-table-trtd">
+                                                            <span className="font-14">수수료</span>
+                                                        </td>
+                                                        <td>
+                                                            <span className="font-14">{selectSettlement.feeRate}%</span>
                                                         </td>
                                                     </tr>
                                                     <tr>
@@ -294,13 +339,13 @@ export default function AdminSettlementList() {
                                                             <span className="font-14">총 정산 금액</span>
                                                         </td>
                                                         <td>
-                                                            <span className="font-14">{modalTest.bank}</span>
+                                                            <span className="font-14">{selectSettlement.settlementTotalAmount}</span>
                                                         </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div>
+                                        {/* <div>
                                             <div className="admin-userList-switchId-firstTd">
                                                 <span className="font-18 semibold">
                                                     거래 내역 <span>3건</span>
@@ -344,7 +389,7 @@ export default function AdminSettlementList() {
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                        </div>
+                                        </div> */}
 
                                         <div>
                                             <div className="admin-userList-switchId-firstTd">
@@ -358,6 +403,7 @@ export default function AdminSettlementList() {
                                                         </td>
                                                         <td>
                                                             <input
+                                                                readOnly={selectSettlement.state === "COMPLETED"}
                                                                 style={{
                                                                     width: "700px",
                                                                     height: "36px",
@@ -367,6 +413,8 @@ export default function AdminSettlementList() {
                                                                 className="font-14"
                                                                 type="text"
                                                                 placeholder="정산 내용을 입력해주세요"
+                                                                value={comment}
+                                                                onChange={(e) => setcomment(e.target.value)}
                                                             />
                                                         </td>
                                                     </tr>
@@ -374,33 +422,29 @@ export default function AdminSettlementList() {
                                             </table>
                                         </div>
                                         <div className="admin-userList-switchId-buttons">
-                                            <button className="admin-userList-switchId-backBtn font-12 semibold">취소</button>
-                                            <button className="admin-userList-settlement-endBtn font-12 semibold">정산</button>
+                                            {selectSettlement.state === "COMPLETED" ? (
+                                                <button style={{ height: "33px" }} onClick={toggle} className="admin-userList-settlement-endBtn font-12 semibold">
+                                                    확인
+                                                </button>
+                                            ) : (
+                                                <button onClick={toggle} className="admin-userList-switchId-backBtn font-12 semibold">
+                                                    취소
+                                                </button>
+                                            )}
+
+                                            {selectSettlement.state === "COMPLETED" ? (
+                                                <></>
+                                            ) : (
+                                                <button onClick={settlementComplate} className="admin-userList-settlement-endBtn font-12 semibold">
+                                                    정산
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </ModalBody>
                             </Modal>
 
-                            {/* 페이징 div */}
-                            <div className="admin-userList-paging-bar">
-                                {/* 이전 버튼 */}
-                                <button className="admin-userList-nextbutton">
-                                    <i className="bi bi-chevron-left"></i>
-                                    <span>이전</span>
-                                </button>
-
-                                {/* 페이지 가져와서 map 돌리기 */}
-                                <div className="admin-userList-paging-button-div">
-                                    <button className="admin-userList-paging-curpage-button">1</button>
-                                    <button className="admin-userList-paging-button">2</button>
-                                    <button className="admin-userList-paging-button">3</button>
-                                </div>
-
-                                <button className="admin-userList-nextbutton">
-                                    <span>다음</span>
-                                    <i className="bi bi-chevron-right"></i>
-                                </button>
-                            </div>
+                            <AdminPaging pageInfo={pageInfo} handlePageClick={handlePageClick} />
                         </div>
                     )}
                 </div>

@@ -1,6 +1,95 @@
 import "../css/ExpertOrder.css";
+import { useParams } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
+import { baseUrl, myAxios } from "../../config";
+import { loadTossPayments } from "@tosspayments/payment-sdk";
 
 export default function ExpertMatchPayment() {
+    const { estimateIdx } = useParams();
+    const navigate = useNavigate();
+    const user = useAtomValue(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
+    const [requestDto, setRequestDto] = useState({});
+    const [expertDto, setExpertDto] = useState({});
+    const [costDto, setCostDto] = useState({});
+
+    const [checks, setChecks] = useState([false, false, false, false, false]);
+    const [allChecked, setAllChecked] = useState(false);
+
+    const handleCheck = (index) => {
+        const newChecks = [...checks];
+        newChecks[index] = !newChecks[index];
+        setChecks(newChecks);
+
+        // 모두 체크되면 전체 체크박스도 체크
+        setAllChecked(newChecks.every((c) => c));
+    };
+
+    const handleAllCheck = () => {
+        const newValue = !allChecked;
+        setAllChecked(newValue);
+        setChecks(checks.map(() => newValue));
+    };
+
+    const handlePayment = () => {
+        if (checks.every((c) => c)) {
+            // 결제 진행
+            requestTossPaymentApi();
+        } else {
+            alert("모든 확인 항목을 체크해주세요.");
+        }
+    };
+
+    useEffect(() => {
+        if (user === null || user.username === "") return;
+
+        myAxios(token, setToken)
+            .get(`${baseUrl}/user/estimate?estimateIdx=${estimateIdx}&username=${user.username}`)
+            .then((res) => {
+                if (res.data === null) {
+                    navigate("/zipddak/experts");
+                    return;
+                }
+                console.log(res.data);
+                setRequestDto(res.data.requestDto);
+                setExpertDto(res.data.expertDto);
+                setCostDto(res.data.costDto);
+            });
+    }, [user]);
+
+    // 토스 페이먼츠 결제 요청 시작
+    const requestTossPaymentApi = async () => {
+        const res = await myAxios(token, setToken).post(`${baseUrl}/user/payment/estimate`, {
+            username: user.username,
+            expertIdx: expertDto.expertIdx,
+            estimateIdx: estimateIdx,
+            workDurationType: costDto.workDurationType,
+            workDurationValue: costDto.workDurationValue,
+            requestIdx: requestDto.requestIdx,
+        });
+
+        const { orderId, orderName, amount } = res.data;
+
+        const encodedOrderName = encodeURIComponent(orderName);
+
+        // 테스트 경우 클라이언트 키가 노출되어도 상관 없음
+        // 실제 운영하는 환경에서는 서버에서 clientKey를 내려주고 클라이언트 요청시 가져와서 사용
+        const tossPayments = await loadTossPayments("test_ck_Ba5PzR0ArnGLGeODLa1B8vmYnNeD");
+
+        await tossPayments.requestPayment({
+            method: "CARD",
+            amount: amount,
+            orderId: orderId,
+            orderName: orderName,
+            successUrl: `http://localhost:8080/user/payment/estimate/complate?expertIdx=${expertDto.expertIdx}`, // 성공시 서버쪽으로 보냄
+            failUrl: "http://localhost:5173/zipddak/experts",
+        });
+    };
+
     return (
         <div className="body-div">
             <div className="expertOrder-main-div">
@@ -18,7 +107,11 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 작업 유형 */}
                                     <td>
-                                        <span className="font-14">강화도어</span>
+                                        <span className="font-14">
+                                            {requestDto.cateName1}
+                                            {requestDto.cateName2 ? ` - ${requestDto.cateName2}` : ""}
+                                            {requestDto.cateName3 ? ` - ${requestDto.cateName3}` : ""}
+                                        </span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -27,7 +120,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 희망 일정 */}
                                     <td>
-                                        <span className="font-14">2025-11-11</span>
+                                        <span className="font-14">{requestDto.preferredDate}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -36,7 +129,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 예산 */}
                                     <td>
-                                        <span className="font-14">600</span>
+                                        <span className="font-14">{requestDto.budget}</span>
                                         <span className="font-14"> 만원</span>
                                     </td>
                                 </tr>
@@ -46,7 +139,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 시공 장소 */}
                                     <td>
-                                        <span className="font-14">서울시 금천구 가산디지털1로 70</span>
+                                        <span className="font-14">{requestDto.location}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -55,7 +148,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 추가 요청사항 */}
                                     <td>
-                                        <span className="font-14">추가 요청사항에 대한 내용이 들어갑니다.</span>
+                                        <span className="font-14">{requestDto.additionalRequest}</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -73,7 +166,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 작업 유형 */}
                                     <td>
-                                        <img className="expertProfileImg-img" src="/images/기본회원프로필.jpg" />
+                                        <img className="expertProfileImg-img" src={`http://localhost:8080/imageView?type=expert&filename=${expertDto.imgName}`} />
                                     </td>
                                 </tr>
                                 <tr>
@@ -82,7 +175,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 활동명 */}
                                     <td>
-                                        <span className="font-14">홍길동</span>
+                                        <span className="font-14">{expertDto.activityName}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -93,7 +186,7 @@ export default function ExpertMatchPayment() {
                                     <td>
                                         {/* 전문 카테고리 */}
                                         <div className="font-12 medium expertOrder-badge">
-                                            <span>전문가 카테고리</span>
+                                            <span>{expertDto.cateName}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -103,7 +196,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 평점 */}
                                     <td>
-                                        <span className="font-14">4.5</span>
+                                        <span className="font-14">{expertDto.score}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -112,7 +205,9 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 연락가능시간 */}
                                     <td>
-                                        <span className="font-14">09:00 ~ 18:00</span>
+                                        <span>
+                                            {expertDto.contactStartTime?.substring(0, 5)} ~ {expertDto.contactEndTime?.substring(0, 5)}
+                                        </span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -125,89 +220,169 @@ export default function ExpertMatchPayment() {
                         <table className="margin-top-20 expertOrder-table">
                             <tbody>
                                 {/* 배열로 받아와서 반복 */}
-                                <tr>
-                                    <td className="expertOrder-trtd">
-                                        <span className="font-14">타일</span>
-                                    </td>
-                                    <td>
-                                        <div className="expertOrder-price-div">
-                                            <span className="font-14 semibold">240</span>
-                                            <span className="font-14 semibold"> 만원</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="expertOrder-trtd">
-                                        <span className="font-16 semibold">시공비 합계</span>
-                                    </td>
-                                    <td>
-                                        <div className="expertOrder-price-div">
-                                            <span className="font-16 semibold">1520</span>
-                                            <span className="font-16 semibold"> 만원</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="expertOrder-trtd">
-                                        <span className="font-14">자재비</span>
-                                    </td>
-                                    <td>
-                                        <div className="expertOrder-price-div">
-                                            <span className="font-14 semibold">240</span>
-                                            <span className="font-14 semibold"> 만원</span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="expertOrder-trtd">
-                                        <span className="font-16 semibold">총 견적 금액</span>
-                                    </td>
-                                    <td>
-                                        <div className="expertOrder-price-div">
-                                            <span className="font-16 semibold">1520</span>
-                                            <span className="font-16 semibold"> 만원</span>
-                                        </div>
-                                    </td>
-                                </tr>
+                                {costDto.largeServiceIdx === 74 ? (
+                                    <>
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-14">컨설팅 인건비</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-14 semibold">{Math.floor(costDto.consultingLaborCost / 10000).toLocaleString()}</span>
+                                                    <span className="font-14 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-14">스타일링 / 디자인 작업비</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-14 semibold">{Math.floor(costDto.stylingDesignCost / 10000).toLocaleString()}</span>
+                                                    <span className="font-14 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-14">3D 이미지 제작비</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-14 semibold">{Math.floor(costDto.threeDImageCost / 10000).toLocaleString()}</span>
+                                                    <span className="font-14 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-14">보고서 제작비</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-14 semibold">{Math.floor(costDto.reportProductionCost / 10000).toLocaleString()}</span>
+                                                    <span className="font-14 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-14">기타비용</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-14 semibold">{Math.floor(costDto.etcFee / 10000).toLocaleString()}</span>
+                                                    <span className="font-14 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-16 semibold">총 견적 금액</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-16 semibold">{Math.floor(costDto.consCostSum / 10000).toLocaleString()}</span>
+                                                    <span className="font-16 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </>
+                                ) : (
+                                    <>
+                                        {costDto.buildCostList?.map((cost) => {
+                                            return (
+                                                <tr key={cost.label}>
+                                                    <td className="expertOrder-trtd">
+                                                        <span className="font-14">{cost.label}</span>
+                                                    </td>
+                                                    <td>
+                                                        <div className="expertOrder-price-div">
+                                                            <span className="font-14 semibold">{Math.floor(cost.amount / 10000).toLocaleString()}</span>
+                                                            <span className="font-14 semibold"> 만원</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-16 semibold">시공비 합계</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-16 semibold">{Math.floor(costDto.buildCostSum / 10000).toLocaleString()}</span>
+                                                    <span className="font-16 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {costDto.materialCostList?.map((cost) => {
+                                            return (
+                                                <tr key={cost.label}>
+                                                    <td className="expertOrder-trtd">
+                                                        <span className="font-14">{cost.label}</span>
+                                                    </td>
+                                                    <td>
+                                                        <div className="expertOrder-price-div">
+                                                            <span className="font-14 semibold">{Math.floor(cost.amount / 10000).toLocaleString()}</span>
+                                                            <span className="font-14 semibold"> 만원</span>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                        <tr>
+                                            <td className="expertOrder-trtd">
+                                                <span className="font-16 semibold">자재비 합계</span>
+                                            </td>
+                                            <td>
+                                                <div className="expertOrder-price-div">
+                                                    <span className="font-16 semibold">{Math.floor(costDto.materialCostSum / 10000).toLocaleString()}</span>
+                                                    <span className="font-16 semibold"> 만원</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </>
+                                )}
                             </tbody>
                         </table>
-                        <div className="expertOrder-more-request-div font-14">추가 설명이 들어갑니다.</div>
+                        <div className="expertOrder-more-request-div font-14">{costDto.costDetail}</div>
                     </div>
 
                     {/* 확인 항목 div */}
                     <div>
-                        <span className="font-18 semibold">확인 항목</span>
                         <div className="expertOrder-checkList-div">
-                            <div className="expertOrder-checkList">
-                                <input type="checkbox" className="expertOrder-checkbox" />
-                                <span className="font-14 expertOrder-span">견적 내용(서비스 항목, 작업 범위, 기간 등)을 정확히 확인했습니다.</span>
-                            </div>
-                            <div className="expertOrder-checkList">
-                                <input type="checkbox" className="expertOrder-checkbox" />
-                                <span className="font-14 expertOrder-span">결제 금액에 플랫폼 수수료 및 부가세가 포함되어 있음을 확인했습니다.</span>
-                            </div>
-                            <div className="expertOrder-checkList">
-                                <input type="checkbox" className="expertOrder-checkbox" />
-                                <span className="font-14 expertOrder-span">결제 후에는 전문가 배정 및 일정 조율이 진행되며, 단순 변심으로 인한 취소는 어려울 수 있음을 확인했습니다.</span>
-                            </div>
-                            <div className="expertOrder-checkList">
-                                <input type="checkbox" className="expertOrder-checkbox" />
-                                <span className="font-14 expertOrder-span">서비스 이용약관 및 개인정보 처리방침을 모두 확인했습니다.</span>
-                            </div>
-                            <div className="expertOrder-checkList">
-                                <input type="checkbox" className="expertOrder-checkbox" />
-                                <span className="font-14 expertOrder-span">결제 전 제공받은 견적서의 세부 항목(자재, 인건비, 수수료 등)을 모두 확인했습니다.</span>
-                            </div>
+                            {[
+                                "견적 내용(서비스 항목, 작업 범위, 기간 등)을 정확히 확인했습니다.",
+                                "결제 금액에 플랫폼 수수료 및 부가세가 포함되어 있음을 확인했습니다.",
+                                "결제 후에는 전문가 배정 및 일정 조율이 진행되며, 단순 변심으로 인한 취소는 어려울 수 있음을 확인했습니다.",
+                                "서비스 이용약관 및 개인정보 처리방침을 모두 확인했습니다.",
+                                "결제 전 제공받은 견적서의 세부 항목(자재, 인건비, 수수료 등)을 모두 확인했습니다.",
+                            ].map((text, i) => (
+                                <div key={i} className="expertOrder-checkList">
+                                    <input type="checkbox" className="expertOrder-checkbox" checked={checks[i]} onChange={() => handleCheck(i)} />
+                                    <span className="font-14 expertOrder-span">{text}</span>
+                                </div>
+                            ))}
+
                             <div className="expertOrder-checkList expertOrder-checkList-all">
-                                <input type="checkbox" className="expertOrder-checkbox" />
+                                <input type="checkbox" className="expertOrder-checkbox" checked={allChecked} onChange={handleAllCheck} />
                                 <span className="font-14 expertOrder-span semibold">모두 확인했습니다.</span>
                             </div>
                         </div>
-                    </div>
 
-                    {/* 결제 버튼 div */}
-                    <div className="expertOrder-complate-div">
-                        <button className="expertOrder-complate-button font-14 semibold">계약 확정 및 결제하기</button>
+                        {/* 결제 버튼 div */}
+                        <div className="expertOrder-complate-div">
+                            <button className="expertOrder-complate-button font-14 semibold" onClick={handlePayment}>
+                                계약 확정 및 결제하기
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

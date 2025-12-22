@@ -1,9 +1,35 @@
 import { Outlet, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import "../css/mypage.css";
+import { baseUrl, myAxios } from "../../config";
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
 
 export default function Mypage() {
   const navigate = useNavigate();
+
+  const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
+  // 전문가 <-> 고객 전환
+  const expertToggle = () => {
+    if (user.role === "USER") {
+      navigate("/zipddak/signUp/expert");
+      return;
+    }
+
+    myAxios(token, setToken)
+      .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
+      .then((res) => {
+        if (res.data) {
+          setUser(res.data);
+          navigate("/expert/mypage");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const navTitleStyle = {
     display: "flex",
@@ -74,17 +100,32 @@ export default function Mypage() {
           }}
         >
           <img
-            src="/Icon.svg"
+            src={`${baseUrl}/imageView?type=profile&filename=${user.profile}`}
             width="96px"
             height="96px"
             style={{ borderRadius: "999px" }}
           />
-          <button
-            className="secondary-button"
-            style={{ width: "160px", height: "33px" }}
-          >
-            전문가로 전환
-          </button>
+          {user.role === "USER" ? (
+            <button
+              className="secondary-button"
+              style={{ width: "160px", height: "33px" }}
+              onClick={() => {
+                navigate("/zipddak/signUp/expert");
+              }}
+            >
+              전문가 가입
+            </button>
+          ) : (
+            <button
+              className="secondary-button"
+              style={{ width: "160px", height: "33px" }}
+              onClick={() => {
+                expertToggle();
+              }}
+            >
+              전문가로 전환
+            </button>
+          )}
         </div>
         <nav>
           <div style={{ padding: " 10px 0 14px 0" }}>

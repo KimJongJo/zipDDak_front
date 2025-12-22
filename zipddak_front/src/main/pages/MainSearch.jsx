@@ -43,7 +43,7 @@ export default function MainSearch() {
 
     if (!submittedKeyword) {
         alert('검색어를 입력해주세요.');
-        // setKeyword(''); 
+        setKeyword(''); 
         return; 
     }
     
@@ -54,6 +54,7 @@ export default function MainSearch() {
   //전문가 리스트
   const [eCategory, setECategory] = useState();
   const [eActiveCategory, setEActiveCategory] = useState(0);
+  const [expertLength, setExpertLength] = useState(0);
 
   const expertCategory = (categoryNo) => {
     setECategory(categoryNo);
@@ -68,7 +69,8 @@ export default function MainSearch() {
     myAxios(token, setToken).get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
       .then((res) => {
         console.log(res.data);
-        setExpert(res.data);
+        setExpert(res.data.cards);
+        setExpertLength(res.data.totalCount);
 
       })
       .catch((err) => {
@@ -86,6 +88,7 @@ export default function MainSearch() {
   //상품 리스트
   const [pCategory, setPCategory] = useState();
   const [pActiveCategory, setPActiveCategory] = useState(1);
+  const [productLength, setProductLength] = useState(0);
 
   const productCategory = (categoryNo) => {
     setPCategory(categoryNo);
@@ -98,10 +101,18 @@ export default function MainSearch() {
     const categoryPharam = pCategory ? pCategory : 1;
     const keywordPharam = keyword? keyword:'';
 
-    myAxios(token, setToken).get(`/main/product?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+    let url = `/main/product?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+
+    myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
         console.log(res.data);
-        setProduct(res.data);
+        setProduct(res.data.cards);
+        setProductLength(res.data.totalCount)
 
       })
       .catch((err) => {
@@ -118,6 +129,7 @@ export default function MainSearch() {
   //공구 리스트
   const [tCategory, setTcategory] = useState();
   const [tActiveCategory, setTActiveCategory] = useState(83);
+  const [toolLength, setToolLength] = useState(0);
 
   const toolCategory = (categoryNo) => {
     setTcategory(categoryNo);
@@ -130,10 +142,19 @@ export default function MainSearch() {
     const categoryPharam = tCategory ? tCategory : 1;
     const keywordPharam = keyword? keyword:'';
 
-    myAxios(token, setToken).get(`/main/tool?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+    let url = `/main/tool?keyword=${keywordPharam}&categoryNo=${categoryPharam}`;
+      if (usernamePharam) {
+        url += `&username=${usernamePharam}`;
+      }
+
+      const tokenPharam = token? token : null;
+  
+
+    myAxios(tokenPharam, setToken).get(url)
       .then((res) => {
         console.log(res.data);
-        setTool(res.data);
+        setTool(res.data.cards);
+        setToolLength(res.data.totalCount);
 
       })
       .catch((err) => {
@@ -149,37 +170,39 @@ export default function MainSearch() {
 
 
   //커뮤니티 리스트
-  // const [cCategory, setCCategory] = useState();
-  // const [cActiveCategory, setCActiveCategory] = useState(76);
+  const [cCategory, setCCategory] = useState();
+  const [cActiveCategory, setCActiveCategory] = useState(76);
 
-  // const communityCategory = (categoryNo) => {
-  //   setCCategory(categoryNo);
-  //   setCActiveCategory(categoryNo);
-  // }
+  const communityCategory = (categoryNo) => {
+    setCCategory(categoryNo);
+    setCActiveCategory(categoryNo);
+  }
 
-  // const communityList = () => {
+  const communityList = () => {
 
-  //     const usernamePharam =user? user.username : '';
-  //     const categoryPharam= tCategory? tCategory : 1 ;
-  //     const keywordPharam = keyword? keyword:'';
+    const categoryPharam = tCategory ? tCategory : 76;
+    const keywordPharam = '';
 
-  //   myAxios(token, setToken).get(`/main/community?username=${usernamePharam}&keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
-  //   .then((res)=> {
-  //     console.log(res.data);
-  //     setCommunity(res.data);
+    const tokenPharam = token ? token : null;
 
-  //   })
-  //   .catch((err)=> {
-  //     console.log(err);
-  //   })
-  // }
+    myAxios(tokenPharam, setToken).get(`/main/community?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
+      .then((res) => {
+        console.log(res.data);
+        setCommunity(res.data.cards);
 
-  // useEffect(()=> {
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
 
-  //   communityList();
+  useEffect(() => {
 
-  // },[user.username, cCategory,keyword])
+    communityList();
 
+  }, [cCategory])
+
+  
   //전체보기
   const searchMore = () => {
 
@@ -220,7 +243,7 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <span>추천 전문가</span>
-                <span className="s-count">{expert.length}</span>
+                <span className="s-count">{expertLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/experts?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -242,8 +265,8 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
-           {
+          <div className="expert-cards">
+           {Array.isArray(expert) &&
             expert.map(expertCard=> (
               <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite}/>
             ))
@@ -259,8 +282,8 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <MapPin size={24} color="#FF5833" />
-                <span>{user.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
-                <span className="s-count">{tool.length}</span>
+                <span>{user?.addr1? `${userAdress} 공구대여`:'공구대여'}</span>
+                <span className="s-count">{toolLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/tool?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -285,9 +308,9 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
+          <div className="tool-cards">
 
-            {
+            {Array.isArray(tool) &&
               tool.map(toolCard =>(
                 <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite}/>
               ))
@@ -302,7 +325,7 @@ export default function MainSearch() {
             <div className="title-box">
               <div className="title-main">
                 <span>자재 마켓</span>
-                <span className="s-count">{product.length}</span>
+                <span className="s-count">{productLength}</span>
               </div>
               <div className="more" onClick={()=>navigate(`/zipddak/productList?keyword=${keyword.trim()}`)}>
                 <span>전체보기</span>
@@ -345,8 +368,8 @@ export default function MainSearch() {
             </div>
           </div>
 
-          <div className="cards">
-            {
+          <div className="product-cards">
+            {Array.isArray(product) &&
               product.map (productCard=> (
                 <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite}/>
               ))
@@ -367,38 +390,38 @@ export default function MainSearch() {
               </div>
             </div>
             <div className="main-category">
-               <div className={pActiveCategory === 76? "category-item active" : "category-item"}
+               <div className={cActiveCategory === 76? "category-item active" : "category-item"}
               onClick={()=>communityCategory(76)}>우리집 자랑</div>
 
-              <div className={pActiveCategory === 77? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 77? "category-item active" : "category-item"}
               onClick={()=>communityCategory(77)}>자재 토론회</div>
 
-              <div className={pActiveCategory === 78? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 78? "category-item active" : "category-item"}
               onClick={()=>communityCategory(78)}>나만의 노하우</div>
 
-              <div className={pActiveCategory === 79? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 79? "category-item active" : "category-item"}
               onClick={()=>communityCategory(79)}>전문가에게 묻다</div>
 
-              <div className={pActiveCategory === 80? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 80? "category-item active" : "category-item"}
               onClick={()=>communityCategory(80)}>함께해요</div>
 
-              <div className={pActiveCategory === 81? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 81? "category-item active" : "category-item"}
               onClick={()=>communityCategory(81)}>전문가 소식</div>
 
-              <div className={pActiveCategory === 82? "category-item active" : "category-item"}
+              <div className={cActiveCategory === 82? "category-item active" : "category-item"}
               onClick={()=>communityCategory(82)}>자유</div>
             </div>
           </div>
 
           <div className="community-cards">
-             <div className="row-cm maincom">
-              <Community />
-              <Community />
+             <div className="grid-cm">
+               {Array.isArray(community) &&
+                community.map(communityCard => (
+                  <Community key={communityCard.communityIdx} product={communityCard} />
+                ))
+              }
             </div>
-            <div className="row-cm maincom">
-              <Community />
-              <Community />
-            </div>
+          
           </div>
         </div>
       </div>

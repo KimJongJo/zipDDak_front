@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from "jotai";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Pagination,
   PaginationItem,
@@ -11,12 +11,70 @@ import {
   ModalFooter,
 } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
+import { useNavigate, useSearchParams } from "react-router";
 
 export function MyWorks() {
-  const [status, setStatus] = useState("전체");
+  const [works, setWorks] = useState([]);
+  const [matchingStatusSummary, setMatchingStatusSummary] = useState({});
+  const [status, setStatus] = useState("");
+  const [selectDate, setSelectDate] = useState({
+    startDate: null,
+    endDate: null,
+  });
+
+  const [pageBtn, setPageBtn] = useState([]);
+  const [pageInfo, setPageInfo] = useState({
+    allPage: 0,
+    curPage: 1,
+    endPage: 0,
+    startPage: 1,
+  });
+
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageFromUrl = Number(searchParams.get("page")) || 1;
 
   const user = useAtomValue(userAtom);
   const [token, setToken] = useAtom(tokenAtom);
+
+  // 작업 목록 조회
+  const getWorks = (page, status, startDate, endDate) => {
+    myAxios(token, setToken)
+      .get(
+        "http://localhost:8080" +
+          `/matching/expertList?username=${user.username}&status=${status}&page=${page}&startDate=${startDate}&endDate=${endDate}`
+      )
+      .then((res) => {
+        setWorks(res.data.matchingList);
+        return res.data.pageInfo;
+      })
+      .then((pageData) => {
+        setPageInfo(pageData);
+        let pageBtns = [];
+        for (let i = pageData.startPage; i <= pageData.endPage; i++) {
+          pageBtns.push(i);
+        }
+        setPageBtn([...pageBtns]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  // 매칭상태 써머리
+  const getMatchingStatusSummary = () => {
+    myAxios(token, setToken)
+      .get(
+        `http://localhost:8080/matchingStatusSummary?username=${user.username}`
+      )
+      .then((res) => {
+        setMatchingStatusSummary(res.data.matchingStatusSummary);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   // 작업상태 매핑
   const WORK_STATUS_LABEL = {
@@ -26,84 +84,10 @@ export function MyWorks() {
     CANCELLED: "취소",
   };
 
-  const handleStatusChange = (e) => {
-    setStatus(e.target.value);
-  };
-
-  // mock
-  const workList = [
-    {
-      workId: "WORK-20250001",
-      categoryName: "도어 시공",
-      region: "서울 강남구",
-      workType: "강화도어",
-      budget: "80만 원 ~ 120만 원",
-      preferredDate: "가능한 빨리 진행하고 싶어요",
-
-      customerName: "홍길동",
-
-      contractDate: "2025-07-28",
-      workStartDate: "2025-07-28",
-      workEndDate: "2025-07-31",
-
-      paymentAmount: 245000,
-      workStatus: "PAYMENT_COMPLETED", // 결제완료
-    },
-
-    {
-      workId: "WORK-20250002",
-      categoryName: "도어 시공",
-      region: "서울 송파구",
-      workType: "문틀 보수",
-      budget: "40만 원 ~ 70만 원",
-      preferredDate: "2025-08-02",
-
-      customerName: "홍길동",
-
-      contractDate: "2025-07-28",
-      workStartDate: "2025-07-28",
-      workEndDate: "2025-07-31",
-
-      paymentAmount: 245000,
-      workStatus: "IN_PROGRESS", // 작업중
-    },
-
-    {
-      workId: "WORK-20250003",
-      categoryName: "도어 시공",
-      region: "서울 성동구",
-      workType: "문짝교체",
-      budget: "50만 원 ~ 90만 원",
-      preferredDate: "2025-08-10",
-
-      customerName: "홍길동",
-
-      contractDate: "2025-07-28",
-      workStartDate: "2025-07-28",
-      workEndDate: "2025-07-31",
-
-      paymentAmount: 245000,
-      workStatus: "CANCELLED", // 취소완료
-    },
-
-    {
-      workId: "WORK-20250004",
-      categoryName: "도어 시공",
-      region: "서울 광진구",
-      workType: "문턱 교체",
-      budget: "20만 원 이하",
-      preferredDate: "2025-08-05",
-
-      customerName: "홍길동",
-
-      contractDate: "2025-07-28",
-      workStartDate: "2025-07-28",
-      workEndDate: "2025-07-31",
-
-      paymentAmount: 245000,
-      workStatus: "COMPLETED", // 작업완료
-    },
-  ];
+  useEffect(() => {
+    getWorks(pageFromUrl, "", selectDate.startDate, selectDate.endDate);
+    getMatchingStatusSummary();
+  }, [pageFromUrl]);
 
   return (
     <div className="mypage-layout">
@@ -117,19 +101,35 @@ export function MyWorks() {
         >
           <div className="mypage-statusCard">
             <p>결제완료</p>
-            <span>0</span>
+            <span>
+              {matchingStatusSummary.paymentStatus
+                ? matchingStatusSummary.paymentStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>작업중</p>
-            <span>0</span>
+            <span>
+              {matchingStatusSummary.progressStatus
+                ? matchingStatusSummary.progressStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>취소</p>
-            <span>0</span>
+            <span>
+              {matchingStatusSummary.cancelStatus
+                ? matchingStatusSummary.cancelStatus
+                : 0}
+            </span>
           </div>
           <div className="mypage-statusCard">
             <p>작업완료</p>
-            <span>0</span>
+            <span>
+              {matchingStatusSummary.completeStatus
+                ? matchingStatusSummary.completeStatus
+                : 0}
+            </span>
           </div>
         </div>
 
@@ -142,8 +142,37 @@ export function MyWorks() {
             margin: "30px 0 14px 0",
           }}
         >
-          <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input> -{" "}
-          <Input type="date" bsSize="sm" style={{ width: "140px" }}></Input>
+          <Input
+            type="date"
+            bsSize="sm"
+            style={{ width: "140px", height: "32px" }}
+            onChange={(e) => {
+              setSelectDate({ ...selectDate, startDate: e.target.value });
+              setWorks([]);
+              getWorks(
+                pageInfo.curPage,
+                status,
+                e.target.value,
+                selectDate.endDate
+              );
+            }}
+          ></Input>{" "}
+          -{" "}
+          <Input
+            type="date"
+            bsSize="sm"
+            style={{ width: "140px", height: "32px" }}
+            onChange={(e) => {
+              setSelectDate({ ...selectDate, endDate: e.target.value });
+              setWorks([]);
+              getWorks(
+                pageInfo.curPage,
+                status,
+                selectDate.startDate,
+                e.target.value
+              );
+            }}
+          ></Input>
         </div>
 
         {/* 상태 선택 */}
@@ -157,56 +186,91 @@ export function MyWorks() {
         >
           <div className="mypage-radio">
             <Input
-              id="inquiryType"
               type="radio"
-              value="전체"
-              name="inquiryType"
-              checked={status === "전체"}
-              onChange={handleStatusChange}
+              value=""
+              name="matchingStatus"
+              checked={status === ""}
+              onChange={() => {
+                setStatus("");
+                getWorks(
+                  pageInfo.curPage,
+                  "",
+                  selectDate.startDate,
+                  selectDate.endDate
+                );
+              }}
             />
             <laebl for="inquiryType">전체</laebl>
           </div>
           <div className="mypage-radio">
             <Input
-              id="inquiryType"
               type="radio"
-              value="결제완료"
-              name="inquiryType"
-              checked={status === "결제완료"}
-              onChange={handleStatusChange}
+              value="PAYMENT_COMPLETED"
+              name="matchingStatus"
+              checked={status === "PAYMENT_COMPLETED"}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                getWorks(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.startDate,
+                  selectDate.endDate
+                );
+              }}
             />
             <laebl for="inquiryType">결제완료</laebl>
           </div>
           <div className="mypage-radio">
             <Input
-              id="inquiryType"
               type="radio"
-              value="작업중"
-              name="inquiryType"
-              checked={status === "작업중"}
-              onChange={handleStatusChange}
+              value="IN_PROGRESS"
+              name="matchingStatus"
+              checked={status === "IN_PROGRESS"}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                getWorks(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.startDate,
+                  selectDate.endDate
+                );
+              }}
             />
             <laebl for="inquiryType">작업중</laebl>
           </div>
           <div className="mypage-radio">
             <Input
-              id="inquiryType"
               type="radio"
-              value="작업완료"
-              name="inquiryType"
-              checked={status === "작업완료"}
-              onChange={handleStatusChange}
+              value="COMPLETED"
+              name="matchingStatus"
+              checked={status === "COMPLETED"}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                getWorks(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.startDate,
+                  selectDate.endDate
+                );
+              }}
             />
             <laebl for="inquiryType">작업완료</laebl>
           </div>
           <div className="mypage-radio">
             <Input
-              id="inquiryType"
               type="radio"
-              value="취소"
-              name="inquiryType"
-              checked={status === "취소"}
-              onChange={handleStatusChange}
+              value="CANCELLED"
+              name="matchingStatus"
+              checked={status === "CANCELLED"}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                getWorks(
+                  pageInfo.curPage,
+                  e.target.value,
+                  selectDate.startDate,
+                  selectDate.endDate
+                );
+              }}
             />
             <laebl for="inquiryType">취소</laebl>
           </div>
@@ -224,43 +288,46 @@ export function MyWorks() {
             </tr>
           </thead>
           <tbody>
-            {workList.map((work) => (
+            {works.map((work) => (
               <tr
-                key={work.workId}
+                key={work.matchingIdx}
                 style={{ cursor: "pointer" }}
-                onClick={() => {}}
+                onClick={() => {
+                  navigate(
+                    `/expert/mypage/works/detail/${work.matchingIdx}?page=${pageInfo.curPage}`
+                  );
+                }}
               >
                 <td style={{ textAlign: "left", fontSize: "13px" }}>
                   <p style={{ fontWeight: "600", fontSize: "14px" }}>
                     {work.categoryName}
                   </p>
-                  <p style={{ margin: "6px 0" }}>{work.region}</p>
+                  <p style={{ margin: "6px 0" }}>{work.location}</p>
                   <p>
-                    {work.workType} · {work.budget} · {work.preferredDate}
+                    {work.budget} · {work.preferredDate}
                   </p>
                 </td>
-                <td>{work.customerName}</td>
+                <td>{work.name}</td>
                 <td
                   style={{
                     fontWeight: "500",
                   }}
                 >
-                  {work.contractDate.slice(0, 10)}
+                  {work.createdAt}
                 </td>
                 <td
                   style={{
                     fontWeight: "500",
                   }}
                 >
-                  <p>{work.workStartDate.slice(0, 10)}</p>-
-                  <p>{work.workEndDate.slice(0, 10)}</p>
+                  <p>{work.workStartDate}</p>-<p>{work.workEndDate}</p>
                 </td>
                 <td
                   style={{
                     fontWeight: "500",
                   }}
                 >
-                  {Number(work.paymentAmount).toLocaleString()}원
+                  {Number(work.totalAmount).toLocaleString()}원
                 </td>
                 <td>
                   <div
@@ -272,9 +339,9 @@ export function MyWorks() {
                     }}
                   >
                     <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                      {WORK_STATUS_LABEL[work.workStatus]}
+                      {WORK_STATUS_LABEL[work.status]}
                     </span>
-                    {work.workStatus === "PAYMENT_COMPLETED" && (
+                    {/* {work.status === "PAYMENT_COMPLETED" && (
                       <button
                         className="secondary-button"
                         style={{ width: "60px", height: "33px" }}
@@ -282,7 +349,7 @@ export function MyWorks() {
                       >
                         취소신청
                       </button>
-                    )}
+                    )} */}
                   </div>
                 </td>
               </tr>
@@ -291,15 +358,18 @@ export function MyWorks() {
         </table>
       </div>
       <Pagination className="my-pagination">
-        <PaginationItem active>
-          <PaginationLink>1</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>2</PaginationLink>
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationLink>3</PaginationLink>
-        </PaginationItem>
+        {pageBtn.map((b) => (
+          <PaginationItem key={b} active={b === pageInfo.curPage}>
+            <PaginationLink
+              onClick={() => {
+                setWorks([]);
+                getWorks(b, status, selectDate.startDate, selectDate.endDate);
+              }}
+            >
+              {b}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
       </Pagination>
     </div>
   );

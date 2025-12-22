@@ -3,22 +3,134 @@ import "../css/ProductOrder.css";
 import "../css/RegistTool.css";
 import "../../css/common.css";
 import { Input, FormGroup, Label, Button } from "reactstrap";
+import { useState, useEffect } from "react";
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
+import { useParams } from "react-router-dom";
+import DaumPostcode from 'react-daum-postcode';
+import { Modal as AddrModal } from 'antd';
 
 export default function ApplyTool() {
+
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+
+    const { toolIdx } = useParams();
+    const [tool, setTool] = useState();
+
+    const [rental, setRental] = useState({
+
+        rentalIdx: '',
+        rentalCode: '',
+        startDate: '',
+        endDate: '',
+        request: '',
+        directRental: '',
+        postCharge: '',
+        postRental: '',
+        zonecode: '',
+        addr1: '',
+        addr2: '',
+        postRequest: '',
+        paymentType: '',
+        satus: '',
+        borrower: '',
+        owner: '',
+        paymentIdx: '',
+        createdAt: '',
+
+        toolIdx: '',
+        name: ''
+
+    });
+
+    const ChangeInput = (e) => {
+        setRental({ ...rental, [e.target.name]: e.target.value })
+    }
+
+
+    //거래방식
+    const [rentalType, setRentalType]= useState();
+
+    //주소
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const complateHandler = (data) => {
+        setRental({
+            ...rental,
+            zonecode: data.zonecode,
+            addr1: data.roadAddress
+                || data.address
+        });
+    }
+
+    const closeHandler = (state) => {
+        setIsAddOpen(false);
+    }
+
+    //주소지 설정
+    const [useProfile, setUseProfile] = useState(true);
+    useEffect(() => {
+        if (useProfile && user) {
+            setRental(prev => ({
+                ...prev,
+                addr1: user.addr1 ?? "",
+                addr2: user.addr2 ?? "",
+                zonecode: user.zonecode ?? ""
+            }));
+        }
+
+        if (!useProfile) {
+            // 직접 입력 → 초기화
+            setRental(prev => ({
+                ...prev,
+                addr1: "",
+                addr2: "",
+                zonecode: ""
+            }));
+        }
+    }, [useProfile, user]);
+
+    //결제선택
+    const [payType, setPayType] = useState(false);
+
+
+    //대상 공구
+    const targetTool = () => {
+
+        token&&myAxios(token,setToken).get(`/tool/detail`, {params:{toolIdx:toolIdx}})
+        .then(res=> {
+            console.log(res.data);
+            setTool(res.data);
+        })
+        .catch(err=> {
+            console.log(err);
+        })
+
+    }
+
+    useEffect (()=> {
+        if (token && toolIdx) {
+        targetTool();
+    }
+    },[token,toolIdx])
+
+
+    if (!tool) return <div>로딩중...</div>;
     return (
         <>
-            <div className="regTool-container">
+            <div className="regTool-container ">
 
-                <div className="regTool">
+                <div className="regTool applyTool">
                     <div className="col-cm appTool-userbox">
                         <div className="d-user tuserbox">
                             <div className="profileImage"></div>
                             <div className="userInfo">
-                                <span className="nick">{}닉네임</span>
-                                <span className="loca">{}지역</span>
+                                <span className="nick">{tool.nickname}닉네임</span>
+                                <span className="loca">{ }지역</span>
                             </div>
                         </div>
-                        <Button>대여문의</Button>
+                        <Button className="primary-button">대여문의</Button>
                     </div>
 
                     <div className="app-tool-form">
@@ -30,6 +142,7 @@ export default function ApplyTool() {
                         <div className="regToolForm">
                             <div className="options">
                                 <span className="o-label">거래대상 공구</span>
+                                <MapTool key={tool.idx} tool={tool}/>
                             </div>
 
                             <div className="options">
@@ -67,43 +180,94 @@ export default function ApplyTool() {
                             </div>
 
                             <div className="options">
-                                <span className="o-label">거래방식</span>
-                                <div className="check-col">
-                                    <FormGroup check>
-                                        <Input name="radio2" type="radio" /> <Label check>직거래</Label>
-                                    </FormGroup>
-
-                                    <FormGroup check>
-                                        <Input name="radio2" type="radio" /> <Label check>택배배송</Label>
-                                    </FormGroup>
-                                </div>
+                            <span className="o-label">거래방식</span>
+                            <div className="check-col">
+                                <FormGroup check>
+                                    <Label check><Input name="postRental" type="radio"
+                                        value="POST"
+                                        checked={rentalType==="POST"}
+                                        onChange={(e) => setRentalType(e.target.value)}
+                                    /> 택배 배송</Label>
+                                </FormGroup>
+                                <FormGroup check>
+                                    <Label check><Input name="directRental" type="radio"
+                                        value="DIRECT"
+                                        checked={rentalType==="DIRECT"}
+                                        onChange={(e) => setRentalType(e.target.value)}
+                                    /> 직접 픽업</Label>
+                                </FormGroup>
                             </div>
+                        </div>
 
-                            <div className="options">
-                                <span className="o-label">받을주소</span>
-                                <div className="post-box">
-                                    <FormGroup check>
-                                        <Input name="radio2" type="radio" /> <Label check>기본 주소지 (프로필 주소지)</Label>
-                                    </FormGroup>
-                                    <FormGroup check>
-                                        <Input name="radio2" type="radio" /> <Label check>직접 입력</Label>
-                                    </FormGroup>
-                                    <div className="check-col">
-                                        <Input type="text" name="zonecode" className="zonecode" placeholder="우편번호" />
-                                        <Button>주소검색</Button>
-                                        <Input type="text" name="address" placeholder="주소" readOnly />
-                                    </div>
-                                    <Input type="text" name="detailAddress" placeholder="상세주소" />
-                                    <div className="trade">
-                                        <select className="trade-select">
-                                            <option>배송시 요청사항</option>
-                                            <option>직거래</option>
-                                            <option>택배거래</option>
-                                        </select>
-                                        <ChevronDown className="trade-arrow" />
+                            {rentalType==="POST" &&
+                                <div className="options">
+                                    <span className="o-label">받을주소</span>
+                                    <div className="post-box">
+                                        {user.addr1 &&
+                                            <FormGroup check>
+                                                <Label check><Input type="radio"
+                                                    checked={useProfile === true}
+                                                    onChange={() => setUseProfile(true)}
+                                                />기본 주소지 (프로필 주소지)</Label>
+                                            </FormGroup>}
+                                        <FormGroup check>
+                                            <Label check><Input type="radio"
+                                                checked={useProfile === false}
+                                                onChange={() => setUseProfile(false)}
+                                            /> 직접 입력</Label>
+                                        </FormGroup>
+                                        <div className="check-col">
+                                            <Input
+                                                className="zonecodeInput"
+                                                type="text"
+                                                name="zonecode"
+                                                placeholder="우편번호"
+                                                value={rental.zonecode}
+                                                readOnly
+                                            />
+                                            {!useProfile &&
+                                                <Button className="primary-button"
+                                                    onClick={() => setIsAddOpen(!isAddOpen)}
+                                                >주소검색</Button>}
+
+                                        </div>
+                                        <Input
+                                            type="text"
+                                            name="addr1"
+                                            placeholder="지번/도로명주소"
+                                            value={rental.addr1}
+                                            readOnly
+                                        />
+                                        <Input
+                                            type="text"
+                                            name="addr2"
+                                            placeholder="상세주소"
+                                            value={rental.addr2}
+                                            readOnly={useProfile}
+                                            onChange={useProfile ? undefined : ChangeInput}
+                                        />
+
+                                        <Input name="settleBank" type="select" className="toolBank pqSelect"
+                                            value={rental.postRequest} onChange={ChangeInput}>
+                                            <option value={"배송시 요청사항 없음"}>배송시 요청사항</option>
+                                            <option value={"문앞에 놔주세요"}>문앞에 놔주세요</option>
+                                            <option value={"경비실에 맡겨주세요"}>경비실에 맡겨주세요</option>
+                                        </Input>
                                     </div>
                                 </div>
-                            </div>
+                            }
+
+                            {rentalType==="DIRECT"&&
+                                <div className="Rentalmap"></div>
+                            }
+
+                            {
+                                isAddOpen &&
+                                <AddrModal title='주소찾기'
+                                    open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                                    <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
+                                </AddrModal>
+                            }
 
                             <div className="options">
                                 <span className="o-label">요청사항</span>
@@ -113,7 +277,9 @@ export default function ApplyTool() {
                             <div className="options">
                                 <span className="o-label">결제방식</span>
                                 <div className="flex-box pay">
-                                    <div className="payOption">만나서 결제</div>
+                                    <div className="payOption"
+                                    onClick={()=> setPayType(pre=>!pre)}
+                                    >만나서 결제</div>
                                     <div className="payOption">토스페이</div>
                                 </div>
                             </div>
@@ -175,8 +341,8 @@ export default function ApplyTool() {
                 </div>
 
                 <div className="btn-col">
-                    <Button>작성취소</Button>
-                    <Button>결제하기</Button>
+                    <Button className="tertiary-button">작성취소</Button>
+                    <Button className="primary-button">결제하기</Button>
                 </div>
             </div>
         </>

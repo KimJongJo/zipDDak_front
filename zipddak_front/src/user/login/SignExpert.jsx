@@ -340,13 +340,14 @@ export default function SignExpert() {
 
                             <div className="experts_category">
                                 <FormGroup check>
+                                    <Label check>
                                     <Input
-
                                         type="checkbox"
-                                        name="majorCategory1"
-                                        checked={majorservice.majorCategory1}
-                                        onChange={checkMajor} />
-                                    <Label check>시공견적 컨설팅</Label>
+                                        name={75}
+                                        value={75}
+                                        checked={checkedCategory.includes(75)}
+                                        onChange={handleCategoryCheck} />
+                                    시공견적 컨설팅</Label>
                                 </FormGroup>
                                 <div className="line"></div>
                                 <span>컨설팅 전문가</span>
@@ -355,7 +356,9 @@ export default function SignExpert() {
                             <div className="ecategory_part">
                                 <div className="experts_category">
                                     <FormGroup check>
-                                        <Input type="checkbox" name="majorCategory2" checked={majorservice.majorCategory2} onChange={checkMajor} /> <Label check>수리</Label>
+                                         <Label check>
+                                        <Input type="checkbox" name="majorCategory2" checked={majorservice.majorCategory2} onChange={checkMajor} /> 
+                                       수리</Label>
                                     </FormGroup>
                                     <div className="line"></div>
                                     <div className="row-cm expca">
@@ -371,49 +374,52 @@ export default function SignExpert() {
                                             <AccordionHeader>수리 상세서비스</AccordionHeader>
                                             <AccordionBody>
                                                 <div className="categoryCheck-box">
-                                                    <div><span>가전제품</span></div>
+                                                    <div><span>가전제품 수리</span></div>
                                                     <div className="line"></div>
                                                     {repairCategory.repair1.map(c => (
 
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck} />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
 
                                                     <div className="line"></div>
-                                                    <div><span>문/창문</span></div>
+                                                    <div><span>문/창문 수리</span></div>
                                                     <div className="line"></div>
                                                     {repairCategory.repair2.map(c => (
 
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck}
                                                             />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
 
                                                     <div className="line"></div>
-                                                    <div><span>수도/보일러/전기</span></div>
+                                                    <div><span>수도/보일러/전기 수리</span></div>
                                                     <div className="line"></div>
                                                     {repairCategory.repair3.map(c => (
 
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck}
                                                             />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
 
@@ -427,7 +433,9 @@ export default function SignExpert() {
                             <div className="ecategory_part">
                                 <div className="experts_category">
                                     <FormGroup check>
-                                        <Input type="checkbox" name="majorCategory3" checked={majorservice.majorCategory3} onChange={checkMajor} /> <Label check>인테리어</Label>
+                                        <Label check>
+                                        <Input type="checkbox" name="majorCategory3" checked={majorservice.majorCategory3} onChange={checkMajor} />
+                                        인테리어</Label>
                                     </FormGroup>
                                     <div className="line"></div>
                                     <div className="row-cm expca">
@@ -447,13 +455,14 @@ export default function SignExpert() {
                                                     <div className="line"></div>
                                                     {interiorCategory.interior1.map(c => (
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck}
                                                             />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
                                                     <div className="line"></div>
@@ -461,13 +470,14 @@ export default function SignExpert() {
                                                     <div className="line"></div>
                                                     {interiorCategory.interior2.map(c => (
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck}
                                                             />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
                                                     <div className="line"></div>
@@ -475,13 +485,14 @@ export default function SignExpert() {
                                                     <div className="line"></div>
                                                     {interiorCategory.interior3.map(c => (
                                                         <div key={c.categoryIdx} className="form-check">
+                                                            <Label check>
                                                             <Input type="checkbox"
                                                                 name={c.categoryIdx}
                                                                 value={c.categoryIdx}
                                                                 checked={checkedCategory.includes(c.categoryIdx)}
                                                                 onChange={handleCategoryCheck}
                                                             />
-                                                            <Label check>{c.name}</Label>
+                                                            {c.name}</Label>
                                                         </div>
                                                     ))}
                                                 </div>
@@ -670,11 +681,12 @@ export default function SignExpert() {
                                         <div className="condition_box">
                                             <div className="conditionAll">
                                                 <FormGroup check>
+                                                    <Label check className="check_All">
                                                     <Input type="checkbox"
                                                         name="all"
                                                         checked={agree.all}
                                                         onChange={handleAllCheck} />
-                                                    <Label check className="check_All">
+                                                    
                                                         전체동의
                                                     </Label>
                                                 </FormGroup>
@@ -682,36 +694,40 @@ export default function SignExpert() {
                                             <div className="line"></div>
                                             <div className="conditionOption">
                                                 <FormGroup check className="condition-check">
+                                                    <Label check className="condition-label">
                                                     <Input type="checkbox"
                                                         name="necessary1"
                                                         checked={agree.necessary1}
                                                         onChange={handleSingleCheck}
                                                     />
-                                                    <Label check className="condition-label">이용약관<span className="necct">(필수)</span></Label>
+                                                    이용약관<span className="necct">(필수)</span></Label>
                                                 </FormGroup>
                                                 <FormGroup check className="condition-check">
+                                                     <Label check className="condition-label">
                                                     <Input type="checkbox"
                                                         name="necessary2"
                                                         checked={agree.necessary2}
                                                         onChange={handleSingleCheck}
                                                     />
-                                                    <Label check className="condition-label">만 14세 이상입니다<span className="necct">(필수)</span></Label>
+                                                   만 14세 이상입니다<span className="necct">(필수)</span></Label>
                                                 </FormGroup>
                                                 <FormGroup check className="condition-check">
+                                                    <Label check className="condition-label">
                                                     <Input type="checkbox"
                                                         name="service1"
                                                         checked={agree.service1}
                                                         onChange={handleSingleCheck}
                                                     />
-                                                    <Label check className="condition-label">개인정보 수집 및 이용동의(선택)</Label>
+                                                   개인정보 수집 및 이용동의(선택)</Label>
                                                 </FormGroup>
                                                 <FormGroup check className="condition-check">
+                                                    <Label check className="condition-label">
                                                     <Input type="checkbox"
                                                         name="service2"
                                                         checked={agree.service2}
                                                         onChange={handleSingleCheck}
                                                     />
-                                                    <Label check className="condition-label">개인정보 마케팅 활용동의(선택)</Label>
+                                                    개인정보 마케팅 활용동의(선택)</Label>
                                                 </FormGroup>
 
                                             </div>

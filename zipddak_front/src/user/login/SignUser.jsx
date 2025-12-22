@@ -12,7 +12,8 @@ export default function SignUser() {
     const [user, setUser] = useState({
         username: '', nickname: '', password: '', checkPassword: '', name: '', phone: '',
         auth_num: '', zonecode: '', addr1: '', addr2: '', settleBank: '', settleAccount: '', settleHost: '',
-        provider: '', providerId: '', fcmToken: '', role: 'USER', expert: false, createdate: '', profileImg: ''
+        provider: '', providerId: '', fcmToken: '', role: 'USER', expert: false, createdate: '', profileImg: '',
+        state:'ACTIVE'
     })
 
     const [modal, setModal] = useState(false);
@@ -404,13 +405,13 @@ export default function SignUser() {
                                 <div className="condition_box">
                                     <div className="conditionAll">
                                         <FormGroup check>
+                                            <Label check className="check_All">
                                             <Input
                                                 type="checkbox"
                                                 name="all"
                                                 checked={agree.all}
                                                 onChange={handleAllCheck}
                                             />
-                                            <Label check className="check_All">
                                                 전체동의
                                             </Label>
                                         </FormGroup>
@@ -418,36 +419,40 @@ export default function SignUser() {
                                     <div className="line"></div>
                                     <div className="conditionOption">
                                         <FormGroup check className="condition-check">
+                                            <Label check className="condition-label">
                                             <Input type="checkbox"
                                                 name="necessary1"
                                                 checked={agree.necessary1}
                                                 onChange={handleSingleCheck}
                                             />
-                                            <Label check className="condition-label">이용약관<span className="necct">(필수)</span></Label>
+                                            이용약관<span className="necct">(필수)</span></Label>
                                         </FormGroup>
                                         <FormGroup check className="condition-check">
+                                            <Label check className="condition-label">
                                             <Input type="checkbox"
                                                 name="necessary2"
                                                 checked={agree.necessary2}
                                                 onChange={handleSingleCheck}
                                             />
-                                            <Label check className="condition-label">만 14세 이상입니다<span className="necct">(필수)</span></Label>
+                                            만 14세 이상입니다<span className="necct">(필수)</span></Label>
                                         </FormGroup>
                                         <FormGroup check className="condition-check">
+                                            <Label check className="condition-label">
                                             <Input type="checkbox"
                                                 name="service1"
                                                 checked={agree.service1}
                                                 onChange={handleSingleCheck}
                                             />
-                                            <Label check className="condition-label">개인정보 수집 및 이용동의(선택)</Label>
+                                            개인정보 수집 및 이용동의(선택)</Label>
                                         </FormGroup>
                                         <FormGroup check className="condition-check">
+                                            <Label check className="condition-label">
                                             <Input type="checkbox"
                                                 name="service2"
                                                 checked={agree.service2}
                                                 onChange={handleSingleCheck}
                                             />
-                                            <Label check className="condition-label">개인정보 마케팅 활용동의(선택)</Label>
+                                            개인정보 마케팅 활용동의(선택)</Label>
                                         </FormGroup>
 
                                     </div>

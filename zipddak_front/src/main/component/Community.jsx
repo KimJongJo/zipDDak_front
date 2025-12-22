@@ -1,41 +1,46 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Community.css";
-import {Eye ,MessageCircle, Heart} from 'lucide-react'
+import { Eye, MessageCircle, Heart } from "lucide-react";
+import { useNavigate } from "react-router";
 
-export function Community () {
-    
-    const Community = {
-        category: "전문가에게 묻다",
-        title: "커뮤니티 이런 제목",
-        content: "어쩌구가 저쩌구가 저쩌구가 저쩌구고 어쩌구리",
-        writerNickName: "김아무개",
-        view: 7,
-        comments: 14
-    };
+export function Community({ community }) {
+    const navigate = useNavigate();
 
     return (
-        <a href="#" className="Com-card">
-
+        <a
+            onClick={() => {
+                navigate(`/zipddak/community/${community?.communityId}`);
+            }}
+            className="Com-card"
+        >
             <div className="Com-infoBox">
-            <div className="Com-info">
-                <span className="Com-category">{Community.category}</span>
-                <div className="Com-title">{Community.title}</div>
-                <span className="Com-content">{Community.content}</span>
+                <div className="Com-info">
+                    <span className="Com-category">{community?.categoryName}</span>
+                    <div className="Com-title">{community?.title}</div>
+                    <span className="Com-content">{community?.content}</span>
+                </div>
+                <div className="Com-reaction">
+                    <span className="Com-writer">{community?.nickname}</span>
+                    <i className="bi bi-dot dot"></i>
+                    <div className="favs">
+                        <Eye size={15} />
+                        {community?.viewCount}
+                    </div>
+                    <i className="bi bi-dot dot"></i>
+                    <div className="chats">
+                        <MessageCircle size={15} />
+                        {community?.replyCount}
+                    </div>
+                    <i className="bi bi-dot dot"></i>
+                    <div className="favs">
+                        <Heart size={17} />
+                        {community?.favoriteCount}
+                    </div>
+                </div>
             </div>
-            <div className="Com-reaction">
-                <span className="Com-writer">{Community.writerNickName}</span>
-                <i className="bi bi-dot dot"></i>
-                <div className="favs"><Eye size={15}/>{Community.view}</div>
-                <i className="bi bi-dot dot"></i>
-                <div className="chats"><MessageCircle size={15}/>{Community.comments}</div>
-                <i className="bi bi-dot dot"></i>
-                <div className="favs"><Heart size={17}/>12</div>
-            </div>
-            </div>
-            
-             <div className="Com-image">
-            </div>
+
+            <img src={`http://localhost:8080/imageView?type=community&filename=${community?.img1}`} className="Com-image"></img>
         </a>
     );
 }

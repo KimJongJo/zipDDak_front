@@ -11,7 +11,7 @@ export function Products({ product, toggleFavorite }) {
         <div className="Product-cards"
         onClick={() => navigate(`/zipddak/product/${product.productIdx}`)}>
             <div className="product-images">
-               <img src={`${product.fileRename}/${product.storagePath}`} alt="상품" />
+               <img src={`${product.storagePath}/${product.fileRename}`} alt="상품" />
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음

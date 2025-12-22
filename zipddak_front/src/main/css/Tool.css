@@ -33,6 +33,9 @@
     width: 100%;
     margin-top: 5px;
     margin-left: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .tool-address {
@@ -60,7 +63,7 @@
 /* ------------------------------------------------------- */
 
 .Tool-card-m {
-    width: 225px;
+    /* width: 225px; */
     /* height: 345px; */
     align-items: center;
     text-decoration-line: none;
@@ -69,7 +72,7 @@
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    padding: 10px 15px;
+    padding: 10px;
      cursor: pointer;
 }
 
@@ -91,9 +94,9 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    margin-top: 5px;
+    margin-top: 8px;
     margin-left: 8px;
-    gap: 5px;
+    gap: 8px;
 }
 
 .tool-address-m {
@@ -101,7 +104,7 @@
 }
 
 .tool-name-m {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
 }
 .oneday-m {
@@ -149,7 +152,7 @@
 /* ------------------------------------------------------- */
 
 .Tool-card-L {
-    width: 285px;
+    /* width: 285px; */
     /* height: 345px; */
     text-decoration-line: none;
     color: unset; /* 부모 색상을 강제로 초기화 */
@@ -163,8 +166,8 @@
 
 .tool-image-L {
     position: relative; /* 하트 위치를 부모 기준으로 잡기 위해 */
-    width: 260px;
-    height: 260px;
+    width: 250px;
+    height: 250px;
     border-radius: 8px;
     background-color: #eff1f5;
 }
@@ -186,9 +189,9 @@
     justify-content: center;
 
     position: absolute; /* 절대 위치 */
-    top: 15px;
-    left: 15px;
-    font-size: 14px;
+    top: 5px;
+    left: 5px;
+    font-size: 12px;
     font-weight: 600;
     color: #ffffff;
     cursor: pointer;
@@ -196,9 +199,12 @@
 }
 
 .tool-info-L {
-    width: 100%;
-    margin-top: 5px;
+   width: 100%;
+    margin-top: 12px;
     margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .tool-address-L {
@@ -276,7 +282,56 @@
     font-weight: 600;
 }
 
+.myTool-button {
+    display: flex;
+    gap: 10px;
+}
 
+.myTool-bottom {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.myTool-rabel {
+    justify-content: space-between;
+}
+
+.myTool-box {
+    width: 100%;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.ToolMyBox {
+    gap: 50px;
+}
+
+.rentalBox {
+    gap: 10px;
+}
+
+.myTool-rental-status,
+.myTool-category {
+    font-weight: 600;
+}
+
+.myTool-name {
+    margin-top: 10px;
+}
+
+.titleMyTool {
+    gap: 20px;
+}
+
+.rentalDisable {
+    background-color: #eff1f5 !important;
+}
+
+.orangeColor {
+    color: #ff5833;
+}
 
 
 

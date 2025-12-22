@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Mypage from "./user/myPage/Mypage";
 import Account from "./user/myPage/Account";
 import Inquiries from "./user/myPage/Inquiries";
@@ -22,8 +22,8 @@ import { Membership } from "./expert/pages/Membership";
 import ProfileForm from "./expert/pages/ProfileForm";
 import PublicRequest from "./expert/pages/PublicRequest";
 import { MyWorks as ExpertMyWorks } from "./expert/pages/MyWorks";
+import { MyWorksDetail as ExpertMyWorksDetail } from "./expert/pages/MyWorksDetail";
 import PublicRequestDetail from "./expert/pages/PublicRequestDetail.jsx";
-import Requests from "./expert/pages/Requests";
 import ToolMain from "./user/tool/ToolMain";
 import ToolDetail from "./user/tool/ToolDetail";
 import RegistTool from "./user/tool/RegistTool";
@@ -77,6 +77,7 @@ import Dashboard from "./admin/pages/Dashboard";
 import UserLayout from "./main/pages/UserLayout.jsx";
 import ExpertLayout from "./expert/pages/ExpertLayout";
 import Best from "./main/pages/Best.jsx";
+import Message from "./user/myPage/Message.jsx";
 
 // 자재판매자
 import SellerLayout from "./seller/pages/SellerLayout";
@@ -103,12 +104,58 @@ import ExchangeDetail from "./seller/pages/ExchangeDetail.jsx";
 import SettleDetail from "./seller/pages/SettleDetail.jsx";
 
 import Token from "./Token.jsx";
+import SentEstimates from "./expert/pages/SentEstimates.jsx";
+import MyWorksDetail from "./user/myPage/MyWorksDetail.jsx";
+import RequestActive from "./user/myPage/RequestActive.jsx";
+import ReceiveRequests from "./expert/pages/receiveRequests.jsx";
+import ReceiveRequestDetail from "./expert/pages/ReceiveRequestDetail.jsx";
+import SentEstimateDetail from "./expert/pages/SentEstimateDetail.jsx";
+
+import ModifyTool from "./user/tool/ToolModify.jsx";
+import RequestHistory from "./user/myPage/RequestHistory.jsx";
+import AdminNav from "./admin/pages/AdminNav.jsx";
+import AdminLayout from "./admin/pages/AdminLayout.jsx";
+
+import { registerServiceWorker, firebaseReqPermission } from "./firebaseconfig";
+import { useEffect, useState } from "react";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
+import { myAxios } from "./config.jsx";
 
 function App() {
+    const [alarm, setAlarm] = useState();
+
+    const user = useAtomValue(userAtom);
+    const setFcmToken = useSetAtom(fcmTokenAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [alarms, setAlarms] = useAtom(alarmsAtom);
+
+    useEffect(() => {
+        registerServiceWorker();
+        navigator.serviceWorker.ready.then(() => {
+            firebaseReqPermission(setFcmToken, setAlarm);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (user.username) {
+            myAxios(token, setToken)
+                .get(`/notificationList?username=${user.username}`)
+                .then((res) => {
+                    setAlarms(res.data);
+                });
+        }
+    }, [user.username]);
+
+    useEffect(() => {
+        Boolean(alarm) && setAlarms((prev) => [...prev, alarm]);
+    }, [alarm]);
+
     return (
         <Routes>
             <Route path="/auth/token" element={<Token />} />
             <Route path="/zipddak/*" element={<UserLayout />}>
+                <Route path="message" element={<Message />} />
                 {/* 일반사용자 로그인 */}
                 <Route path="login" element={<Login />} />
                 <Route path="signUp/user" element={<SignUser />} />
@@ -127,12 +174,21 @@ function App() {
                 <Route path="tool" element={<ToolMain />} />
                 <Route path="tool/:toolIdx" element={<ToolDetail />} />
                 <Route path="tool/regist" element={<RegistTool />} />
+                <Route path="tool/modify/:toolIdx" element={<ModifyTool />} />
                 <Route path="tool/apply" element={<ApplyTool />} />
+                {/* <Route path="apply/:toolIdx" element={<ApplyTool />} /> */}
+
+                {/* 일반사용자 전문가찾기 */}
+                <Route path="experts" element={<Experts />} />
+                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
+                <Route path="expertMatchPayment/:estimateIdx" element={<ExpertMatchPayment />} />
+                <Route path="findExpert" element={<FindExpert />} />
 
                 {/* 일반사용자 커뮤니티 */}
                 <Route path="community" element={<CommunityList />} />
                 <Route path="community/write" element={<ComForm />} />
-                <Route path="community/:communityIdx" element={<Comdetail />} />
+                <Route path="community/:communityId" element={<Comdetail />} />
+                <Route path="community/modify/:modifyCommunityId" element={<ComForm />} />
 
                 {/* 일반사용자 자재구매 */}
                 <Route path="productList" element={<ProductList />} />
@@ -145,16 +201,14 @@ function App() {
                 {/* 일반사용자 장바구니 */}
                 <Route path="cart" element={<Cart />} />
 
-                {/* 일반사용자 전문가찾기 */}
-                <Route path="experts" element={<Experts />} />
-                <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
-                <Route path="findExpert" element={<FindExpert />} />
-
                 {/* 일반사용자 마이페이지 */}
                 <Route path="mypage/*" element={<Mypage />}>
+                    <Route index element={<Navigate to="expert/works" replace />} />
                     <Route path="account" element={<Account />} />
                     <Route path="expert/works" element={<MyWorks />} />
+                    <Route path="expert/works/detail/:matchingIdx" element={<MyWorksDetail />} />
+                    <Route path="expert/requests/active" element={<RequestActive />} />
+                    <Route path="expert/requests/history" element={<RequestHistory />} />
                     <Route path="inquiries" element={<Inquiries />} />
                     <Route path="inquiries/write" element={<InquiryForm />} />
                     <Route path="community" element={<Community />} />
@@ -164,7 +218,7 @@ function App() {
                     <Route path="market/returns" element={<MarketReturns />} />
                     <Route path="market/detail/:orderIdx" element={<MarketOrderDetail />} />
                     <Route path="market/exchange/:orderIdx" element={<MarketExchangeForm />} />
-                    <Route path="tool" element={<MyTool />} />
+                    <Route path="tools/my" element={<MyTool />} />
                     <Route path="tool/borrow/:rentalId" element={<ToolBorrowDetail />} />
                     <Route path="tool/lent" element={<ToolLent />} />
                     <Route path="tool/lent/:rentalId" element={<ToolLentDetail />} />
@@ -178,8 +232,13 @@ function App() {
                 <Route path="requests/detail/:requestIdx" element={<PublicRequestDetail />} />
                 {/* 전문가 마이페이지 */}
                 <Route path="mypage/*" element={<ExpertMypage />}>
+                    <Route index element={<Navigate to="works" replace />} />
                     <Route path="works" element={<ExpertMyWorks />} />
-                    <Route path="requests" element={<Requests />} />
+                    <Route path="works/detail/:matchingIdx" element={<ExpertMyWorksDetail />} />
+                    <Route path="sent/estimates" element={<SentEstimates />} />
+                    <Route path="sent/estimate/:estimateIdx" element={<SentEstimateDetail />} />
+                    <Route path="receive/requests" element={<ReceiveRequests />} />
+                    <Route path="receive/request/:requestIdx" element={<ReceiveRequestDetail />} />
                     <Route path="inquiries" element={<ExpertInquiries />} />
                     <Route path="inquiries/write" element={<ExpertInquiryForm />} />
                     <Route path="community" element={<ExpertCommunity />} />
@@ -233,6 +292,39 @@ function App() {
             <Route path="inquiryList:/inquiryId" element={<InquiryReturn />} />
 
             <Route path="dashboard" element={<Dashboard />} />
+
+            {/* 사이트관리자 */}
+            <Route path="admin/*" element={<AdminLayout />}>
+                {/* 회원 관리 */}
+                <Route path="users" element={<AdminUserList />} />
+                <Route path="users/:username" element={<AdminUserDetail />} />
+                <Route path="experts" element={<AdminExpertList />} />
+                <Route path="experts/:expertIdx" element={<AdminExpertDetail />} />
+                <Route path="sellers" element={<AdminStoreList />} />
+                <Route path="sellers/:sellerIdx" element={<AdminStoreDetail />} />
+                <Route path="switchRequest" element={<AdminSwitchAccountRequests />} />
+
+                {/* 이용 내역 */}
+                <Route path="rentals" element={<AdminRentalRecords />} />
+                <Route path="rentals/:rentalIdx" element={<AdminRentalDetail />} />
+                <Route path="salesHistory" element={<AdminSalesHistory />} />
+                <Route path="salesHistory/:saleIdx" element={<AdminSalesDetail />} />
+                <Route path="payment" element={<PaymentHistory />} />
+                <Route path="payment/:paymentIdx" element={<AdminPaymentDetail />} />
+                <Route path="membership" element={<AdminMembership />} />
+                <Route path="reports" element={<AdminReportList />} />
+                <Route path="reports/:type/:reportIdx" element={<AdminReportDetail />} />
+
+                {/* 정산 */}
+                <Route path="settlements" element={<AdminSettlementList />} />
+
+                {/* 1:1 문의 */}
+                <Route path="inquirys" element={<InquiryList />} />
+                <Route path="inquirys/:inquiryIdx" element={<InquiryReturn />} />
+
+                {/* 통계 */}
+                <Route path="dashbord" element={<Dashboard />} />
+            </Route>
         </Routes>
     );
 }

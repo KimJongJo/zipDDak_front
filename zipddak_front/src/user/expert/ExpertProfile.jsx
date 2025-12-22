@@ -161,6 +161,11 @@ export default function ExpertProfile() {
     }, []);
 
     const reportExpert = () => {
+        if (user.username === "") {
+            navigate("/zipddak/login");
+            return;
+        }
+
         myAxios(token, setToken)
             .post(`${baseUrl}/user/reportExpert`, { username: user.username, reason: reportReason, expertIdx: expertIdx })
             .then((res) => {
@@ -169,6 +174,11 @@ export default function ExpertProfile() {
     };
 
     const favoriteToggle = () => {
+        if (user.username === "") {
+            navigate("/zipddak/login");
+            return;
+        }
+
         myAxios(token, setToken)
             .post(`${baseUrl}/user/favoriteExpert`, {
                 username: user.username,
@@ -182,6 +192,11 @@ export default function ExpertProfile() {
     };
 
     const expertRequest = () => {
+        if (user.username === "") {
+            navigate("/zipddak/login");
+            return;
+        }
+
         setExpertAtom(Number(expertIdx));
         navigate("/zipddak/findExpert");
     };

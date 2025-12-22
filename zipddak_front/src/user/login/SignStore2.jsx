@@ -13,7 +13,7 @@ export default function SignStore2() {
         zonecode: '', addr1: '', addr2: '', settleBank: '', settleAccount: '', settleHost: '',
         compBno: '', compFileIdx: '', onlinesalesFileIdx: '', compName: '', compHp: '', ceoName: '',
         managerName: '', managerTel: '', managerEmail: '', brandName: '', handleItemCateIdx: '', introduction: '',
-        approvalYn: 0, role: 'APPROVAL_SELLER',
+        approvalYn: 0, role: 'SELLER',
     })
 
     const [modal, setModal] = useState(false);
@@ -49,9 +49,7 @@ export default function SignStore2() {
                 .catch(err => {
                     console.log(err);
                 })
-                .finally(()=> {
-                    setModal(true);
-                })
+               
         }, 500); //0.5초
 
         return () => clearTimeout(timer);

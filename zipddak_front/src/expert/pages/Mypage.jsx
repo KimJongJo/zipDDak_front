@@ -1,9 +1,35 @@
-import { Outlet, useNavigate } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { NavLink } from "react-router-dom";
 import "../../user/css/mypage.css";
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { baseUrl, myAxios } from "../../config";
 
 export function Mypage() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [user, setUser] = useAtom(userAtom);
+  const [token, setToken] = useAtom(tokenAtom);
+
+  // 전문가 <-> 고객 전환
+  const expertToggle = () => {
+    myAxios(token, setToken)
+      .get(`/expertYn?isExpert=${!user.expert}&username=${user.username}`)
+      .then((res) => {
+        setUser(res.data);
+        navigate("/zipddak/mypage");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const isReceiveActive = location.pathname.startsWith(
+    "/expert/mypage/receive"
+  );
+  const isSentActive = location.pathname.startsWith("/expert/mypage/sent");
+  const isWorksActive = location.pathname.startsWith("/expert/mypage/works");
 
   const navTitleStyle = {
     display: "flex",
@@ -74,48 +100,34 @@ export function Mypage() {
           }}
         >
           <img
-            src="/Icon.svg"
+            src={`${baseUrl}/imageView?type=expert&filename=${user.profile}`}
             width="96px"
             height="96px"
             style={{ borderRadius: "12px" }}
           />
           <div
             style={{
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               gap: "6px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <button
-                className="secondary-button"
-                style={{
-                  width: "fit-content",
-                  height: "33px",
-                  fontSize: "12px",
-                }}
-                onClick={() => {
-                  window.scrollTo(0, 0);
-                  navigate("/expert/profile/edit");
-                }}
-              >
-                프로필 수정
-              </button>
-              <button
-                className="secondary-button"
-                style={{
-                  width: "fit-content",
-                  height: "33px",
-                  fontSize: "12px",
-                }}
-                // onClick={() => {
-                //   window.scrollTo(0, 0);
-                //   navigate(`/expert/mypage/profile/${user.username}`);
-                // }}
-              >
-                미리보기
-              </button>
-            </div>
+            <button
+              className="secondary-button"
+              style={{
+                width: "100%",
+                height: "33px",
+                fontSize: "12px",
+              }}
+              onClick={() => {
+                window.scrollTo(0, 0);
+                navigate("/expert/profile/edit");
+              }}
+            >
+              프로필 수정
+            </button>
+
             <button
               className="secondary-button"
               style={{
@@ -124,6 +136,9 @@ export function Mypage() {
                 fontSize: "12px",
                 backgroundColor: "#293341",
                 color: "#fff",
+              }}
+              onClick={() => {
+                expertToggle();
               }}
             >
               일반 사용자로 전환
@@ -136,36 +151,36 @@ export function Mypage() {
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/works"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isWorksActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               작업내역
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
-              to="/expert/mypage/requests"
-              style={({ isActive }) => ({
+              to="/expert/mypage/receive/requests"
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isReceiveActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               받은 요청서
             </NavLink>
             <NavLink
               onClick={() => window.scrollTo(0, 0)}
               to="/expert/mypage/sent/estimates"
-              style={({ isActive }) => ({
+              style={{
                 ...navStyle,
-                backgroundColor: isActive
+                backgroundColor: isSentActive
                   ? "rgba(179, 235, 255, 0.30)"
                   : "white",
-              })}
+              }}
             >
               보낸 견적서
             </NavLink>

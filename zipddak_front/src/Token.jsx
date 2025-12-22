@@ -12,7 +12,7 @@ export default function Token() {
     setToken(tokenParam);
     let fcmToken = useAtomValue(fcmTokenAtom);
 
-    console.log(tokenParam);
+    // console.log(tokenParam);
     const navigate = useNavigate();
 
     useEffect(() => {

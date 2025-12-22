@@ -6,21 +6,22 @@ import acco from "../css/accordion.module.css";
 import usePageTitle from "../js/usePageTitle.jsx";
 import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
 import { priceFormat } from "../js/priceFormat.jsx";
-import { getEarliestProcessDateFromItems, getEarliestProcessDateFromAcceptItems } from "../js/dateUtils.jsx";
+import { getEarliestDate, getEarliestDateAccept, getEarliestDatePickup } from "../js/dateUtils.jsx";
 //component
 import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalReject from "../component/ModalReject.jsx";
 import ModalAccept from "../component/ModalAccept.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 import ModalRefund from "../component/ModalRefund.jsx";
+import ModalWarning from "../component/ModalWarning.jsx";
 
 import { Input, Label, Spinner } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { myAxios, baseUrl } from "../../config.jsx";
-import { tokenAtom } from "../../atoms.jsx";
-import { useAtom } from "jotai/react";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom, useAtomValue } from "jotai";
 
 export default function ReturnDetail() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 상세조회");
@@ -34,7 +35,9 @@ export default function ReturnDetail() {
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false); //반품접수 등록 모달 상태
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false); //환불처리 모달 상태
+    const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     //테이블 체크박스 상태
@@ -74,7 +77,7 @@ export default function ReturnDetail() {
     //returnDetail 데이터 불러오기
     const getRefundRequestDetail = () => {
         const params = new URLSearchParams();
-        params.append("sellerId", "ss123");
+        params.append("sellerId", user.username);
         params.append("num", refundIdx);
 
         const refundDetailUrl = `/refund/refundReqDetail?${params.toString()}`;
@@ -369,7 +372,7 @@ export default function ReturnDetail() {
                                     <div className={acco.accordionFrame}>
                                         <div className={acco.acco_header}>
                                             <p>
-                                                요청 일자 : <span>{getEarliestProcessDateFromAcceptItems(reqItems)}</span>{" "}
+                                                요청 일자 : <span>{getEarliestDateAccept(reqItems)}</span>{" "}
                                             </p>
                                         </div>
 
@@ -476,17 +479,45 @@ export default function ReturnDetail() {
                                                         </table>
                                                     </div>
                                                     <div className="btn_part">
-                                                        <button
-                                                            type="button"
-                                                            className="primary-button"
-                                                            onClick={() => {
-                                                                const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                                if (!selected) return;
-                                                                setIsTrackingModalOpen(true);
-                                                            }}
-                                                        >
-                                                            운송장번호 등록
-                                                        </button>
+                                                        {getEarliestDatePickup(reqItems) == "-" && (
+                                                            <button
+                                                                type="button"
+                                                                className="primary-button"
+                                                                onClick={() => {
+                                                                    const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                                    if (!selected) return;
+                                                                    setIsTrackingModalOpen(true);
+                                                                }}
+                                                            >
+                                                                운송장번호 등록
+                                                            </button>
+                                                        )}
+                                                        {getEarliestDatePickup(reqItems) !== "-" && (
+                                                            <div className="btn_group">
+                                                                <button
+                                                                    type="button"
+                                                                    className="sub-button"
+                                                                    onClick={() => {
+                                                                        const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                                        if (!selected) return;
+                                                                        setIsRefundModalOpen(true);
+                                                                    }}
+                                                                >
+                                                                    반품 승인
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    className="sub-button"
+                                                                    onClick={() => {
+                                                                        const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                                        if (!selected) return;
+                                                                        setIsRejectModalOpen(true);
+                                                                    }}
+                                                                >
+                                                                    반품 거절
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -496,10 +527,9 @@ export default function ReturnDetail() {
                                                     <div className={detail.info_line}>
                                                         <Label className="sub_title">수거 송장번호 </Label>
                                                         <div className={detail.flexParts} style={{ width: "50%" }}>
-                                                            <Input className="" style={{ width: "30%" }} placeholder="택배사" readOnly />
-                                                            <Input style={{ width: "50%" }} placeholder="송장번호" readOnly />
-                                                            <button type="button" className="sub-button" style={{ width: "20%", padding: "8px" }}>
-                                                                {/* 조회  */}
+                                                            <Input className="" style={{ width: "30%" }} value={reqOrder.pickupPostComp} readOnly />
+                                                            <Input style={{ width: "50%" }} value={reqOrder.pickupTrackingNo} readOnly />
+                                                            <button type="button" className="sub-button" style={{ width: "20%" }}>
                                                                 <i className="bi bi-search"></i>
                                                             </button>
                                                         </div>
@@ -508,16 +538,29 @@ export default function ReturnDetail() {
                                                 <div className={detail.info_column}>
                                                     <div className={detail.info_line}>
                                                         <Label className="sub_title">회수 요청일</Label>
-                                                        <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
+                                                        <div className={detail.flexParts} style={{ width: "50%" }}>
+                                                            <Input className="" style={{ width: "80%" }} value={getEarliestDateAccept(reqItems)} readOnly />
+                                                            <button
+                                                                type="button"
+                                                                className="sub-button"
+                                                                style={{ width: "20%" }}
+                                                                onClick={() => {
+                                                                    setIsWarningModalOpen(true);
+                                                                }}
+                                                            >
+                                                                수거완료
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
-
-                                                <div className={detail.info_column}>
-                                                    <div className={detail.info_line}>
-                                                        <Label className="sub_title">수거 완료일</Label>
-                                                        <Input className="" style={{ width: "50%" }} placeholder="" readOnly />
+                                                {getEarliestDatePickup(reqItems) !== "-" && (
+                                                    <div className={detail.info_column}>
+                                                        <div className={detail.info_line}>
+                                                            <Label className="sub_title">수거 완료일</Label>
+                                                            <Input className="" style={{ width: "50%" }} value={getEarliestDatePickup(reqItems)} readOnly />
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -534,7 +577,7 @@ export default function ReturnDetail() {
                                 <div className={acco.accordionFrame}>
                                     <div className={acco.acco_header}>
                                         <p>
-                                            최초 처리 일자 : <span>{getEarliestProcessDateFromItems(reqItems)}</span>
+                                            최초 처리 일자 : <span>{getEarliestDate(reqItems)}</span>
                                         </p>
                                     </div>
 
@@ -693,6 +736,8 @@ export default function ReturnDetail() {
                         resetChecked={resetChecked}
                         registType="REFUND_PICKUP"
                     />
+                    <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} info={reqOrder} refresh={getRefundRequestDetail} type="refund" warningType="수거완료" />
+                    <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} />
                 </div>
             </main>
         </>
