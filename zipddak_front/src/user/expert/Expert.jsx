@@ -1,3 +1,4 @@
+import { baseUrl } from "../../config";
 import "../css/Expert.css";
 import { useNavigate } from "react-router";
 
@@ -24,7 +25,7 @@ export default function Expert({ expert }) {
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
-                <img className="expert-img" src={expert.img} />
+                <img className="expert-img" src={expert.imgFileRename ? `${baseUrl}/imageView?type=expert&filename=${expert.imgFileRename}` : `/default-profile.png`} />
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>
