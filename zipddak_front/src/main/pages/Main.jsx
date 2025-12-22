@@ -103,7 +103,7 @@ export default function Main() {
     };
 
      // 관심 상품 토글
-    const toggleFavorite = async (productIdx) => {
+    const favoriteToggle = async (productIdx) => {
         if (user.username === "") {
             navigate("/zipddak/login");
             return;
@@ -161,7 +161,7 @@ export default function Main() {
     };
 
         // 관심 공구 토글
-      const toggleFavoriteTool = async (toolIdx) => {
+      const toggleFavorite = async (toolIdx) => {
   if (!user.username) {
     navigate("/zipddak/login");
     return;
@@ -275,12 +275,7 @@ export default function Main() {
                     </div>
 
                     <div className="expert-cards">
-                        {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={toggleFavorite} />)}
-                        {Array.isArray(expert) && expert.map((expertCard) => <Expert key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
-                        <div className="card-more">
-                            <ArrowRight />
-                        </div>
-
+                        {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
 
                     </div>
                 </div>
@@ -325,9 +320,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
-                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
-
+                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -447,12 +440,9 @@ export default function Main() {
                     </div>
 
                     <div className="community-cards">
-                        <div className="grid-cm">{Array.isArray(community) && community.map((communityCard) => <Community key={communityCard.communityIdx} community={communityCard} />)}</div>
-                        {/* <div className="row-cm maincom">
-                            {community.map((comm) => {
-                                <Community community={comm} />;
-                            })}
-                        </div> */}
+                        <div className="grid-cm">
+                            {Array.isArray(community) && community.map((communityCard) =>
+                                <Community key={communityCard.communityId} community={communityCard} />)}</div>
                     </div>
                 </div>
             </div>

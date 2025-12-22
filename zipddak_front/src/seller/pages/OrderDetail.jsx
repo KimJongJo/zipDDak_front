@@ -11,8 +11,8 @@ import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
 import { myAxios } from "../../config.jsx";
-import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { tokenAtom } from "../../atoms.jsx";
+import { useAtom } from "jotai/react";
 import { FormGroup, Input, Label, Spinner } from "reactstrap";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -25,13 +25,12 @@ export default function OrderDetail() {
     const [items, setItems] = useState(null); //주문아이템 정보
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
-    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
         const params = new URLSearchParams();
-        params.append("sellerId", user.username);
+        params.append("sellerId", "ss123");
         params.append("num", orderIdx);
 
         const orderDetailUrl = `/order/myOrderDetail?${params.toString()}`;

@@ -27,7 +27,7 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
 
             // → targetItems 로 API 호출
             const res = await myAxios(token, setToken)
-                .post("/refundItems", {
+                .post("/refund/refundItems", {
                     orderIdx: idx,
                     itemIdxs: targetItems,
                     // refundReason: refundReason,
