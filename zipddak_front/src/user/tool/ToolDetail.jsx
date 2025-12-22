@@ -59,7 +59,7 @@ export default function ToolDetail() {
             getTool();
             favoriteTool(toolIdx);
         }
-    }, [toolIdx, token]);
+    }, [toolIdx, token,user]);
 
     //유저 주소 자르기
     const userAddressString = user?.addr1 || "";
