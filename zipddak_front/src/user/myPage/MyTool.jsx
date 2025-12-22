@@ -1,14 +1,13 @@
-import { MapPin, CirclePlus } from 'lucide-react';
-import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
-import { MyToolCard } from '../../main/component/Tool';
-import { useAtom } from 'jotai';
-import { tokenAtom, userAtom } from '../../atoms';
-import { myAxios } from '../../config';
-import { useEffect, useState } from 'react';
-import '../../main/css/Main.css';
+import { MapPin, CirclePlus } from "lucide-react";
+import { Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { MyToolCard } from "../../main/component/Tool";
+import { useAtom } from "jotai";
+import { tokenAtom, userAtom } from "../../atoms";
+import { myAxios } from "../../config";
+import { useEffect, useState } from "react";
+import "../../main/css/Main.css";
 
 export default function MyTool() {
-
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
@@ -26,7 +25,6 @@ export default function MyTool() {
     //공구 상태
     const [activeState, setActiveState] = useState(0);
 
-
     const myToolList = (page = 1) => {
         const offset = (page - 1) * PAGE_SIZE;
 
@@ -36,12 +34,12 @@ export default function MyTool() {
             //공구 상태
             rentalState: activeState,
             offset,
-            size: PAGE_SIZE
+            size: PAGE_SIZE,
         };
 
         myAxios(token, setToken)
-            .get('/tool/myTool', { params })
-            .then(res => {
+            .get("/tool/myTool", { params })
+            .then((res) => {
                 setTool(res.data.cards);
                 setTotalCount(res.data.totalCount);
             });
@@ -56,10 +54,8 @@ export default function MyTool() {
         myToolList(currentPage);
     };
 
-
     return (
         <>
-
             <div className="card-box">
                 <div className="top">
                     <div className="title-box">
@@ -68,47 +64,41 @@ export default function MyTool() {
                         </div>
                     </div>
                     <div className="mypage-chipList">
-                        <div className={activeState === 0 ? "mypage-chipList isActive" : "mypage-chipList"}
-                            onClick={() => setActiveState(0)}>전체</div>
+                        <div className={activeState === 0 ? "mypage-chipList isActive" : "mypage-chipList"} onClick={() => setActiveState(0)}>
+                            전체
+                        </div>
 
-                        <div className={activeState === 1 ? "mypage-chipList isActive" : "mypage-chipList"}
-                            onClick={() => setActiveState(1)}>대여가능</div>
+                        <div className={activeState === 1 ? "mypage-chipList isActive" : "mypage-chipList"} onClick={() => setActiveState(1)}>
+                            대여가능
+                        </div>
 
-                        <div className={activeState === 2 ? "mypage-chipList isActive" : "mypage-chipList"}
-                            onClick={() => setActiveState(2)}>대여중</div>
+                        <div className={activeState === 2 ? "mypage-chipList isActive" : "mypage-chipList"} onClick={() => setActiveState(2)}>
+                            대여중
+                        </div>
 
-                        <div className={activeState === 3 ? "mypage-chipList isActive" : "mypage-chipList"}
-                            onClick={() => setActiveState(3)}>대여중지</div>
-
+                        <div className={activeState === 3 ? "mypage-chipList isActive" : "mypage-chipList"} onClick={() => setActiveState(3)}>
+                            대여중지
+                        </div>
                     </div>
                 </div>
 
-                <div className="myToolCards">
-                    {Array.isArray(tool) &&
-                        tool.map(toolCard => (
-                            <MyToolCard key={toolCard.toolIdx} tool={toolCard} onChanged={refreshList} />
-                        ))
-                    }
-                </div>
+                <div className="myToolCards">{Array.isArray(tool) && tool.map((toolCard) => <MyToolCard key={toolCard.toolIdx} tool={toolCard} onChanged={refreshList} />)}</div>
 
                 <Pagination className="my-pagination">
-                {pageBtn.map(p => (
-                    <PaginationItem key={p} active={p === currentPage}>
-                        <PaginationLink
-                            onClick={() => {
-                                setCurrentPage(p);
-                                myToolList(p);
-                            }}
-                        >
-                            {p}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))}
-            </Pagination>
+                    {pageBtn.map((p) => (
+                        <PaginationItem key={p} active={p === currentPage}>
+                            <PaginationLink
+                                onClick={() => {
+                                    setCurrentPage(p);
+                                    myToolList(p);
+                                }}
+                            >
+                                {p}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))}
+                </Pagination>
             </div>
-
-            
-
         </>
-    )
+    );
 }

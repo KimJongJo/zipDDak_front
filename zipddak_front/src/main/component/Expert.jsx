@@ -1,12 +1,13 @@
-import "../css/Expert.css"
+import "../css/Expert.css";
 import { useNavigate } from "react-router";
 
 export default function Expertmain({ expert }) {
     const navigate = useNavigate();
 
     return (
-        <div className="expert-div-main"
-         style={{ cursor: "pointer" }}
+        <div
+            className="expert-div-main"
+            style={{ cursor: "pointer" }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.zIndex = 10;
                 e.currentTarget.style.transform = "scale(1.03)";
@@ -19,12 +20,11 @@ export default function Expertmain({ expert }) {
             onClick={() => {
                 navigate(`/zipddak/expertProfile/${expert.expertIdx}`);
             }}
-            
         >
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
-                 <img className="expert-img"  src={`http://localhost:8080/imageView?type=expert&filename=${expert.imgFileRename}`} alt="전문가" />
+                <img className="expert-img" src={`http://localhost:8080/imageView?type=expert&filename=${expert.imgFileRename}`} alt="전문가" />
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>
