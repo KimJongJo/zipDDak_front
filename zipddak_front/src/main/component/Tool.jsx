@@ -9,7 +9,7 @@ import { useState } from "react";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 
-export function Tool({ tool, toggleFavorite }) {
+export function Tool({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
@@ -26,7 +26,7 @@ export function Tool({ tool, toggleFavorite }) {
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        user.username && toggleFavorite();
+                        user.username && toggleFavoriteTool(tool.toolidx);
                     }}
                     className="favorite-icon"
                 >
