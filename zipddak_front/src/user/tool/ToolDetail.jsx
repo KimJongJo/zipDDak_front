@@ -301,7 +301,7 @@ export default function ToolDetail() {
 
                     {user.username == tool.owner && (
                         <div className="row-cm editTool">
-                            <div className="createdate">수정</div>
+                            <div className="createdate" onClick={()=>navigate(`/zipddak/tool/modify/${toolIdx}`)}>수정</div>
                             <div className="createdate" onClick={deleteTool}>
                                 삭제
                             </div>
@@ -311,6 +311,8 @@ export default function ToolDetail() {
 
                 {activeTab == tab1 && (
                     <div className="d-tab">
+                        {images.length > 0 &&
+                        <>
                         <div className="de-label">상세이미지</div>
 
                         <div className="detailImage">
@@ -321,8 +323,10 @@ export default function ToolDetail() {
                                     </div>
                                 ))}
                         </div>
-
+                               
                         <div className="line"></div>
+                        </>
+                        } 
                         <div className="de-two">
                             <div className="de-three">
                                 <div className="de-label">상세설명</div>

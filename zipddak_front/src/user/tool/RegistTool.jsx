@@ -1,4 +1,4 @@
-import { SquarePlus, ChevronDown, MapPinned, Plus } from "lucide-react";
+import { SquarePlus, ChevronDown, MapPinned, Plus,CircleMinus,Minus } from "lucide-react";
 import "../css/RegistTool.css";
 import { Input, FormGroup, Label, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useState, useRef, useEffect } from "react";
@@ -12,6 +12,11 @@ import { myAxios } from "../../config";
 export default function RegistTool() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+
+    //스크롤 탑
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
 
     const [tool, setTool] = useState({
         toolIdx: null,
@@ -75,6 +80,36 @@ export default function RegistTool() {
         setDetailImages(newImages);
     };
 
+    const handleThumbRemove = (e) => {
+        e.stopPropagation();
+        if (thumbPreview) {
+        URL.revokeObjectURL(thumbPreview); // 메모리 해제
+    }
+
+    setThumbPreview(undefined);
+    setThumbnailFile(undefined);
+
+    // input[type=file] 값 초기화
+    if (fileRef.current) {
+        fileRef.current.value = "";
+    }
+};
+
+    const handleDetailRemove = (e,index) => {
+        e.stopPropagation();
+    setDetailImages(prev => {
+        const copy = [...prev];
+
+        // blob 메모리 해제
+        if (copy[index]?.preview) {
+            URL.revokeObjectURL(copy[index].preview);
+        }
+
+        copy.splice(index, 1);
+        return copy;
+    });
+};
+
     //주소
     const [isAddOpen, setIsAddOpen] = useState(false);
     const complateHandler = (data) => {
@@ -84,7 +119,7 @@ export default function RegistTool() {
             addr1: data.roadAddress || data.address,
         });
     };
-    const closeHandler = (state) => {
+    const closeHandler = () => {
         setIsAddOpen(false);
     };
 
@@ -98,8 +133,8 @@ export default function RegistTool() {
         });
     };
 
-    const closeHandler2 = (state) => {
-        setIsAddOpen(false);
+    const closeHandler2 = () => {
+        setIsAddOpen2(false);
     };
 
     //카테고리
@@ -127,7 +162,7 @@ export default function RegistTool() {
     const [freePost, setFreePost] = useState(false);
 
     useEffect(() => {
-        if (freeRental) {
+        if (freePost) {
             setTool((prev) => ({
                 ...prev,
                 postCharge: 0,
@@ -193,11 +228,14 @@ export default function RegistTool() {
 
         const submitTool = {
             ...tool,
+            owner: user.username,
             freeRental,
             quickRental,
             postRental,
             directRental,
             freePost,
+            postCharge:tool.postCharge
+
         };
 
         if (!checkOption(submitTool)) return;
@@ -235,24 +273,41 @@ export default function RegistTool() {
     };
 
     //취소
-    const cancal = () => {};
+    const cancal = () => { };
 
     //항목확인
     const checkOption = (submitTool) => {
-        if (!submitTool.name) {
-            setMessage("공구 이름을 등록해주세요");
-            setModal(true);
-            return false;
-        } else if (submitTool.rentalPrice === "" || submitTool.rentalPrice == null) {
-            setMessage("공구 1일 대여 금액을 설정해주세요");
-            setModal(true);
-            return false;
-        } else if (!submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2) {
-            setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
-            setModal(true);
-            return false;
+        switch (true) {
+            case !submitTool.name:
+                setMessage("공구 이름을 등록해주세요");
+                break;
+
+            case submitTool.rentalPrice === "" || submitTool.rentalPrice == null:
+                setMessage("공구 1일 대여 금액을 설정해주세요");
+                break;
+
+            case !submitTool.zonecode && !submitTool.tradeZonecode:
+                setMessage("거래방식을 선택해주세요");
+                break;
+
+            case !submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2:
+                setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
+                break;
+
+            case submitTool.postRental && submitTool.postCharge == null:
+                setMessage("택배거래시 배송비를 설정해주세요");
+                break;
+
+             case submitTool.settleAccount === "" || submitTool.settleAccount == null:
+                setMessage("택배거래시 배송비를 설정해주세요");
+                break;
+
+            default:
+                return true;
         }
-        return true;
+
+        setModal(true);
+        return false;
     };
 
     return (
@@ -276,7 +331,13 @@ export default function RegistTool() {
                         <div className="options">
                             <span className="o-label">공구 썸네일</span>
                             <div className={thumbPreview ? "thumbnail" : "thumbnail add"} onClick={() => fileRef.current?.click()}>
-                                {thumbPreview ? <img src={thumbPreview} alt="공구" /> : <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />}
+                                {thumbPreview ? 
+                                <>
+                                <img src={thumbPreview} alt="공구" />
+                                <button className="imgDeleteButton" onClick={(e) => handleThumbRemove(e)}><Minus color="#ffff"/></button>
+                                </>
+                                : 
+                                <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />}
                             </div>
                             <Input
                                 type="file"
@@ -301,6 +362,7 @@ export default function RegistTool() {
                                 {detailImages.map((img, idx) => (
                                     <div key={idx} className="thumbnail" onClick={() => detailRefs.current[idx]?.click()}>
                                         <img src={img.preview} alt={`detail-${idx}`} />
+                                        <button className="imgDeleteButton" onClick={(e,idx) => handleDetailRemove(e,idx)}><Minus color="#ffff"/></button>
 
                                         <Input type="file" hidden accept="image/*" innerRef={(el) => (detailRefs.current[idx] = el)} onChange={(e) => handleDetailChange(e, idx)} />
                                     </div>
@@ -394,7 +456,7 @@ export default function RegistTool() {
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check>
-                                        <Input type="checkbox" defaultChecked /> 문의후 대여
+                                        <Input type="checkbox" defaultChecked disabled /> 문의후 대여
                                     </Label>
                                 </FormGroup>
                                 <FormGroup check>
@@ -498,7 +560,7 @@ export default function RegistTool() {
                                     <div className="check-col">
                                         <Input className="zonecodeInput" type="text" name="tradeZonecode" placeholder="우편번호" value={tool.tradeZonecode} readOnly />
 
-                                        <Button className="primary-button" onClick={() => setIsAddOpen(!isAddOpen)}>
+                                        <Button className="primary-button" onClick={() => setIsAddOpen2(!isAddOpen2)}>
                                             주소검색
                                         </Button>
                                     </div>
@@ -519,8 +581,8 @@ export default function RegistTool() {
                             </div>
                         )}
 
-                        {isAddOpen && (
-                            <AddrModal title="만나서 결제주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen2(false)}>
+                        {isAddOpen2 && (
+                            <AddrModal title="만나서 결제주소찾기" open={isAddOpen2} footer={null} onCancel={() => setIsAddOpen2(false)}>
                                 <DaumPostcode onComplete={complateHandler2} onClose={closeHandler2} />
                             </AddrModal>
                         )}
@@ -563,7 +625,7 @@ export default function RegistTool() {
                                 className="toolBank"
                                 name="settleAccount"
                                 placeholder="'-'제외 숫자로만 계좌번호 입력"
-                                type="text"
+                                type="number"
                                 value={tool.settleAccount}
                                 readOnly={userBank}
                                 onChange={userBank ? undefined : ChangeInput}
