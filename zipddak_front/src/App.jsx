@@ -197,7 +197,7 @@ function App() {
                 {/* 일반사용자 전문가찾기 */}
                 <Route path="experts" element={<Experts />} />
                 <Route path="expertProfile/:expertIdx" element={<ExpertProfile />} />
-                <Route path="expertMatchPayment" element={<ExpertMatchPayment />} />
+                <Route path="expertMatchPayment/:estimateIdx" element={<ExpertMatchPayment />} />
                 <Route path="findExpert" element={<FindExpert />} />
 
                 {/* 일반사용자 커뮤니티 */}

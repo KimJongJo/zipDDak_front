@@ -3,11 +3,16 @@ import "../css/Experts.css";
 import { Input } from "reactstrap";
 import Expert from "./Expert";
 import axios from "axios";
-import { baseUrl } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import { useNavigate } from "react-router";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom } from "jotai";
 
 export default function Experts() {
     const navigate = useNavigate();
+
+    const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
 
     const [selectMajor, setSelectMajor] = useState(23);
     const [expertList, setExpertList] = useState([]);
@@ -39,7 +44,7 @@ export default function Experts() {
 
         try {
             // 테스트용으로 뒤에 username을 붙임
-            const res = await axios.get(`${baseUrl}/experts?page=${page}&cateNo=${selectMajor}&sort=${sort}&keyword=${keyword}`);
+            const res = await myAxios().get(`${baseUrl}/experts?page=${page}&cateNo=${selectMajor}&sort=${sort}&keyword=${keyword}`);
 
             console.log(res.data);
             if (res.data.length === 0) {
@@ -98,10 +103,12 @@ export default function Experts() {
     // 첫 화면을 불러올때
 
     useEffect(() => {
-        axios.get(`${baseUrl}/addExperts?cateNo=${selectMajor}`).then((res) => {
-            console.log(res.data);
-            setAddExpertList(res.data);
-        });
+        myAxios()
+            .get(`${baseUrl}/addExperts?cateNo=${selectMajor}`)
+            .then((res) => {
+                console.log(res.data);
+                setAddExpertList(res.data);
+            });
     }, [selectMajor, flag]);
 
     useEffect(() => {

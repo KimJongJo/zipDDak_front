@@ -9,10 +9,14 @@ export default function UserLayout() {
             <Header />
 
             {/* 중첩 라우트가 이곳에 렌더링 */}
-            <Outlet />
+            <div style={{ minHeight: "500px" }}>
+                <Outlet />
+            </div>
 
             {/* 공통 푸터 */}
-            <Footer />
+            <div style={{ marginTop: "150px" }}>
+                <Footer />
+            </div>
         </>
     );
 }

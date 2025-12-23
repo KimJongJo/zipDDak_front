@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "../css/message.css";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import SockJS from "sockjs-client/dist/sockjs";
 import { Client } from "@stomp/stompjs";
 import { useNavigate, useSearchParams } from "react-router";
@@ -65,6 +65,19 @@ export default function Message() {
 
     const user = useAtomValue(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+
+    const [payState, setPayState] = useState({});
+    // 결제가 이미 완료되었거나, 중단된 요청인지 판단
+    useEffect(() => {
+        console.log(selectedRoom);
+        if (!user || !token || !selectedRoom) return;
+
+        myAxios(token, setToken)
+            .get(`${baseUrl}/user/checkMatchingState?estimateIdx=${selectedRoom.estimateIdx}`)
+            .then((res) => {
+                setPayState(res.data);
+            });
+    }, [user, token, selectedRoom]);
 
     // 채팅방 목록 조회
     const getMessageRoomList = (type) => {
@@ -503,9 +516,18 @@ export default function Message() {
                             >
                                 <div className="card-info-section">
                                     {chip === "TOOL" || user.expert ? (
-                                        <img src={`http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}`} width="48px" height="48px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={chat.userProfileImage ? `http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}` : "/default-profile.png"}
+                                            width="48px"
+                                            height="48px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
                                     ) : (
-                                        <img src={`http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}`} width="48px" height="48px" />
+                                        <img
+                                            src={chat.userProfileImage ? `http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}` : "/default-profile.png"}
+                                            width="48px"
+                                            height="48px"
+                                        />
                                     )}
                                     <div>
                                         <p>{chip === "TOOL" || user.expert ? chat.nickname : chat.activityName}</p>
@@ -558,8 +580,12 @@ export default function Message() {
                                 <img
                                     src={
                                         chip === "TOOL" || user.expert
-                                            ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
-                                            : `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                            ? selectedRoom.userProfileImage
+                                                ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                : "/default-profile.png"
+                                            : selectedRoom.expertProfileImage
+                                            ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                            : "/default-profile.png"
                                     }
                                     width="32px"
                                     height="32px"
@@ -657,7 +683,20 @@ export default function Message() {
                                     )
                                 ) : msg.sendButton ? (
                                     <div className="message-bubble-recive-hasButton">
-                                        <img src="" width="32px" height="32px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={
+                                                chip === "TOOL" || user.expert
+                                                    ? selectedRoom.userProfileImage
+                                                        ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                        : "/default-profile.png"
+                                                    : selectedRoom.expertProfileImage
+                                                    ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                                    : "/default-profile.png"
+                                            }
+                                            width="32px"
+                                            height="32px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
 
                                         {chip === "EXPERT" && (
                                             <div className="message-bubble-recive-hasButton-wrapper">
@@ -677,16 +716,31 @@ export default function Message() {
                                                         </span>
                                                         됩니다.
                                                     </p>
-                                                    <button
-                                                        className="primary-button"
-                                                        style={{
-                                                            width: "100px",
-                                                            height: "33px",
-                                                        }}
-                                                        onClick={() => navigate(`/zipddak/expertMatchPayment/${selectedRoom.estimateIdx}`)}
-                                                    >
-                                                        결제하기
-                                                    </button>
+                                                    {payState.state ? (
+                                                        <button
+                                                            className="primary-button"
+                                                            style={{
+                                                                backgroundColor: "#293341",
+                                                                border: "none",
+                                                                width: "100px",
+                                                                height: "33px",
+                                                            }}
+                                                            onClick={() => navigate(`/zipddak/mypage/expert/works/detail/${payState.matchingIdx}?page=1`)}
+                                                        >
+                                                            결제완료
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="primary-button"
+                                                            style={{
+                                                                width: "100px",
+                                                                height: "33px",
+                                                            }}
+                                                            onClick={() => navigate(`/zipddak/expertMatchPayment/${selectedRoom.estimateIdx}`)}
+                                                        >
+                                                            결제하기
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <span>{timeAgo(msg.createdAt)}</span>
                                             </div>
@@ -723,7 +777,20 @@ export default function Message() {
                                     </div>
                                 ) : (
                                     <div className="message-bubble-recive">
-                                        <img src="" width="32px" height="32px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={
+                                                chip === "TOOL" || user.expert
+                                                    ? selectedRoom.userProfileImage
+                                                        ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                        : "/default-profile.png"
+                                                    : selectedRoom.expertProfileImage
+                                                    ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                                    : "/default-profile.png"
+                                            }
+                                            width="32px"
+                                            height="32px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
                                         <div>
                                             <p>{msg.content}</p>
                                             <span>{timeAgo(msg.createdAt)}</span>
