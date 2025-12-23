@@ -60,7 +60,7 @@ export default function Login() {
           <a href="/zipddak/main">
             <img src="/zipddak_smile.png" style={{ width: "150px" }} />
           </a>
-          <div className="title">로그인</div>
+          {/* <div className="title">로그인</div> */}
 
           <div className="sns_login">
             <div className="sns_top">
@@ -98,7 +98,7 @@ export default function Login() {
           <div className="line1"></div>
 
           {/* <form className="input_form"> */}
-          <div className="input_form">
+          <form className="input_form">
             <div className="input_parts">
               <div className="input_label">이메일</div>
               <Input
@@ -142,7 +142,7 @@ export default function Login() {
                 </Button>
               </div>
             </div>
-          </div>
+          </form>
 
           <div className="loginFooter">
             <div className="input_detail">아직 회원이 아니신가요?</div>
