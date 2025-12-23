@@ -114,7 +114,7 @@ export default function ApplyTool() {
         setRental({
             ...rental,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address,
+            addr1: data.address,
         });
     };
 

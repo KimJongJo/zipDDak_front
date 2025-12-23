@@ -1,143 +1,110 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function KakaoMapTestPage() {
-  const [map, setMap] = useState(null);
-  const [geocoder, setGeocoder] = useState(null);
-  const [marker, setMarker] = useState(null);
+const KakaoMapModalForTradeAddr = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const mapContainer = useRef(null);
+  const map = useRef(null);
 
-  const [address, setAddress] = useState("");
-  const [selectedCoord, setSelectedCoord] = useState(null);
-  const [savedCoord, setSavedCoord] = useState(null);
+  // 테스트용 주소
+  const testAddr = "서울 성북구 아리랑로 4";
 
-  /* ===============================
-     1️⃣ 지도 초기화
-  =============================== */
   useEffect(() => {
-    if (!window.kakao) return;
+    if (!isOpen || !window.kakao) return;
 
-    // ⭐ 핵심
-    window.kakao.maps.load(() => {
-      const container = document.getElementById("map");
+    const geocoder = new window.kakao.maps.services.Geocoder();
 
-      const options = {
-        center: new window.kakao.maps.LatLng(37.5665, 126.978),
-        level: 3,
-      };
+    // 주소 → 좌표 변환
+    geocoder.addressSearch(testAddr, (result, status) => {
+      if (status !== window.kakao.maps.services.Status.OK) return;
 
-      const mapInstance = new window.kakao.maps.Map(container, options);
-      const geocoderInstance = new window.kakao.maps.services.Geocoder();
-      const markerInstance = new window.kakao.maps.Marker({
-        position: options.center,
+      const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+
+      // 지도 생성
+      map.current = new window.kakao.maps.Map(mapContainer.current, {
+        center: coords,
+        level: 1,
       });
 
-      markerInstance.setMap(mapInstance);
+      // 마커 이미지 설정
+      const imageSrc =
+          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+        imageSize = new window.kakao.maps.Size(64, 69),
+        imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 
-      setMap(mapInstance);
-      setGeocoder(geocoderInstance);
-      setMarker(markerInstance);
-    });
-  }, []);
+      const markerImage = new window.kakao.maps.MarkerImage(
+        imageSrc,
+        imageSize,
+        imageOption
+      );
 
-  /* ===============================
-     2️⃣ 지도 클릭 → 좌표 → 주소
-  =============================== */
-  useEffect(() => {
-    if (!map || !geocoder || !marker) return;
-
-    const clickHandler = (mouseEvent) => {
-      const latlng = mouseEvent.latLng;
-
-      marker.setPosition(latlng);
-
-      const lat = latlng.getLat();
-      const lng = latlng.getLng();
-
-      geocoder.coord2Address(lng, lat, (result, status) => {
-        if (status === window.kakao.maps.services.Status.OK) {
-          const roadAddr = result[0].road_address?.address_name;
-          const jibunAddr = result[0].address.address_name;
-
-          setAddress(roadAddr || jibunAddr);
-          setSelectedCoord({ lat, lng });
-        }
+      const marker = new window.kakao.maps.Marker({
+        position: coords,
+        image: markerImage,
       });
-    };
+      marker.setMap(map.current);
 
-    window.kakao.maps.event.addListener(map, "click", clickHandler);
+      // 커스텀 오버레이
+      const content = `<div class="customoverlay">
+        <a href="https://map.kakao.com/link/map/${result[0].y},${result[0].x}" target="_blank">
+          <span class="title">${testAddr}</span>
+        </a>
+      </div>`;
 
-    return () => {
-      window.kakao.maps.event.removeListener(map, "click", clickHandler);
-    };
-  }, [map, geocoder, marker]);
-
-  /* ===============================
-     3️⃣ 저장된 좌표로 지도 복원
-  =============================== */
-  useEffect(() => {
-    if (!map || !marker || !savedCoord) return;
-
-    const position = new window.kakao.maps.LatLng(
-      savedCoord.lat,
-      savedCoord.lng
-    );
-
-    map.setCenter(position);
-    marker.setPosition(position);
-  }, [map, marker, savedCoord]);
-
-  /* ===============================
-     4️⃣ 주소 → 좌표
-  =============================== */
-  const searchByAddress = () => {
-    if (!geocoder || !address) return;
-
-    geocoder.addressSearch(address, (result, status) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        const lat = Number(result[0].y);
-        const lng = Number(result[0].x);
-
-        const position = new window.kakao.maps.LatLng(lat, lng);
-        map.setCenter(position);
-        marker.setPosition(position);
-
-        setSelectedCoord({ lat, lng });
-      }
+      const customOverlay = new window.kakao.maps.CustomOverlay({
+        map: map.current,
+        position: coords,
+        content,
+        yAnchor: 1,
+      });
     });
-  };
+  }, [isOpen]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>📍 Kakao Map 실험 페이지</h2>
+    <div>
+      <button onClick={() => setIsOpen(true)}>지도 테스트</button>
 
-      <div
-        id="map"
-        style={{
-          width: "100%",
-          height: "400px",
-          borderRadius: "8px",
-        }}
-      />
+      {isOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+              maxWidth: "600px",
+              height: "500px",
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              padding: "16px",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setIsOpen(false)}
+              style={{ position: "absolute", top: 8, right: 8 }}
+            >
+              X
+            </button>
 
-      <div style={{ marginTop: "12px" }}>
-        <strong>선택한 주소:</strong>
-        <div>{address || "지도 클릭"}</div>
-      </div>
-
-      {selectedCoord && (
-        <div style={{ marginTop: "8px", fontSize: "14px" }}>
-          위도: {selectedCoord.lat} / 경도: {selectedCoord.lng}
+            <div
+              ref={mapContainer}
+              style={{ width: "100%", height: "100%" }}
+            />
+          </div>
         </div>
       )}
-
-      <div style={{ marginTop: "16px", display: "flex", gap: "8px" }}>
-        <button onClick={() => setSavedCoord(selectedCoord)}>
-          좌표 저장
-        </button>
-
-        <button onClick={searchByAddress}>
-          주소로 지도 이동
-        </button>
-      </div>
     </div>
   );
-}
+};
+
+export default KakaoMapModalForTradeAddr;

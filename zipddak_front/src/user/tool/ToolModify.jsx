@@ -156,7 +156,7 @@ export default function ModifyTool() {
     setToolModify(prev => ({
         ...prev,
         zonecode: data.zonecode,
-        addr1: data.roadAddress || data.address
+        addr1: data.address
     }));
     setIsAddOpen(false); // 모달 닫기
 };
@@ -171,7 +171,7 @@ export default function ModifyTool() {
         setTool({
             ...prev,
             tradeZonecode: data.zonecode,
-            tradeAddr1: data.roadAddress || data.address,
+            tradeAddr1: data.address,
         });
     };
     const closeHandler2 = () => {

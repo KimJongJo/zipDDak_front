@@ -132,7 +132,7 @@ export default function SignStore2() {
         setSeller({
             ...seller,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address,
+            addr1: data.address,
         });
     };
 
