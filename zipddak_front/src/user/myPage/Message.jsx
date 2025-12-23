@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import "../css/message.css";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import SockJS from "sockjs-client/dist/sockjs";
 import { Client } from "@stomp/stompjs";
 import { useNavigate, useSearchParams } from "react-router";
@@ -65,6 +65,19 @@ export default function Message() {
 
     const user = useAtomValue(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+
+    const [payState, setPayState] = useState({});
+    // 결제가 이미 완료되었거나, 중단된 요청인지 판단
+    useEffect(() => {
+        console.log(selectedRoom);
+        if (!user || !token || !selectedRoom) return;
+
+        myAxios(token, setToken)
+            .get(`${baseUrl}/user/checkMatchingState?estimateIdx=${selectedRoom.estimateIdx}`)
+            .then((res) => {
+                setPayState(res.data);
+            });
+    }, [user, token, selectedRoom]);
 
     // 채팅방 목록 조회
     const getMessageRoomList = (type) => {
@@ -703,16 +716,31 @@ export default function Message() {
                                                         </span>
                                                         됩니다.
                                                     </p>
-                                                    <button
-                                                        className="primary-button"
-                                                        style={{
-                                                            width: "100px",
-                                                            height: "33px",
-                                                        }}
-                                                        onClick={() => navigate(`/zipddak/expertMatchPayment/${selectedRoom.estimateIdx}`)}
-                                                    >
-                                                        결제하기
-                                                    </button>
+                                                    {payState.state ? (
+                                                        <button
+                                                            className="primary-button"
+                                                            style={{
+                                                                backgroundColor: "#293341",
+                                                                border: "none",
+                                                                width: "100px",
+                                                                height: "33px",
+                                                            }}
+                                                            onClick={() => navigate(`/zipddak/mypage/expert/works/detail/${payState.matchingIdx}?page=1`)}
+                                                        >
+                                                            결제완료
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="primary-button"
+                                                            style={{
+                                                                width: "100px",
+                                                                height: "33px",
+                                                            }}
+                                                            onClick={() => navigate(`/zipddak/expertMatchPayment/${selectedRoom.estimateIdx}`)}
+                                                        >
+                                                            결제하기
+                                                        </button>
+                                                    )}
                                                 </div>
                                                 <span>{timeAgo(msg.createdAt)}</span>
                                             </div>

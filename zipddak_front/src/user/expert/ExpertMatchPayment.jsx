@@ -93,12 +93,16 @@ export default function ExpertMatchPayment() {
     return (
         <div className="body-div">
             <div className="expertOrder-main-div">
-                <span className="font-22 semibold">결제화면</span>
+                <span style={{ fontSize: "22px", fontWeight: "600" }} className="font-22 semibold">
+                    결제화면
+                </span>
 
                 <div className="expertOrder-table-div">
                     {/* 내 요청내용 div */}
                     <div>
-                        <span className="font-18 semibold">내 요청 내용</span>
+                        <span style={{ fontSize: "18px", fontWeight: "600" }} className="font-18 semibold">
+                            내 요청 내용
+                        </span>
                         <table className="margin-top-20 expertOrder-table">
                             <tbody>
                                 <tr>
@@ -148,7 +152,7 @@ export default function ExpertMatchPayment() {
                                     </td>
                                     {/* 추가 요청사항 */}
                                     <td>
-                                        <span className="font-14">{requestDto.additionalRequest}</span>
+                                        <span className="font-14">{requestDto.additionalRequest ? requestDto.additionalRequest : "-"}</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -157,7 +161,9 @@ export default function ExpertMatchPayment() {
 
                     {/* 전문가 정보 div */}
                     <div>
-                        <span className="font-18 semibold">전문가 정보</span>
+                        <span style={{ fontSize: "18px", fontWeight: "600" }} className="font-18 semibold">
+                            전문가 정보
+                        </span>
                         <table className="margin-top-20 expertOrder-table">
                             <tbody>
                                 <tr>
@@ -219,7 +225,9 @@ export default function ExpertMatchPayment() {
 
                     {/* 견적 금액 상세 div */}
                     <div>
-                        <span className="font-18 semibold">견적 금액 상세</span>
+                        <span style={{ fontSize: "18px", fontWeight: "600" }} className="font-18 semibold">
+                            견적 금액 상세
+                        </span>
                         <table className="margin-top-20 expertOrder-table">
                             <tbody>
                                 {/* 배열로 받아와서 반복 */}
@@ -286,11 +294,15 @@ export default function ExpertMatchPayment() {
 
                                         <tr>
                                             <td className="expertOrder-trtd">
-                                                <span className="font-16 semibold">총 견적 금액</span>
+                                                <span style={{ fontSize: "16px", fontWeight: "500" }} className="font-16 semibold">
+                                                    총 견적 금액
+                                                </span>
                                             </td>
                                             <td>
                                                 <div className="expertOrder-price-div">
-                                                    <span className="font-16 semibold">{costDto.consCostSum?.toLocaleString()}</span>
+                                                    <span style={{ color: "#ff5833", fontSize: "18px", fontWeight: "600" }} className="font-16 semibold">
+                                                        {costDto.consCostSum?.toLocaleString()}
+                                                    </span>
                                                     <span className="font-16 semibold"> 원</span>
                                                 </div>
                                             </td>
@@ -416,6 +428,9 @@ export default function ExpertMatchPayment() {
 
                     {/* 확인 항목 div */}
                     <div>
+                        <span style={{ fontSize: "18px", fontWeight: "600" }} className="font-18 semibold">
+                            확인 항목
+                        </span>
                         <div className="expertOrder-checkList-div">
                             {[
                                 "견적 내용(서비스 항목, 작업 범위, 기간 등)을 정확히 확인했습니다.",
@@ -435,13 +450,12 @@ export default function ExpertMatchPayment() {
                                 <span className="font-14 expertOrder-span semibold">모두 확인했습니다.</span>
                             </div>
                         </div>
-
-                        {/* 결제 버튼 div */}
-                        <div className="expertOrder-complate-div">
-                            <button className="expertOrder-complate-button font-14 semibold" onClick={handlePayment}>
-                                계약 확정 및 결제하기
-                            </button>
-                        </div>
+                    </div>
+                    {/* 결제 버튼 div */}
+                    <div className="expertOrder-complate-div">
+                        <button className="expertOrder-complate-button font-14 semibold" onClick={handlePayment}>
+                            계약 확정 및 결제하기
+                        </button>
                     </div>
                 </div>
             </div>
