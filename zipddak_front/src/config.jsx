@@ -13,11 +13,9 @@ export const myAxios = (token, setToken) => {
     instance.interceptors.response.use(
         //응답이 올때마다 헤더에 토큰 유무 체크하여 토큰 갱신
         (response) => {
-
             // console.log(response.headers.authorization);
             if (response.headers.authorization) {
                 setToken(response.headers.authorization);
-
             }
             return response;
         },
@@ -30,7 +28,7 @@ export const myAxios = (token, setToken) => {
                     case 401: //401,403 은 인증오류, 로그인 다시시도
                     case 403:
                         // console.log("403");
-                        window.location.href = `${reactUrl}/zipddak`;
+                        window.location.href = `${reactUrl}/zipddak/`;
                         break;
                     default:
                         return Promise.reject(error);
@@ -44,7 +42,7 @@ export const myAxios = (token, setToken) => {
     token &&
         instance.interceptors.request.use((config) => {
             config.headers.authorization = token;
-            console.log("디버그 ",config.headers.authorization)
+            console.log("디버그 ", config.headers.authorization);
             return config;
         });
 

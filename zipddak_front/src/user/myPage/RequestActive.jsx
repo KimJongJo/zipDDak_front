@@ -359,7 +359,7 @@ export default function RequestActive() {
                                             fontWeight: "600",
                                         }}
                                     >
-                                        {request.budget}
+                                        {request.budget?.toLocaleString()}원
                                     </p>
                                 </div>
                                 <div
@@ -469,7 +469,11 @@ export default function RequestActive() {
                                         getEstimateDetail(expert.estimateIdx);
                                     }}
                                 >
-                                    <img src={`http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}`} width="40px" height="40px" />
+                                    <img
+                                        src={expert.profileImage ? `http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}` : "/default-profile.png"}
+                                        width="40px"
+                                        height="40px"
+                                    />
                                     <p style={{ whiteSpace: "nowrap" }}>{expert.activityName}</p>
                                     <p style={{ fontWeight: "600", whiteSpace: "nowrap" }}>{Math.floor(expert.totalCost / 10000)}만원</p>
                                 </div>
@@ -814,7 +818,7 @@ export default function RequestActive() {
                                             className="expert-div"
                                         >
                                             <div className="expert-img-div">
-                                                <img className="expert-img" src={`${baseUrl}/imageView?type=expert&filename=${expert.profileImage}`} />
+                                                <img className="expert-img" src={expert.profileImage ? `${baseUrl}/imageView?type=expert&filename=${expert.profileImage}` : "/default-profile.png"} />
                                                 <div className="expert-name-div">
                                                     <span className="font-14 semibold">{expert.activityName}</span>
                                                     <span className="font-13">{expert.mainService}</span>

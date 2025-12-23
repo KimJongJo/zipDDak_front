@@ -172,7 +172,11 @@ export default function ProductOrder() {
 
         // 브랜드가 하나이고 + 남은 상품이 하나이고 + 그 상품 count == 1이면 막기
         if (brand.length === 1) {
-            alert("최소 1개 이상은 구매해야 합니다.");
+            setModalMessage("최소 1개 이상은 구매해야합니다.");
+            setIsModalOpen(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+            }, 1500);
             return;
         }
 
@@ -249,7 +253,7 @@ export default function ProductOrder() {
             return;
         }
 
-        const res = await axios.post(`${baseUrl}/user/payment/product`, {
+        const res = await myAxios(token, setToken).post(`${baseUrl}/user/payment/product`, {
             username: user.username,
             brandList: brand,
             recvUser: {

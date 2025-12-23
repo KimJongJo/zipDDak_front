@@ -97,7 +97,7 @@ export function Mypage() {
                         gap: "16px",
                     }}
                 >
-                    <img src={`${baseUrl}/imageView?type=expert&filename=${user.profile}`} width="96px" height="96px" style={{ borderRadius: "12px" }} />
+                    <img src={user.profile ? `${baseUrl}/imageView?type=expert&filename=${user.profile}` : "/default-profile.png"} width="96px" height="96px" style={{ borderRadius: "12px" }} />
                     <div
                         style={{
                             width: "100%",
@@ -204,7 +204,7 @@ export function Mypage() {
                         >
                             내 게시글
                         </NavLink>
-                        <NavLink
+                        {/* <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
                             to="/expert/mypage/inquiries"
                             style={({ isActive }) => ({
@@ -213,7 +213,7 @@ export function Mypage() {
                             })}
                         >
                             1:1 문의내역
-                        </NavLink>
+                        </NavLink> */}
                         <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
                             to="/expert/mypage/account"

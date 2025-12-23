@@ -141,7 +141,7 @@ export default function MarketOrders() {
         getOrders(1, selectDate.startDate, selectDate.endDate);
         getOrderStatusSummary();
         setSelectedDeliveryGroups([]);
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         setCheckedItems({});

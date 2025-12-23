@@ -503,9 +503,18 @@ export default function Message() {
                             >
                                 <div className="card-info-section">
                                     {chip === "TOOL" || user.expert ? (
-                                        <img src={`http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}`} width="48px" height="48px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={chat.userProfileImage ? `http://localhost:8080/imageView?type=profile&filename=${chat.userProfileImage}` : "/default-profile.png"}
+                                            width="48px"
+                                            height="48px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
                                     ) : (
-                                        <img src={`http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}`} width="48px" height="48px" />
+                                        <img
+                                            src={chat.userProfileImage ? `http://localhost:8080/imageView?type=expert&filename=${chat.expertProfileImage}` : "/default-profile.png"}
+                                            width="48px"
+                                            height="48px"
+                                        />
                                     )}
                                     <div>
                                         <p>{chip === "TOOL" || user.expert ? chat.nickname : chat.activityName}</p>
@@ -558,8 +567,12 @@ export default function Message() {
                                 <img
                                     src={
                                         chip === "TOOL" || user.expert
-                                            ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
-                                            : `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                            ? selectedRoom.userProfileImage
+                                                ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                : "/default-profile.png"
+                                            : selectedRoom.expertProfileImage
+                                            ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                            : "/default-profile.png"
                                     }
                                     width="32px"
                                     height="32px"
@@ -657,7 +670,20 @@ export default function Message() {
                                     )
                                 ) : msg.sendButton ? (
                                     <div className="message-bubble-recive-hasButton">
-                                        <img src="" width="32px" height="32px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={
+                                                chip === "TOOL" || user.expert
+                                                    ? selectedRoom.userProfileImage
+                                                        ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                        : "/default-profile.png"
+                                                    : selectedRoom.expertProfileImage
+                                                    ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                                    : "/default-profile.png"
+                                            }
+                                            width="32px"
+                                            height="32px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
 
                                         {chip === "EXPERT" && (
                                             <div className="message-bubble-recive-hasButton-wrapper">
@@ -723,7 +749,20 @@ export default function Message() {
                                     </div>
                                 ) : (
                                     <div className="message-bubble-recive">
-                                        <img src="" width="32px" height="32px" style={{ borderRadius: "999px" }} />
+                                        <img
+                                            src={
+                                                chip === "TOOL" || user.expert
+                                                    ? selectedRoom.userProfileImage
+                                                        ? `http://localhost:8080/imageView?type=profile&filename=${selectedRoom.userProfileImage}`
+                                                        : "/default-profile.png"
+                                                    : selectedRoom.expertProfileImage
+                                                    ? `http://localhost:8080/imageView?type=expert&filename=${selectedRoom.expertProfileImage}`
+                                                    : "/default-profile.png"
+                                            }
+                                            width="32px"
+                                            height="32px"
+                                            style={{ borderRadius: "999px" }}
+                                        />
                                         <div>
                                             <p>{msg.content}</p>
                                             <span>{timeAgo(msg.createdAt)}</span>
