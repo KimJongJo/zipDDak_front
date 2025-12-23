@@ -111,9 +111,7 @@ export default function SignUser() {
         setUser({
             ...user,
             zonecode: data.zonecode,
-            addr1: data.roadAddress?.trim()
-                ? data.roadAddress
-                : data.address
+            addr1: data.address
         });
     }
 

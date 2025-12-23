@@ -116,26 +116,106 @@ export default function RegistTool() {
         setTool({
             ...tool,
             zonecode: data.zonecode,
-            addr1: data.roadAddress || data.address,
+            addr1: data.address,
         });
     };
     const closeHandler = () => {
         setIsAddOpen(false);
     };
 
-    const [isAddOpen2, setIsAddOpen2] = useState(false);
+    // const [isAddOpen2, setIsAddOpen2] = useState(false);
 
-    const complateHandler2 = (data) => {
-        setTool({
-            ...tool,
-            tradeZonecode: data.zonecode,
-            tradeAddr1: data.roadAddress || data.address,
+    // const complateHandler2 = (data) => {
+    //     setTool({
+    //         ...tool,
+    //         tradeZonecode: data.zonecode,
+    //         tradeAddr1: data.address,
+    //     });
+    // };
+
+    // const closeHandler2 = () => {
+    //     setIsAddOpen2(false);
+    // };
+
+    //지도 주소
+
+    const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const fixedMarker = useRef(null);
+  const clickMarker = useRef(null);
+  const infowindow = useRef(null);
+
+  const [clickedAddress, setClickedAddress] = useState("");
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
+  useEffect(() => {
+    if (!isMapOpen || !window.kakao || !user?.addr1) return;
+
+    map.current = new window.kakao.maps.Map(mapContainer.current, {
+      center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
+      level: 1,
+    });
+
+    infowindow.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
+
+    const geocoder = new window.kakao.maps.services.Geocoder();
+
+    // 고정 마커
+    geocoder.addressSearch(user.addr1, (result, status) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+        map.current.setCenter(coords);
+
+        fixedMarker.current = new window.kakao.maps.Marker({
+          position: coords,
+          map: map.current,
+          title: "내 주소",
         });
-    };
 
-    const closeHandler2 = () => {
-        setIsAddOpen2(false);
-    };
+        // fixedMarker 클릭 시 선택
+        window.kakao.maps.event.addListener(fixedMarker.current, "click", () => {
+          const address = result[0].address.address_name;
+          infowindow.current.setContent(
+            `<div style="padding:5px;">${address}</div>`
+          );
+          infowindow.current.open(map.current, fixedMarker.current);
+
+          setClickedAddress(address);
+          setSelectedMarker(fixedMarker.current);
+        });
+      }
+    });
+
+    // 클릭 마커 생성 (처음 안보임)
+    clickMarker.current = new window.kakao.maps.Marker({ map: map.current });
+    clickMarker.current.setMap(null);
+
+    // 지도 클릭 시 클릭 마커 이동/표시
+    map.current.addListener("click", (mouseEvent) => {
+      const latlng = mouseEvent.latLng;
+
+      clickMarker.current.setPosition(latlng);
+      clickMarker.current.setMap(map.current);
+
+      geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (res, stat) => {
+        if (stat === window.kakao.maps.services.Status.OK) {
+          const detailAddr = res[0].address.address_name;
+          infowindow.current.setContent(
+            `<div style="padding:5px;">${detailAddr}</div>`
+          );
+          infowindow.current.open(map.current, clickMarker.current);
+
+          setClickedAddress(detailAddr);
+          setSelectedMarker(clickMarker.current);
+        }
+      });
+    });
+  }, [isMapOpen, user]);
+
+
+
 
     //카테고리
     const [tCategory, setTCategory] = useState(83);
@@ -234,7 +314,8 @@ export default function RegistTool() {
             postRental,
             directRental,
             freePost,
-            postCharge:tool.postCharge
+            postCharge:tool.postCharge,
+            tradeAddr1:clickedAddress
 
         };
 
@@ -556,7 +637,7 @@ export default function RegistTool() {
                                     <span className="o-label">거래 희망장소</span>
                                     <span className="orange oFont">*</span>
                                 </div>
-                                <div className="post-box">
+                                {/* <div className="post-box">
                                     <div className="check-col">
                                         <Input className="zonecodeInput" type="text" name="tradeZonecode" placeholder="우편번호" value={tool.tradeZonecode} readOnly />
 
@@ -566,26 +647,77 @@ export default function RegistTool() {
                                     </div>
                                     <Input type="text" name="tradeAddr1" placeholder="지번/도로명주소" value={tool.tradeAddr1} readOnly />
                                     <Input type="text" name="tradeAddr2" placeholder="상세주소" onChange={ChangeInput} />
-                                </div>
-                                {/* <div className="check-col">
+                                </div> */}
+                                <div className="check-col">
                                     <div className="location-box">
-                                        <input className="location" type="text" placeholder="지도에서 찾기" readOnly></input>
+                                        <input className="location" type="text" placeholder="지도에서 찾기"  value={clickedAddress} readOnly></input>
                                         <div className="">
-                                            <Button className="primary-button mapPinI">
+                                            <Button className="primary-button mapPinI" onClick={() => {setIsMapOpen(true)}}>
                                                 <MapPinned size={20} />
                                             </Button>
                                         </div>
                                     </div>
                                     <Input type="text" name="location" placeholder="" readOnly />
-                                </div> */}
+                                </div>
                             </div>
                         )}
 
-                        {isAddOpen2 && (
+                        {/* {isAddOpen2 && (
                             <AddrModal title="만나서 결제주소찾기" open={isAddOpen2} footer={null} onCancel={() => setIsAddOpen2(false)}>
                                 <DaumPostcode onComplete={complateHandler2} onClose={closeHandler2} />
                             </AddrModal>
-                        )}
+                        )} */}
+
+                        {isMapOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+              maxWidth: "600px",
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              padding: "16px",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setIsMapOpen(false)}
+              style={{ position: "absolute", top: 8, right: 8 }}
+            >
+              X
+            </button>
+
+            <div
+              ref={mapContainer}
+              style={{ width: "100%", height: "400px", marginBottom: "10px" }}
+            />
+
+            <input
+              type="text"
+              value={clickedAddress}
+              onChange={(e) => setClickedAddress(e.target.value)}
+              style={{ width: "100%", marginBottom: "10px" }}
+            />
+
+            <button onClick={handleSave} style={{ width: "100%" }}>
+              주소 저장
+            </button>
+          </div>
+        </div>
+      )}
 
                         <div className="options">
                             <div className="row-cm">

@@ -103,7 +103,7 @@ export default function Main() {
     };
 
      // 관심 상품 토글
-    const favoriteToggle = async (productIdx) => {
+    const toggleFavorite = async (productIdx) => {
         if (user.username === "") {
             navigate("/zipddak/login");
             return;
@@ -161,7 +161,7 @@ export default function Main() {
     };
 
         // 관심 공구 토글
-      const toggleFavorite = async (toolIdx) => {
+      const toggleFavoriteTool = async (toolIdx) => {
   if (!user.username) {
     navigate("/zipddak/login");
     return;
@@ -320,7 +320,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />)}</div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -389,7 +389,7 @@ export default function Main() {
                     </div>
 
                     <div className="product-cards">
-                        {Array.isArray(product) && product.map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={favoriteToggle} />)}
+                        {Array.isArray(product) && product.map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
                     </div>
                 </div>
 

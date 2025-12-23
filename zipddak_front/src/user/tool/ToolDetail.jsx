@@ -1,10 +1,10 @@
 import "../css/ToolDetail.css";
 import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft, Package, Rocket, UserRound } from "lucide-react";
-import { Button, Pagination, PaginationItem, PaginationLink } from "reactstrap";
+import { Button, Pagination, PaginationItem, PaginationLink , Modal, ModalHeader} from "reactstrap";
 import { Tool } from "../../main/component/Tool";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { myAxios, baseUrl } from "../../config";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -12,13 +12,20 @@ export default function ToolDetail() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const { toolIdx } = useParams();
-    console.log(toolIdx);
-    console.log(token);
+   
     const [tool, setTool] = useState(null);
     const navigate = useNavigate();
 
     const [ownerTool, setOwnerTool] = useState();
     const [ownerCnt, setOwnerCnt] = useState();
+
+    const [modal, setModal] = useState(false);
+    const toggle = () => setModal(!modal);
+    const [deleteModal, setDeleteModal] = useState(false);
+    const deleteToggle = () => setDeleteModal(!deleteModal);
+
+    const mapContainer = useRef(null);
+    const map = useRef(null);
 
     //공구 상세
     const getTool = () => {
@@ -125,7 +132,6 @@ export default function ToolDetail() {
     }, [activeOrder, activeTab]);
 
     // 하트 공구
-
     const [toolFavorite, setToolFavorite] = useState(false);
 
     const favoriteTool = (idx) => {
@@ -171,6 +177,84 @@ export default function ToolDetail() {
         onChanged();
     };
 
+    //tool신고
+     const reportCommunity = () => {
+        myAxios(token, setToken).post(`${baseUrl}/user/reportCommunity`, {
+            username: user.username,
+            communityId: communityDetail.communityId,
+            reason: reportReason,
+        });
+    };
+
+    //tool공유
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+    const url = window.location.href; // 현재 페이지 URL
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // 2초 후 상태 초기화
+      })
+      .catch(err => {
+        console.error("복사 실패:", err);
+      });
+    };
+
+    //tool지도
+    useEffect(() => {
+    if (!window.kakao) return;
+
+    const geocoder = new window.kakao.maps.services.Geocoder();
+
+    // 주소 → 좌표 변환
+    geocoder.addressSearch(tool.tradeAddr1, (result, status) => {
+      if (status !== window.kakao.maps.services.Status.OK) return;
+
+      const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+
+      // 지도 생성
+      map.current = new window.kakao.maps.Map(mapContainer.current, {
+        center: coords,
+        level: 1,
+      });
+
+      // 마커 이미지 설정
+      const imageSrc =
+          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+        imageSize = new window.kakao.maps.Size(64, 69),
+        imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+
+      const markerImage = new window.kakao.maps.MarkerImage(
+        imageSrc,
+        imageSize,
+        imageOption
+      );
+
+      const marker = new window.kakao.maps.Marker({
+        position: coords,
+        image: markerImage,
+      });
+      marker.setMap(map.current);
+
+      // 커스텀 오버레이
+      const content = `<div class="customoverlay">
+        <a href="https://map.kakao.com/link/map/${result[0].y},${result[0].x}" target="_blank">
+          <span class="title">${tool.tradeAddr1}</span>
+        </a>
+      </div>`;
+
+      const customOverlay = new window.kakao.maps.CustomOverlay({
+        map: map.current,
+        position: coords,
+        content,
+        yAnchor: 1,
+      });
+    });
+  }, [tool]);
+
+
+
     if (!tool) {
         return <div>로딩중...</div>;
     }
@@ -184,8 +268,9 @@ export default function ToolDetail() {
                             <button onClick={() => favoriteToggle(tool.toolIdx)} style={{ cursor: "pointer", backgroundColor: "transparent", border: "none" }}>
                                 {toolFavorite ? <Heart fill="#ff5833" stroke="#ff5833" /> : <Heart stroke="#999" />}
                             </button>
-                            <Share2 />
-                            <CircleAlert />
+                            <Share2 onClick={handleCopy} style={{cursor:"pointer"}}/>
+                             {copied && <div style={{ marginTop: "8px", color: "green" }}>URL 복사됨!</div>}
+                            <CircleAlert onClick={toggle} style={{cursor:"pointer"}}/>
                         </div>
                     </div>
                     <div className="d-info-box">
@@ -333,7 +418,12 @@ export default function ToolDetail() {
                                 <div>{tool.content}</div>
                             </div>
                             <div className="de-favlocation">
-                                <div className="de-map"></div>
+                                <div className="de-map">
+                                     <div
+              ref={mapContainer}
+              style={{ width: "100%", height: "100%" }}
+            />
+                                </div>
                                 <div className="mapinfo">
                                     <span className="map-label">거래 희망장소</span>
                                     <span>{}</span>
@@ -348,6 +438,113 @@ export default function ToolDetail() {
                         </div>
                     </div>
                 )}
+
+                
+                    <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                        <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
+                            <span className="ask-title">신고하기</span>
+                        </ModalHeader>
+                        <div className="ask-modal-body">
+                            <div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_ABUSE "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_ABUSE "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_ABUSE " className="font-14">
+                                            욕설 / 비하
+                                        </label>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_AD "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_AD "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_AD " className="font-14">
+                                            광고 / 홍보
+                                        </label>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_ILLEGAL "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_ILLEGAL "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_ILLEGAL " className="font-14">
+                                            음란 / 불법 콘텐츠
+                                        </label>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_POLITICAL "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_POLITICAL "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_POLITICAL " className="font-14">
+                                            정치적 / 사회적 논쟁 유도
+                                        </label>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_PRIVACY "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_PRIVACY "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_PRIVACY " className="font-14">
+                                            개인정보 유출
+                                        </label>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                        <Input
+                                            value="COMMENT_REPORT_OTHER "
+                                            onChange={(e) => setReportReason(e.target.value)}
+                                            type="radio"
+                                            name="reason"
+                                            id="COMMENT_REPORT_OTHER "
+                                            style={{ marginRight: "20px" }}
+                                        />{" "}
+                                        <label htmlFor="COMMENT_REPORT_OTHER " className="font-14">
+                                            기타 부적절한 내용
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="ask-modal-body-button-div">
+                                    <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                                        취소
+                                    </button>
+                                    <button
+                                        className="ask-modal-write ask-modal-button"
+                                        type="button"
+                                        onClick={() => {
+                                            reportCommunity();
+                                            toggle();
+                                        }}
+                                    >
+                                        신고하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
+
 
                 {/* ------------------------------------------------- */}
 

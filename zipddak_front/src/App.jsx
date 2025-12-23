@@ -123,6 +123,9 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { fcmTokenAtom, tokenAtom, userAtom, alarmsAtom } from "./atoms.jsx";
 import { myAxios } from "./config.jsx";
 import KakaoMapTestPage from "./user/tool/ToolMap.jsx";
+import KakaoMapModalForTradeAddr from "./user/tool/ToolMap.jsx";
+import KakaoMapWithClickMarker from "./user/tool/ToolMap2.jsx";
+import LocationToolMap from "./user/tool/ToolMap3.jsx";
 
 function App() {
     const [alarm, setAlarm] = useState();
@@ -170,6 +173,9 @@ function App() {
             <Route path="signUp/store1" element={<SignStore1 />} />
             <Route path="signUp/store2" element={<SignStore2 />} />
             <Route path="signUp/store3" element={<SignStore3 />} />
+            <Route path="map" element={<KakaoMapModalForTradeAddr/>}/>
+            <Route path="map1" element={<KakaoMapWithClickMarker/>}/>
+            <Route path="map2" element={<LocationToolMap/>}/>
 
             <Route path="/zipddak/*" element={<UserLayout />}>
                 <Route path="message" element={<Message />} />
