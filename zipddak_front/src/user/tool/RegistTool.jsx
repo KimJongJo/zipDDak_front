@@ -215,6 +215,26 @@ export default function RegistTool() {
   }, [isMapOpen, user]);
 
 
+   const handleSave = () => {
+    if (!selectedMarker) return alert("마커를 선택하세요!");
+    alert(`DB에 저장할 주소: ${clickedAddress}`);
+
+    const data = {
+    toolIdx: toolIdx,
+    clickedAddress: clickedAddress,
+    };
+
+   token&&myAxios(token,setToken).post(`tool/directRental/map`, data)
+   .then(res=>{
+    console.log(res.data);
+   })
+   .catch(err => {
+    console.log(err);
+   })
+    setIsOpen(false);
+  };
+
+
 
 
     //카테고리

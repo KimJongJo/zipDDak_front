@@ -13,11 +13,8 @@ export function Tool({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(1, 3).join(' ');
-
-    const toolDirectAddrString = tool.tradeAddr1;
-    const toolDirectAddress = toolDirectAddrString.split(' ').slice(1, 3).join(' ');
+     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -54,11 +51,8 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
-
-    const toolDirectAddrString = tool.tradeAddr1;
-    const toolDirectAddress = toolDirectAddrString.split(' ').slice(1, 3).join(' ');
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -109,11 +103,8 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
 
 export function ToolL({ tool, toggleFavoriteTool }) {
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
-
-    const toolDirectAddrString = tool.tradeAddr1;
-    const toolDirectAddress = toolDirectAddrString.split(' ').slice(1, 3).join(' ');
+     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -158,11 +149,9 @@ export function ToolL({ tool, toggleFavoriteTool }) {
 
 export function MapTool({ tool, toggleFavoriteTool }) {
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
-    const toolDirectAddrString = tool.tradeAddr1;
-    const toolDirectAddress = toolDirectAddrString.split(' ').slice(1, 3).join(' ');
 
     return (
         <div className="tool-h">
