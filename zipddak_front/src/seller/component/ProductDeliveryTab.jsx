@@ -1,8 +1,10 @@
 // css
 import product from "../css/productRegist.module.css";
 
+import { priceFormat } from "../js/priceFormat.jsx";
+
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
-import { useState } from "react";
+import { useEffect } from "react";
 
 const DeliveryTab = ({ data, onChange }) => {
     const { postType, shippingFee } = data;
@@ -33,7 +35,17 @@ const DeliveryTab = ({ data, onChange }) => {
                 </Label>
 
                 <div className="unit_set">
-                    <Input className="unit me-3" type="number" name="postCharge" value={shippingFee} onChange={(e) => onChange({ ...data, shippingFee: e.target.value })} />
+                    <Input
+                        className="unit me-3"
+                        type="text"
+                        readOnly={postType === "bundle"}
+                        value={priceFormat(shippingFee)}
+                        onChange={(e) => {
+                            if (postType === "bundle") return;
+                            const raw = e.target.value.replace(/[^0-9]/g, ""); //,제거
+                            onChange({ ...data, shippingFee: Number(raw) });
+                        }}
+                    />
                     <span>원</span>
                 </div>
             </div>

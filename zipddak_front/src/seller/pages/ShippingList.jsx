@@ -156,13 +156,13 @@ export default function ShippingList() {
                                         <table className={table.list_table}>
                                             <thead>
                                                 <tr>
-                                                    <th style={{ width: "10%" }}>주문번호</th>
-                                                    <th style={{ width: "25%" }}>상품명</th>
-                                                    <th style={{ width: "15%" }}>최초 출고일자</th>
-                                                    <th style={{ width: "15%" }}>최초 송장번호</th>
-                                                    <th style={{ width: "10%" }}>택배사</th>
-                                                    <th style={{ width: "10%" }}>주문상태</th>
-                                                    <th style={{ width: "15%" }}>주문일자</th>
+                                                    <th style={{ width: "auto" }}>주문번호</th>
+                                                    <th style={{ width: "20%" }}>상품명</th>
+                                                    <th style={{ width: "auto" }}>최초 출고일자</th>
+                                                    <th style={{ width: "auto" }}>최초 송장번호</th>
+                                                    <th style={{ width: "auto" }}>택배사</th>
+                                                    <th style={{ width: "auto" }}>주문상태</th>
+                                                    <th style={{ width: "auto" }}>주문일자</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -179,7 +179,7 @@ export default function ShippingList() {
                                                             <td className={table.title_cell}>
                                                                 <span className={table.title_cell}>{myShipping.shippingProductName}</span> 포함 총 {myShipping.itemCount} 건
                                                             </td>
-                                                            <td>{myShipping.firstShipDate}</td>
+                                                            <td>{myShipping.firstShipDate?.substring(0, 10)}</td>
                                                             <td>{myShipping.trackingNo}</td>
                                                             <td>{myShipping.postComp}</td>
                                                             <td>{myShipping.orderStatus}</td>

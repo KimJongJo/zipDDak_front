@@ -15,14 +15,14 @@ import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 
 export default function ProductRegist() {
     //탭 타이틀 설정
     const pageTitle = usePageTitle("상품관리 > 상품 등록");
     const navigate = useNavigate();
     const [token, setToken] = useAtom(tokenAtom);
-    const [user, setUser] = useAtom(userAtom);
+    const [user] = useAtom(userAtom);
 
     //상품명 입력
     const [productName, setProductName] = useState("");
@@ -116,21 +116,29 @@ export default function ProductRegist() {
         address: "",
         detailAddress: "",
     });
-    //상품등록 화면 열릴 때 주소 API 호출
-    // useEffect(() => {
-    //     myAxios()
-    //         .get("/seller/product/userInfo")
-    //         .then((res) => {
-    //             const data = res.data;
 
-    //             setPickupData({
-    //                 zipcode: data.zipcode ?? "",
-    //                 address: data.address ?? "",
-    //                 detailAddress: data.detailAddress ?? "",
-    //             });
-    //         })
-    //         .catch(console.error);
-    // }, []);
+    //배송비, 픽업방법 탭 주소지 세팅
+    useEffect(() => {
+        user.username &&
+            myAxios(token, setToken)
+                .get("/seller/mypage/myProfile?sellerId=" + user.username)
+                .then((res) => {
+                    const sellerData = res.data;
+                    console.log("sellerData : " + sellerData);
+
+                    setDeliveryData({
+                        postType: "bundle",
+                        shippingFee: sellerData.basicPostCharge ?? "",
+                    });
+
+                    setPickupData({
+                        zipcode: sellerData.pickupZonecode ?? "",
+                        address: sellerData.pickupAddr1 ?? "",
+                        detailAddress: sellerData.pickupAddr2 ?? "",
+                    });
+                })
+                .catch(console.error);
+    }, [user]);
 
     //상품 공개 유무
     const [visible, setVisible] = useState(0); // hide = 0, open = 1
@@ -394,6 +402,7 @@ export default function ProductRegist() {
                                         <Input
                                             className=" unit"
                                             value={salePrice}
+                                            placeholder="실제 판매하실 가격을 입력하세요"
                                             onChange={(e) => {
                                                 handleSalePrice(e.target.value);
                                             }}
@@ -412,6 +421,7 @@ export default function ProductRegist() {
                                         <Input
                                             className=" unit"
                                             value={discountRate}
+                                            placeholder="할인율을 입력하세요"
                                             onChange={(e) => {
                                                 handleDiscountRate(e.target.value);
                                             }}
