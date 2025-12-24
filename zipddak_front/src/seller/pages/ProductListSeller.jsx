@@ -159,6 +159,11 @@ export default function ProductList() {
             .catch((err) => console.log(err));
     };
 
+    // 최초 1회 로딩
+    // useEffect(() => {
+    //     user.username && submit(1);
+    // }, [user]);
+
     // 필터 변경 시 자동 submit
     useEffect(() => {
         user.username && submit(1);

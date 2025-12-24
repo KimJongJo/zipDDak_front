@@ -297,7 +297,8 @@ export default function SignExpert() {
                     if (res.data == true) {
                         console.log(res);
                         setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.");
-                        navigate(`/login`);
+                        
+
                     } else {
                         setMessage("전문가 회원가입 실패");
                     }
@@ -321,7 +322,7 @@ export default function SignExpert() {
                     <a href="/zipddak/main" >
                     <img src="/zipddak_smile.png" style={{width:"150px"}}/>
                     </a>
-                    <div className="title">전문가 회원가입</div>
+                    <div className="underLogo">전문가 회원가입</div>
 
                     <div className="tabs" id="tabs">
                         <div className={`tab_nav tab1 ${activeTab === 1 ? "active" : ""}`} onClick={() => handleTab(1)}>
@@ -337,6 +338,7 @@ export default function SignExpert() {
                         <div className="tab1 active">
                             <div className="title2">어떤 전문가로 활동하실 수 있나요?</div>
 
+                            {/* <div className="row-cm"></div> */}
                             <div className="experts_category">
                                 <FormGroup check>
                                     <Label check>
@@ -696,10 +698,12 @@ export default function SignExpert() {
                     <div className="loginFooter"></div>
                 </div>
                 <Modal isOpen={modal}>
-                    <ModalHeader>회원가입</ModalHeader>
+                    <ModalHeader>전문가 회원가입</ModalHeader>
                     <ModalBody>{message}</ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={() => setModal(false)}>
+                        <Button color="primary" onClick={() => 
+                        {setModal(false); 
+                            navigate(`/login`);}}>
                             확인
                         </Button>
                     </ModalFooter>
@@ -711,6 +715,8 @@ export default function SignExpert() {
                     <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
                 </AddrModal>
             )}
+
+            
         </>
     );
 }

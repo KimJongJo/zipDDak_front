@@ -216,7 +216,7 @@ export default function SignUser() {
                     <a href="/zipddak/main" >
                     <img src="/zipddak_smile.png" style={{width:"150px"}}/>
                     </a>
-                    <div className="title">회원가입</div>
+                    <div className="title"></div>
 
                     <div className="sns_login">
                         <div className="sns_top">
