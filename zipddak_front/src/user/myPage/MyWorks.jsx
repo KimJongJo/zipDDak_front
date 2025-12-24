@@ -121,7 +121,7 @@ export default function MyWorks() {
                                     }}
                                 >
                                     <td style={{ textAlign: "left", fontSize: "13px" }}>
-                                        <p style={{ fontWeight: "600", fontSize: "14px" }}>{work.categoryName}</p>
+                                        <p style={{ fontWeight: "600", fontSize: "14px" }}>{work.categoryName ? work.categoryName : "시공견적컨설팅"}</p>
                                         <p style={{ margin: "6px 0" }}>{work.location}</p>
                                         <p>
                                             {work.budget?.toLocaleString()}원 · {work.preferredDate}

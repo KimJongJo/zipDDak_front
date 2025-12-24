@@ -213,8 +213,23 @@ export default function ProfileForm() {
     const modifyExpert = () => {
         const formData = new FormData();
 
+        if (expert.introduction === "null") {
+            alert("한 줄 소개를 입력해주세요");
+            return;
+        }
+
         if (expert.mainServiceIdx === null) {
             alert("대표 서비스를 선택해주세요");
+            return;
+        }
+
+        if (providedServices.length === 0) {
+            alert("제공 서비스를 선택해주세요");
+            return;
+        }
+
+        if (expert.providedServiceDesc === "null") {
+            alert("서비스 상세설명을 입력해주세요");
             return;
         }
 

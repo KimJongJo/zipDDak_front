@@ -160,17 +160,9 @@ export default function ProductList() {
     };
 
     // 최초 1회 로딩
-<<<<<<< HEAD
     // useEffect(() => {
     //     user.username && submit(1);
     // }, [user]);
-=======
-    useEffect(() => {
-        if (!user) return;
-
-        submit(1);
-    }, [user]);
->>>>>>> main
 
     // 필터 변경 시 자동 submit
     useEffect(() => {
