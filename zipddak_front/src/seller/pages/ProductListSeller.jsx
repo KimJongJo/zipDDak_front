@@ -28,17 +28,17 @@ export default function ProductList() {
     useEffect(() => {
         if (!user) return;
 
-        myAxios(token, setToken)
-            // .get(`/seller/product/categories?sellerId=${sellerId}`)
-            .get(`/product/categories?sellerId=${user.username}`)
-            .then((res) => {
-                setCategories(res.data); // 필터에 카테고리명 매핑
+        user.username &&
+            myAxios(token, setToken)
+                .get(`/seller/product/categories?sellerId=${user.username}`)
+                .then((res) => {
+                    setCategories(res.data); // 필터에 카테고리명 매핑
 
-                // categories를 이용한 categoryMap 생성
-                const map = Object.fromEntries(res.data.map((c) => [c.categoryIdx, c.name]));
-                setCategoryMap(map);
-            })
-            .catch((err) => console.error(err));
+                    // categories를 이용한 categoryMap 생성
+                    const map = Object.fromEntries(res.data.map((c) => [c.categoryIdx, c.name]));
+                    setCategoryMap(map);
+                })
+                .catch((err) => console.error(err));
     }, [user]);
 
     // 필터 상태값
@@ -49,9 +49,9 @@ export default function ProductList() {
     const fetchFilteredProducts = (page = 1) => {
         const category = selectedCategory.join(",");
         const status = selectedStatus.join(",");
-        console.log("상품리스트 " + user.username);
+
         myAxios(token, setToken)
-            .get("/product/myProductList", {
+            .get("/seller/product/myProductList", {
                 params: {
                     sellerId: user.username,
                     page,
@@ -133,7 +133,7 @@ export default function ProductList() {
         if (selectedCategory.length > 0) params.append("category", selectedCategory.join(","));
         if (keyword) params.append("keyword", keyword);
 
-        const productListUrl = `/product/myProductList?${params.toString()}`;
+        const productListUrl = `/seller/product/myProductList?${params.toString()}`;
         myAxios(token, setToken)
             .get(productListUrl)
             .then((res) => {
@@ -160,16 +160,22 @@ export default function ProductList() {
     };
 
     // 최초 1회 로딩
+<<<<<<< HEAD
+    // useEffect(() => {
+    //     user.username && submit(1);
+    // }, [user]);
+=======
     useEffect(() => {
         if (!user) return;
 
         submit(1);
     }, [user]);
+>>>>>>> main
 
     // 필터 변경 시 자동 submit
     useEffect(() => {
-        submit(1);
-    }, [selectedCategory, selectedStatus]);
+        user.username && submit(1);
+    }, [selectedCategory, selectedStatus, user]);
     return (
         <>
             {/* 페이지 탭 타이틀 */}

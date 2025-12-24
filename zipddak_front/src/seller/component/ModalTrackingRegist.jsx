@@ -3,9 +3,12 @@ import { useState } from "react";
 import { myAxios } from "../../config.jsx";
 import modal from "../css/modal.module.css";
 
-export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModalOpen, selectedItems, targetItemIdx, orderIdx, refresh, resetChecked, registType }) {
+export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModalOpen, selectedItems, checkbox, targetItemIdx, orderIdx, refresh, registType }) {
     const [postComp, setPostComp] = useState("");
     const [trackingNumber, setTrackingNumber] = useState("");
+
+    //선택된 아이템 계산
+    const resolvedSelectedItems = selectedItems ?? checkbox?.getSelected?.() ?? [];
 
     const handleSave = async () => {
         try {
@@ -14,10 +17,13 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
             if (targetItemIdx) {
                 // 드롭다운 단일 처리
                 targetItems = [targetItemIdx];
+            } else if (resolvedSelectedItems.length > 0) {
+                //체크박스 다중 처리
+                targetItems = resolvedSelectedItems;
             } else {
-                // 체크박스 다중 처리
-                if (!selectedItems?.length) return alert("선택된 상품이 없습니다.");
-                targetItems = selectedItems;
+                //아무것도 없으면 return
+                alert("처리할 상품을 선택해주세요.");
+                return;
             }
 
             // → targetItems 로 API 호출
@@ -33,8 +39,10 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
                     if (res.data.success === true) {
                         alert(res.data.message);
                         setTrackingModalOpen(false); //모달 닫기
-                        resetChecked(); //체크박스 초기화
-                        if (refresh) refresh(); // 새로고침
+                        //checkbox 기반 화면이면 checkbox reset
+                        checkbox?.resetChecked?.();
+
+                        refresh?.(); // 새로고침
                     } else {
                         alert(res.data.message);
                     }
@@ -52,7 +60,7 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
             if (err.response && err.response.data) {
                 alert(err.response.data.message); // 예외 메시지 표시
             } else {
-                alert("알 수 없는 오류 발생");
+                alert("처리실패");
             }
         }
     };
@@ -65,7 +73,7 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
                 </ModalHeader>
                 <ModalBody className={[modal.modalBody, modal.trackingModalBody].join(" ")}>
                     <div className={modal.trackingModalContent}>
-                        <p>선택된 상품 {selectedItems?.length || 1}개를 출고 처리하시겠습니까?</p>
+                        <p>선택된 상품 {targetItemIdx ? 1 : resolvedSelectedItems.length}개를 출고 처리하시겠습니까?</p>
                         <div className={modal.descTrackingModalColumn}>
                             <p>상품 발송 시 운송장번호를 등록해주세요.</p>
                             <p>

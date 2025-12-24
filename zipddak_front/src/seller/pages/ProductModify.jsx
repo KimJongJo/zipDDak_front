@@ -19,15 +19,15 @@ import { Form, FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 
 export default function ProductModify() {
     const pageTitle = usePageTitle("상품관리 > 상품 상세"); //탭 타이틀 설정
     const navigate = useNavigate();
     const { productIdx } = useParams();
-    const [user, setUser] = useAtom(userAtom);
+    const [user] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //경고 모달 상태
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //상품 삭제 모달 상태
 
     // -----------------------------
     // 상품 정보 state
@@ -81,7 +81,7 @@ export default function ProductModify() {
     // 카테고리 세팅
     useEffect(() => {
         myAxios(token, setToken)
-            .get("/product/categories/all")
+            .get("/seller/product/categories/all")
             .then((res) => res.data)
             .then((data) => setCategories(data))
             .catch((err) => console.error("카테고리 로드 실패", err));
@@ -164,114 +164,115 @@ export default function ProductModify() {
         params.append("sellerId", user.username);
         params.append("num", productIdx);
 
-        const productDetailUrl = `/product/myProductDetail?${params.toString()}`;
+        const productDetailUrl = `/seller/product/myProductDetail?${params.toString()}`;
 
-        myAxios(token, setToken)
-            .get(productDetailUrl)
-            .then((res) => {
-                const pdInfo = res.data;
-                console.log(pdInfo);
+        user.username &&
+            myAxios(token, setToken)
+                .get(productDetailUrl)
+                .then((res) => {
+                    const pdInfo = res.data;
+                    console.log(pdInfo);
 
-                // 상품명
-                setProductName(pdInfo.name);
+                    // 상품명
+                    setProductName(pdInfo.name);
 
-                // 기존 썸네일 이미지
-                setOldThumb({
-                    filename: pdInfo.thumbnailFileRename,
-                    idx: pdInfo.thumbnailFileIdx,
-                });
-                // 기존 추가 이미지
-                const addImages = [];
-                for (let i = 1; i <= 5; i++) {
-                    const filename = pdInfo[`image${i}FileRename`];
-                    const idx = pdInfo[`image${i}FileIdx`];
+                    // 기존 썸네일 이미지
+                    setOldThumb({
+                        filename: pdInfo.thumbnailFileRename,
+                        idx: pdInfo.thumbnailFileIdx,
+                    });
+                    // 기존 추가 이미지
+                    const addImages = [];
+                    for (let i = 1; i <= 5; i++) {
+                        const filename = pdInfo[`image${i}FileRename`];
+                        const idx = pdInfo[`image${i}FileIdx`];
 
-                    if (filename && idx) {
-                        addImages.push({ filename, idx });
-                    }
-                }
-                setOldAddImages(addImages);
-
-                // 기존 상세 이미지
-                const detailImages = [];
-                for (let i = 1; i <= 2; i++) {
-                    const filename = pdInfo[`detail${i}FileRename`];
-                    const idx = pdInfo[`detail${i}FileIdx`];
-
-                    if (filename && idx) {
-                        detailImages.push({ filename, idx });
-                    }
-                }
-                setOldDetailImages(detailImages);
-
-                //카테고리
-                setSelectedCategory(pdInfo.categoryIdx);
-                //소분류 있으면 함꼐 세팅
-                setSelectedSubCategory(pdInfo.subCategoryIdx);
-
-                //가격정보
-                initPriceData({
-                    price: pdInfo.price,
-                    salePrice: pdInfo.salePrice,
-                    discountRate: pdInfo.discount,
-                });
-
-                //옵션
-                if (pdInfo.optionYn == 1 && Array.isArray(pdInfo.pdOptions)) {
-                    const grouped = [];
-                    pdInfo.pdOptions.forEach((opt) => {
-                        let target = grouped.find((o) => o.optionName === opt.name);
-
-                        if (!target) {
-                            target = {
-                                optionName: opt.name,
-                                values: [],
-                            };
-                            grouped.push(target);
+                        if (filename && idx) {
+                            addImages.push({ filename, idx });
                         }
+                    }
+                    setOldAddImages(addImages);
 
-                        target.values.push({
-                            value: opt.value,
-                            price: String(opt.price ?? ""),
+                    // 기존 상세 이미지
+                    const detailImages = [];
+                    for (let i = 1; i <= 2; i++) {
+                        const filename = pdInfo[`detail${i}FileRename`];
+                        const idx = pdInfo[`detail${i}FileIdx`];
+
+                        if (filename && idx) {
+                            detailImages.push({ filename, idx });
+                        }
+                    }
+                    setOldDetailImages(detailImages);
+
+                    //카테고리
+                    setSelectedCategory(pdInfo.categoryIdx);
+                    //소분류 있으면 함꼐 세팅
+                    setSelectedSubCategory(pdInfo.subCategoryIdx);
+
+                    //가격정보
+                    initPriceData({
+                        price: pdInfo.price,
+                        salePrice: pdInfo.salePrice,
+                        discountRate: pdInfo.discount,
+                    });
+
+                    //옵션
+                    if (pdInfo.optionYn == 1 && Array.isArray(pdInfo.pdOptions)) {
+                        const grouped = [];
+                        pdInfo.pdOptions.forEach((opt) => {
+                            let target = grouped.find((o) => o.optionName === opt.name);
+
+                            if (!target) {
+                                target = {
+                                    optionName: opt.name,
+                                    values: [],
+                                };
+                                grouped.push(target);
+                            }
+
+                            target.values.push({
+                                value: opt.value,
+                                price: String(opt.price ?? ""),
+                            });
                         });
-                    });
-                    console.log("변환된 옵션", grouped);
-                    setOptions(grouped);
-                }
+                        console.log("변환된 옵션", grouped);
+                        setOptions(grouped);
+                    }
 
-                // 배송
-                const isPost = pdInfo.postYn === true;
-                const isPickup = pdInfo.pickupYn === true;
+                    // 배송
+                    const isPost = pdInfo.postYn === true;
+                    const isPickup = pdInfo.pickupYn === true;
 
-                setPostOK(isPost ? "Y" : "N");
-                if (isPost) {
-                    setDeliveryData({
-                        postType: pdInfo.postType,
-                        shippingFee: pdInfo.postCharge,
-                    });
-                }
+                    setPostOK(isPost ? "Y" : "N");
+                    if (isPost) {
+                        setDeliveryData({
+                            postType: pdInfo.postType,
+                            shippingFee: pdInfo.postCharge,
+                        });
+                    }
 
-                setPickupOK(isPickup ? "Y" : "N");
-                if (isPickup) {
-                    setPickupData({
-                        zipcode: pdInfo.zonecode,
-                        address: pdInfo.pickupAddr1,
-                        detailAddress: pdInfo.pickupAddr2,
-                    });
-                }
+                    setPickupOK(isPickup ? "Y" : "N");
+                    if (isPickup) {
+                        setPickupData({
+                            zipcode: pdInfo.zonecode,
+                            address: pdInfo.pickupAddr1,
+                            detailAddress: pdInfo.pickupAddr2,
+                        });
+                    }
 
-                //상품 공개유무
-                const isVisible = pdInfo.visibleYn === true;
-                setVisible(isVisible ? 1 : 0);
-            })
-            .catch((err) => {
-                console.log(err.message);
-                console.log("error data : " + err.response.data.message);
-                if (err.response && err.response.data) {
-                    alert("알 수 없는 오류가 발생했습니다. 상품 상세내용 확인 불가");
-                    navigate(`/seller/productList`); //상품 리스트로 이동
-                }
-            });
+                    //상품 공개유무
+                    const isVisible = pdInfo.visibleYn === true;
+                    setVisible(isVisible ? 1 : 0);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    console.log("error data : " + err.response.data.message);
+                    if (err.response && err.response.data) {
+                        alert("알 수 없는 오류가 발생했습니다. 상품 상세내용 확인 불가");
+                        navigate(`/seller/productList`); //상품 리스트로 이동
+                    }
+                });
     }, [productIdx, user]);
 
     // -----------------------------
@@ -344,7 +345,7 @@ export default function ProductModify() {
             formData.append("num", productIdx);
 
             // 8) 서버 전송
-            const productModifyUrl = `/product/myProductModify`;
+            const productModifyUrl = `/seller/product/myProductModify`;
             myAxios(token, setToken)
                 .post(productModifyUrl, formData)
                 .then((res) => {

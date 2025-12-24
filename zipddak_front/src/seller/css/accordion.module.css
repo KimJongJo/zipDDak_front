@@ -24,6 +24,15 @@
     background-color: rgba(255, 87, 51, 0.5);
 }
 
+.acco_body {
+    width: inherit;
+    padding: 15px 32px 32px;
+    display: flex;
+    flex-direction: column;
+    /* align-items: flex-start; */
+    gap: 15px;
+}
+
 .accordionToggleBox {
     display: flex;
     flex-direction: column;
