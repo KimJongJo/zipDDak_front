@@ -281,7 +281,7 @@ export default function FindExpert() {
     };
 
     useEffect(() => {
-        if (!user.username) return;
+        if (!user) return;
         //
         if (user.username === "") {
             setModalMessage("로그인 후 견적요청을 할 수 있습니다.");
