@@ -1,6 +1,6 @@
 import "../css/ToolDetail.css";
 import { Heart, Share2, CircleAlert, MessageCircle, Dot, ArrowRight, ArrowLeft, Package, Rocket, UserRound } from "lucide-react";
-import { Button, Pagination, PaginationItem, PaginationLink , Modal, ModalHeader} from "reactstrap";
+import { Button, Pagination, PaginationItem, PaginationLink, Modal, ModalHeader, Input } from "reactstrap";
 import { Tool } from "../../main/component/Tool";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
@@ -12,7 +12,7 @@ export default function ToolDetail() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const { toolIdx } = useParams();
-   
+
     const [tool, setTool] = useState(null);
     const navigate = useNavigate();
 
@@ -26,6 +26,11 @@ export default function ToolDetail() {
 
     const mapContainer = useRef(null);
     const map = useRef(null);
+
+    //스크롤 탑
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
 
     //공구 상세
     const getTool = () => {
@@ -66,7 +71,7 @@ export default function ToolDetail() {
             getTool();
             favoriteTool(toolIdx);
         }
-    }, [toolIdx, token,user]);
+    }, [toolIdx, token, user]);
 
     //유저 주소 자르기
     const userAddressString = user?.addr1 || "";
@@ -131,7 +136,7 @@ export default function ToolDetail() {
         }
     }, [activeOrder, activeTab]);
 
-    // 하트 공구
+    // 관심 표시
     const [toolFavorite, setToolFavorite] = useState(false);
 
     const favoriteTool = (idx) => {
@@ -153,8 +158,7 @@ export default function ToolDetail() {
     };
 
     // 관심 토글
-
-    const favoriteToggle = async (toolIdx) => {
+    const toggleFavoriteTool = async (toolIdx) => {
         if (user.username === "") {
             navigate("/zipddak/login");
             return;
@@ -178,10 +182,10 @@ export default function ToolDetail() {
     };
 
     //tool신고
-     const reportCommunity = () => {
-        myAxios(token, setToken).post(`${baseUrl}/user/reportCommunity`, {
+    const reportTool = () => {
+        myAxios(token, setToken).post(`${baseUrl}/user/reportTool`, {
             username: user.username,
-            communityId: communityDetail.communityId,
+            toolIdx: tool.toolIdx,
             reason: reportReason,
         });
     };
@@ -190,68 +194,68 @@ export default function ToolDetail() {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {
-    const url = window.location.href; // 현재 페이지 URL
-    navigator.clipboard.writeText(url)
-      .then(() => {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // 2초 후 상태 초기화
-      })
-      .catch(err => {
-        console.error("복사 실패:", err);
-      });
+        const url = window.location.href; // 현재 페이지 URL
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000); // 2초 후 상태 초기화
+            })
+            .catch(err => {
+                console.error("복사 실패:", err);
+            });
     };
 
     //tool지도
     useEffect(() => {
-    if (!window.kakao) return;
+        if (!window.kakao || !tool) return;
 
-    const geocoder = new window.kakao.maps.services.Geocoder();
+        const geocoder = new window.kakao.maps.services.Geocoder();
 
-    // 주소 → 좌표 변환
-    geocoder.addressSearch(tool.tradeAddr1, (result, status) => {
-      if (status !== window.kakao.maps.services.Status.OK) return;
+        // 주소 → 좌표 변환
+        geocoder.addressSearch(tool.tradeAddr1, (result, status) => {
+            if (status !== window.kakao.maps.services.Status.OK) return;
 
-      const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+            const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
-      // 지도 생성
-      map.current = new window.kakao.maps.Map(mapContainer.current, {
-        center: coords,
-        level: 1,
-      });
+            // 지도 생성
+            map.current = new window.kakao.maps.Map(mapContainer.current, {
+                center: coords,
+                level: 1,
+            });
 
-      // 마커 이미지 설정
-      const imageSrc =
-          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
-        imageSize = new window.kakao.maps.Size(64, 69),
-        imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+            // 마커 이미지 설정
+            const imageSrc =
+                "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                imageSize = new window.kakao.maps.Size(64, 69),
+                imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 
-      const markerImage = new window.kakao.maps.MarkerImage(
-        imageSrc,
-        imageSize,
-        imageOption
-      );
+            const markerImage = new window.kakao.maps.MarkerImage(
+                imageSrc,
+                imageSize,
+                imageOption
+            );
 
-      const marker = new window.kakao.maps.Marker({
-        position: coords,
-        image: markerImage,
-      });
-      marker.setMap(map.current);
+            const marker = new window.kakao.maps.Marker({
+                position: coords,
+                image: markerImage,
+            });
+            marker.setMap(map.current);
 
-      // 커스텀 오버레이
-      const content = `<div class="customoverlay">
+            // 커스텀 오버레이
+            const content = `<div class="customoverlay">
         <a href="https://map.kakao.com/link/map/${result[0].y},${result[0].x}" target="_blank">
-          <span class="title">${tool.tradeAddr1}</span>
+          <span class="title"></span>
         </a>
       </div>`;
 
-      const customOverlay = new window.kakao.maps.CustomOverlay({
-        map: map.current,
-        position: coords,
-        content,
-        yAnchor: 1,
-      });
-    });
-  }, [tool]);
+            const customOverlay = new window.kakao.maps.CustomOverlay({
+                map: map.current,
+                position: coords,
+                content,
+                yAnchor: 1,
+            });
+        });
+    }, [tool]);
 
 
 
@@ -265,14 +269,17 @@ export default function ToolDetail() {
                 <div className="d-info">
                     <div className="d-top">
                         <div className="top-icons">
-                            <button onClick={() => favoriteToggle(tool.toolIdx)} style={{ cursor: "pointer", backgroundColor: "transparent", border: "none" }}>
+                            {copied && <div style={{ marginTop: "8px", color: "gray" }}>URL 복사됨!</div>}
+                            <Share2 onClick={handleCopy} style={{ cursor: "pointer" }} />
+                            
+                            <button onClick={() => toggleFavoriteTool(tool.toolIdx)} style={{ cursor: "pointer", backgroundColor: "transparent", border: "none" }}>
                                 {toolFavorite ? <Heart fill="#ff5833" stroke="#ff5833" /> : <Heart stroke="#999" />}
                             </button>
-                            <Share2 onClick={handleCopy} style={{cursor:"pointer"}}/>
-                             {copied && <div style={{ marginTop: "8px", color: "green" }}>URL 복사됨!</div>}
-                            <CircleAlert onClick={toggle} style={{cursor:"pointer"}}/>
+                            
+                            <CircleAlert onClick={toggle} style={{ cursor: "pointer" }} />
                         </div>
                     </div>
+
                     <div className="d-info-box">
                         <div className="d-tool-image">
                             <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
@@ -293,17 +300,6 @@ export default function ToolDetail() {
                                     <span className="ca">{tool.categoryName}</span>
                                     <span className="na">{tool.name}</span>
 
-                                    {/* <div className="d-ectInfo">
-                                        <div className="ic">
-                                            <Heart size={18} />
-                                            {tool.favorite}
-                                        </div>
-                                        <Dot />
-                                        <div className="ic">
-                                            <MessageCircle size={18} />
-                                            {tool.chatCnt}
-                                        </div>
-                                    </div> */}
 
                                     <div className="d-price">
                                         {tool.freeRental ? (
@@ -333,7 +329,21 @@ export default function ToolDetail() {
                                     </div>
                                 </div>
 
-                                <div className="short-info">{tool.contnet}</div>
+                                <div className="short-info">
+
+                                    <div className="d-ectInfo" style={{ justifyContent: "flex-start" }}>
+                                        {/* <div className="ic">
+                                            <Heart size={18} />
+                                            {tool.favoriteCount}
+                                        </div> */}
+                                        <Dot />
+                                        <div className="ic">
+                                            {/* <MessageCircle size={18} /> */}
+                                            <span>이 공구의 대여 횟수</span>
+                                            {tool.rentalCount}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="rentalBtn">
@@ -386,7 +396,7 @@ export default function ToolDetail() {
 
                     {user.username == tool.owner && (
                         <div className="row-cm editTool">
-                            <div className="createdate" onClick={()=>navigate(`/zipddak/tool/modify/${toolIdx}`)}>수정</div>
+                            <div className="createdate" onClick={() => navigate(`/zipddak/tool/modify/${toolIdx}`)}>수정</div>
                             <div className="createdate" onClick={deleteTool}>
                                 삭제
                             </div>
@@ -397,38 +407,43 @@ export default function ToolDetail() {
                 {activeTab == tab1 && (
                     <div className="d-tab">
                         {images.length > 0 &&
-                        <>
-                        <div className="de-label">상세이미지</div>
+                            <>
+                                <div className="de-label">상세이미지</div>
 
-                        <div className="detailImage">
-                            {images.length > 0 &&
-                                images.map((imgFile, index) => (
-                                    <div className="dimgs" key={index}>
-                                        <img src={`http://localhost:8080/imageView?type=tool&filename=${imgFile}`} alt={`공구`} />
-                                    </div>
-                                ))}
-                        </div>
-                               
-                        <div className="line"></div>
-                        </>
-                        } 
+                                <div className="detailImage">
+                                    {images.length > 0 &&
+                                        images.map((imgFile, index) => (
+                                            <div className="dimgs" key={index}>
+                                                <img src={`http://localhost:8080/imageView?type=tool&filename=${imgFile}`} alt={`공구`} />
+                                            </div>
+                                        ))}
+                                </div>
+
+                                <div className="line"></div>
+                            </>
+                        }
                         <div className="de-two">
                             <div className="de-three">
                                 <div className="de-label">상세설명</div>
-                                <div>{tool.content}</div>
+                                <div className="de-content-box">{tool.content}</div>
                             </div>
-                            <div className="de-favlocation">
-                                <div className="de-map">
-                                     <div
-              ref={mapContainer}
-              style={{ width: "100%", height: "100%" }}
-            />
+                            {tool.tradeAddr1 &&
+                                <div className="de-favlocation">
+                                    <div className="de-map">
+                                        <div
+                                            ref={mapContainer}
+                                            style={{ width: "100%", height: "100%" }}
+                                        />
+                                    </div>
+
+                                    <div className="mapinfo">
+                                        <span className="map-label">거래 희망장소</span>
+                                        <span>{tool.tradeAddr1}</span>
+                                        <div>{tool.tradeAddr2}</div>
+                                    </div>
+
                                 </div>
-                                <div className="mapinfo">
-                                    <span className="map-label">거래 희망장소</span>
-                                    <span>{}</span>
-                                </div>
-                            </div>
+                            }
                         </div>
 
                         <div className="line"></div>
@@ -439,111 +454,111 @@ export default function ToolDetail() {
                     </div>
                 )}
 
-                
-                    <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
-                        <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
-                            <span className="ask-title">신고하기</span>
-                        </ModalHeader>
-                        <div className="ask-modal-body">
-                            <div>
-                                <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_ABUSE "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_ABUSE "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_ABUSE " className="font-14">
-                                            욕설 / 비하
-                                        </label>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_AD "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_AD "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_AD " className="font-14">
-                                            광고 / 홍보
-                                        </label>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_ILLEGAL "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_ILLEGAL "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_ILLEGAL " className="font-14">
-                                            음란 / 불법 콘텐츠
-                                        </label>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_POLITICAL "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_POLITICAL "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_POLITICAL " className="font-14">
-                                            정치적 / 사회적 논쟁 유도
-                                        </label>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_PRIVACY "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_PRIVACY "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_PRIVACY " className="font-14">
-                                            개인정보 유출
-                                        </label>
-                                    </div>
-                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                        <Input
-                                            value="COMMENT_REPORT_OTHER "
-                                            onChange={(e) => setReportReason(e.target.value)}
-                                            type="radio"
-                                            name="reason"
-                                            id="COMMENT_REPORT_OTHER "
-                                            style={{ marginRight: "20px" }}
-                                        />{" "}
-                                        <label htmlFor="COMMENT_REPORT_OTHER " className="font-14">
-                                            기타 부적절한 내용
-                                        </label>
-                                    </div>
+
+                <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
+                    <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
+                        <span className="ask-title">신고하기</span>
+                    </ModalHeader>
+                    <div className="ask-modal-body">
+                        <div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginBottom: "20px" }}>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_ABUSE "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_ABUSE "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_ABUSE " className="font-14">
+                                        욕설 / 비하
+                                    </label>
                                 </div>
-                                <div className="ask-modal-body-button-div">
-                                    <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
-                                        취소
-                                    </button>
-                                    <button
-                                        className="ask-modal-write ask-modal-button"
-                                        type="button"
-                                        onClick={() => {
-                                            reportCommunity();
-                                            toggle();
-                                        }}
-                                    >
-                                        신고하기
-                                    </button>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_AD "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_AD "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_AD " className="font-14">
+                                        광고 / 홍보
+                                    </label>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_ILLEGAL "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_ILLEGAL "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_ILLEGAL " className="font-14">
+                                        음란 / 불법 콘텐츠
+                                    </label>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_POLITICAL "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_POLITICAL "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_POLITICAL " className="font-14">
+                                        정치적 / 사회적 논쟁 유도
+                                    </label>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_PRIVACY "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_PRIVACY "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_PRIVACY " className="font-14">
+                                        개인정보 유출
+                                    </label>
+                                </div>
+                                <div style={{ display: "flex", alignItems: "center" }}>
+                                    <Input
+                                        value="COMMENT_REPORT_OTHER "
+                                        onChange={(e) => setReportReason(e.target.value)}
+                                        type="radio"
+                                        name="reason"
+                                        id="COMMENT_REPORT_OTHER "
+                                        style={{ marginRight: "20px" }}
+                                    />{" "}
+                                    <label htmlFor="COMMENT_REPORT_OTHER " className="font-14">
+                                        기타 부적절한 내용
+                                    </label>
                                 </div>
                             </div>
+                            <div className="ask-modal-body-button-div">
+                                <button className="ask-modal-back ask-modal-button" type="button" onClick={toggle}>
+                                    취소
+                                </button>
+                                <button
+                                    className="ask-modal-write ask-modal-button"
+                                    type="button"
+                                    onClick={() => {
+
+                                        toggle();
+                                    }}
+                                >
+                                    신고하기
+                                </button>
+                            </div>
                         </div>
-                    </Modal>
+                    </div>
+                </Modal>
 
 
                 {/* ------------------------------------------------- */}

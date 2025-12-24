@@ -260,7 +260,7 @@ export default function MainSearch() {
                         <div className="title-box">
                             <div className="title-main-main">
                                 <MapPin size={24} />
-                                <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
+                                <span>공구대여</span>
                                 <span className="s-count">{toolLength}</span>
                             </div>
                             <div className="more" onClick={() => navigate(`/zipddak/tool`)}>

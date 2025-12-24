@@ -669,16 +669,19 @@ export default function RegistTool() {
                                     <Input type="text" name="tradeAddr2" placeholder="상세주소" onChange={ChangeInput} />
                                 </div> */}
                                 <div className="check-col">
-                                    <div className="location-box">
-                                        <input className="location" type="text" placeholder="지도에서 찾기"  readOnly></input>
+                                    <div className="location-box" style={{width:"400px"}}>
+                                        <input className="location" type="text" placeholder="지도에서 찾기" value={clickedAddress} readOnly
+                                        
+                                        ></input>
                                         <div className="">
                                             <Button className="primary-button mapPinI" onClick={() => {setIsMapOpen(true)}}>
                                                 <MapPinned size={20} />
                                             </Button>
                                         </div>
                                     </div>
-                                    <Input type="text" name="location" placeholder="" value={clickedAddress} readOnly />
+                                   
                                 </div>
+                                 <Input type="text" name="tradeAddr2" placeholder="추가 설명" maxLength={60} onChange={ChangeInput}/>
                             </div>
                         )}
 
@@ -802,7 +805,7 @@ export default function RegistTool() {
                         </div>
                     </div>
                     <div className="btn-col">
-                        <Button className="tertiary-button">작성취소</Button>
+                        <Button className="tertiary-button" onClick={()=>navigate(`/zipddak/tool`)}>작성취소</Button>
                         <Button className="primary-button" onClick={regist}>
                             작성완료
                         </Button>

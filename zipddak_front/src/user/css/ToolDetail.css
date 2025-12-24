@@ -346,3 +346,7 @@
 .toolDetailPage {
     margin: 40px 0;
 }
+
+.de-content-box {
+    min-height: 300px;
+}

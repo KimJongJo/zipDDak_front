@@ -284,7 +284,7 @@ export default function Main() {
                         <div className="title-box">
                             <div className="title-main-main">
                                 <MapPin size={24} />
-                                <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
+                                <span>공구대여</span>
                                 {/* <MapPin size={24} color='#FF5833'/> */}
                             </div>
                             <div className="more" onClick={() => navigate(`/zipddak/tool`)}>
