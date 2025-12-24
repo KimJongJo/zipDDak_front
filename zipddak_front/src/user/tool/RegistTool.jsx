@@ -387,13 +387,13 @@ export default function RegistTool() {
                 setMessage("공구 1일 대여 금액을 설정해주세요");
                 break;
 
-            case !submitTool.zonecode && !submitTool.tradeZonecode:
-                setMessage("거래방식을 선택해주세요");
-                break;
+            // case !submitTool.zonecode && !submitTool.tradeZonecode:
+            //     setMessage("거래방식을 선택해주세요");
+            //     break;
 
-            case !submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2:
-                setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
-                break;
+            // case !submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2:
+            //     setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
+            //     break;
 
             case submitTool.postRental && submitTool.postCharge == null:
                 setMessage("택배거래시 배송비를 설정해주세요");

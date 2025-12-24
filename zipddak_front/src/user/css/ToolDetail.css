@@ -292,10 +292,6 @@
     display: flex;
 }
 
-/* .de-two {
-    margin: 20px 0;
-} */
-
 .de-three {
     flex-direction: column;
 }
@@ -348,5 +344,6 @@
 }
 
 .de-content-box {
+    margin-right: 100px;
     min-height: 300px;
 }

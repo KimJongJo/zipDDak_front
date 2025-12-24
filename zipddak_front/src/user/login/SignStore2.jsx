@@ -459,7 +459,7 @@ export default function SignStore2() {
 
                         <div className="signStoreForm">
                             <div className="s_formtitle">
-                                <div className="s_tr">대표명</div>
+                                <div className="s_tr">대표자명</div>
                                 <span className="necc necc_stroe">*</span>
                             </div>
                             <div className="s_formCol">
@@ -468,7 +468,6 @@ export default function SignStore2() {
                                         <Input name="ceoName" placeholder="이름(실명) 입력" type="text" onChange={changeInput} />
                                     </div>
                                 </div>
-                                <div className="input_detail">사업자 등록증의 법인명 또는 상호명을 입력하세요</div>
                             </div>
                         </div>
 

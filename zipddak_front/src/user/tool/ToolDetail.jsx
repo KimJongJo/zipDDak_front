@@ -178,7 +178,6 @@ export default function ToolDetail() {
             username: user.username,
         });
 
-        onChanged();
     };
 
     //tool신고
@@ -313,7 +312,7 @@ export default function ToolDetail() {
                                         )}
                                     </div>
                                     <div className="d-price">
-                                        {tool.postCharge == 0 ? (
+                                        {tool.postCharge == null ? (
                                             <>
                                                 <Package />
                                                 <span className="dt orange">무료배송</span>
