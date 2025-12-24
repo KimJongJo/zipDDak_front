@@ -670,14 +670,14 @@ export default function RegistTool() {
                                 </div> */}
                                 <div className="check-col">
                                     <div className="location-box">
-                                        <input className="location" type="text" placeholder="지도에서 찾기"  value={clickedAddress} readOnly></input>
+                                        <input className="location" type="text" placeholder="지도에서 찾기"  readOnly></input>
                                         <div className="">
                                             <Button className="primary-button mapPinI" onClick={() => {setIsMapOpen(true)}}>
                                                 <MapPinned size={20} />
                                             </Button>
                                         </div>
                                     </div>
-                                    <Input type="text" name="location" placeholder="" readOnly />
+                                    <Input type="text" name="location" placeholder="" value={clickedAddress} readOnly />
                                 </div>
                             </div>
                         )}

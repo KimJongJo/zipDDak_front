@@ -13,7 +13,7 @@ export function Tool({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
     const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
@@ -28,9 +28,9 @@ export function Tool({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
             </div>
 
@@ -67,9 +67,9 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
                 {
                     tool.satus == "INABLE" &&
@@ -119,7 +119,7 @@ export function ToolL({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
                     {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
@@ -163,7 +163,7 @@ export function MapTool({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
                     {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>

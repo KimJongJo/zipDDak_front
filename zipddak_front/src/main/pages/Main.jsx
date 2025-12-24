@@ -102,29 +102,28 @@ export default function Main() {
             });
     };
 
-     // 관심 상품 토글
-    const toggleFavorite = async (productIdx) => {
-        if (user.username === "") {
-            navigate("/zipddak/login");
-            return;
-        }
-        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
-            productIdx,
-            username: user.username,
-        });
-
-        setProduct(prev =>
-    prev.map(t =>
-      t.productIdx === productIdx
-        ? { ...t, favorite: !t.favorite }
-        : t
-    )
-  );
-    };
-
+    //관심상품 토글
     useEffect(() => {
         productList();
     }, [ user.username,pCategory]);
+
+       const toggleFavorite = async (productIdx) => {
+        if (user.username === "") {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
+                productIdx: productIdx,
+                username: user.username,
+            });
+
+            setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     //공구 리스트
