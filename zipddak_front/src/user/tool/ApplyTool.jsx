@@ -96,7 +96,7 @@ export default function ApplyTool() {
         if (tool) {
             setRental((prev) => ({
                 ...prev,
-                toolIdx: tool.idx,
+                toolIdx: tool.toolIdx,
                 owner: tool.owner,
                 postCharge: tool.postCharge,
             }));
@@ -487,9 +487,9 @@ export default function ApplyTool() {
                                                 <div className="mapinfo">
                                                     <span className="map-label">거래 희망장소</span>
                                                     <span>{tool.tradeAddr1}</span>
+                                                     <div>{tool.tradeAddr2}</div>
                                                 </div>
-                                                <div>{tool.tradeAddr2}</div>
-
+                                               
                                             </div>
                                         }
                                     </div>

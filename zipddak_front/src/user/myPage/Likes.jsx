@@ -296,7 +296,7 @@ export default function Likes() {
                                 <div className="product-name">{product.productName}</div>
                                 <div>
                                     {product.discount !== 0 && <span className="sale">{product.discount}%</span>}
-                                    <span className="sale-price">{product.salePrice.toLocaleString()}</span>
+                                    <span className="sale-price"> {typeof product.price === "number" ? product.price.toLocaleString(): ""}</span>
                                 </div>
                                 <div>
                                     <i className="bi bi-star-fill star-icon"></i>
