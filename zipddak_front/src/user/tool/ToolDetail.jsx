@@ -13,7 +13,6 @@ export default function ToolDetail() {
     const [token, setToken] = useAtom(tokenAtom);
     const { toolIdx } = useParams();
 
-
     const [tool, setTool] = useState(null);
     const navigate = useNavigate();
 
@@ -22,8 +21,8 @@ export default function ToolDetail() {
 
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
-    const [deleteModal, setDeleteModal] = useState(false);
-    const deleteToggle = () => setDeleteModal(!deleteModal);
+    // const [deleteModal, setDeleteModal] = useState(false);
+    // const deleteToggle = () => setDeleteModal(!deleteModal);
 
     const mapContainer = useRef(null);
     const map = useRef(null);
@@ -72,7 +71,6 @@ export default function ToolDetail() {
             getTool();
             favoriteTool(toolIdx);
         }
-    }, [toolIdx, token, user]);
     }, [toolIdx, token, user]);
 
     //유저 주소 자르기
@@ -212,23 +210,13 @@ export default function ToolDetail() {
         if (!window.kakao || !tool) return;
 
         const geocoder = new window.kakao.maps.services.Geocoder();
-        const geocoder = new window.kakao.maps.services.Geocoder();
 
-        // 주소 → 좌표 변환
-        geocoder.addressSearch(tool.tradeAddr1, (result, status) => {
-            if (status !== window.kakao.maps.services.Status.OK) return;
         // 주소 → 좌표 변환
         geocoder.addressSearch(tool.tradeAddr1, (result, status) => {
             if (status !== window.kakao.maps.services.Status.OK) return;
 
             const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-            const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
 
-            // 지도 생성
-            map.current = new window.kakao.maps.Map(mapContainer.current, {
-                center: coords,
-                level: 1,
-            });
             // 지도 생성
             map.current = new window.kakao.maps.Map(mapContainer.current, {
                 center: coords,
@@ -252,14 +240,7 @@ export default function ToolDetail() {
                 image: markerImage,
             });
             marker.setMap(map.current);
-            const marker = new window.kakao.maps.Marker({
-                position: coords,
-                image: markerImage,
-            });
-            marker.setMap(map.current);
 
-            // 커스텀 오버레이
-            const content = `<div class="customoverlay">
             // 커스텀 오버레이
             const content = `<div class="customoverlay">
         <a href="https://map.kakao.com/link/map/${result[0].y},${result[0].x}" target="_blank">
@@ -473,7 +454,6 @@ export default function ToolDetail() {
                     </div>
                 )}
 
-
                 <Modal className="ask-modal-box" isOpen={modal} toggle={toggle}>
                     <ModalHeader style={{ border: "none", paddingBottom: "0" }} toggle={toggle}>
                         <span className="ask-title">신고하기</span>
@@ -568,7 +548,6 @@ export default function ToolDetail() {
                                     className="ask-modal-write ask-modal-button"
                                     type="button"
                                     onClick={() => {
-
                                         toggle();
                                     }}
                                 >
