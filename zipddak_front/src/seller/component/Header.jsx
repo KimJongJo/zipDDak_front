@@ -72,17 +72,15 @@ const Header = () => {
                     </ul>
                 </nav>
 
-                {user?.username && (
-                    <div className="user_info">
-                        {/* <div className="alarm_icon">
+                <div className="user_info">
+                    {/* <div className="alarm_icon">
                         <i className="bi bi-bell pointer"></i>
                     </div> */}
-                        <div className="user_icon pointer" onClick={handleUserInfoClick}>
-                            <img src="/userIcon.svg" />
-                            <i className="bi bi-chevron-down"></i>
-                        </div>
+                    <div className="user_icon pointer" onClick={handleUserInfoClick}>
+                        <img src="/userIcon.svg" />
+                        <i className="bi bi-chevron-down"></i>
                     </div>
-                )}
+                </div>
 
                 {user?.username && openUserInfo && <UserInfoBox pos={userinfoPos} userId={user.username} onClose={() => setOpenUserInfo(false)} />}
             </header>

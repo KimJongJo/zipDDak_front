@@ -12,8 +12,8 @@ import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
 import { myAxios } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
-import { FormGroup, Input, Label, Spinner } from "reactstrap";
+import { useAtom } from "jotai";
+import { Input, Label, Spinner } from "reactstrap";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
@@ -26,8 +26,23 @@ export default function OrderDetail() {
     const [items, setItems] = useState(null); //주문아이템 정보
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
-    const [user, setUser] = useAtom(userAtom);
+    const [openDropdown, setOpenDropdown] = useState(null); //처리아이콘 클릭시 드롭다운 오픈
+    const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 }); //처리아이콘 클릭시 드롭다운 위치
+    const [user] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+
+    //테이블 체크박스 상태
+    const {
+        checkedItems,
+
+        handleAllCheck,
+        handleItemCheck,
+
+        isAllChecked,
+        getSelected,
+        requireSelected,
+        resetChecked,
+    } = useSelectCheckbox();
 
     //orderDetail 데이터 불러오기
     const getMyOrderDetail = () => {
@@ -35,7 +50,7 @@ export default function OrderDetail() {
         params.append("sellerId", user.username);
         params.append("num", orderIdx);
 
-        const orderDetailUrl = `/order/myOrderDetail?${params.toString()}`;
+        const orderDetailUrl = `/seller/order/myOrderDetail?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(orderDetailUrl)
@@ -53,14 +68,19 @@ export default function OrderDetail() {
     //초기화면 로딩
     useEffect(() => {
         if (!user) return;
-
-        getMyOrderDetail();
+        user.username && getMyOrderDetail();
     }, [user]);
 
-    //처리아이콘 클릭시 드롭다운 오픈
-    const [openDropdown, setOpenDropdown] = useState(null);
-    const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 });
-    // 토글 로직 (중복 클릭 -> 닫힘)
+    // 데이터 로딩 전에는 렌더링 막기
+    if (!order) {
+        return (
+            <div style={{ textAlign: "center", padding: "350px" }}>
+                <Spinner style={{ color: "#ff5733" }}>Loading...</Spinner>
+            </div>
+        );
+    }
+
+    // 퀵처리 드롭박스 토글 로직 (중복 클릭 -> 닫힘)
     const toggleDropdown = (itemIdx) => {
         setOpenDropdown((prev) => (prev === itemIdx ? null : itemIdx));
     };
@@ -77,36 +97,14 @@ export default function OrderDetail() {
         toggleDropdown(itemIdx);
     };
 
-    //테이블 체크박스 상태
-    const {
-        allChecked,
-        checkedItems,
-
-        handleAllCheck,
-        handleItemCheck,
-
-        getSelected,
-        requireSelected,
-
-        resetChecked,
-    } = useSelectCheckbox();
-
-    // 데이터 로딩 전에는 렌더링 막기
-    if (!order) {
-        return (
-            <div style={{ textAlign: "center", padding: "350px" }}>
-                <Spinner style={{ color: "#ff5733" }}>Loading...</Spinner>
-            </div>
-        );
-    }
-
     //배송방법별로 테이블 섹션 나누기
     const bundleItems = items.filter((it) => it.postType == "bundle");
     const singleItems = items.filter((it) => it.postType == "single");
-
-    //주문상품 테이블에 번호 매기기
     const allItems = [...bundleItems, ...singleItems];
-    allItems.forEach((item, idx) => (item.rowNumber = idx + 1));
+
+    //처리완료된 상품 재처리 막기
+    const selectableItems = [...bundleItems, ...singleItems].filter((it) => !it.trackingNo && it.orderStatus !== "반품완료" && it.orderStatus !== "교환완료");
+    const selectableIdxs = selectableItems.map((it) => it.orderItemIdx);
 
     // 묶음 + 개별 합치기
     // 수량 합
@@ -241,14 +239,7 @@ export default function OrderDetail() {
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "auto" }}>
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={allChecked}
-                                                        onChange={(e) => {
-                                                            const allIds = [...bundleItems.map((it) => it.orderItemIdx), ...singleItems.map((it) => it.orderItemIdx)];
-                                                            handleAllCheck(allIds, e.target.checked);
-                                                        }}
-                                                    />
+                                                    <Input type="checkbox" checked={isAllChecked(selectableIdxs.length)} onChange={(e) => handleAllCheck(selectableIdxs, e.target.checked)} disabled={selectableIdxs.length === 0} />
                                                 </th>
                                                 <th style={{ width: "auto" }}>#</th>
                                                 <th style={{ width: "auto" }}>Img</th>
@@ -271,7 +262,7 @@ export default function OrderDetail() {
                                                         <td>
                                                             <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo || it.orderStatus === "반품완료"} />
                                                         </td>
-                                                        <td>{it.rowNumber}</td>
+                                                        <td>{idx + 1}</td>
                                                         <td style={{ padding: "0" }}>
                                                             <img src="/no_img.svg" style={{ width: "60px" }} />
                                                         </td>
@@ -285,7 +276,7 @@ export default function OrderDetail() {
                                                                 "옵션없음"
                                                             )}
                                                         </td>
-                                                        <td className="quantity_cell">{it.unitPrice}</td>
+                                                        <td className="quantity_cell">{priceFormat(it.unitPrice)}</td>
                                                         <td className="quantity_cell">{it.quantity}</td>
                                                         <td className="unitPrice_cell">{priceFormat(it.unitPrice * it.quantity)}</td>
                                                         <td>{it.orderStatus}</td>
@@ -293,7 +284,7 @@ export default function OrderDetail() {
                                                         {idx === 0 && (
                                                             <td rowSpan={bundleItems.length} className={`${table.shipCharge_cell} ${"last-of-bundle-cell"}`}>
                                                                 <span style={{ fontSize: "16px" }}>
-                                                                    <span>{isFreeShipping ? "무료배송" : `${bundleItems[0].postCharge} 원 `}</span>
+                                                                    <span>{isFreeShipping ? "무료배송" : `${priceFormat(bundleItems[0].postCharge)} 원 `}</span>
                                                                 </span>
                                                                 <br />
                                                                 <span style={{ fontSize: "10px" }}>
@@ -327,15 +318,6 @@ export default function OrderDetail() {
                                                                             console.log("운송장 등록", it.orderItemIdx);
                                                                         },
                                                                     },
-                                                                    // {
-                                                                    //     label: "환불 처리",
-                                                                    //     onClick: () => {
-                                                                    //         setSelectedItem(it.orderItemIdx);
-                                                                    //         setIsRefundModalOpen(true); //모달 오픈
-                                                                    //         setOpenDropdown(null); // 드롭다운 닫기
-                                                                    //         console.log("환불 처리", it.orderItemIdx);
-                                                                    //     },
-                                                                    // },
                                                                 ]}
                                                             />
                                                         )}
@@ -347,7 +329,7 @@ export default function OrderDetail() {
                                                     <td>
                                                         <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
                                                     </td>
-                                                    <td>{it.rowNumber}</td>
+                                                    <td>{bundleItems.length + idx + 1}</td>
                                                     <td>
                                                         <img src="/no_img.svg" style={{ width: "60px" }} />
                                                     </td>
@@ -367,7 +349,7 @@ export default function OrderDetail() {
                                                     <td>{it.orderStatus}</td>
                                                     <td className="postCharge_cell">
                                                         <span>
-                                                            <span>{it.postCharge}</span>원
+                                                            <span>{priceFormat(it.postCharge)}</span>원
                                                         </span>
                                                         <br />
                                                         <span style={{ fontSize: "10px" }}>1개당 부과</span>
@@ -390,14 +372,6 @@ export default function OrderDetail() {
                                                                         console.log("운송장 등록", it.orderItemIdx);
                                                                     },
                                                                 },
-                                                                // {
-                                                                //     label: "환불 처리",
-                                                                //     onClick: () => {
-                                                                //         setIsRefundModalOpen(true); //모달 오픈
-                                                                //         setOpenDropdown(null); // 드롭다운 닫기
-                                                                //         console.log("환불 처리", it.orderItemIdx);
-                                                                //     },
-                                                                // },
                                                             ]}
                                                         />
                                                     )}
@@ -412,43 +386,30 @@ export default function OrderDetail() {
                                                 <td className="unitPrice_total">{priceFormat(totalUnitPrice)}</td>
                                                 <td></td>
                                                 <td className="postCharge_total">{priceFormat(totalPostCharge)}</td>
-                                                <td></td>
-                                                <td style={{ color: "red", textAlign: "right" }}>{priceFormat(totalUnitPrice + totalPostCharge)}</td>
+                                                <td colSpan={2} style={{ textAlign: "right" }}>
+                                                    최종 결제 금액 <span style={{ color: "red", marginLeft: "5px" }}>{priceFormat(totalUnitPrice + totalPostCharge)} </span>원
+                                                </td>
                                             </tr>
                                         </tfoot>
                                     </table>
                                 </div>
-                                <div className="btn_part">
-                                    <div className="btn_group">
-                                        {/* <button
-                                            type="button"
-                                            className="sub-button"
-                                            onClick={() => {
-                                                const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                if (!selected) return;
-                                                // const selected = getSelected();
-                                                // if (selected.length === 0) {
-                                                //     alert("환불 처리할 상품을 선택하세요");
-                                                //     return;
-                                                // }
-                                                setIsRefundModalOpen(true);
-                                            }}
-                                        >
-                                            환불처리
-                                        </button> */}
-                                        <button
-                                            type="button"
-                                            className="primary-button"
-                                            onClick={() => {
-                                                const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                if (!selected) return;
-                                                setIsTrackingModalOpen(true);
-                                            }}
-                                        >
-                                            운송장번호 등록
-                                        </button>
+                                {selectableIdxs.length !== 0 && (
+                                    <div className="btn_part">
+                                        <div className="btn_group">
+                                            <button
+                                                type="button"
+                                                className="primary-button"
+                                                onClick={() => {
+                                                    const selected = requireSelected(); //선택항목 없을경우 알럿
+                                                    if (!selected) return;
+                                                    setIsTrackingModalOpen(true);
+                                                }}
+                                            >
+                                                운송장번호 등록
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
                         <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} registType="FIRST_SEND" />

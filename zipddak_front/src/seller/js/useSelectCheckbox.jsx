@@ -1,37 +1,34 @@
 import { useState } from "react";
 
 export default function useSelectCheckbox() {
-    const [allChecked, setAllChecked] = useState(false);
     const [checkedItems, setCheckedItems] = useState(new Set());
 
     // 전체 선택
-    const handleAllCheck = (items, checked) => {
-        setAllChecked(checked);
+    const handleAllCheck = (selectableIds, checked) => {
         if (checked) {
-            setCheckedItems(new Set(items)); // 모든 ID 추가
+            setCheckedItems(new Set(selectableIds));
         } else {
-            setCheckedItems(new Set()); // 전체 해제
+            setCheckedItems(new Set());
         }
     };
 
     // 개별 선택
-    const handleItemCheck = (id, isChecked, totalCount) => {
+    const handleItemCheck = (id, isChecked) => {
         setCheckedItems((prev) => {
-            const set = new Set(prev);
-            if (isChecked) set.add(id);
-            else set.delete(id);
-
-            // 전체 체크 여부 업데이트
-            setAllChecked(set.size === totalCount);
-
-            return set;
+            const next = new Set(prev);
+            if (isChecked) next.add(id);
+            else next.delete(id);
+            return next;
         });
     };
 
-    // 선택된 ID 리스트 반환
+    // 전체 선택 여부 (계산값)
+    const isAllChecked = (selectableCount) => selectableCount > 0 && checkedItems.size === selectableCount;
+
+    // 선택된 ID 배열
     const getSelected = () => Array.from(checkedItems);
 
-    // 선택된 항목 필요할 때 (없으면 null)
+    // 선택 강제 (없으면 alert)
     const requireSelected = () => {
         if (checkedItems.size === 0) {
             alert("선택된 상품이 없습니다.");
@@ -40,17 +37,16 @@ export default function useSelectCheckbox() {
         return Array.from(checkedItems);
     };
 
-    //체크박스 초기화
+    // 초기화
     const resetChecked = () => {
-        setAllChecked(false);
         setCheckedItems(new Set());
     };
 
     return {
-        allChecked,
         checkedItems,
         handleAllCheck,
         handleItemCheck,
+        isAllChecked,
         getSelected,
         requireSelected,
         resetChecked,

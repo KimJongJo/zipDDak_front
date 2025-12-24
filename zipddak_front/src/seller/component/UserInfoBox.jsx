@@ -1,10 +1,14 @@
 import actionBox from "../css/actionDropdown.module.css";
+import { useAtom } from "jotai/react";
+import { initUser, tokenAtom, userAtom } from "../../atoms";
 import { useEffect, useRef } from "react";
-import { DropdownItem } from "reactstrap";
 import ReactDOM from "react-dom";
 
 const UserInfoBox = ({ pos, userId, onClose }) => {
     const boxRef = useRef(null);
+
+    const [user, setUser] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
 
     //박스 외부 클릭시 닫기
     useEffect(() => {
@@ -40,6 +44,13 @@ const UserInfoBox = ({ pos, userId, onClose }) => {
         boxRef.current.style.left = `${newLeft}px`;
     }, [pos]);
 
+    // 로그아웃
+    const logout = () => {
+        setUser(initUser);
+        setToken(null);
+        navigate("/seller/sellerLogin");
+    };
+
     return ReactDOM.createPortal(
         <div
             ref={boxRef}
@@ -54,11 +65,9 @@ const UserInfoBox = ({ pos, userId, onClose }) => {
                 <span className={actionBox.compInfo}>업체명업체명업체명업체명업체명업체명업체명업체명</span>
             </div>
             <hr className="section_divider" />
-            <div className={[actionBox.item_column].join(" ")}>
-                <a href="">{userId}</a>
-            </div>
-            <div className={actionBox.item}>
-                <a href="">로그아웃</a>
+            <div className={[actionBox.item_column].join(" ")}>{userId}</div>
+            <div className={actionBox.item} onClick={logout}>
+                로그아웃
             </div>
         </div>,
         document.body,
