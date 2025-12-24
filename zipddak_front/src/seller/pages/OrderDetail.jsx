@@ -239,7 +239,12 @@ export default function OrderDetail() {
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "auto" }}>
-                                                    <Input type="checkbox" checked={isAllChecked(selectableIdxs.length)} onChange={(e) => handleAllCheck(selectableIdxs, e.target.checked)} disabled={selectableIdxs.length === 0} />
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={isAllChecked(selectableIdxs.length)}
+                                                        onChange={(e) => handleAllCheck(selectableIdxs, e.target.checked)}
+                                                        disabled={selectableIdxs.length === 0}
+                                                    />
                                                 </th>
                                                 <th style={{ width: "auto" }}>#</th>
                                                 <th style={{ width: "auto" }}>Img</th>
@@ -329,7 +334,7 @@ export default function OrderDetail() {
                                                     </tr>
                                                 ))}
                                             {/* 개별 배송 */}
-                                            {singleItems.map((it) => (
+                                            {singleItems.map((it, idx) => (
                                                 <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
                                                     <td>
                                                         <Input

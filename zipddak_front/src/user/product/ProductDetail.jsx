@@ -508,7 +508,7 @@ export default function ProductDetail() {
                                     <div className="detail-select-div">
                                         <select onChange={(e) => handleOption(e.target.value, "top")} className="detail-select" value={selectOptionInfo.optionId || "none"}>
                                             <option value="none" disabled>
-                                                선택
+                                                선택값
                                             </option>
                                             {/* 점 표기법으로 접근하면 undefined */}
                                             {/* 대괄호 표기법으로 접근해야 접근이 가능 */}

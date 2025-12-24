@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Input, Modal, ModalBody } from "reactstrap";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 
 export default function MarketReturnForm() {
     const { orderIdx } = useParams();
@@ -36,6 +36,7 @@ export default function MarketReturnForm() {
         myAxios(token, setToken)
             .get("http://localhost:8080" + `/market/orderInfo?orderIdx=${orderIdx}`)
             .then((res) => {
+                console.log(res.data);
                 setOrder(res.data);
             })
             .catch((err) => {
@@ -93,6 +94,7 @@ export default function MarketReturnForm() {
         getOrder();
 
         if (state) {
+            console.log(state.deliveryGroups.deliveryGroups);
             setDeliveryGroups(state.deliveryGroups.deliveryGroups);
         }
     }, []);
@@ -210,7 +212,7 @@ export default function MarketReturnForm() {
                                                     gap: "10px",
                                                 }}
                                             >
-                                                <img src={item.thumbnail} width="80px" height="80px" />
+                                                <img src={`${baseUrl}/imageView?type=product&filename=${item.thumbnail}`} width="80px" height="80px" />
                                                 <div
                                                     style={{
                                                         display: "flex",
