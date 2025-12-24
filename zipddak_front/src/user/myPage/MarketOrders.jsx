@@ -670,38 +670,17 @@ export default function MarketOrders() {
                                                     </div>
                                                 </td>
                                                 {idx === 0 && (
-                                                    <td
-                                                        rowSpan={group.orderItems.length}
-                                                        style={{
-                                                            fontWeight: "500",
-                                                        }}
-                                                    >
+                                                    <td rowSpan={group.orderItems.length} style={{ fontWeight: "500" }}>
                                                         {group.deliveryType !== "pickup" ? (
                                                             group.appliedDeliveryFee !== 0 ? (
-                                                                <p
-                                                                    style={{
-                                                                        fontWeight: "600",
-                                                                    }}
-                                                                >
-                                                                    {Number(group.appliedDeliveryFee).toLocaleString()}원
-                                                                </p>
+                                                                <p style={{ fontWeight: "600" }}>{Number(group.appliedDeliveryFee).toLocaleString()}원</p>
+                                                            ) : group.deliveryFeeType === "bundle" ? (
+                                                                <p style={{ fontWeight: "600" }}>무료배송</p>
                                                             ) : (
-                                                                <p
-                                                                    style={{
-                                                                        fontWeight: "600",
-                                                                    }}
-                                                                >
-                                                                    무료배송
-                                                                </p>
+                                                                <p style={{ fontWeight: "600" }}>{(group.deliveryFeePrice * item.quantity).toLocaleString()}원</p>
                                                             )
                                                         ) : (
-                                                            <p
-                                                                style={{
-                                                                    fontWeight: "600",
-                                                                }}
-                                                            >
-                                                                직접픽업
-                                                            </p>
+                                                            <p style={{ fontWeight: "600" }}>직접픽업</p>
                                                         )}
                                                     </td>
                                                 )}

@@ -66,7 +66,7 @@ export default function ProfileForm() {
     const portfolioRef = useRef(null);
     const qaRef = useRef(null);
 
-    const user = useAtomValue(userAtom);
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     // 전문가 카테고리 목록
@@ -140,10 +140,12 @@ export default function ProfileForm() {
 
     // 전문가 상세 조회
     const getExpert = () => {
+        console.log("실행");
         myAxios(token, setToken)
             .get("http://localhost:8080" + `/profile/detail?username=${user.username}`)
             .then((res) => {
                 console.log(res.data);
+                setUser({ ...user, profile: res.data.profileImage });
                 setExpert(res.data);
 
                 // 지역 세팅
@@ -213,12 +215,12 @@ export default function ProfileForm() {
     const modifyExpert = () => {
         const formData = new FormData();
 
-        if (expert.introduction === "null") {
+        if (expert.introduction === "null" || expert.introduction === null) {
             alert("한 줄 소개를 입력해주세요");
             return;
         }
 
-        if (expert.mainServiceIdx === null) {
+        if (expert.mainServiceIdx === null || expert.mainServiceIdx === 0) {
             alert("대표 서비스를 선택해주세요");
             return;
         }
@@ -228,7 +230,7 @@ export default function ProfileForm() {
             return;
         }
 
-        if (expert.providedServiceDesc === "null") {
+        if (expert.providedServiceDesc === "null" || expert.providedServiceDesc === null) {
             alert("서비스 상세설명을 입력해주세요");
             return;
         }
@@ -563,7 +565,7 @@ export default function ProfileForm() {
                         <div className="labelInput-wrapper">
                             <label style={{ width: "160px" }}>한 줄 소개</label>
                             <Input
-                                value={expert.introduction === "null" ? "" : expert.introduction}
+                                value={expert.introduction === "null" || expert.introduction === null ? "" : expert.introduction}
                                 type="textarea"
                                 style={{ height: "72px" }}
                                 onChange={(e) => setExpert({ ...expert, introduction: e.target.value })}
@@ -582,6 +584,7 @@ export default function ProfileForm() {
                                     }))
                                 }
                             >
+                                <option value={0}>서비스 선택</option>
                                 {expertCategoryList.map((c) => (
                                     <option key={c.categoryIdx} value={c.categoryIdx}>
                                         {c.name}
@@ -793,7 +796,7 @@ export default function ProfileForm() {
                         <div className="labelInput-wrapper">
                             <label style={{ width: "160px" }}>서비스 상세설명</label>
                             <Input
-                                value={expert.providedServiceDesc === "null" ? "" : expert.providedServiceDesc}
+                                value={expert.providedServiceDesc === "null" || expert.providedServiceDesc === null ? "" : expert.providedServiceDesc}
                                 type="textarea"
                                 style={{ height: "158px" }}
                                 onChange={(e) => setExpert({ ...expert, providedServiceDesc: e.target.value })}
