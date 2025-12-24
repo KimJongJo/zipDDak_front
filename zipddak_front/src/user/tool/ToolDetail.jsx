@@ -21,8 +21,8 @@ export default function ToolDetail() {
 
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
-    const [deleteModal, setDeleteModal] = useState(false);
-    const deleteToggle = () => setDeleteModal(!deleteModal);
+    // const [deleteModal, setDeleteModal] = useState(false);
+    // const deleteToggle = () => setDeleteModal(!deleteModal);
 
     const mapContainer = useRef(null);
     const map = useRef(null);
