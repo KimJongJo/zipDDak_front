@@ -138,7 +138,11 @@ export default function ProductOrder() {
             const targetOption = targetBrand.orderList.find((o) => o.productId === productId && o.optionId === optionId);
 
             if (targetOption && targetOption.count === 1) {
-                alert("최소 1개 이상은 구매해야 합니다.");
+                setModalMessage("최소 1개 이상의 상품을 구매할 수 있습니다.");
+                setIsModalOpen(true);
+                setTimeout(() => {
+                    setIsModalOpen(false);
+                }, 1500);
                 return;
             }
         }
@@ -172,7 +176,7 @@ export default function ProductOrder() {
 
         // 브랜드가 하나이고 + 남은 상품이 하나이고 + 그 상품 count == 1이면 막기
         if (brand.length === 1) {
-            setModalMessage("최소 1개 이상은 구매해야합니다.");
+            setModalMessage("최소 1개 이상의 상품을 구매할 수 있습니다.");
             setIsModalOpen(true);
             setTimeout(() => {
                 setIsModalOpen(false);
