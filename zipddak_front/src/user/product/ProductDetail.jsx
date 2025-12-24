@@ -143,7 +143,7 @@ export default function ProductDetail() {
                     optionId: info.optionId,
                     name,
                     value: info.color,
-                    price: info.price + product.salePrice,
+                    price: product.salePrice ? info.price + product.salePrice : info.price + product.price,
                     count: 1,
                 },
             ]);

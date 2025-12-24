@@ -84,11 +84,16 @@ export default function Cart() {
                 if (!isBundleGroup) {
                     // ★ 개별배송
                     products.forEach((product) => {
+                        console.log(product);
                         if (checkedItems[product.cartIdx]) {
-                            const basePrice = (product.productSalePrice ?? product.price) + product.optionPrice;
+                            const salePrice = Number(product.productSalePrice ?? 0);
+                            const normalPrice = Number(product.productPrice ?? product.price ?? 0);
+                            const option = Number(product.optionPrice ?? 0);
 
-                            totalPrice += basePrice * product.quantity;
-                            totalShippingFee += product.postCharge * product.quantity;
+                            const basePrice = salePrice > 0 ? salePrice + option : normalPrice + option;
+
+                            totalPrice += basePrice * Number(product.quantity ?? 1);
+                            totalShippingFee += Number(product.postCharge ?? 0) * Number(product.quantity ?? 1);
                         }
                     });
                 } else {
@@ -100,15 +105,24 @@ export default function Cart() {
                         if (checkedItems[product.cartIdx]) {
                             hasChecked = true;
 
-                            const basePrice = (product.productSalePrice ?? product.price) + product.optionPrice;
+                            const salePrice = Number(product.productSalePrice ?? 0);
+                            const normalPrice = Number(product.productPrice ?? product.price ?? 0);
+                            const option = Number(product.optionPrice ?? 0);
 
-                            bundleCheckedAmount += basePrice * product.quantity;
-                            totalPrice += basePrice * product.quantity;
+                            const basePrice = salePrice > 0 ? salePrice + option : normalPrice + option;
+                            const quantity = Number(product.quantity ?? 1);
+
+                            // 전체 상품 금액 합산
+                            const itemTotal = basePrice * quantity;
+
+                            totalPrice += itemTotal;
+                            bundleCheckedAmount += itemTotal;
                         }
                     });
 
                     if (!hasChecked) return;
 
+                    // 무료배송 조건 체크
                     if (bundleCheckedAmount < store.freeChargeAmount) {
                         totalShippingFee += store.basicPostCharge;
                     }
@@ -139,7 +153,7 @@ export default function Cart() {
                         optionId: product.optionIdx,
                         name: product.optionName,
                         value: product.optionValue,
-                        price: product.optionPrice,
+                        price: product.productSalePrice ? product.optionPrice + product.productSalePrice : product.optionPrice + product.productPrice,
                         count: product.quantity,
                     });
                 }
@@ -321,7 +335,9 @@ export default function Cart() {
                                                                                     optionId: product.optionIdx,
                                                                                     name: product.optionName,
                                                                                     value: product.optionValue,
-                                                                                    price: product.optionPrice,
+                                                                                    price: product.productSalePrice
+                                                                                        ? product.optionPrice + product.productSalePrice
+                                                                                        : product.optionPrice + product.productPrice,
                                                                                     count: product.quantity,
                                                                                 },
                                                                             ]);
@@ -401,7 +417,8 @@ export default function Cart() {
                                                                                   let sum = 0;
                                                                                   store.productList?.map((p) => {
                                                                                       if (p.postType === "bundle") {
-                                                                                          let hap = (p.productSalePrice + p.optionPrice) * p.quantity;
+                                                                                          let hap =
+                                                                                              (p.productSalePrice ? p.productSalePrice + p.optionPrice : p.productPrice + p.optionPrice) * p.quantity;
                                                                                           sum += hap;
                                                                                       }
                                                                                   });

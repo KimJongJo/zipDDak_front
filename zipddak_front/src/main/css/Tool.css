@@ -368,5 +368,9 @@
     content: "대여중지";
 }
 
+.iconNoneBack {
+   background-color: transparent !important; 
+}
+
 
 

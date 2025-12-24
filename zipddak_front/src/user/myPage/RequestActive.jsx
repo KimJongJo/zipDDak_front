@@ -26,6 +26,7 @@ export default function RequestActive() {
         myAxios(token, setToken)
             .get("http://localhost:8080" + `/active/requestDetail?username=${user.username}`)
             .then((res) => {
+                console.log(res.data.requestDetail);
                 setRequest(res.data.requestDetail);
                 setExpertList(res.data.expertList);
             })
@@ -179,7 +180,7 @@ export default function RequestActive() {
                             gap: "16px",
                         }}
                     >
-                        <h1 className="mypage-title">{request.smallServiceName}</h1>
+                        <h1 className="mypage-title">{request.smallServiceName ? request.smallServiceName : request.largeServiceName}</h1>
                         <div
                             style={{
                                 display: "flex",
@@ -238,7 +239,7 @@ export default function RequestActive() {
                                                 fontWeight: "400",
                                             }}
                                         >
-                                            시공할 부분을 모두 선택해주세요.
+                                            시공할 공간은 어디인가요?
                                         </p>
                                         <p
                                             style={{
@@ -279,7 +280,7 @@ export default function RequestActive() {
                                         </p>
                                     </div>
                                 )}
-                                {request.purpose && (
+                                {request.midServiceName && (
                                     <div
                                         style={{
                                             display: "flex",
@@ -297,6 +298,35 @@ export default function RequestActive() {
                                             }}
                                         >
                                             어떤 서비스를 원하시나요?
+                                        </p>
+                                        <p
+                                            style={{
+                                                fontSize: "14px",
+                                                fontWeight: "600",
+                                            }}
+                                        >
+                                            {request.midServiceName}
+                                        </p>
+                                    </div>
+                                )}
+                                {request.purpose && (
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            padding: "20px 0",
+                                            alignItems: "flex-start",
+                                            alignSelf: "stretch",
+                                            borderBottom: "1px solid rgba(0, 0, 0, 0.10)",
+                                        }}
+                                    >
+                                        <p
+                                            style={{
+                                                minWidth: "220px",
+                                                fontSize: "14px",
+                                                fontWeight: "400",
+                                            }}
+                                        >
+                                            시공 목적이 무엇인가요?
                                         </p>
                                         <p
                                             style={{
@@ -359,7 +389,7 @@ export default function RequestActive() {
                                             fontWeight: "600",
                                         }}
                                     >
-                                        {request.budget}
+                                        {request.budget?.toLocaleString()}원
                                     </p>
                                 </div>
                                 <div
@@ -413,7 +443,7 @@ export default function RequestActive() {
                                             fontWeight: "600",
                                         }}
                                     >
-                                        {request.additionalRequest}
+                                        {request.additionalRequest ? request.additionalRequest : "-"}
                                     </p>
                                 </div>
                                 {request.image1Idx && (
@@ -469,7 +499,11 @@ export default function RequestActive() {
                                         getEstimateDetail(expert.estimateIdx);
                                     }}
                                 >
-                                    <img src={`http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}`} width="40px" height="40px" />
+                                    <img
+                                        src={expert.profileImage ? `http://localhost:8080/imageView?type=expert&filename=${expert.profileImage}` : "/default-profile.png"}
+                                        width="40px"
+                                        height="40px"
+                                    />
                                     <p style={{ whiteSpace: "nowrap" }}>{expert.activityName}</p>
                                     <p style={{ fontWeight: "600", whiteSpace: "nowrap" }}>{Math.floor(expert.totalCost / 10000)}만원</p>
                                 </div>
@@ -526,7 +560,7 @@ export default function RequestActive() {
                                             }}
                                         >
                                             <p>총 견적 금액</p>
-                                            <p>{Math.floor(getTotalAmount(costList, estimate) / 10000)}원</p>
+                                            <p>{getTotalAmount(costList, estimate)?.toLocaleString()}원</p>
                                         </div>
                                         <div
                                             style={{
@@ -572,7 +606,7 @@ export default function RequestActive() {
                                                                 width: "100%",
                                                             }}
                                                         >
-                                                            {Math.floor(cost.amount / 10000)} 만원
+                                                            {cost.amount?.toLocaleString()} 원
                                                         </p>
                                                     </div>
                                                 ))}
@@ -596,7 +630,7 @@ export default function RequestActive() {
                                                             whiteSpace: "nowrap",
                                                         }}
                                                     >
-                                                        {Math.floor(buildTotal / 10000)} 만원
+                                                        {buildTotal?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -614,7 +648,7 @@ export default function RequestActive() {
                                                                 width: "100%",
                                                             }}
                                                         >
-                                                            {Math.floor(cost.amount / 10000)} 만원
+                                                            {cost.amount?.toLocaleString()} 원
                                                         </p>
                                                     </div>
                                                 ))}
@@ -638,7 +672,7 @@ export default function RequestActive() {
                                                             whiteSpace: "nowrap",
                                                         }}
                                                     >
-                                                        {Math.floor(materialTotal / 1000)} 만원
+                                                        {materialTotal?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -654,7 +688,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.consultingLaborCost / 10000)} 만원
+                                                        {estimate.consultingLaborCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -668,7 +702,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.stylingDesignCost / 10000)} 만원
+                                                        {estimate.stylingDesignCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -682,7 +716,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.threeDImageCost / 10000)} 만원
+                                                        {estimate.threeDImageCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -696,7 +730,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.reportProductionCost / 10000)} 만원
+                                                        {estimate.reportProductionCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -710,7 +744,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.demolitionCost / 10000)} 만원
+                                                        {estimate.demolitionCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -724,7 +758,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.disposalCost / 10000)} 만원
+                                                        {estimate.disposalCost?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -738,7 +772,7 @@ export default function RequestActive() {
                                                             width: "100%",
                                                         }}
                                                     >
-                                                        {Math.floor(estimate.etcFee / 10000)} 만원
+                                                        {estimate.etcFee?.toLocaleString()} 원
                                                     </p>
                                                 </div>
                                             )}
@@ -760,7 +794,7 @@ export default function RequestActive() {
                                                         whiteSpace: "nowrap",
                                                     }}
                                                 >
-                                                    {Math.floor(getTotalAmount(costList, estimate) / 10000)} 만원
+                                                    {getTotalAmount(costList, estimate)?.toLocaleString()} 원
                                                 </p>
                                             </div>
                                             {estimate.costDetail && <Input type="textarea" readOnly style={{ marginTop: "20px" }} value={estimate.costDetail} />}
@@ -814,7 +848,7 @@ export default function RequestActive() {
                                             className="expert-div"
                                         >
                                             <div className="expert-img-div">
-                                                <img className="expert-img" src={`${baseUrl}/imageView?type=expert&filename=${expert.profileImage}`} />
+                                                <img className="expert-img" src={expert.profileImage ? `${baseUrl}/imageView?type=expert&filename=${expert.profileImage}` : "/default-profile.png"} />
                                                 <div className="expert-name-div">
                                                     <span className="font-14 semibold">{expert.activityName}</span>
                                                     <span className="font-13">{expert.mainService}</span>

@@ -75,7 +75,12 @@ export default function ProductOrderComplate() {
                                         <span className="font-14">{order.quantity}</span>
                                     </td>
                                     <td>
-                                        <span className="font-14">{((order.option.optionPrice + order.productPrice) * order.quantity).toLocaleString()}원</span>
+                                        <span className="font-14">
+                                            {order.salePrice
+                                                ? ((order.option.optionPrice + order.salePrice) * order.quantity).toLocaleString()
+                                                : ((order.option.optionPrice + order.productPrice) * order.quantity).toLocaleString()}
+                                            원
+                                        </span>
                                     </td>
                                 </tr>
                             ))}

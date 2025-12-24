@@ -173,7 +173,7 @@ export default function MyWorksDetail() {
                                         width: "100%",
                                     }}
                                 >
-                                    {Math.floor(cost.amount / 10000)} 만원
+                                    {cost.amount?.toLocaleString()} 원
                                 </p>
                             </div>
                         ))}
@@ -197,7 +197,7 @@ export default function MyWorksDetail() {
                                     whiteSpace: "nowrap",
                                 }}
                             >
-                                {Math.floor(buildTotal / 10000)} 만원
+                                {buildTotal?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -215,7 +215,7 @@ export default function MyWorksDetail() {
                                         width: "100%",
                                     }}
                                 >
-                                    {Math.floor(cost.amount / 10000)} 만원
+                                    {cost.amount?.toLocaleString()} 원
                                 </p>
                             </div>
                         ))}
@@ -239,7 +239,7 @@ export default function MyWorksDetail() {
                                     whiteSpace: "nowrap",
                                 }}
                             >
-                                {Math.floor(materialTotal / 1000)} 만원
+                                {materialTotal?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -255,7 +255,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.consultingLaborCost / 10000)} 만원
+                                {estimate.consultingLaborCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -269,7 +269,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.stylingDesignCost / 10000)} 만원
+                                {estimate.stylingDesignCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -283,7 +283,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.threeDImageCost / 10000)} 만원
+                                {estimate.threeDImageCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -297,7 +297,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.reportProductionCost / 10000)} 만원
+                                {estimate.reportProductionCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -311,7 +311,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.demolitionCost / 10000)} 만원
+                                {estimate.demolitionCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -325,7 +325,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.disposalCost / 10000)} 만원
+                                {estimate.disposalCost?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -339,7 +339,7 @@ export default function MyWorksDetail() {
                                     width: "100%",
                                 }}
                             >
-                                {Math.floor(estimate.etcFee / 10000)} 만원
+                                {estimate.etcFee?.toLocaleString()} 원
                             </p>
                         </div>
                     )}
@@ -362,7 +362,7 @@ export default function MyWorksDetail() {
                                 whiteSpace: "nowrap",
                             }}
                         >
-                            {Math.floor(getTotalAmount(costList, estimate) / 10000)} 만원
+                            {getTotalAmount(costList, estimate)?.toLocaleString()} 원
                         </p>
                     </div>
                     {estimate.costDetail && <Input type="textarea" style={{ marginTop: "20px" }} value={estimate.costDetail} />}
@@ -433,7 +433,7 @@ export default function MyWorksDetail() {
                     <h3 className="mypage-sectionTitle">요청 상세 </h3>
                     <div className="labelInput-wrapper">
                         <label style={{ width: "150px" }}>예산</label>
-                        <p>{estimate.budget}</p>
+                        <p>{estimate.budget?.toLocaleString()}원</p>
                     </div>
                     <div className="labelInput-wrapper">
                         <label style={{ width: "150px" }}>희망 시공일</label>

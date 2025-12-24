@@ -43,14 +43,29 @@ export default function ProductOrder() {
     const [postChargeTotal, setPostChargeTotal] = useState(0);
 
     const totalPostChargeAllBrands = brand.reduce((sumBrand, b) => {
-        const singlePostCharge = b.orderList.filter((o) => o.postType === "single").reduce((sum, o) => sum + o.postCharge, 0);
+        // ★ 개별배송 : 배송비 * 수량
+        const singlePostCharge = b.orderList
+            .filter((o) => o.postType === "single")
+            .reduce((sum, o) => {
+                const count = Number(o.count ?? 1);
+                const post = Number(o.postCharge ?? 0);
+                return sum + post * count;
+            }, 0);
 
+        // ★ 묶음배송 옵션 목록
         const bundleOptions = b.orderList.filter((o) => o.postType === "bundle");
-        const bundleTotalPrice = bundleOptions.reduce((sum, o) => sum + o.price * o.count, 0);
 
+        // ★ 묶음배송 총 금액 계산
+        const bundleTotalPrice = bundleOptions.reduce((sum, o) => {
+            const count = Number(o.count ?? 1);
+
+            return sum + o.price * count;
+        }, 0);
+
+        // ★ 묶음배송 배송비
         let bundlePostCharge = 0;
         if (bundleOptions.length > 0) {
-            bundlePostCharge = bundleTotalPrice >= b.freeChargeAmount ? 0 : b.basicPostCharge;
+            bundlePostCharge = bundleTotalPrice >= Number(b.freeChargeAmount ?? 0) ? 0 : Number(b.basicPostCharge ?? 0);
         }
 
         const totalPostCharge = singlePostCharge + bundlePostCharge;
@@ -157,7 +172,11 @@ export default function ProductOrder() {
 
         // 브랜드가 하나이고 + 남은 상품이 하나이고 + 그 상품 count == 1이면 막기
         if (brand.length === 1) {
-            alert("최소 1개 이상은 구매해야 합니다.");
+            setModalMessage("최소 1개 이상은 구매해야합니다.");
+            setIsModalOpen(true);
+            setTimeout(() => {
+                setIsModalOpen(false);
+            }, 1500);
             return;
         }
 
@@ -183,7 +202,7 @@ export default function ProductOrder() {
         let total = 0;
         brand.map((option) => {
             option.orderList.map((order) => {
-                total += order.count * (order.price + order.salePrice);
+                total += order.count * order.price;
             });
         });
 
@@ -191,7 +210,7 @@ export default function ProductOrder() {
         setProductTotalPrice(total);
         total += postChargeTotal;
         setTotalPrice(total);
-    }, [brand]);
+    }, [brand, postChargeTotal]);
 
     useEffect(() => {
         if (orderList.length > 0) {
@@ -234,7 +253,7 @@ export default function ProductOrder() {
             return;
         }
 
-        const res = await axios.post(`${baseUrl}/user/payment/product`, {
+        const res = await myAxios(token, setToken).post(`${baseUrl}/user/payment/product`, {
             username: user.username,
             brandList: brand,
             recvUser: {
@@ -274,11 +293,15 @@ export default function ProductOrder() {
                                 {/* 업체이름 div */}
                                 {brand.map((brand) => {
                                     // 1. single 배송비 누적
-                                    let singlePostCharge = brand.orderList.filter((o) => o.postType === "single").reduce((sum, o) => sum + o.postCharge, 0);
+                                    let singlePostCharge = brand.orderList.filter((o) => o.postType === "single").reduce((sum, o) => sum + o.postCharge * (o.count ?? 1), 0);
 
                                     // 2. bundle 합계
                                     const bundleOptions = brand.orderList.filter((o) => o.postType === "bundle");
-                                    const bundleTotalPrice = bundleOptions.reduce((sum, o) => sum + o.price * o.count, 0);
+                                    const bundleTotalPrice = bundleOptions.reduce((sum, o) => {
+                                        const count = Number(o.count ?? 1);
+
+                                        return sum + o.price * count;
+                                    }, 0);
 
                                     // 3. bundle 배송비 계산
                                     let bundlePostCharge = 0;
@@ -327,7 +350,7 @@ export default function ProductOrder() {
                                                                 <i className="bi bi-x-lg detail-x-button"></i>
                                                             </button>
                                                             <span className="font-14">
-                                                                {((option.price + option.salePrice) * option.count).toLocaleString()}
+                                                                {(option.price * option.count).toLocaleString()}
                                                                 <span>원</span>
                                                             </span>
                                                         </div>

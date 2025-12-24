@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../css/Tool.css";
-import { Heart, Calendar, MessageCircle } from 'lucide-react'
+import { Heart, Calendar, MessageCircle,Package2 } from 'lucide-react'
 import { Button } from "reactstrap";
 import { useNavigate } from "react-router";
 import { myAxios } from "../../config";
@@ -9,12 +9,12 @@ import { useState } from "react";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 
-export function Tool({ tool, toggleFavorite }) {
+export function Tool({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(1, 3).join(' ');
+     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -26,17 +26,17 @@ export function Tool({ tool, toggleFavorite }) {
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        user.username && toggleFavorite();
+                        user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
                     className="favorite-icon"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
             </div>
 
             <div className="tool-info">
                 <div className="tool-name">{tool.name}</div>
-                <span className="tool-address">{toolAddress}</span>
+                <span className="tool-address">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
                     <span className="oneday">1일</span>
                     <span className="rental-price">{tool.rentalPrice.toLocaleString()}</span>
@@ -47,12 +47,12 @@ export function Tool({ tool, toggleFavorite }) {
     );
 }
 
-export function Toolmain({ tool, toggleFavorite }) {
+export function Toolmain({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -65,11 +65,11 @@ export function Toolmain({ tool, toggleFavorite }) {
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        user.username && toggleFavorite(tool.toolIdx);
+                        user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
                     className="favorite-icon"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
                 {
                     tool.satus == "INABLE" &&
@@ -79,7 +79,7 @@ export function Toolmain({ tool, toggleFavorite }) {
 
             <div className="tool-info-m">
                 <div className="tool-name-m">{tool.name}</div>
-                <span className="tool-address-m">{toolAddress}</span>
+                <span className="tool-address-m">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
                     <span className="oneday-m">1일</span>
                     <span className="rental-price-m">{tool.rentalPrice.toLocaleString()}</span>
@@ -87,18 +87,24 @@ export function Toolmain({ tool, toggleFavorite }) {
                 </div>
             </div>
             <div className="tool-reaction-m">
-                <div className="favs"><Heart size={14}/>{tool.favorite}</div>
+                {tool.favoriteCount&&
+                <div className="favs"><Heart size={14}/>{tool.favoriteCount}</div>
+                }
+                {tool.favoriteCount&&tool.rentalCount&&
                 <i className="bi bi-dot dot"></i>
-                <div className="chats"><MessageCircle size={13}/>{tool.toolchat}</div>
+                }
+                {tool.rentalCount&&
+                <div className="chats"><Package2 size={13}/>{tool.rentalCount}</div>
+                }
             </div>
         </div>
     );
 }
 
-export function ToolL({ tool, toggleFavorite }) {
+export function ToolL({ tool, toggleFavoriteTool }) {
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -111,11 +117,11 @@ export function ToolL({ tool, toggleFavorite }) {
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        username && toggleFavorite();
+                        username && toggleFavoriteTool(tool.toolIdx);
                     }}
                     className="favorite-icon"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
                 {
                     Tool.toolStatus &&
@@ -125,7 +131,7 @@ export function ToolL({ tool, toggleFavorite }) {
 
             <div className="tool-info-L">
                 <div className="tool-name-L">{tool.name}</div>
-                <span className="tool-address-L">{toolAddress}</span>
+                <span className="tool-address-L">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
                     <span className="oneday-L">1일</span>
                     <span className="rental-price-L">{tool.rentalPrice.toLocaleString()}</span>
@@ -141,10 +147,11 @@ export function ToolL({ tool, toggleFavorite }) {
     );
 }
 
-export function MapTool({ tool, toggleFavorite }) {
+export function MapTool({ tool, toggleFavoriteTool }) {
 
-    const toolAddrString = tool.addr1;
-    const toolAddress = toolAddrString.split(' ').slice(0, 2).join(' ');
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
+
 
     return (
         <div className="tool-h">
@@ -154,17 +161,17 @@ export function MapTool({ tool, toggleFavorite }) {
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
                         // 로그인이 안되어있으면 막음
-                        username && toggleFavorite();
+                        username && toggleFavoriteTool(tool.toolIdx);
                     }}
                     className="favorite-icon"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
             </div>
 
             <div className="tool-info-h">
                 <div className="tool-name-h">{tool.name}</div>
-                <span className="tool-address-h">{toolAddress}</span>
+                <span className="tool-address-h">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
                     <span className="oneday-h">1일</span>
                     <span className="rental-price-h">{tool.rentalPrice.toLocaleString()}</span>

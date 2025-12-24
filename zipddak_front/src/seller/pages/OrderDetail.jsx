@@ -260,7 +260,12 @@ export default function OrderDetail() {
                                                 bundleItems.map((it, idx) => (
                                                     <tr key={it.orderItemIdx} className={`${table.bundle_deli} ${idx === bundleItems.length - 1 ? "last-of-bundle" : ""}`}>
                                                         <td>
-                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo || it.orderStatus === "반품완료"} />
+                                                            <Input
+                                                                type="checkbox"
+                                                                checked={checkedItems.has(it.orderItemIdx)}
+                                                                onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)}
+                                                                disabled={!!it.trackingNo || it.orderStatus === "반품완료"}
+                                                            />
                                                         </td>
                                                         <td>{idx + 1}</td>
                                                         <td style={{ padding: "0" }}>
@@ -327,7 +332,11 @@ export default function OrderDetail() {
                                             {singleItems.map((it) => (
                                                 <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
                                                     <td>
-                                                        <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
+                                                        <Input
+                                                            type="checkbox"
+                                                            checked={checkedItems.has(it.orderItemIdx)}
+                                                            onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)}
+                                                        />
                                                     </td>
                                                     <td>{bundleItems.length + idx + 1}</td>
                                                     <td>
@@ -412,7 +421,16 @@ export default function OrderDetail() {
                                 )}
                             </div>
                         </div>
-                        <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} registType="FIRST_SEND" />
+                        <ModalTrackingRegist
+                            trackingModalOpen={isTrackingModalOpen}
+                            setTrackingModalOpen={setIsTrackingModalOpen}
+                            selectedItems={getSelected()}
+                            targetItemIdx={selectedItem}
+                            orderIdx={orderIdx}
+                            refresh={getMyOrderDetail}
+                            resetChecked={resetChecked}
+                            registType="FIRST_SEND"
+                        />
 
                         {/* 클레임 내역 사항 */}
                         <div className="position-relative mt-4"></div>

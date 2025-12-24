@@ -76,11 +76,13 @@ export default function ToolMain() {
     const toolList = (isMore = false, sizeParam = MORE_SIZE, offsetParam = offset) => {
         //지도 기준
 
+        const userParam = user?.username ?? null;
+
         const params = {
             //키워드
             keyword: keyword,
             //유저
-            username: user.username,
+            username: userParam,
             //카테고리
             categoryNo: toolCateIdx,
             //거래방식

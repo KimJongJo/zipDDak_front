@@ -1,36 +1,63 @@
-import { SquarePlus, ChevronDown, MapPinned, Plus } from "lucide-react";
+import { SquarePlus, ChevronDown, MapPinned, Plus,CircleMinus,Minus } from "lucide-react";
 import "../css/RegistTool.css";
 import { Input, FormGroup, Label, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import DaumPostcode from 'react-daum-postcode';
-import { Modal as AddrModal } from 'antd';
+import { useNavigate } from "react-router-dom";
+import DaumPostcode from "react-daum-postcode";
+import { Modal as AddrModal } from "antd";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 
-
 export default function RegistTool() {
-
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
-    const [tool, setTool] = useState({
-        toolIdx: null, name: '', category: '83', rentalPrice: '', freeRental: false, content: '', tradeAddr: '주소',
-        directRental: false, postRental: false, freePost: false, postCharge: '', zonecode: "", addr1: "",
-        addr2: "", postRequest: '배송시 요청사항 없음', satus: 'ABLE', owner: '', thunbnail: null, img1: null,
-        img2: null, img3: null, img4: null, img5: null, quickRental: false, toolChatCnt: 0,
-        settleBank: "", settleAccount: "", settleHost: ""
-    })
+    //스크롤 탑
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
 
+    const [tool, setTool] = useState({
+        toolIdx: null,
+        name: "",
+        category: "83",
+        rentalPrice: "",
+        freeRental: false,
+        content: "",
+        directRental: false,
+        postRental: false,
+        freePost: false,
+        postCharge: "",
+        zonecode: "",
+        addr1: "",
+        addr2: "",
+        postRequest: "배송시 요청사항 없음",
+        satus: "ABLE",
+        owner: "",
+        thunbnail: null,
+        img1: null,
+        img2: null,
+        img3: null,
+        img4: null,
+        img5: null,
+        quickRental: false,
+        toolChatCnt: 0,
+        settleBank: "",
+        settleAccount: "",
+        settleHost: "",
+        tradeAddr1: "",
+        tradeAddr2: "",
+        tradeZonecode: "",
+    });
 
     const [modal, setModal] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
     const navigate = useNavigate();
 
     const ChangeInput = (e) => {
-        setTool({ ...tool, [e.target.name]: e.target.value })
-    }
+        setTool({ ...tool, [e.target.name]: e.target.value });
+    };
 
     //파일
     const fileRef = useRef(null);
@@ -47,12 +74,41 @@ export default function RegistTool() {
         const newImages = [...detailImages];
         newImages[index] = {
             file,
-            preview: URL.createObjectURL(file)
+            preview: URL.createObjectURL(file),
         };
 
         setDetailImages(newImages);
     };
 
+    const handleThumbRemove = (e) => {
+        e.stopPropagation();
+        if (thumbPreview) {
+        URL.revokeObjectURL(thumbPreview); // 메모리 해제
+    }
+
+    setThumbPreview(undefined);
+    setThumbnailFile(undefined);
+
+    // input[type=file] 값 초기화
+    if (fileRef.current) {
+        fileRef.current.value = "";
+    }
+};
+
+    const handleDetailRemove = (e,index) => {
+        e.stopPropagation();
+    setDetailImages(prev => {
+        const copy = [...prev];
+
+        // blob 메모리 해제
+        if (copy[index]?.preview) {
+            URL.revokeObjectURL(copy[index].preview);
+        }
+
+        copy.splice(index, 1);
+        return copy;
+    });
+};
 
     //주소
     const [isAddOpen, setIsAddOpen] = useState(false);
@@ -60,14 +116,126 @@ export default function RegistTool() {
         setTool({
             ...tool,
             zonecode: data.zonecode,
-            addr1: data.roadAddress
-                || data.address
+            addr1: data.address,
         });
-    }
-
-    const closeHandler = (state) => {
+    };
+    const closeHandler = () => {
         setIsAddOpen(false);
-    }
+    };
+
+    // const [isAddOpen2, setIsAddOpen2] = useState(false);
+
+    // const complateHandler2 = (data) => {
+    //     setTool({
+    //         ...tool,
+    //         tradeZonecode: data.zonecode,
+    //         tradeAddr1: data.address,
+    //     });
+    // };
+
+    // const closeHandler2 = () => {
+    //     setIsAddOpen2(false);
+    // };
+
+    //지도 주소
+
+    const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const fixedMarker = useRef(null);
+  const clickMarker = useRef(null);
+  const infowindow = useRef(null);
+
+  const [clickedAddress, setClickedAddress] = useState("");
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
+  useEffect(() => {
+    if (!isMapOpen || !window.kakao || !user?.addr1) return;
+
+    map.current = new window.kakao.maps.Map(mapContainer.current, {
+      center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
+      level: 1,
+    });
+
+    infowindow.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
+
+    const geocoder = new window.kakao.maps.services.Geocoder();
+
+    // 고정 마커
+    geocoder.addressSearch(user.addr1, (result, status) => {
+      if (status === window.kakao.maps.services.Status.OK) {
+        const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+        map.current.setCenter(coords);
+
+        fixedMarker.current = new window.kakao.maps.Marker({
+          position: coords,
+          map: map.current,
+          title: "내 주소",
+        });
+
+        // fixedMarker 클릭 시 선택
+        window.kakao.maps.event.addListener(fixedMarker.current, "click", () => {
+          const address = result[0].address.address_name;
+          infowindow.current.setContent(
+            `<div style="padding:5px;">${address}</div>`
+          );
+          infowindow.current.open(map.current, fixedMarker.current);
+
+          setClickedAddress(address);
+          setSelectedMarker(fixedMarker.current);
+        });
+      }
+    });
+
+    // 클릭 마커 생성 (처음 안보임)
+    clickMarker.current = new window.kakao.maps.Marker({ map: map.current });
+    clickMarker.current.setMap(null);
+
+    // 지도 클릭 시 클릭 마커 이동/표시
+    map.current.addListener("click", (mouseEvent) => {
+      const latlng = mouseEvent.latLng;
+
+      clickMarker.current.setPosition(latlng);
+      clickMarker.current.setMap(map.current);
+
+      geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (res, stat) => {
+        if (stat === window.kakao.maps.services.Status.OK) {
+          const detailAddr = res[0].address.address_name;
+          infowindow.current.setContent(
+            `<div style="padding:5px;">${detailAddr}</div>`
+          );
+          infowindow.current.open(map.current, clickMarker.current);
+
+          setClickedAddress(detailAddr);
+          setSelectedMarker(clickMarker.current);
+        }
+      });
+    });
+  }, [isMapOpen, user]);
+
+
+   const handleSave = () => {
+    if (!selectedMarker) return alert("마커를 선택하세요!");
+    alert(`DB에 저장할 주소: ${clickedAddress}`);
+
+    const data = {
+    toolIdx: toolIdx,
+    clickedAddress: clickedAddress,
+    };
+
+   token&&myAxios(token,setToken).post(`tool/directRental/map`, data)
+   .then(res=>{
+    console.log(res.data);
+   })
+   .catch(err => {
+    console.log(err);
+   })
+    setIsOpen(false);
+  };
+
+
+
 
     //카테고리
     const [tCategory, setTCategory] = useState(83);
@@ -76,12 +244,12 @@ export default function RegistTool() {
     const [freeRental, setFreeRental] = useState(false);
     useEffect(() => {
         if (freeRental) {
-            setTool(prev => ({
+            setTool((prev) => ({
                 ...prev,
-                rentalPrice: 0
-            }))
+                rentalPrice: 0,
+            }));
         }
-    }, [freeRental])
+    }, [freeRental]);
 
     //바로대여 여부
     const [quickRental, setQuickRental] = useState(false);
@@ -94,10 +262,10 @@ export default function RegistTool() {
     const [freePost, setFreePost] = useState(false);
 
     useEffect(() => {
-        if (freeRental) {
-            setTool(prev => ({
+        if (freePost) {
+            setTool((prev) => ({
                 ...prev,
-                postCharge: 0
+                postCharge: 0,
             }));
         }
     }, [freePost]);
@@ -106,21 +274,21 @@ export default function RegistTool() {
     const [useProfile, setUseProfile] = useState(false);
     useEffect(() => {
         if (useProfile && user) {
-            setTool(prev => ({
+            setTool((prev) => ({
                 ...prev,
                 addr1: user.addr1 ?? "",
                 addr2: user.addr2 ?? "",
-                zonecode: user.zonecode ?? ""
+                zonecode: user.zonecode ?? "",
             }));
         }
 
         if (!useProfile) {
             // 직접 입력 → 초기화
-            setTool(prev => ({
+            setTool((prev) => ({
                 ...prev,
                 addr1: "",
                 addr2: "",
-                zonecode: ""
+                zonecode: "",
             }));
         }
     }, [useProfile, user]);
@@ -130,129 +298,122 @@ export default function RegistTool() {
     useEffect(() => {
         if (userBank && user) {
             // 기본 계좌 사용
-            setTool(prev => ({
+            setTool((prev) => ({
                 ...prev,
                 settleBank: user.settleBank ?? "",
                 settleAccount: user.settleAccount ?? "",
-                settleHost: user.settleHost ?? ""
+                settleHost: user.settleHost ?? "",
             }));
         }
 
         if (!userBank) {
             // 직접 입력 → 초기화
-            setTool(prev => ({
+            setTool((prev) => ({
                 ...prev,
                 settleBank: "",
                 settleAccount: "",
-                settleHost: ""
+                settleHost: "",
             }));
         }
-
-    }, [userBank, user])
-
+    }, [userBank, user]);
 
     //대여 가능 상태설정
     const [toolStatus, setToolStatus] = useState("ABLE");
 
-    //대여문의 수 
-
+    //대여문의 수
 
     //등록
     const regist = () => {
-        console.log("why ")
+        console.log("why ");
 
         const submitTool = {
-            name: tool.name,
-            rentalPrice: tool.rentalPrice,
-            content: tool.content,
-            category: tCategory,
-            satus: toolStatus,
+            ...tool,
+            owner: user.username,
             freeRental,
             quickRental,
             postRental,
             directRental,
             freePost,
-            owner: user.username,
-            postCharge: tool.postCharge,
-            zonecode: tool.zonecode,
-            addr1: tool.addr1,
-            addr2: tool.addr2,
-            settleBank: tool.settleBank,
-            settleAccount: tool.settleAccount,
-            settleHost: tool.settleHost,
-            postRequest: tool.postRequest
+            postCharge:tool.postCharge,
+            tradeAddr1:clickedAddress
+
         };
 
         if (!checkOption(submitTool)) return;
 
         const formData = new FormData();
-        formData.append(
-            "tool",
-            new Blob([JSON.stringify(submitTool)], { type: "application/json" })
-        );
+        formData.append("tool", new Blob([JSON.stringify(submitTool)], { type: "application/json" }));
 
         if (thumbnailFile) {
             formData.append("thumbnail", thumbnailFile);
         }
 
-        detailImages.forEach(img => {
+        detailImages.forEach((img) => {
             formData.append("images", img.file);
         });
 
-        token && myAxios(token, setToken).post("/tool/regist", formData)
-        
-            .then(res => {
-                console.log("inAxios");
-                if (res.data) {
-                    setMessage("공구 등록 완료!")
-                    setModal(true);
+        token &&
+            myAxios(token, setToken)
+                .post("/tool/regist", formData)
 
-                } else {
-                    setMessage("공구 등록 실패")
-                    setModal(true);
-                }
-                const toolIdx = res.data;
-                navigate(`/zipddak/tool/${toolIdx}`);
-
-            })
-            .catch(err => {
-                console.log(err);
-            })
-
+                .then((res) => {
+                    console.log("inAxios");
+                    if (res.data) {
+                        setMessage("공구 등록 완료!");
+                        setModal(true);
+                    } else {
+                        setMessage("공구 등록 실패");
+                        setModal(true);
+                    }
+                    const toolIdx = res.data;
+                    navigate(`/zipddak/tool/${toolIdx}`);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
     };
 
-    //취소 
-    const cancal = () => {
-
-    }
+    //취소
+    const cancal = () => { };
 
     //항목확인
     const checkOption = (submitTool) => {
+        switch (true) {
+            case !submitTool.name:
+                setMessage("공구 이름을 등록해주세요");
+                break;
 
-        if (!submitTool.name) {
-            setMessage("공구 이름을 등록해주세요")
-            setModal(true);
-            return false;
-            
-        } else if (submitTool.rentalPrice === "" || submitTool.rentalPrice == null) {
-            setMessage("공구 1일 대여 금액을 설정해주세요")
-            setModal(true);
-            return false;
-           
-        } else if (!submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2) {
-            setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요")
-            setModal(true);
-            return false;
+            case submitTool.rentalPrice === "" || submitTool.rentalPrice == null:
+                setMessage("공구 1일 대여 금액을 설정해주세요");
+                break;
+
+            case !submitTool.zonecode && !submitTool.tradeZonecode:
+                setMessage("거래방식을 선택해주세요");
+                break;
+
+            case !submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2:
+                setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
+                break;
+
+            case submitTool.postRental && submitTool.postCharge == null:
+                setMessage("택배거래시 배송비를 설정해주세요");
+                break;
+
+             case submitTool.settleAccount === "" || submitTool.settleAccount == null:
+                setMessage("택배거래시 배송비를 설정해주세요");
+                break;
+
+            default:
+                return true;
         }
-        return true;
 
-    }
-
+        setModal(true);
+        return false;
+    };
 
     return (
         <>
             <div className="regTool-container">
-
                 <div className="regTool">
                     <div className="r-title">
                         <SquarePlus />
@@ -261,22 +422,23 @@ export default function RegistTool() {
 
                     <div className="regToolForm">
                         <div className="options">
-                            <span className="o-label">공구명</span>
-                            <Input placeholder="상품명을 입력하세요" name="name" type="text"
-                                onChange={ChangeInput}
-                            />
+                            <div className="row-cm" style={{ gap: "5px" }}>
+                                <span className="o-label">공구명</span>
+                                <span className="orange oFont">*</span>
+                            </div>
+                            <Input placeholder="상품명을 입력하세요" name="name" type="text" onChange={ChangeInput} />
                         </div>
 
                         <div className="options">
                             <span className="o-label">공구 썸네일</span>
-                            <div
-                                className={thumbPreview ? "thumbnail" : "thumbnail add"}
-                                onClick={() => fileRef.current?.click()}>
-                                {thumbPreview ?
-                                    <img src={thumbPreview} alt="공구" />
-                                    :
-                                    <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />
-                                }
+                            <div className={thumbPreview ? "thumbnail" : "thumbnail add"} onClick={() => fileRef.current?.click()}>
+                                {thumbPreview ? 
+                                <>
+                                <img src={thumbPreview} alt="공구" />
+                                <button className="imgDeleteButton" onClick={(e) => handleThumbRemove(e)}><Minus color="#ffff"/></button>
+                                </>
+                                : 
+                                <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />}
                             </div>
                             <Input
                                 type="file"
@@ -297,256 +459,220 @@ export default function RegistTool() {
                             <span className="o-label">상세이미지 (최대 5장)</span>
 
                             <div className="row-cm detail-img-list">
-
                                 {/* 기존 이미지들 */}
                                 {detailImages.map((img, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="thumbnail"
-                                        onClick={() => detailRefs.current[idx]?.click()}
-                                    >
+                                    <div key={idx} className="thumbnail" onClick={() => detailRefs.current[idx]?.click()}>
                                         <img src={img.preview} alt={`detail-${idx}`} />
+                                        <button className="imgDeleteButton" onClick={(e,idx) => handleDetailRemove(e,idx)}><Minus color="#ffff"/></button>
 
-                                        <Input
-                                            type="file"
-                                            hidden
-                                            accept="image/*"
-                                            innerRef={(el) => (detailRefs.current[idx] = el)}
-                                            onChange={(e) => handleDetailChange(e, idx)}
-                                        />
+                                        <Input type="file" hidden accept="image/*" innerRef={(el) => (detailRefs.current[idx] = el)} onChange={(e) => handleDetailChange(e, idx)} />
                                     </div>
                                 ))}
 
                                 {/* + 버튼 (5개 미만일 때만) */}
                                 {detailImages.length < 5 && (
-                                    <div
-                                        className="thumbnail add"
-                                        onClick={() => detailRefs.current[detailImages.length]?.click()}
-                                    >
+                                    <div className="thumbnail add" onClick={() => detailRefs.current[detailImages.length]?.click()}>
                                         <Plus size={40} color="#B6BCC9" strokeWidth={0.5} />
 
                                         <Input
                                             type="file"
                                             hidden
                                             accept="image/*"
-                                            innerRef={(el) =>
-                                                (detailRefs.current[detailImages.length] = el)
-                                            }
-                                            onChange={(e) =>
-                                                handleDetailChange(e, detailImages.length)
-                                            }
+                                            innerRef={(el) => (detailRefs.current[detailImages.length] = el)}
+                                            onChange={(e) => handleDetailChange(e, detailImages.length)}
                                         />
                                     </div>
                                 )}
                             </div>
                         </div>
 
-
-
                         <div className="options">
-                            <span className="o-label">카테고리</span>
+                            <div className="row-cm" style={{ gap: "5px" }}>
+                                <span className="o-label">카테고리</span>
+                                <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
-                                    <Label check><Input name="category" type="radio"
-                                        value={83}
-                                        checked={tCategory == 83}
-                                        onChange={(e) => setTCategory(83)}
-                                    /> 전동공구</Label>
+                                    <Label check>
+                                        <Input name="category" type="radio" value={83} checked={tCategory == 83} onChange={(e) => setTCategory(83)} /> 전동공구
+                                    </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
-                                    <Label check><Input name="category" type="radio"
-                                        value={84}
-                                        checked={tCategory == 84}
-                                        onChange={(e) => setTCategory(84)}
-                                    /> 일반공구</Label>
+                                    <Label check>
+                                        <Input name="category" type="radio" value={84} checked={tCategory == 84} onChange={(e) => setTCategory(84)} /> 일반공구
+                                    </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
-                                    <Label check><Input name="category" type="radio"
-                                        value={85}
-                                        checked={tCategory == 85}
-                                        onChange={(e) => setTCategory(85)}
-                                    /> 생활용품</Label>
+                                    <Label check>
+                                        <Input name="category" type="radio" value={85} checked={tCategory == 85} onChange={(e) => setTCategory(85)} /> 생활용품
+                                    </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
-                                    <Label check><Input name="category" type="radio"
-                                        value={86}
-                                        checked={tCategory == 86}
-                                        onChange={(e) => setTCategory(86)}
-                                    />기타공구</Label>
+                                    <Label check>
+                                        <Input name="category" type="radio" value={86} checked={tCategory == 86} onChange={(e) => setTCategory(86)} />
+                                        기타공구
+                                    </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
-                                    <Label check><Input name="category" type="radio"
-                                        value={87}
-                                        checked={tCategory == 87}
-                                        onChange={(e) => setTCategory(87)}
-                                    />찾아요</Label>
+                                    <Label check>
+                                        <Input name="category" type="radio" value={87} checked={tCategory == 87} onChange={(e) => setTCategory(87)} />
+                                        찾아요
+                                    </Label>
                                 </FormGroup>
                             </div>
                         </div>
 
                         <div className="options">
-                            <span className="o-label">1일 대여비</span>
+                            <div className="row-cm" style={{ gap: "5px" }}>
+                                <span className="o-label">1일 대여비</span>
+                                <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <div className="won">
-                                    <Input type="number" name="rentalPrice" className="wonInput" placeholder="1일 대여비"
-                                        value={tool.rentalPrice}
-                                        readOnly={freeRental}
-                                        onChange={ChangeInput}
-                                    />
+                                    <Input type="number" name="rentalPrice" className="wonInput" placeholder="1일 대여비" value={tool.rentalPrice} readOnly={freeRental} onChange={ChangeInput} />
                                     <span>원</span>
                                 </div>
                                 <FormGroup check>
-                                    <Label check><Input name="freeRental" id="checkbox2" type="checkbox"
-                                        checked={freeRental}
-                                        onChange={() => setFreeRental(prev => !prev)}
-                                    /> 무료대여</Label>
+                                    <Label check>
+                                        <Input name="freeRental" id="checkbox2" type="checkbox" checked={freeRental} onChange={() => setFreeRental((prev) => !prev)} /> 무료대여
+                                    </Label>
                                 </FormGroup>
                             </div>
                         </div>
 
                         <div className="options">
                             <span className="o-label">공구 상세설명</span>
-                            <Input type="textarea" name="content"
-                                placeholder="공구의 상세한 설명을 적어주세요! (최대 2000자)" className="ttextarea"
-                                onChange={ChangeInput}
-                            />
+                            <Input type="textarea" name="content" placeholder="공구의 상세한 설명을 적어주세요! (최대 2000자)" className="ttextarea" onChange={ChangeInput} />
                         </div>
 
                         <div className="options">
-                            <span className="o-label">결제옵션</span>
+                            <div className="row-cm" style={{ gap: "5px" }}>
+                                <span className="o-label">결제옵션</span>
+                                <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
-                                    <Label check><Input type="checkbox" defaultChecked /> 문의후 대여</Label>
+                                    <Label check>
+                                        <Input type="checkbox" defaultChecked disabled /> 문의후 대여
+                                    </Label>
                                 </FormGroup>
                                 <FormGroup check>
-                                    <Label check><Input name="quickRental" type="checkbox"
-                                        checked={quickRental}
-                                        onChange={() => setQuickRental(prev => !prev)}
-                                    /> 바로대여</Label>
+                                    <Label check>
+                                        <Input name="quickRental" type="checkbox" checked={quickRental} onChange={() => setQuickRental((prev) => !prev)} /> 바로대여
+                                    </Label>
                                 </FormGroup>
                                 <span className="check-detail">바로대여 기능 선택 시 대여자가 조율 없이 대여기간, 대여 일정을 설정합니다</span>
                             </div>
                         </div>
 
                         <div className="options">
-                            <span className="o-label">거래방식</span>
+                            <div className="row-cm" style={{ gap: "5px" }}>
+                                <span className="o-label">거래방식</span>
+                                <span className="orange oFont">*</span>
+                            </div>
                             <div className="check-col">
                                 <FormGroup check>
-                                    <Label check><Input name="postRental" type="checkbox"
-                                        checked={postRental}
-                                        onChange={() => setPostRental(prev => !prev)}
-                                    /> 택배 배송</Label>
+                                    <Label check>
+                                        <Input name="postRental" type="checkbox" checked={postRental} onChange={() => setPostRental((prev) => !prev)} /> 택배 배송
+                                    </Label>
                                 </FormGroup>
                                 <FormGroup check>
-                                    <Label check><Input name="directRental" type="checkbox"
-                                        checked={directRental}
-                                        onChange={() => setDirectRental(prev => !prev)}
-                                    /> 직접 픽업</Label>
+                                    <Label check>
+                                        <Input name="directRental" type="checkbox" checked={directRental} onChange={() => setDirectRental((prev) => !prev)} /> 직접 픽업
+                                    </Label>
                                 </FormGroup>
                             </div>
                         </div>
 
-                        {postRental &&
-
-                            <div className="options" >
+                        {postRental && (
+                            <div className="options">
                                 <span className="o-label">배송비</span>
                                 <div className="check-col">
                                     <div className="won">
-                                        <Input type="number" name="postCharge" className="wonInput" placeholder="배송비"
-                                            value={tool.postCharge}
-                                            readOnly={freePost}
-                                            onChange={ChangeInput}
-                                        />
+                                        <Input type="number" name="postCharge" className="wonInput" placeholder="배송비" value={tool.postCharge} readOnly={freePost} onChange={ChangeInput} />
                                         <span>원</span>
                                     </div>
                                     <FormGroup check>
-                                        <Label check><Input name="freePost" type="checkbox"
-                                            checked={freePost}
-                                            onChange={() => setFreePost(prev => !prev)}
-                                        /> 무료배송</Label>
+                                        <Label check>
+                                            <Input name="freePost" type="checkbox" checked={freePost} onChange={() => setFreePost((prev) => !prev)} /> 무료배송
+                                        </Label>
                                     </FormGroup>
                                 </div>
                             </div>
-                        }
+                        )}
 
-                        {postRental &&
+                        {postRental && (
                             <div className="options">
-                                <span className="o-label">받을주소</span>
+                                <div className="row-cm" style={{ gap: "5px" }}>
+                                    <span className="o-label">받을 주소</span>
+                                    <span className="orange oFont">*</span>
+                                </div>
                                 <div className="post-box">
-                                    {user.addr1 &&
+                                    {user.addr1 && (
                                         <FormGroup check>
-                                            <Label check><Input type="radio"
-                                                checked={useProfile === true}
-                                                onChange={() => setUseProfile(true)}
-                                            />기본 주소지 (프로필 주소지)</Label>
-                                        </FormGroup>}
+                                            <Label check>
+                                                <Input type="radio" checked={useProfile === true} onChange={() => setUseProfile(true)} />
+                                                기본 주소지 (프로필 주소지)
+                                            </Label>
+                                        </FormGroup>
+                                    )}
                                     <FormGroup check>
-                                        <Label check><Input type="radio"
-                                            checked={useProfile === false}
-                                            onChange={() => setUseProfile(false)}
-                                        /> 직접 입력</Label>
+                                        <Label check>
+                                            <Input type="radio" checked={useProfile === false} onChange={() => setUseProfile(false)} /> 직접 입력
+                                        </Label>
                                     </FormGroup>
                                     <div className="check-col">
-                                        <Input
-                                            className="zonecodeInput"
-                                            type="text"
-                                            name="zonecode"
-                                            placeholder="우편번호"
-                                            value={tool.zonecode}
-                                            readOnly
-                                        />
-                                        {!useProfile &&
-                                            <Button className="primary-button"
-                                                onClick={() => setIsAddOpen(!isAddOpen)}
-                                            >주소검색</Button>}
-
+                                        <Input className="zonecodeInput" type="text" name="zonecode" placeholder="우편번호" value={tool.zonecode} readOnly />
+                                        {!useProfile && (
+                                            <Button className="primary-button" onClick={() => setIsAddOpen(!isAddOpen)}>
+                                                주소검색
+                                            </Button>
+                                        )}
                                     </div>
-                                    <Input
-                                        type="text"
-                                        name="addr1"
-                                        placeholder="지번/도로명주소"
-                                        value={tool.addr1}
-                                        readOnly
-                                    />
-                                    <Input
-                                        type="text"
-                                        name="addr2"
-                                        placeholder="상세주소"
-                                        value={tool.addr2}
-                                        readOnly={useProfile}
-                                        onChange={useProfile ? undefined : ChangeInput}
-                                    />
+                                    <Input type="text" name="addr1" placeholder="지번/도로명주소" value={tool.addr1} readOnly />
+                                    <Input type="text" name="addr2" placeholder="상세주소" value={tool.addr2} readOnly={useProfile} onChange={useProfile ? undefined : ChangeInput} />
 
-                                    <Input name="postRequest" type="select" className="toolBank pqSelect"
-                                        value={tool.postRequest} onChange={ChangeInput}>
+                                    <Input name="postRequest" type="select" className="toolBank pqSelect" value={tool.postRequest} onChange={ChangeInput}>
                                         <option value={"배송시 요청사항 없음"}>배송시 요청사항</option>
                                         <option value={"문앞에 놔주세요"}>문앞에 놔주세요</option>
                                         <option value={"경비실에 맡겨주세요"}>경비실에 맡겨주세요</option>
                                     </Input>
                                 </div>
                             </div>
-                        }
+                        )}
 
-                        {
-                            isAddOpen &&
-                            <AddrModal title='주소찾기'
-                                open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
+                        {isAddOpen && (
+                            <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
                                 <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
                             </AddrModal>
-                        }
+                        )}
 
-                        {directRental &&
+                        {directRental && (
                             <div className="options">
-                                <span className="o-label">거래 희망장소</span>
+                                <div className="row-cm" style={{ gap: "5px" }}>
+                                    <span className="o-label">거래 희망장소</span>
+                                    <span className="orange oFont">*</span>
+                                </div>
+                                {/* <div className="post-box">
+                                    <div className="check-col">
+                                        <Input className="zonecodeInput" type="text" name="tradeZonecode" placeholder="우편번호" value={tool.tradeZonecode} readOnly />
+
+                                        <Button className="primary-button" onClick={() => setIsAddOpen2(!isAddOpen2)}>
+                                            주소검색
+                                        </Button>
+                                    </div>
+                                    <Input type="text" name="tradeAddr1" placeholder="지번/도로명주소" value={tool.tradeAddr1} readOnly />
+                                    <Input type="text" name="tradeAddr2" placeholder="상세주소" onChange={ChangeInput} />
+                                </div> */}
                                 <div className="check-col">
                                     <div className="location-box">
-                                        <input className="location" type="text" placeholder="지도에서 찾기" readOnly></input>
+                                        <input className="location" type="text" placeholder="지도에서 찾기"  value={clickedAddress} readOnly></input>
                                         <div className="">
-                                            <Button className="primary-button mapPinI">
+                                            <Button className="primary-button mapPinI" onClick={() => {setIsMapOpen(true)}}>
                                                 <MapPinned size={20} />
                                             </Button>
                                         </div>
@@ -554,99 +680,142 @@ export default function RegistTool() {
                                     <Input type="text" name="location" placeholder="" readOnly />
                                 </div>
                             </div>
-                        }
+                        )}
+
+                        {/* {isAddOpen2 && (
+                            <AddrModal title="만나서 결제주소찾기" open={isAddOpen2} footer={null} onCancel={() => setIsAddOpen2(false)}>
+                                <DaumPostcode onComplete={complateHandler2} onClose={closeHandler2} />
+                            </AddrModal>
+                        )} */}
+
+                        {isMapOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div
+            style={{
+              width: "90%",
+              maxWidth: "600px",
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              padding: "16px",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setIsMapOpen(false)}
+              style={{ position: "absolute", top: 8, right: 8 }}
+            >
+              X
+            </button>
+
+            <div
+              ref={mapContainer}
+              style={{ width: "100%", height: "400px", marginBottom: "10px" }}
+            />
+
+            <input
+              type="text"
+              value={clickedAddress}
+              onChange={(e) => setClickedAddress(e.target.value)}
+              style={{ width: "100%", marginBottom: "10px" }}
+            />
+
+            <button onClick={handleSave} style={{ width: "100%" }}>
+              주소 저장
+            </button>
+          </div>
+        </div>
+      )}
 
                         <div className="options">
                             <div className="row-cm">
-                                <div className="o-label">계좌번호</div>
+                                <div className="row-cm" style={{ gap: "5px" }}>
+                                    <span className="o-label">계좌번호</span>
+                                    <span className="orange oFont">*</span>
+                                </div>
                                 {/* <span className="necc">*</span> */}
                             </div>
-                            {user.settleAccount &&
+                            {user.settleAccount && (
                                 <FormGroup check>
-                                    <Label check><Input type="radio"
-                                        checked={userBank === true}
-                                        onChange={() => setUserBank(true)}
-                                    />기본 계좌 (프로필 계좌)</Label>
-                                </FormGroup>}
+                                    <Label check>
+                                        <Input type="radio" checked={userBank === true} onChange={() => setUserBank(true)} />
+                                        기본 계좌 (프로필 계좌)
+                                    </Label>
+                                </FormGroup>
+                            )}
                             <FormGroup check>
-                                <Label check><Input type="radio"
-                                    checked={userBank === false}
-                                    onChange={() => setUserBank(false)}
-                                /> 직접 입력</Label>
+                                <Label check>
+                                    <Input type="radio" checked={userBank === false} onChange={() => setUserBank(false)} /> 직접 입력
+                                </Label>
                             </FormGroup>
-                            <div className="input_detail">정산이 이루어지는 계좌입니다</div>
-                            {userBank ?
-
-                                <Input name="settleBank" type="text" className="toolBank sbSelect"
-                                    value={tool.settleBank} readOnly />
-                                :
-                                <Input name="settleBank" type="select" className="toolBank sbSelect"
-                                    value={tool.settleBank} onChange={ChangeInput}>
+                            <div className="input_detail">정산이 이루어지는 계좌입니다. 마이페이지의 정산계좌로 등록됩니다.</div>
+                            {userBank ? (
+                                <Input name="settleBank" type="text" className="toolBank sbSelect" value={tool.settleBank} readOnly />
+                            ) : (
+                                <Input name="settleBank" type="select" className="toolBank sbSelect" value={tool.settleBank} onChange={ChangeInput}>
                                     <option>은행 선택</option>
                                     <option value={"국민은행"}>국민은행</option>
                                     <option value={"신한은행"}>신한은행</option>
                                     <option value={"농협은행"}>농협은행</option>
                                     <option value={"카카오뱅크"}>카카오뱅크</option>
                                 </Input>
-
-                            }
+                            )}
 
                             <Input
                                 className="toolBank"
                                 name="settleAccount"
                                 placeholder="'-'제외 숫자로만 계좌번호 입력"
-                                type="text"
+                                type="number"
                                 value={tool.settleAccount}
                                 readOnly={userBank}
                                 onChange={userBank ? undefined : ChangeInput}
                             />
-                            <Input
-                                className="toolBank"
-                                name="settleHost"
-                                placeholder="예금주"
-                                type="text"
-                                value={tool.settleHost}
-                                readOnly={userBank}
-                                onChange={userBank ? undefined : ChangeInput}
-
-                            />
+                            <Input className="toolBank" name="settleHost" placeholder="예금주" type="text" value={tool.settleHost} readOnly={userBank} onChange={userBank ? undefined : ChangeInput} />
                         </div>
 
                         <div className="options">
                             <span className="o-label">대여상태 설정</span>
                             <div className="check-col">
                                 <FormGroup check>
-                                    <Label check><Input name="satus" type="radio"
-                                        value={"ABLE"}
-                                        checked={toolStatus == "ABLE"}
-                                        onChange={() => setToolStatus("ABLE")}
-                                    /> 대여가능</Label>
+                                    <Label check>
+                                        <Input name="satus" type="radio" value={"ABLE"} checked={toolStatus == "ABLE"} onChange={() => setToolStatus("ABLE")} /> 대여가능
+                                    </Label>
                                 </FormGroup>
                                 <FormGroup check>
-                                    <Label check><Input name="satus" type="radio"
-                                        value={"INABLE"}
-                                        checked={toolStatus == "INABLE"}
-                                        onChange={() => setToolStatus("INABLE")}
-                                    /> 대여중지</Label>
+                                    <Label check>
+                                        <Input name="satus" type="radio" value={"INABLE"} checked={toolStatus == "INABLE"} onChange={() => setToolStatus("INABLE")} /> 대여중지
+                                    </Label>
                                 </FormGroup>
                             </div>
                         </div>
                     </div>
                     <div className="btn-col">
                         <Button className="tertiary-button">작성취소</Button>
-                        <Button className="primary-button" onClick={regist}>작성완료</Button>
+                        <Button className="primary-button" onClick={regist}>
+                            작성완료
+                        </Button>
                     </div>
                 </div>
 
                 <Modal isOpen={modal}>
                     <ModalHeader>회원가입</ModalHeader>
-                    <ModalBody>
-                        {message}
-                    </ModalBody>
-                    <Button color="primary-button" onClick={() => setModal(false)} >확인</Button>
+                    <ModalBody>{message}</ModalBody>
+                    <Button color="primary-button" onClick={() => setModal(false)}>
+                        확인
+                    </Button>
                 </Modal>
-
-
             </div>
         </>
     );

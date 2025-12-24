@@ -14,7 +14,7 @@ export default function Mypage() {
     // 전문가 <-> 고객 전환
     const expertToggle = () => {
         if (user.role === "USER") {
-            navigate("/zipddak/signUp/expert");
+            navigate("/signUp/expert");
             return;
         }
 
@@ -99,13 +99,13 @@ export default function Mypage() {
                         gap: "16px",
                     }}
                 >
-                    <img src={`${baseUrl}/imageView?type=profile&filename=${user.profile}`} width="96px" height="96px" style={{ borderRadius: "999px" }} />
+                    <img src={user.profile ? `${baseUrl}/imageView?type=profile&filename=${user.profile}` : "/default-profile.png"} width="96px" height="96px" style={{ borderRadius: "999px" }} />
                     {user.role === "USER" ? (
                         <button
                             className="secondary-button"
                             style={{ width: "160px", height: "33px" }}
                             onClick={() => {
-                                navigate("/zipddak/signUp/expert");
+                                navigate("/signUp/expert");
                             }}
                         >
                             전문가 가입
@@ -237,7 +237,7 @@ export default function Mypage() {
                         >
                             게시물
                         </NavLink>
-                        <NavLink
+                        {/* <NavLink
                             // onClick={() => window.scrollTo(0, 0)}
                             to="/zipddak/mypage/inquiries"
                             style={({ isActive }) => ({
@@ -246,7 +246,7 @@ export default function Mypage() {
                             })}
                         >
                             1:1문의내역
-                        </NavLink>
+                        </NavLink> */}
                     </div>
 
                     <div style={{ padding: " 10px 0 14px 0" }}>

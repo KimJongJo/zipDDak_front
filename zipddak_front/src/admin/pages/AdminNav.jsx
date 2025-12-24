@@ -14,7 +14,7 @@ export default function AdminNav() {
         setUser(initUser);
         setToken(null);
         setAlarms([]);
-        navigate("/zipddak/login");
+        navigate("/login");
     };
 
     return (

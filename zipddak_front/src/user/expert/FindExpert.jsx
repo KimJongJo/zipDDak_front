@@ -24,7 +24,7 @@ export default function FindExpert() {
     const toggle = () => {
         setModal(!modal);
 
-        navigate("/zipddak/experts");
+        navigate("/zipddak/mypage/expert/requests/active");
     };
 
     const [requestForm, setRequestForm] = useState({});
@@ -106,6 +106,11 @@ export default function FindExpert() {
             formData.append("files", file);
         });
 
+        // FormData 내용 콘솔에 찍기
+        for (const [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
         myAxios(token, setToken)
             .post(`${baseUrl}/user/writeRequest`, formData, {
                 headers: {
@@ -156,6 +161,8 @@ export default function FindExpert() {
             if (step === 0) {
                 setCategory(option);
 
+                console.log(option);
+
                 setRequestForm((prev) => ({
                     ...prev,
                     cate1: option,
@@ -181,7 +188,7 @@ export default function FindExpert() {
                 setFirstChoice(option);
 
                 // 시공 견적 일때는 cate2가 아니라 place
-                category === "시공/견적 컨설팅"
+                category === "시공견적컨설팅"
                     ? setRequestForm((prev) => ({
                           ...prev,
                           place: option,
@@ -199,7 +206,7 @@ export default function FindExpert() {
 
             if (step === 2) {
                 // 시공 견적 일때는 cate3가 아니라 purpose
-                category === "시공/견적 컨설팅"
+                category === "시공견적컨설팅"
                     ? setRequestForm((prev) => ({
                           ...prev,
                           purpose: option,
@@ -274,7 +281,7 @@ export default function FindExpert() {
     };
 
     useEffect(() => {
-        if (!user) return;
+        if (!user.username) return;
         //
         if (user.username === "") {
             setModalMessage("로그인 후 견적요청을 할 수 있습니다.");
@@ -482,6 +489,11 @@ export default function FindExpert() {
 
                                                 if (files.length > 3) {
                                                     e.target.value = ""; // 초기화
+                                                    setModalMessage("첨부 이미지 파일은 최대 3장입니다.");
+                                                    setIsModalOpen(true);
+                                                    setTimeout(() => {
+                                                        setIsModalOpen(false);
+                                                    }, 1500);
                                                     return;
                                                 }
 
