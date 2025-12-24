@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../css/ExpertProfile.css";
 import ExpertReviewCard from "./ExpertReviewCard";
 import ExpertQuestion from "./ExpertQuestion";
@@ -502,11 +502,17 @@ export default function ExpertProfile() {
                             <span className="font-18 semibold">자격증 및 기타 서류</span>
                             {/* 자격증 */}
                             <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
-                                {expertProfile.certImage1 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage1}`} alt="cert1" />}
+                                {expertProfile.certImage1 && (
+                                    <img style={{ border: "none" }} className="expertProfile-auth-img" src={`${baseUrl}/imageView?type=expert&filename=${expertProfile.certImage1}`} alt="cert1" />
+                                )}
 
-                                {expertProfile.certImage2 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage2}`} alt="cert2" />}
+                                {expertProfile.certImage2 && (
+                                    <img style={{ border: "none" }} className="expertProfile-auth-img" src={`${baseUrl}/imageView?type=expert&filename=${expertProfile.certImage2}`} alt="cert2" />
+                                )}
 
-                                {expertProfile.certImage3 && <img className="expertProfile-auth-img" src={`${expertProfile.imgStoragePath}/${expertProfile.certImage3}`} alt="cert3" />}
+                                {expertProfile.certImage3 && (
+                                    <img style={{ border: "none" }} className="expertProfile-auth-img" src={`${baseUrl}/imageView?type=expert&filename=${expertProfile.certImage3}`} alt="cert3" />
+                                )}
 
                                 {!expertProfile.certImage1 && !expertProfile.certImage2 && !expertProfile.certImage3 && <span style={{ color: "#999", fontSize: "14px" }}>자격증 없음</span>}
                             </div>
@@ -522,7 +528,29 @@ export default function ExpertProfile() {
                             {!portfolio || portfolio.length === 0 ? (
                                 <span style={{ color: "#999", fontSize: "14px" }}>포트폴리오 없음</span>
                             ) : (
-                                portfolio.map((port, idx) => <img key={idx} className="expertProfile-portfolio" src="/images/이미지테스트.png" alt="portfolio" />)
+                                portfolio.map((port, idx) => {
+                                    const images = [port.image1, port.image2, port.image3].filter(Boolean);
+
+                                    return (
+                                        <React.Fragment key={idx}>
+                                            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                                                <h3>{port.title}</h3>
+                                                <span>{port.description}</span>
+                                                <div style={{ display: "flex", gap: "20px" }}>
+                                                    {images.map((img, i) => (
+                                                        <img
+                                                            key={i}
+                                                            style={{ border: "none" }}
+                                                            className="expertProfile-portfolio"
+                                                            src={`${baseUrl}/imageView?type=expert&filename=${img}`}
+                                                            alt={`portfolio-${i}`}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })
                             )}
                         </div>
                     </div>
