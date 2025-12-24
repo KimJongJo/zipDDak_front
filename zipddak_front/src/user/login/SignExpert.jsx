@@ -297,8 +297,6 @@ export default function SignExpert() {
                     if (res.data == true) {
                         console.log(res);
                         setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.");
-                        
-
                     } else {
                         setMessage("전문가 회원가입 실패");
                     }
@@ -319,8 +317,8 @@ export default function SignExpert() {
         <>
             <div className="signUp-box">
                 <div className="SignExpert">
-                    <a href="/zipddak/main" >
-                    <img src="/zipddak_smile.png" style={{width:"150px"}}/>
+                    <a href="/zipddak/main">
+                        <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                     </a>
                     <div className="underLogo">전문가 회원가입</div>
 
@@ -567,7 +565,15 @@ export default function SignExpert() {
                                             <div className="input_label">사업자등록번호</div>
                                             <span className="necc">*</span>
                                         </div>
-                                        <Input name="businessLicense" placeholder="숫자로만 13자" type="text" onChange={changeInput} valid={licenseValid === true} invalid={licenseValid === false} />
+                                        <Input
+                                            name="businessLicense"
+                                            placeholder="숫자로만 13자"
+                                            maxLength={13}
+                                            type="text"
+                                            onChange={changeInput}
+                                            valid={licenseValid === true}
+                                            invalid={licenseValid === false}
+                                        />
 
                                         {licenseValid === true && <FormFeedback valid></FormFeedback>}
                                         {licenseValid === false && <FormFeedback invalid>숫자 13자리 입력</FormFeedback>}
@@ -613,7 +619,7 @@ export default function SignExpert() {
                                             <option value={"농협은행"}>농협은행</option>
                                             <option value={"카카오뱅크"}>카카오뱅크</option>
                                         </Input>
-                                        <Input name="settleAccount" placeholder="'-'제외 숫자로만 계좌번호 입력" type="text" onChange={changeInput} />
+                                        <Input maxLength={14} name="settleAccount" placeholder="'-'제외 숫자로만 계좌번호 입력" type="text" onChange={changeInput} />
                                         <Input name="settleHost" placeholder="예금주" type="text" onChange={changeInput} />
                                     </div>
 
@@ -701,9 +707,13 @@ export default function SignExpert() {
                     <ModalHeader>전문가 회원가입</ModalHeader>
                     <ModalBody>{message}</ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={() => 
-                        {setModal(false); 
-                            navigate(`/login`);}}>
+                        <Button
+                            color="primary"
+                            onClick={() => {
+                                setModal(false);
+                                navigate(`/login`);
+                            }}
+                        >
                             확인
                         </Button>
                     </ModalFooter>
@@ -715,8 +725,6 @@ export default function SignExpert() {
                     <DaumPostcode onComplete={complateHandler} onClose={closeHandler} />
                 </AddrModal>
             )}
-
-            
         </>
     );
 }
