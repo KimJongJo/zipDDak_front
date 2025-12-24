@@ -72,6 +72,11 @@ export default function ToolMain() {
         setRentalTool(e.target.checked);
     };
 
+    //스크롤 탑
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
+
     //공구 리스트
     const toolList = (isMore = false, sizeParam = MORE_SIZE, offsetParam = offset) => {
         //지도 기준
@@ -143,7 +148,7 @@ export default function ToolMain() {
     }, [tool]);
 
     // 관심 토글
-    const toggleFavorite = async (toolIdx) => {
+    const toggleFavoriteTool = async (toolIdx) => {
         if (!user.username) {
             navigate("/zipddak/login");
             return;
@@ -273,7 +278,7 @@ export default function ToolMain() {
 
                                 {Array.isArray(tool) &&
                                     tool.map(toolCard => (
-                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />
                                     ))
                                 }
 
@@ -329,7 +334,7 @@ export default function ToolMain() {
                     <div className="toolMaincards">
                         {Array.isArray(tool) &&
                             tool.map(toolCard => (
-                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toggleFavorite} />
+                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />
                             ))
                         }
                     </div>

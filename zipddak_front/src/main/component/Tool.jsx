@@ -13,7 +13,7 @@ export function Tool({ tool, toggleFavoriteTool }) {
 
     const [user, setUsre] = useAtom(userAtom);
 
-     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
+    const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
     const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
 
     const navigate = useNavigate();
@@ -28,9 +28,9 @@ export function Tool({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
             </div>
 
@@ -52,7 +52,7 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
     const [user, setUsre] = useAtom(userAtom);
 
     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
-    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(0,2).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -67,9 +67,9 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         user.username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
                 {
                     tool.satus == "INABLE" &&
@@ -87,15 +87,15 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
                 </div>
             </div>
             <div className="tool-reaction-m">
-                {tool.favoriteCount&&
-                <div className="favs"><Heart size={14}/>{tool.favoriteCount}</div>
-                }
-                {tool.favoriteCount&&tool.rentalCount&&
-                <i className="bi bi-dot dot"></i>
-                }
-                {tool.rentalCount&&
-                <div className="chats"><Package2 size={13}/>{tool.rentalCount}</div>
-                }
+               {tool.favoriteCount > 0 &&
+  <div className="favs"><Heart size={14}/>{tool.favoriteCount}</div>
+}
+{tool.favoriteCount > 0 && tool.rentalCount > 0 &&
+  <i className="bi bi-dot dot"></i>
+}
+{tool.rentalCount > 0 &&
+  <div className="chats"><Package2 size={13}/>{tool.rentalCount}</div>
+}
             </div>
         </div>
     );
@@ -104,7 +104,7 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
 export function ToolL({ tool, toggleFavoriteTool }) {
 
      const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
-    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
+     const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(0,2).join(' ') : '';
 
     const navigate = useNavigate();
 
@@ -119,7 +119,7 @@ export function ToolL({ tool, toggleFavoriteTool }) {
                         // 로그인이 안되어있으면 막음
                         username && toggleFavoriteTool(tool.toolIdx);
                     }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack"
                 >
                     {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>
@@ -147,23 +147,18 @@ export function ToolL({ tool, toggleFavoriteTool }) {
     );
 }
 
-export function MapTool({ tool, toggleFavoriteTool }) {
+export function MapTool({ tool }) {
 
     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
-    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(1, 3).join(' ') : '';
+     const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(0,2).join(' ') : '';
 
 
     return (
         <div className="tool-h">
-            <div className="tool-image-h" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
+            <div className="tool-image-h">
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
                 <button
-                    onClick={(e) => {
-                        e.stopPropagation(); // 화면 이동 클릭 막음
-                        // 로그인이 안되어있으면 막음
-                        username && toggleFavoriteTool(tool.toolIdx);
-                    }}
-                    className="favorite-icon"
+                    className="favorite-icon iconNoneBack" style={{cursor:"default"}}
                 >
                     {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
                 </button>

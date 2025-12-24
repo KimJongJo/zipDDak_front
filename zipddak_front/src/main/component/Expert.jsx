@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 export default function Expertmain({ expert }) {
     const navigate = useNavigate();
 
+    const expertAddr = expert.addr1? expert.addr1.split(' ').slice(0,3).join(' ') : ' ';
+      
+
     return (
         <div
             className="expert-div-main"
@@ -45,7 +48,7 @@ export default function Expertmain({ expert }) {
                 <div className="expert-career-div">
                     <span className="font-13">
                         <i className="bi bi-geo-alt font-11"></i>
-                        {expert.addr1 + " " + expert.addr2}
+                        {expertAddr}
                     </span>
                 </div>
 

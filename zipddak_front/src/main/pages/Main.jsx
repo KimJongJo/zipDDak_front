@@ -102,29 +102,28 @@ export default function Main() {
             });
     };
 
-     // 관심 상품 토글
-    const toggleFavorite = async (productIdx) => {
-        if (user.username === "") {
-            navigate("/zipddak/login");
-            return;
-        }
-        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
-            productIdx,
-            username: user.username,
-        });
-
-        setProduct(prev =>
-    prev.map(t =>
-      t.productIdx === productIdx
-        ? { ...t, favorite: !t.favorite }
-        : t
-    )
-  );
-    };
-
+    //관심상품 토글
     useEffect(() => {
         productList();
     }, [ user.username,pCategory]);
+
+       const toggleFavorite = async (productIdx) => {
+        if (user.username === "") {
+            navigate("/login");
+            return;
+        }
+
+        try {
+            await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
+                productIdx: productIdx,
+                username: user.username,
+            });
+
+            setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     //공구 리스트
@@ -285,7 +284,7 @@ export default function Main() {
                         <div className="title-box">
                             <div className="title-main-main">
                                 <MapPin size={24} />
-                                <span>{user?.addr1 ? `${userAdress} 공구대여` : "공구대여"}</span>
+                                <span>공구대여</span>
                                 {/* <MapPin size={24} color='#FF5833'/> */}
                             </div>
                             <div className="more" onClick={() => navigate(`/zipddak/tool`)}>

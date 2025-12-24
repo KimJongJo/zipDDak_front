@@ -122,7 +122,8 @@
 
 .input_label {
     font-family: "Pretendard Variable Medium";
-    font-size: 16px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .input_detail {
@@ -145,6 +146,7 @@
     font-family: "Pretendard Variable Semibold";
     width: 100%;
     font-size: 19px;
+    
     display: flex;
     align-items: flex-start;
     margin-bottom: 40px;
@@ -154,7 +156,8 @@
 .title2 {
     font-family: "Pretendard Variable Semibold";
     width: 100%;
-    font-size: 17px;
+    font-weight: 600;
+    font-size: 15px;
     margin-bottom: 10px;
 }
 
@@ -277,7 +280,8 @@
     display: flex;
     align-items: center;
     height: 45px;
-    font-size: 17px;
+    font-size: 16px;
+    font-weight: 500;
     font-family: "Pretendard Variable Semibold";
 }
 
@@ -430,4 +434,20 @@ textarea.form-control {
 .centerbutton {
     justify-content: center;
     align-items: center;
+}
+
+.underLogo {
+    align-items: center;
+    margin: 10px 0 40px 0;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.signUpselectService {
+    width: 200px;
+}
+
+.headerTitle {
+    font-size: 16px;
+    font-weight: 500;
 }
