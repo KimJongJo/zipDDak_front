@@ -80,6 +80,8 @@ export default function ProductModify() {
     const [selectedSubCategory, setSelectedSubCategory] = useState(""); //선택한 소분류
     // 카테고리 세팅
     useEffect(() => {
+        if (!token) return;
+
         myAxios(token, setToken)
             .get("/seller/product/categories/all")
             .then((res) => res.data)

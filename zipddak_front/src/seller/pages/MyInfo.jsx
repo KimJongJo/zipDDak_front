@@ -33,6 +33,8 @@ export default function MyInfo() {
                                 </div>
                                 <div className={settings.settings_infoPart}>
                                     <div className={settings.compInfo}>
+                                        활동상태
+                                        <div className="blankSpace">~</div>
                                         <p>업체명 :</p>
                                         <p>사업자번호 : </p>
                                         <p>대표자명 : </p>

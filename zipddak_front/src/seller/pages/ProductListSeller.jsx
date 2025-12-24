@@ -159,19 +159,6 @@ export default function ProductList() {
             .catch((err) => console.log(err));
     };
 
-    // 최초 1회 로딩
-<<<<<<< HEAD
-    // useEffect(() => {
-    //     user.username && submit(1);
-    // }, [user]);
-=======
-    useEffect(() => {
-        if (!user) return;
-
-        submit(1);
-    }, [user]);
->>>>>>> main
-
     // 필터 변경 시 자동 submit
     useEffect(() => {
         user.username && submit(1);
@@ -286,10 +273,7 @@ export default function ProductList() {
                                                     myProductList.map((myProduct) => (
                                                         <tr key={myProduct.productIdx} onClick={() => navigate(`/seller/productDetail/${myProduct.productIdx}`)}>
                                                             <td className={table.img_cell} style={{ padding: "0" }}>
-                                                                <img
-                                                                    src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"}
-                                                                    style={{ width: "50%" }}
-                                                                />
+                                                                <img src={myProduct.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${myProduct.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "50%" }} />
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
