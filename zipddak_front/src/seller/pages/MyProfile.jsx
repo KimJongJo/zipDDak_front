@@ -1,15 +1,80 @@
-//css
-import "../css/settings.module.css";
 //js
-import useImgUpload from "../js/useImgUpload.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
+import useModifyImgUpload from "../js/useModifyImgUpload.jsx";
+import { priceFormat } from "../js/priceFormat.jsx";
 
+// library
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; //페이지 이동
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
+import { myAxios, baseUrl } from "../../config.jsx";
+import { tokenAtom, userAtom } from "../../atoms";
+import { useAtom } from "jotai";
 
 export default function MyProfile() {
     const pageTitle = usePageTitle("설정 > 프로필 관리");
+    const navigate = useNavigate();
+    const { sellerIdx } = useParams();
+    const [user] = useAtom(userAtom);
+    const [token, setToken] = useAtom(tokenAtom);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); //경고 모달 상태
 
+    // -----------------------------
+    // 기본정보 state
+    // -----------------------------
+    //이미지
+    const {
+        thumbRef,
+        addRef,
+        detailRef,
+
+        oldThumb,
+        oldAddImages,
+        oldDetailImages,
+
+        newThumbFile,
+        newAddFiles,
+        newDetailFiles,
+
+        deleteThumbIdx,
+        deleteAddIdxList,
+        deleteDetailIdxList,
+
+        remainAddSlots,
+        remainDetailSlots,
+
+        setOldThumb,
+        setOldAddImages,
+        setOldDetailImages,
+
+        changeThumb,
+        deleteThumb,
+
+        addAddImages,
+        deleteOldAddImage,
+        deleteNewAddImage,
+
+        addDetailImages,
+        deleteOldDetailImage,
+        deleteNewDetailImage,
+
+        validateBeforeSubmit,
+    } = useModifyImgUpload();
+
+    //취급품목 선택
+    const [handleItemIdx, setCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]); //소분류 목록 로딩
+    const [selectedCategory, setSelectedCategory] = useState(""); //선택한 대분류
+    const [selectedSubCategory, setSelectedSubCategory] = useState(""); //선택한 소분류
+
+    //기본 배송비
+    const [basicPostCharge, setBasicPostCharge] = useState(0);
+    //무료배송 기준금액
+    const [freeChargeAmount, setFreeChargeAmount] = useState(0);
+    //소개글
+    const [introduction, setIntroduction] = useState("");
     return (
         <>
             {/* 페이지 탭 타이틀 */}
@@ -33,7 +98,7 @@ export default function MyProfile() {
                                 로고<span className="required">*</span>
                             </Label>
                             <Tippy content="로고 이미지 첨부하기" theme="custom">
-                                <img src="/Paperclip.svg" className="fileAttachIcon pointer" />
+                                <img src="/Paperclip.svg" className="pointer" />
                             </Tippy>
                             <Input type="file" accept="image/*" hidden />
                             {/* {thumbPreview && (
@@ -50,42 +115,26 @@ export default function MyProfile() {
 
                         {/* 상호명 입력 */}
                         <FormGroup className="position-relative">
-                            <Label for="examplePassword" className="input_title">
-                                상호명<span className="required">*</span>
+                            <Label className="input_title">
+                                상점 이름<span className="required">*</span>
                             </Label>
                             <Input placeholder="상호명을 입력하세요" /> {/* invalid */}
                             {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
                         </FormGroup>
 
-                        {/* 대표자 */}
-                        <FormGroup className="position-relative">
+                        {/* 홈페이지 */}
+                        <FormGroup className="position-relative mb-4">
                             <Label for="examplePassword" className="input_title">
-                                대표자명<span className="required">*</span>
+                                홈페이지<span className="required">*</span>
                             </Label>
-                            <Input placeholder="상호명을 입력하세요" /> {/* invalid */}
+                            <Input placeholder="" /> {/* invalid */}
                             {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
-                        </FormGroup>
-
-                        {/* 사업자 번호 */}
-                        <FormGroup className="position-relative">
-                            <Label className="input_title">
-                                사업자 등록증<span className="required">*</span>
-                            </Label>
-                            {/* <img src="/Paperclip.svg" className="fileAttachIcon pointer" /> */}
-                        </FormGroup>
-
-                        {/* 통신판매업 신고번호 */}
-                        <FormGroup className="position-relative">
-                            <Label className="input_title">
-                                통신판매업 신고증<span className="required">*</span>
-                            </Label>
-                            {/* <img src="/Paperclip.svg" className="fileAttachIcon pointer" /> */}
                         </FormGroup>
 
                         {/* 취급품목 */}
                         <FormGroup className="position-relative">
-                            <Label for="examplePassword" className="input_title">
-                                취급 품목<span className="required">*</span>
+                            <Label className="input_title">
+                                취급 카테고리<span className="required">*</span>
                             </Label>
                             <Input className=" " placeholder="" /> {/* invalid */}
                             {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
@@ -93,11 +142,13 @@ export default function MyProfile() {
 
                         {/* 출고지 주소 */}
                         <FormGroup className=" position-relative mb-4">
-                            <Label for="examplePassword" className="input_title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <Label className="input_title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 출고지 주소
-                                <button type="button" className="small-button">
-                                    <i className="bi bi-search"></i>
-                                </button>
+                                <Tippy content="주소 검색" theme="custom">
+                                    <button type="button" className="small-button">
+                                        <i className="bi bi-search"></i>
+                                    </button>
+                                </Tippy>
                             </Label>
                             <div className="addr_column mb-2">
                                 <Input style={{ width: "30%" }} placeholder="우편번호" readOnly />
@@ -110,11 +161,9 @@ export default function MyProfile() {
 
                         {/* 배송비 */}
                         <FormGroup className="position-relative">
-                            <Label for="examplePassword" className="input_title">
-                                기본 배송비
-                            </Label>
+                            <Label className="input_title">기본 배송비</Label>
                             <div className="unit_set">
-                                <Input className=" unit" placeholder="가격을 입력하세요" /> {/* invalid */}
+                                <Input className="unit" placeholder="가격을 입력하세요" /> {/* invalid */}
                                 {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
                                 <span style={{ width: "100%" }}>원</span>
                             </div>
@@ -122,11 +171,9 @@ export default function MyProfile() {
 
                         {/* 무료배송 */}
                         <FormGroup className="position-relative">
-                            <Label for="examplePassword" className="input_title">
-                                무료배송 기준 금액
-                            </Label>
+                            <Label className="input_title">무료배송 기준 금액</Label>
                             <div className="unit_set">
-                                <Input className=" unit" placeholder="가격을 입력하세요" /> {/* invalid */}
+                                <Input className="unit" placeholder="가격을 입력하세요" /> {/* invalid */}
                                 {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
                                 <span style={{ width: "100%" }}>원 이상 구매시 (묶음배송 상품만 해당)</span>
                             </div>
@@ -134,10 +181,8 @@ export default function MyProfile() {
 
                         {/* 소개글 */}
                         <FormGroup className="position-relative">
-                            <Label for="exampleText" className="input_title">
-                                소개글
-                            </Label>
-                            <Input id="exampleText" type="textarea" />
+                            <Label className="input_title">상점 소개</Label>
+                            <Input type="textarea" />
                         </FormGroup>
                         <div className="btn_part">
                             <button type="button" className="primary-button saveBtn">

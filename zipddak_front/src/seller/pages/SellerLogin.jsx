@@ -1,5 +1,7 @@
 //css
 import login from "../css/login.module.css";
+//js
+import usePageTitle from "../js/usePageTitle.jsx";
 
 import { Form, FormGroup, Label, Input, Col, Button } from "reactstrap";
 import { baseUrl, myAxios } from "../../config";
@@ -9,6 +11,8 @@ import { userAtom, tokenAtom, alarmsAtom, fcmTokenAtom } from "../../atoms";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 export default function SellerLogin() {
+    const pageTitle = usePageTitle("마켓 판매자 로그인");
+
     const [username, setUsername] = useState();
     const [password, setPassword] = useState();
     const [token, setToken] = useAtom(tokenAtom);
@@ -56,6 +60,7 @@ export default function SellerLogin() {
 
     return (
         <>
+            {pageTitle}
             <main className="main">
                 <div className={login.signUp_box}>
                     <div className={login.login}>

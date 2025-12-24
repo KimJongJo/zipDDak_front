@@ -52,12 +52,8 @@ export default function OrderList() {
 
     //날짜 변경 시 자동 검색
     useEffect(() => {
-        submit(1);
-    }, [searchDate]);
-    // 필터 변경 시 자동 submit
-    useEffect(() => {
-        submit(1);
-    }, [selectedStatus]);
+        user.username && submit(1);
+    }, [searchDate, selectedStatus, user]);
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
@@ -66,13 +62,11 @@ export default function OrderList() {
         params.append("sellerId", user.username);
         params.append("page", page);
 
-        console.log("user.username : " + user.username);
-
         if (searchDate) params.append("searchDate", searchDate);
         if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
         if (keyword) params.append("keyword", keyword);
 
-        const orderListUrl = `/order/myOrderList?${params.toString()}`;
+        const orderListUrl = `/seller/order/myOrderList?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(orderListUrl)
@@ -97,13 +91,6 @@ export default function OrderList() {
             })
             .catch((err) => console.log(err));
     };
-
-    // 최초 1회 로딩
-    useEffect(() => {
-        if (!user) return;
-
-        submit(1);
-    }, [user]);
 
     return (
         <>

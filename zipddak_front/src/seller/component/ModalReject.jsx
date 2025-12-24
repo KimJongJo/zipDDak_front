@@ -5,10 +5,13 @@ import modal from "../css/modal.module.css";
 import { tokenAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
-export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selectedItems, targetItemIdx, idx, refresh, resetChecked, rejectType }) {
+export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selectedItems, checkbox, targetItemIdx, idx, refresh, rejectType }) {
     const [rejectReason, setRejectReason] = useState("");
     const [rejectDetailReason, setRejectDetailReason] = useState("");
     const [token, setToken] = useAtom(tokenAtom);
+
+    //선택된 아이템 계산
+    const resolvedSelectedItems = selectedItems ?? checkbox?.getSelected?.() ?? [];
 
     const handleSave = async () => {
         try {
@@ -17,16 +20,19 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
             if (targetItemIdx) {
                 // 드롭다운 단일 처리
                 targetItems = [targetItemIdx];
+            } else if (resolvedSelectedItems.length > 0) {
+                //체크박스 다중 처리
+                targetItems = resolvedSelectedItems;
             } else {
-                // 체크박스 다중 처리
-                if (!selectedItems?.length) return alert("선택된 상품이 없습니다.");
-                targetItems = selectedItems;
+                //아무것도 없으면 return
+                alert("처리할 상품을 선택해주세요.");
+                return;
             }
             console.log("targetItems : " + targetItems);
 
             // → targetItems 로 API 호출
             const res = await myAxios(token, setToken)
-                .post("/refund/refundRejectItems", {
+                .post("/refundRejectItems", {
                     orderIdx: idx,
                     itemIdxs: targetItems,
                     // rejectReason: rejectReason,
@@ -39,8 +45,11 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
                     if (res.data.success === true) {
                         alert(res.data.message);
                         setRejectModalOpen(false); //모달 닫기
-                        resetChecked(); //체크박스 초기화
-                        if (refresh) refresh(); // 새로고침
+
+                        //checkbox 기반 화면이면 checkbox reset
+                        checkbox?.resetChecked?.();
+
+                        refresh?.(); // 새로고침
                     } else {
                         alert(res.data.message);
                     }
@@ -55,7 +64,11 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
                 });
         } catch (err) {
             console.error(err);
-            alert("처리 실패");
+            if (err.response && err.response.data) {
+                alert(err.response.data.message); // 예외 메시지 표시
+            } else {
+                alert("처리실패");
+            }
         }
     };
 
@@ -69,7 +82,7 @@ export default function ModalReject({ rejectModalOpen, setRejectModalOpen, selec
                     <div className={modal.refundModalContent}>
                         <div className={modal.descRefundModalColumn}>
                             <p>
-                                선택된 상품 {selectedItems?.length || 1}개를 {rejectType} 처리하시겠습니까?
+                                선택된 상품 {targetItemIdx ? 1 : resolvedSelectedItems.length}개를 {rejectType} 처리하시겠습니까?
                             </p>
                             {/* <p style={{ color: "red" }}>처리 후 취소할 수 없습니다.</p> */}
                         </div>

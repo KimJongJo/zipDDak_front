@@ -75,7 +75,7 @@ export default function ProductRegist() {
         if (searchRequestDate) params.append("searchRequestDate", searchRequestDate);
         if (selectedStatus.length > 0) params.append("exchangeStateList", selectedStatus.join(","));
 
-        const exchangeListUrl = `/exchange/myExchangeList?${params.toString()}`;
+        const exchangeListUrl = `/seller/exchange/myExchangeList?${params.toString()}`;
 
         myAxios()
             .get(exchangeListUrl)
@@ -189,7 +189,7 @@ export default function ProductRegist() {
                                                     </tr>
                                                 ) : (
                                                     myExchangeList.map((myExchange) => (
-                                                        <tr key={myExchange.exchangeIdx} onClick={() => navigate(`/exchangeDetail/${myExchange.exchangeIdx}`)}>
+                                                        <tr key={myExchange.exchangeIdx} onClick={() => navigate(`/seller/exchangeDetail/${myExchange.exchangeIdx}`)}>
                                                             <td>{myExchange.orderDate}</td>
                                                             <td>{myExchange.orderCode}</td>
                                                             <td className={table.title_cell}>

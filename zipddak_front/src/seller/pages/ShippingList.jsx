@@ -49,14 +49,10 @@ export default function ShippingList() {
         }
     };
 
-    //날짜 변경 시 자동 검색
+    //날짜 변경 시 자동 검색 + 필터 변경 시 자동 submit
     useEffect(() => {
-        submit(1);
-    }, [searchDate]);
-    // 필터 변경 시 자동 submit
-    useEffect(() => {
-        submit(1);
-    }, [selectedStatus]);
+        user.username && submit(1);
+    }, [searchDate, selectedStatus]);
 
     // 검색/페이징 공통 함수
     const submit = (page = 1) => {
@@ -69,7 +65,7 @@ export default function ShippingList() {
         if (searchDate) params.append("searchDate", searchDate);
         if (selectedStatus.length > 0) params.append("orderStateList", selectedStatus.join(","));
 
-        const shippingListUrl = `/shipping/myShippingList?${params.toString()}`;
+        const shippingListUrl = `/seller/shipping/myShippingList?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(shippingListUrl)
@@ -99,8 +95,8 @@ export default function ShippingList() {
 
     // 최초 1회 로딩
     useEffect(() => {
-        submit(1);
-    }, []);
+        user.username && submit(1);
+    }, [user]);
 
     return (
         <>

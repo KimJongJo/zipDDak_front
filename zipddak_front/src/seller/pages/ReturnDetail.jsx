@@ -6,7 +6,7 @@ import acco from "../css/accordion.module.css";
 import usePageTitle from "../js/usePageTitle.jsx";
 import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
 import { priceFormat } from "../js/priceFormat.jsx";
-import { getEarliestDate, getEarliestDateAccept, getEarliestDatePickup } from "../js/dateUtils.jsx";
+import { getEarliestDate, getEarliestDateAccept, getEarliestDatePickup, getEarliestDateCompleted } from "../js/dateUtils.jsx";
 //component
 import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalReject from "../component/ModalReject.jsx";
@@ -14,65 +14,44 @@ import ModalAccept from "../component/ModalAccept.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 import ModalRefund from "../component/ModalRefund.jsx";
 import ModalWarning from "../component/ModalWarning.jsx";
+import DeliveryButtonSeller from "../component/DeliveryButtonSeller";
 
 import { Input, Label, Spinner } from "reactstrap";
-import Tippy from "@tippyjs/react";
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 
 export default function ReturnDetail() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 상세조회");
-    const navigate = useNavigate();
     const { refundIdx } = useParams();
+    const navigate = useNavigate();
 
     const [reqOrder, setReqOrder] = useState(null); //반품 요청 주문정보
     const [reqItems, setReqItems] = useState(null); //반품 요청 주문아이템 정보
-    const [reqRefundAmount, setReqRefundAmount] = useState(0); //환불금액
+    const [refundPdAmount, setRefundPdAmount] = useState(0); //반품처리상품 금액
+    const [refundAmount, setRefundAmount] = useState(0); //환불금액
+
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false); //반품거절 등록 모달 상태
     const [isAcceptModalOpen, setIsAcceptModalOpen] = useState(false); //반품접수 등록 모달 상태
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [isRefundModalOpen, setIsRefundModalOpen] = useState(false); //환불처리 모달 상태
     const [isWarningModalOpen, setIsWarningModalOpen] = useState(false); //경고 모달 상태
+
+    const [activeCheckbox, setActiveCheckbox] = useState(null);
+
     const [selectedItem, setSelectedItem] = useState(null);
+
+    const [openDropdown, setOpenDropdown] = useState(null); //처리아이콘 클릭시 드롭다운 오픈
+    const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 }); //처리아이콘 클릭시 드롭다운 위치
+
     const [token, setToken] = useAtom(tokenAtom);
-    const [user, setUser] = useAtom(userAtom);
+    const [user] = useAtom(userAtom);
 
-    //테이블 체크박스 상태
-    const {
-        allChecked,
-        checkedItems,
-
-        handleAllCheck,
-        handleItemCheck,
-
-        getSelected,
-        requireSelected,
-
-        resetChecked,
-    } = useSelectCheckbox();
-
-    //처리아이콘 클릭시 드롭다운 오픈
-    const [openDropdown, setOpenDropdown] = useState(null);
-    const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 });
-    // 토글 로직 (중복 클릭 -> 닫힘)
-    const toggleDropdown = (itemIdx) => {
-        setOpenDropdown((prev) => (prev === itemIdx ? null : itemIdx));
-    };
-    // 클릭 위치 기준으로 드롭다운 좌표 계산
-    const handleDropdownClick = (e, itemIdx) => {
-        e.stopPropagation();
-        const rect = e.target.getBoundingClientRect();
-
-        // 아이콘 바로 아래에 붙도록
-        setDropdownPos({
-            x: rect.left,
-            y: rect.bottom + 4,
-        });
-        toggleDropdown(itemIdx);
-    };
+    //처리완료된 상품 재처리 막기
+    const reqCheckbox = useSelectCheckbox();
+    const pickupCheckbox = useSelectCheckbox();
 
     //returnDetail 데이터 불러오기
     const getRefundRequestDetail = () => {
@@ -80,7 +59,7 @@ export default function ReturnDetail() {
         params.append("sellerId", user.username);
         params.append("num", refundIdx);
 
-        const refundDetailUrl = `/refund/refundReqDetail?${params.toString()}`;
+        const refundDetailUrl = `/seller/refund/refundReqDetail?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(refundDetailUrl)
@@ -89,7 +68,8 @@ export default function ReturnDetail() {
 
                 setReqOrder(res.data.refundOrderData);
                 setReqItems(res.data.refundOrderItemList);
-                setReqRefundAmount(res.data.reqRefundAmount);
+                setRefundPdAmount(res.data.refundProductTotal);
+                setRefundAmount(res.data.refundAmount);
             })
             .catch((err) => {
                 console.log(err);
@@ -109,11 +89,32 @@ export default function ReturnDetail() {
         );
     }
 
+    // 토글 로직 (중복 클릭 -> 닫힘)
+    const toggleDropdown = (itemIdx) => {
+        setOpenDropdown((prev) => (prev === itemIdx ? null : itemIdx));
+    };
+    // 클릭 위치 기준으로 드롭다운 좌표 계산
+    const handleDropdownClick = (e, itemIdx) => {
+        e.stopPropagation();
+        const rect = e.target.getBoundingClientRect();
+
+        // 아이콘 바로 아래에 붙도록
+        setDropdownPos({
+            x: rect.left,
+            y: rect.bottom + 4,
+        });
+        toggleDropdown(itemIdx);
+    };
+
     //테이블 행 넘버
     reqItems.forEach((item, idx) => (item.rowNumber = idx + 1));
 
     // 반품요청상품 총금액 합
-    const refundReqPrice = reqItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
+    const refundReqPdPrice = reqItems.reduce((acc, cur) => acc + cur.unitPrice * cur.quantity, 0);
+    //반품왕복배송비 부담
+    const shippingCharge = reqOrder.shippingChargeType == "BUYER" ? reqOrder.returnShippingFee : 0;
+    // 예상환불금액
+    const refundReqPrice = refundReqPdPrice - shippingCharge;
 
     //아코디언 표시 조건용
     const hasRejected = reqItems.some((item) => item.refundRejectedAt); //반품거절건
@@ -124,8 +125,38 @@ export default function ReturnDetail() {
     //아코디언내 테이블 표시 렌더링용
     const rejectedItems = reqItems.filter((item) => item.refundRejectedAt);
     const acceptedItems = reqItems.filter((item) => item.refundAcceptedAt);
-    const pickupComplatedItems = reqItems.some((item) => item.refundPickupComplatedAt);
-    const refundComplatedItems = reqItems.some((item) => item.refundComplatedAt);
+    const pickupComplatedItems = reqItems.filter((item) => item.refundPickupComplatedAt);
+    const refundComplatedItems = reqItems.filter((item) => item.refundComplatedAt);
+
+    //반품요청목록
+    const selectableReqItems = reqItems.filter((it) => it.orderStatus !== "반품거절" && it.orderStatus !== "반품회수" && it.orderStatus !== "반품완료");
+    const selectableReqIdxs = selectableReqItems.map((it) => it.orderItemIdx);
+    //수거요청목록
+    const selectablePickupItems = acceptedItems.filter((it) => it.orderStatus === "반품회수");
+    const selectablePickupIdxs = selectablePickupItems.map((it) => it.orderItemIdx);
+
+    const pickupCompletedCount = pickupComplatedItems.length;
+
+    const closeRejectModal = () => {
+        setIsRejectModalOpen(false);
+        setSelectedItem(null);
+        setActiveCheckbox(null);
+    };
+    const closeAcceptModal = () => {
+        setIsAcceptModalOpen(false);
+        setSelectedItem(null);
+        setActiveCheckbox(null);
+    };
+    const closeRefundModal = () => {
+        setIsRefundModalOpen(false);
+        setSelectedItem(null);
+        setActiveCheckbox(null);
+    };
+    const closeTrackingModal = () => {
+        setIsTrackingModalOpen(false);
+        setSelectedItem(null);
+        setActiveCheckbox(null);
+    };
 
     return (
         <>
@@ -137,7 +168,6 @@ export default function ReturnDetail() {
                         <i className="bi bi-newspaper"></i>
                         <span>반품 내역 상세조회</span>
                     </div>
-
                     <div className="bodyFrame">
                         {/* 주문 정보 */}
                         <div className="position-relative ">
@@ -151,7 +181,7 @@ export default function ReturnDetail() {
                                 </button>
                             </div>
                         </div>
-                        {/* 클레임상세 */}
+                        {/* *************************************************** 클레임상세 *************************************************** */}
                         <div className={detail.processFlow}>
                             <div className="position-relative mt-4">
                                 <Label className="input_title">클레임 상세</Label>
@@ -173,14 +203,7 @@ export default function ReturnDetail() {
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "5%" }}>
-                                                                    <Input
-                                                                        type="checkbox"
-                                                                        checked={allChecked}
-                                                                        onChange={(e) => {
-                                                                            const allIds = [reqItems.map((it) => it.orderItemIdx)];
-                                                                            handleAllCheck(allIds, e.target.checked);
-                                                                        }}
-                                                                    />
+                                                                    <Input type="checkbox" checked={reqCheckbox.isAllChecked(selectableReqIdxs.length)} onChange={(e) => reqCheckbox.handleAllCheck(selectableReqIdxs, e.target.checked)} disabled={selectableReqIdxs.length === 0} />
                                                                 </th>
                                                                 <th style={{ width: "5%" }}>#</th>
                                                                 <th style={{ width: "5%" }}>Img</th>
@@ -194,12 +217,17 @@ export default function ReturnDetail() {
                                                         </thead>
                                                         <tbody>
                                                             {reqItems.length > 0 &&
-                                                                reqItems.map((it) => (
+                                                                reqItems.map((it, idx) => (
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>
-                                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)} />
+                                                                            <Input
+                                                                                type="checkbox"
+                                                                                checked={reqCheckbox.checkedItems.has(it.orderItemIdx)}
+                                                                                onChange={(e) => reqCheckbox.handleItemCheck(it.orderItemIdx, e.target.checked)}
+                                                                                disabled={it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료"}
+                                                                            />
                                                                         </td>
-                                                                        <td>{it.rowNumber}</td>
+                                                                        <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
                                                                             <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "60px" }} />
                                                                         </td>
@@ -220,8 +248,9 @@ export default function ReturnDetail() {
                                                                         <td>{priceFormat(it.unitPrice * it.quantity)}</td>
                                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                                             <i
-                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
+                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
                                                                                 onClick={(e) => {
+                                                                                    if (it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료") return;
                                                                                     handleDropdownClick(e, it.orderItemIdx);
                                                                                 }}
                                                                             ></i>
@@ -236,6 +265,7 @@ export default function ReturnDetail() {
                                                                                         label: "반품 접수",
                                                                                         onClick: () => {
                                                                                             setSelectedItem(it.orderItemIdx);
+                                                                                            setActiveCheckbox(reqCheckbox);
                                                                                             setIsAcceptModalOpen(true); //모달 오픈
                                                                                             setOpenDropdown(null); // 드롭다운 닫기
                                                                                             console.log("반품 접수", it.orderItemIdx);
@@ -245,6 +275,7 @@ export default function ReturnDetail() {
                                                                                         label: "반품 거절",
                                                                                         onClick: () => {
                                                                                             setSelectedItem(it.orderItemIdx);
+                                                                                            setActiveCheckbox(reqCheckbox);
                                                                                             setIsRejectModalOpen(true); //모달 오픈
                                                                                             setOpenDropdown(null); // 드롭다운 닫기
                                                                                             console.log("반품 거절", it.orderItemIdx);
@@ -265,7 +296,7 @@ export default function ReturnDetail() {
                                             <div className={detail.info_column}>
                                                 <div className={detail.info_line}>
                                                     <Label className="sub_title">요청사항</Label>
-                                                    <Input className="" style={{ width: "50%" }} value="반품요청" readOnly />
+                                                    <Input style={{ width: "50%" }} value="반품요청" readOnly />
                                                 </div>
                                             </div>
                                             {reqOrder.refundImage1 && (
@@ -273,9 +304,9 @@ export default function ReturnDetail() {
                                                     <div className={detail.info_line}>
                                                         <Label className="sub_title">첨부파일</Label>
                                                         <div className={detail.imgParts}>
-                                                            {reqOrder.image1Idx && <img src={`${baseUrl}/imageView?type=product&filename=${reqOrder.refundImage1}`} style={{ width: "40px" }} />}
-                                                            {reqOrder.image2Idx && <img src={`${baseUrl}/imageView?type=product&filename=${reqOrder.refundImage2}`} style={{ width: "40px" }} />}
-                                                            {reqOrder.image3Idx && <img src={`${baseUrl}/imageView?type=product&filename=${reqOrder.refundImage3}`} style={{ width: "40px" }} />}
+                                                            {reqOrder.image1Idx && <img src={`${baseUrl}/imageView?type=claim&filename=${reqOrder.refundImage1}`} style={{ width: "40px" }} />}
+                                                            {reqOrder.image2Idx && <img src={`${baseUrl}/imageView?type=claim&filename=${reqOrder.refundImage2}`} style={{ width: "40px" }} />}
+                                                            {reqOrder.image3Idx && <img src={`${baseUrl}/imageView?type=claim&filename=${reqOrder.refundImage3}`} style={{ width: "40px" }} />}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -289,7 +320,7 @@ export default function ReturnDetail() {
                                                             <Input style={{ width: "70%" }} value={reqOrder.postAddr1} readOnly />
                                                         </div>
                                                         <div className="addr_column">
-                                                            <Input type="text" value={reqOrder.postAddr1} readOnly />
+                                                            <Input type="text" value={reqOrder.postAddr2} readOnly />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -311,7 +342,7 @@ export default function ReturnDetail() {
                                                     <Label className="sub_title">반품 사유 </Label>
                                                     <div className={detail.blockParts} style={{ width: "50%" }}>
                                                         <Input className="mb-2" value={reqOrder.reasonType} readOnly />
-                                                        <Input value={reqOrder.reasonDetail} type="textarea" />
+                                                        <Input value={reqOrder.reasonDetail ? reqOrder.reasonDetail : "없음"} type="textarea" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -328,42 +359,56 @@ export default function ReturnDetail() {
                                                 <div className={detail.info_line}>
                                                     <Label className="sub_title">환불 요청 금액 </Label>
                                                     <div className={detail.flexParts} style={{ width: "50%" }}>
-                                                        <Input className="" style={{ width: "70%" }} value={priceFormat(reqRefundAmount)} readOnly />
+                                                        <Input style={{ width: "70%" }} value={priceFormat(refundReqPrice)} readOnly /> 원
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="btn_part">
-                                    <div className="btn_group">
-                                        <button
-                                            type="button"
-                                            className="sub-button"
-                                            onClick={() => {
-                                                const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                if (!selected) return;
-                                                setIsRejectModalOpen(true);
-                                            }}
-                                        >
-                                            <i className="bi bi-x"></i> 반품 거절
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="primary-button"
-                                            onClick={() => {
-                                                const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                if (!selected) return;
-                                                setIsAcceptModalOpen(true);
-                                            }}
-                                        >
-                                            반품 접수 <i className="bi bi-arrow-right-short"></i>
-                                        </button>
+                                {selectableReqIdxs.length !== 0 && (
+                                    <div className="btn_part">
+                                        <div className="btn_group">
+                                            <button
+                                                type="button"
+                                                className="sub-button"
+                                                onClick={() => {
+                                                    setSelectedItem(null); // 다중 선택
+                                                    setActiveCheckbox(reqCheckbox); //  req 테이블 기준
+
+                                                    const selected = reqCheckbox.getSelected(); //선택된 항목이 없을경우
+                                                    if (!selected.length) {
+                                                        alert("선택된 상품이 없습니다.");
+                                                        return;
+                                                    }
+                                                    setIsRejectModalOpen(true);
+                                                }}
+                                            >
+                                                <i className="bi bi-x"></i> 반품 거절
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="primary-button"
+                                                onClick={() => {
+                                                    setSelectedItem(null); // 다중 선택
+                                                    setActiveCheckbox(reqCheckbox); // req 테이블 기준
+
+                                                    const selected = reqCheckbox.getSelected(); //선택항목 없을경우 알럿
+                                                    if (!selected.length) {
+                                                        alert("선택된 상품이 없습니다.");
+                                                        return;
+                                                    }
+                                                    setIsAcceptModalOpen(true);
+                                                }}
+                                            >
+                                                반품 접수 <i className="bi bi-arrow-right-short"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
 
-                            {/* 반품 수거 정보 */}
+                            {/* *************************************************** 반품 수거 정보 *************************************************** */}
                             {(hasAccepted || hasPickupComplated) && (
                                 <div className="position-relative">
                                     <Label className="input_title">반품 수거 정보</Label>
@@ -372,7 +417,7 @@ export default function ReturnDetail() {
                                     <div className={acco.accordionFrame}>
                                         <div className={acco.acco_header}>
                                             <p>
-                                                요청 일자 : <span>{getEarliestDateAccept(reqItems)}</span>{" "}
+                                                요청 일자 : <span>{getEarliestDateAccept(reqItems)?.substring(0, 10)}</span>{" "}
                                             </p>
                                         </div>
 
@@ -385,14 +430,7 @@ export default function ReturnDetail() {
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>
-                                                                        <Input
-                                                                            type="checkbox"
-                                                                            checked={allChecked}
-                                                                            onChange={(e) => {
-                                                                                const allIds = [reqItems.map((it) => it.orderItemIdx)];
-                                                                                handleAllCheck(allIds, e.target.checked);
-                                                                            }}
-                                                                        />
+                                                                        <Input type="checkbox" checked={pickupCheckbox.isAllChecked(selectablePickupIdxs.length)} onChange={(e) => pickupCheckbox.handleAllCheck(selectablePickupIdxs, e.target.checked)} disabled={selectablePickupIdxs.length === 0} />
                                                                     </th>
                                                                     <th style={{ width: "5%" }}>#</th>
                                                                     <th style={{ width: "5%" }}>Img</th>
@@ -406,12 +444,17 @@ export default function ReturnDetail() {
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                {acceptedItems.map((it) => (
+                                                                {acceptedItems.map((it, idx) => (
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>
-                                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, reqItems.length)} />
+                                                                            <Input
+                                                                                type="checkbox"
+                                                                                checked={pickupCheckbox.checkedItems.has(it.orderItemIdx)}
+                                                                                onChange={(e) => pickupCheckbox.handleItemCheck(it.orderItemIdx, e.target.checked)}
+                                                                                disabled={it.orderStatus === "반품거절" || it.orderStatus === "반품완료"}
+                                                                            />
                                                                         </td>
-                                                                        <td>{it.rowNumber}</td>
+                                                                        <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
                                                                             <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
                                                                         </td>
@@ -427,11 +470,11 @@ export default function ReturnDetail() {
                                                                         </td>
                                                                         <td>{it.quantity}</td>
                                                                         <td>[{it.orderStatus}]</td>
-                                                                        <td>{reqOrder.pickupPostComp ? `${reqOrder.pickupPostComp}` : "-"}</td>
                                                                         <td>{reqOrder.pickupTrackingNo ? `${reqOrder.pickupTrackingNo}` : "-"}</td>
+                                                                        <td>{reqOrder.pickupPostComp ? `${reqOrder.pickupPostComp}` : "-"}</td>
                                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                                             <i
-                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
+                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품거절" || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
                                                                                 onClick={(e) => {
                                                                                     handleDropdownClick(e, it.orderItemIdx);
                                                                                 }}
@@ -447,15 +490,18 @@ export default function ReturnDetail() {
                                                                                         label: "운송장번호 등록",
                                                                                         onClick: () => {
                                                                                             setSelectedItem(it.orderItemIdx);
+                                                                                            setActiveCheckbox(pickupCheckbox);
                                                                                             setIsTrackingModalOpen(true); //모달 오픈
                                                                                             setOpenDropdown(null); // 드롭다운 닫기
                                                                                             console.log("운송장번호", it.orderItemIdx);
                                                                                         },
                                                                                     },
+
                                                                                     {
                                                                                         label: "반품 승인",
                                                                                         onClick: () => {
                                                                                             setSelectedItem(it.orderItemIdx);
+                                                                                            setActiveCheckbox(pickupCheckbox);
                                                                                             setIsRefundModalOpen(true); //모달 오픈
                                                                                             setOpenDropdown(null); // 드롭다운 닫기
                                                                                             console.log("반품 접수", it.orderItemIdx);
@@ -465,6 +511,7 @@ export default function ReturnDetail() {
                                                                                         label: "반품 거절",
                                                                                         onClick: () => {
                                                                                             setSelectedItem(it.orderItemIdx);
+                                                                                            setActiveCheckbox(pickupCheckbox);
                                                                                             setIsRejectModalOpen(true); //모달 오픈
                                                                                             setOpenDropdown(null); // 드롭다운 닫기
                                                                                             console.log("반품 거절", it.orderItemIdx);
@@ -478,28 +525,41 @@ export default function ReturnDetail() {
                                                             </tbody>
                                                         </table>
                                                     </div>
+
                                                     <div className="btn_part">
                                                         {getEarliestDatePickup(reqItems) == "-" && (
                                                             <button
                                                                 type="button"
                                                                 className="primary-button"
                                                                 onClick={() => {
-                                                                    const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                                    if (!selected) return;
+                                                                    setSelectedItem(null); // 다중 선택
+                                                                    setActiveCheckbox(pickupCheckbox); // pickup 테이블 기준
+
+                                                                    const selected = pickupCheckbox.getSelected(); //선택항목 없을경우 알럿
+                                                                    if (!selected.length) {
+                                                                        alert("선택된 상품이 없습니다.");
+                                                                        return;
+                                                                    }
                                                                     setIsTrackingModalOpen(true);
                                                                 }}
                                                             >
                                                                 운송장번호 등록
                                                             </button>
                                                         )}
-                                                        {getEarliestDatePickup(reqItems) !== "-" && (
+                                                        {selectablePickupIdxs.length !== 0 && (
                                                             <div className="btn_group">
                                                                 <button
                                                                     type="button"
                                                                     className="sub-button"
                                                                     onClick={() => {
-                                                                        const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                                        if (!selected) return;
+                                                                        setSelectedItem(null); // 다중 선택
+                                                                        setActiveCheckbox(pickupCheckbox); // pickup 테이블 기준
+
+                                                                        const selected = pickupCheckbox.getSelected(); //선택항목 없을경우 알럿
+                                                                        if (!selected.length) {
+                                                                            alert("선택된 상품이 없습니다.");
+                                                                            return;
+                                                                        }
                                                                         setIsRefundModalOpen(true);
                                                                     }}
                                                                 >
@@ -509,8 +569,14 @@ export default function ReturnDetail() {
                                                                     type="button"
                                                                     className="sub-button"
                                                                     onClick={() => {
-                                                                        const selected = requireSelected(); //선택항목 없을경우 알럿
-                                                                        if (!selected) return;
+                                                                        setSelectedItem(null); // 다중 선택
+                                                                        setActiveCheckbox(pickupCheckbox); // pickup 테이블 기준
+
+                                                                        const selected = pickupCheckbox.getSelected(); //선택항목 없을경우 알럿
+                                                                        if (!selected.length) {
+                                                                            alert("선택된 상품이 없습니다.");
+                                                                            return;
+                                                                        }
                                                                         setIsRejectModalOpen(true);
                                                                     }}
                                                                 >
@@ -528,10 +594,11 @@ export default function ReturnDetail() {
                                                         <Label className="sub_title">수거 송장번호 </Label>
                                                         <div className={detail.flexParts} style={{ width: "50%" }}>
                                                             <Input className="" style={{ width: "30%" }} value={reqOrder.pickupPostComp} readOnly />
-                                                            <Input style={{ width: "50%" }} value={reqOrder.pickupTrackingNo} readOnly />
-                                                            <button type="button" className="sub-button" style={{ width: "20%" }}>
+                                                            <Input style={{ width: "60%" }} value={reqOrder.pickupTrackingNo} readOnly />
+                                                            {/* <button type="button" className="sub-button" style={{ width: "20%" }}>
                                                                 <i className="bi bi-search"></i>
-                                                            </button>
+                                                            </button> */}
+                                                            <DeliveryButtonSeller tCode={reqOrder.pickupPostComp} invoice={reqOrder.pickupTrackingNo} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -539,17 +606,19 @@ export default function ReturnDetail() {
                                                     <div className={detail.info_line}>
                                                         <Label className="sub_title">회수 요청일</Label>
                                                         <div className={detail.flexParts} style={{ width: "50%" }}>
-                                                            <Input className="" style={{ width: "80%" }} value={getEarliestDateAccept(reqItems)} readOnly />
-                                                            <button
-                                                                type="button"
-                                                                className="sub-button"
-                                                                style={{ width: "20%" }}
-                                                                onClick={() => {
-                                                                    setIsWarningModalOpen(true);
-                                                                }}
-                                                            >
-                                                                수거완료
-                                                            </button>
+                                                            <Input className="" style={{ width: "100%" }} value={getEarliestDateAccept(reqItems)?.substring(0, 10)} readOnly />
+                                                            {pickupCompletedCount === 0 && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="sub-button"
+                                                                    style={{ width: "30%" }}
+                                                                    onClick={() => {
+                                                                        setIsWarningModalOpen(true);
+                                                                    }}
+                                                                >
+                                                                    수거완료
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -557,7 +626,7 @@ export default function ReturnDetail() {
                                                     <div className={detail.info_column}>
                                                         <div className={detail.info_line}>
                                                             <Label className="sub_title">수거 완료일</Label>
-                                                            <Input className="" style={{ width: "50%" }} value={getEarliestDatePickup(reqItems)} readOnly />
+                                                            <Input className="" style={{ width: "50%" }} value={getEarliestDatePickup(reqItems)?.substring(0, 10)} readOnly />
                                                         </div>
                                                     </div>
                                                 )}
@@ -568,7 +637,7 @@ export default function ReturnDetail() {
                             )}
                         </div>
 
-                        {/* 반품 처리 결과 */}
+                        {/* *************************************************** 반품 처리 결과 *************************************************** */}
                         {(hasRejected || hasRefundCompleted) && (
                             <div className="position-relative">
                                 <Label className="input_title">반품 처리 결과</Label>
@@ -577,7 +646,7 @@ export default function ReturnDetail() {
                                 <div className={acco.accordionFrame}>
                                     <div className={acco.acco_header}>
                                         <p>
-                                            최초 처리 일자 : <span>{getEarliestDate(reqItems)}</span>
+                                            최초 처리 일자 : <span>{getEarliestDate(reqItems)?.substring(0, 10)}</span>
                                         </p>
                                     </div>
 
@@ -592,27 +661,41 @@ export default function ReturnDetail() {
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>#</th>
                                                                     <th style={{ width: "5%" }}>Img</th>
-                                                                    <th style={{ width: "10%" }}>상품번호</th>
                                                                     <th style={{ width: "20%" }}>상품명</th>
                                                                     <th style={{ width: "25%" }}>옵션</th>
+                                                                    <th style={{ width: "10%" }}>단가</th>
                                                                     <th style={{ width: "10%" }}>수량</th>
+                                                                    <th style={{ width: "10%" }}>총금액</th>
                                                                     <th style={{ width: "10%" }}>처리상태</th>
                                                                     <th style={{ width: "10%" }}>사유</th>
+                                                                    <th style={{ width: "15%" }}>처리일자</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                                                                <tr>
-                                                                    <td>10</td>
-                                                                    <td style={{ padding: "0" }}>
-                                                                        <img src="/no_img.svg" style={{ width: "40px" }} />
-                                                                    </td>
-                                                                    <td>P123456</td>
-                                                                    <td className={table.title_cell}>시트지[예림 인테리어 필름] 우드HW 시트지[예림 인테리어 필름] 우드HW</td>
-                                                                    <td>색상 : 브라운</td>
-                                                                    <td>1 / 1</td>
-                                                                    <td>[반품완료]</td>
-                                                                    <td>수거, 검수완료</td>
-                                                                </tr>
+                                                                {refundComplatedItems.map((it, idx) => (
+                                                                    <tr key={it.orderItemIdx}>
+                                                                        <td>{idx + 1}</td>
+                                                                        <td style={{ padding: "0" }}>
+                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                        </td>
+                                                                        <td className={table.title_cell}>{it.productName}</td>
+                                                                        <td>
+                                                                            {it.productOptionIdx ? (
+                                                                                <span>
+                                                                                    {it.optionName} : {it.optionValue}
+                                                                                </span>
+                                                                            ) : (
+                                                                                "옵션없음"
+                                                                            )}
+                                                                        </td>
+                                                                        <td>{priceFormat(it.unitPrice)}</td>
+                                                                        <td className="quantity_cell">{it.quantity}</td>
+                                                                        <td>{priceFormat(it.unitPrice * it.quantity)}</td>
+                                                                        <td>[{it.orderStatus}]</td>
+                                                                        <td>-</td>
+                                                                        <td>{it.refundComplatedAt?.substring(0, 10)}</td>
+                                                                    </tr>
+                                                                ))}
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -623,28 +706,28 @@ export default function ReturnDetail() {
                                                 <div className={detail.info_column}>
                                                     <div className={detail.info_cell}>
                                                         <Label className="sub_title">환불 수단 </Label>
-                                                        <Input className="" readOnly />
+                                                        <Input value={reqOrder.paymentMethod} readOnly />
                                                     </div>
                                                     <div className={detail.info_cell}>
-                                                        <Label className="sub_title">수거 상품 금액 </Label>
-                                                        <Input className="" readOnly />
+                                                        <Label className="sub_title">반품 상품 금액 </Label>
+                                                        <Input value={priceFormat(refundPdAmount)} readOnly />
                                                     </div>
                                                 </div>
                                                 <div className={detail.info_column}>
                                                     <div className={detail.info_cell}>
                                                         <Label className="sub_title">배송비 차감 </Label>
-                                                        <Input className="" readOnly />
+                                                        <Input value={shippingCharge} readOnly />
                                                     </div>
                                                     <div className={detail.info_cell}>
                                                         <Label className="sub_title">최종 환불 금액 </Label>
-                                                        <Input className="" readOnly />
+                                                        <Input style={{ color: "red" }} value={priceFormat(refundAmount)} readOnly />
                                                     </div>
                                                 </div>
 
                                                 <div className={detail.info_column}>
                                                     <div className={detail.info_cell}>
                                                         <Label className="sub_title">처리 완료일</Label>
-                                                        <Input className="" placeholder="" readOnly />
+                                                        <Input value={getEarliestDateCompleted(refundComplatedItems)?.substring(0, 10)} readOnly />
                                                     </div>
                                                     <div className={detail.info_cell}>
                                                         <Label className="blankSpace">~</Label>
@@ -667,7 +750,9 @@ export default function ReturnDetail() {
                                                                     <th style={{ width: "5%" }}>Img</th>
                                                                     <th style={{ width: "20%" }}>상품명</th>
                                                                     <th style={{ width: "25%" }}>옵션</th>
+                                                                    <th style={{ width: "10%" }}>단가</th>
                                                                     <th style={{ width: "10%" }}>수량</th>
+                                                                    <th style={{ width: "10%" }}>총금액</th>
                                                                     <th style={{ width: "10%" }}>처리상태</th>
                                                                     <th style={{ width: "10%" }}>사유</th>
                                                                     <th style={{ width: "15%" }}>처리일자</th>
@@ -676,7 +761,7 @@ export default function ReturnDetail() {
                                                             <tbody>
                                                                 {rejectedItems.map((it, idx) => (
                                                                     <tr key={it.orderItemIdx}>
-                                                                        <td>{it.rowNumber}</td>
+                                                                        <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
                                                                             <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
                                                                         </td>
@@ -690,12 +775,12 @@ export default function ReturnDetail() {
                                                                                 "옵션없음"
                                                                             )}
                                                                         </td>
-                                                                        <td className="quantity_cell">
-                                                                            {it.quantity} / {it.quantity}
-                                                                        </td>
+                                                                        <td>{priceFormat(it.unitPrice)}</td>
+                                                                        <td className="quantity_cell">{it.quantity}</td>
+                                                                        <td>{priceFormat(it.unitPrice * it.quantity)}</td>
                                                                         <td>[{it.orderStatus}]</td>
                                                                         <td>-</td>
-                                                                        <td>{it.rejectedAt}</td>
+                                                                        <td>{it.refundRejectedAt?.substring(0, 10)}</td>
                                                                     </tr>
                                                                 ))}
                                                             </tbody>
@@ -724,20 +809,16 @@ export default function ReturnDetail() {
                             </div>
                         )}
                     </div>
-                    <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={setIsRejectModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} rejectType="반품 거절" />
-                    <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={setIsAcceptModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} acceptType="반품 접수" />
-                    <ModalTrackingRegist
-                        trackingModalOpen={isTrackingModalOpen}
-                        setTrackingModalOpen={setIsTrackingModalOpen}
-                        selectedItems={getSelected()}
-                        targetItemIdx={selectedItem}
-                        orderIdx={reqOrder.orderIdx}
-                        refresh={getRefundRequestDetail}
-                        resetChecked={resetChecked}
-                        registType="REFUND_PICKUP"
-                    />
+                    {/* <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={setIsRejectModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} rejectType="반품 거절" /> */}
+                    {/* <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={setIsAcceptModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} acceptType="반품 접수" /> */}
+                    {/* <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} registType="REFUND_PICKUP" /> */}
+                    {/* <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} info={reqOrder} refresh={getRefundRequestDetail} type="refund" warningType="수거완료" />
+                    <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} /> */}
+                    <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={closeRejectModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} rejectType="반품 거절" />
+                    <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={closeAcceptModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} acceptType="반품 접수" />
+                    <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={closeTrackingModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} orderIdx={reqOrder.orderIdx} refresh={getRefundRequestDetail} registType="REFUND_PICKUP" />
                     <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} info={reqOrder} refresh={getRefundRequestDetail} type="refund" warningType="수거완료" />
-                    <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} />
+                    <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={closeRefundModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} />
                 </div>
             </main>
         </>

@@ -44,6 +44,7 @@ export default function MyInfo() {
                                     </div>
                                 </div>
                             </div>
+                            <div className="blankSpace">~</div>
                             <FormGroup className="position-relative">
                                 <Label for="examplePassword" className="input_title">
                                     기본 정보
@@ -91,6 +92,7 @@ export default function MyInfo() {
                                 </div>
                             </FormGroup>
                             <hr />
+                            <div className="blankSpace">~</div>
                             <FormGroup className="position-relative">
                                 <Label for="examplePassword" className="input_title">
                                     회사 내 영업 담당자 정보
@@ -119,6 +121,46 @@ export default function MyInfo() {
                             </FormGroup>
 
                             <hr />
+                            <div className="blankSpace">~</div>
+                            {/* 사업자 번호 */}
+                            <FormGroup className="position-relative">
+                                <Label className="input_title">
+                                    사업자 등록증<span className="required">*</span>
+                                </Label>
+                                <Tippy content="첨부파일 다운로드" theme="custom">
+                                    <i className="bi bi-download fileDownIcon pointer"></i>
+                                </Tippy>
+                                {/* <img src="/Paperclip.svg" className="fileAttachIcon pointer" /> */}
+                            </FormGroup>
+
+                            {/* 통신판매업 신고번호 */}
+                            <FormGroup className="position-relative">
+                                <Label className="input_title">
+                                    통신판매업 신고증<span className="required">*</span>
+                                </Label>
+                                <Tippy content="첨부파일 다운로드" theme="custom">
+                                    <i className="bi bi-download fileDownIcon pointer"></i>
+                                </Tippy>
+                                {/* <img src="/Paperclip.svg" className="fileAttachIcon pointer" /> */}
+                            </FormGroup>
+
+                            {/* 대표자 */}
+                            <FormGroup className="position-relative">
+                                <Label className="input_title">
+                                    대표자명<span className="required">*</span>
+                                </Label>
+                                <Input placeholder="상호명을 입력하세요" /> {/* invalid */}
+                                {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
+                            </FormGroup>
+
+                            {/* 법인명 */}
+                            <FormGroup className="position-relative mb-4">
+                                <Label for="examplePassword" className="input_title">
+                                    법인명<span className="required">*</span>
+                                </Label>
+                                <Input placeholder="" /> {/* invalid */}
+                                {/* <FormFeedback tooltip>Oh noes! that name is already taken</FormFeedback> */}
+                            </FormGroup>
 
                             <FormGroup className=" position-relative mb-4">
                                 <Label for="examplePassword" className="input_title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>

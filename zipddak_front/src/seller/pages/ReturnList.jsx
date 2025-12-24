@@ -52,7 +52,7 @@ export default function ReturnList() {
 
     //날짜 변경 시 자동 검색
     useEffect(() => {
-        submit(1);
+        user.username && submit(1);
     }, [searchOrderDate, searchRequestDate, selectedStatus, user]);
 
     // 검색/페이징 공통 함수
@@ -67,7 +67,7 @@ export default function ReturnList() {
         if (searchRequestDate) params.append("searchRequestDate", searchRequestDate);
         if (selectedStatus.length > 0) params.append("refundStateList", selectedStatus.join(","));
 
-        const refundListUrl = `/refund/myRefundList?${params.toString()}`;
+        const refundListUrl = `/seller/refund/myRefundList?${params.toString()}`;
 
         myAxios(token, setToken)
             .get(refundListUrl)
@@ -94,9 +94,9 @@ export default function ReturnList() {
     };
 
     // 최초 1회 로딩
-    useEffect(() => {
-        submit(1);
-    }, []);
+    // useEffect(() => {
+    //     submit(1);
+    // }, []);
 
     return (
         <>
