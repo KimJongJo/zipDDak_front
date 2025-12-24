@@ -50,6 +50,8 @@ export default function ProfileForm() {
     const [businessFile, setBusinessFile] = useState(null); // 사업자등록증 이미지 파일
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    // 알림 모달
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
     const [modalType, setModalType] = useState(""); // 경력 | 포트폴리오 | 질문 | 주소
     const [durationUnitChip, setDurationUnitChip] = useState(""); // HOUR | DAY | WEEK | MONTH
 
@@ -1512,7 +1514,7 @@ export default function ProfileForm() {
             )}
 
             {/* 알림 모달창 */}
-            <Modal isOpen={isModalOpen} className="mypage-modal" style={{ width: "380px" }}>
+            <Modal isOpen={messageModalOpen} className="mypage-modal" style={{ width: "380px" }}>
                 <ModalBody>
                     <div
                         style={{
