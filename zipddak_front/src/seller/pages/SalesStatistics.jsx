@@ -27,18 +27,19 @@ export default function SalesStatistics() {
     useEffect(() => {
         const params = new URLSearchParams();
         params.append("sellerId", user.username);
-        const salesInfoUrl = `/sales/mySalesCard?${params.toString()}`;
+        const salesInfoUrl = `/seller/sales/mySalesCard?${params.toString()}`;
 
-        myAxios(token, setToken)
-            .get(salesInfoUrl)
-            .then((res) => {
-                console.log(res.data);
-                setCardData(res.data);
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-    }, []);
+        user.username &&
+            myAxios(token, setToken)
+                .get(salesInfoUrl)
+                .then((res) => {
+                    console.log(res.data);
+                    setCardData(res.data);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+    }, [user]);
 
     //(테이블 헤더) 셀러가 갖고있는 상품의 카테고리만 출력
     const [categories, setCategories] = useState([]);

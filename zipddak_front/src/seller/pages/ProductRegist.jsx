@@ -57,12 +57,13 @@ export default function ProductRegist() {
     const [selectedSubCategory, setSelectedSubCategory] = useState("");
     // 카테고리 세팅
     useEffect(() => {
-        myAxios(token, setToken)
-            .get("/product/categories/all")
-            .then((res) => res.data)
-            .then((data) => setCategories(data))
-            .catch((err) => console.error("카테고리 로드 실패", err));
-    }, []);
+        user.username &&
+            myAxios(token, setToken)
+                .get("/seller/product/categories/all")
+                .then((res) => res.data)
+                .then((data) => setCategories(data))
+                .catch((err) => console.error("카테고리 로드 실패", err));
+    }, [user]);
     // 라디오로 카테고리 선택 시 subCategory 세팅
     useEffect(() => {
         if (!selectedCategory) {
@@ -208,7 +209,7 @@ export default function ProductRegist() {
 
             // 8) 서버 전송
             myAxios(token, setToken)
-                .post(`/product/regist`, formData)
+                .post(`/seller/product/regist`, formData)
                 .then((res) => {
                     console.log(res);
                     console.log(res.data);

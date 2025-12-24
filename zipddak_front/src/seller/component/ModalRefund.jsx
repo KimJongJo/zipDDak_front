@@ -5,10 +5,13 @@ import modal from "../css/modal.module.css";
 import { tokenAtom } from "../../atoms.jsx";
 import { useAtom } from "jotai/react";
 
-export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selectedItems, targetItemIdx, idx, refresh, resetChecked }) {
+export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selectedItems, checkbox, targetItemIdx, idx, refresh }) {
     const [refundReason, setRefundReason] = useState("");
     const [refundDetailReason, setRefundDetailReason] = useState("");
     const [token, setToken] = useAtom(tokenAtom);
+
+    //선택된 아이템 계산
+    const resolvedSelectedItems = selectedItems ?? checkbox?.getSelected?.() ?? [];
 
     const handleSave = async () => {
         try {
@@ -17,10 +20,13 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
             if (targetItemIdx) {
                 // 드롭다운 단일 처리
                 targetItems = [targetItemIdx];
+            } else if (resolvedSelectedItems.length > 0) {
+                //체크박스 다중 처리
+                targetItems = resolvedSelectedItems;
             } else {
-                // 체크박스 다중 처리
-                if (!selectedItems?.length) return alert("선택된 상품이 없습니다.");
-                targetItems = selectedItems;
+                //아무것도 없으면 return
+                alert("처리할 상품을 선택해주세요.");
+                return;
             }
             console.log("orderIdx : " + idx);
             console.log("targetItems : " + targetItems);
@@ -40,8 +46,8 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
                     if (res.data.success === true) {
                         alert(res.data.message);
                         setRefundModalOpen(false); //모달 닫기
-                        resetChecked(); //체크박스 초기화
-                        if (refresh) refresh(); // 새로고침
+                        checkbox?.resetChecked?.(); //체크박스 초기화
+                        refresh?.(); // 새로고침
                     } else {
                         alert(res.data.message);
                     }
@@ -64,7 +70,7 @@ export default function ModalRefund({ refundModalOpen, setRefundModalOpen, selec
                 <ModalBody className={[modal.modalBody, modal.refundModalBody].join(" ")}>
                     <div className={modal.refundModalContent}>
                         <div className={modal.descRefundModalColumn}>
-                            <p>선택된 상품 {selectedItems?.length || 1}개를 환불 처리하시겠습니까?</p>
+                            <p>선택된 상품 {targetItemIdx ? 1 : resolvedSelectedItems.length}개를 환불 처리하시겠습니까?</p>
                             <p style={{ color: "red" }}>처리 후 취소할 수 없습니다.</p>
                         </div>
                         {/* <div className={modal.refundModalContent} style={{ padding: "15px" }}>

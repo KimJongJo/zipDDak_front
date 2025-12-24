@@ -27,6 +27,18 @@ export const getEarliestDatePickup = (items) => {
     return earliest;
 };
 
+//처리 시간 중 가장 빠른 시간 골라냄 (반품완료 처리 결과용)
+export const getEarliestDateCompleted = (items) => {
+    if (!Array.isArray(items) || items.length === 0) return "-";
+
+    const dates = items.map((item) => item.refundComplatedAt).filter(Boolean);
+    if (dates.length === 0) return "-";
+
+    const earliest = dates.reduce((min, cur) => (cur < min ? cur : min), dates[0]);
+
+    return earliest;
+};
+
 //처리 시간 중 가장 빠른 시간 골라냄 (반품 처리 결과용)
 export const getEarliestDate = (items) => {
     if (!Array.isArray(items) || items.length === 0) return "-";
