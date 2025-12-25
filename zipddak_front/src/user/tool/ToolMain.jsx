@@ -7,6 +7,8 @@ import { useAtom } from "jotai";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { myAxios, baseUrl } from "../../config";
+import axios from "axios";
+import LocationToolMap from "./ToolMap3";
 
 export default function ToolMain() {
     const [user, setUser] = useAtom(userAtom);
@@ -34,7 +36,7 @@ export default function ToolMain() {
 
     //유저 주소 자르기
     const userAddressString = user?.addr1 || "";
-    const userAdress = userAddressString.split(" ").slice(1, 3).join(" ");
+    const userAdress = userAddressString.split(" ").slice(0, 2).join(" ");
 
     //카테고리
     const [checkedCategory, setCheckedCategory] = useState([]);
@@ -106,7 +108,7 @@ export default function ToolMain() {
         myAxios(tokenParam, setToken)
             .get("/tool/main", { params })
             .then((res) => {
-                console.log(res.data);
+                console.log("toolMain LIst:",res.data);
 
                 if (isMore) {
                     setTool((prev) => [...prev, ...res.data.cards]);
@@ -139,11 +141,11 @@ export default function ToolMain() {
         setTWay(0);
     };
 
-    // 더보기 전용
+    // 더보기 확인
     useEffect(() => {
         console.log(
             "tool ids:",
-            tool.map((t) => t.toolIdx)
+            tool?.map?.(t => t.toolIdx)
         );
     }, [tool]);
 
@@ -171,7 +173,6 @@ export default function ToolMain() {
         );
     };
 
-
     return (
         <>
             <div className="tool-container">
@@ -197,7 +198,7 @@ export default function ToolMain() {
                                 />
                             </div>
                         </div>
-                        <div className="t-filter">
+                        {/* <div className="t-filter">
                             <span className="f-label">지역검색</span>
                             <div className="location-box">
                                 <input className="location" type="text" placeholder="동네찾기" readOnly></input>
@@ -205,7 +206,7 @@ export default function ToolMain() {
                                     <MapPinned size={20} />
                                 </Button>
                             </div>
-                        </div>
+                        </div> */}
                         <div className="t-filter">
                             <span className="f-label">거래방식</span>
                             <div className="trade-main">
@@ -217,6 +218,10 @@ export default function ToolMain() {
                                 <ChevronDown className="trade-arrow" />
                             </div>
                         </div>
+                         <span className="row-cm resetToolFilter" onClick={resetToolMain}>
+                            <RotateCcw size={14} />
+                            초기화
+                        </span>
                     </div>
                     <div className="row-cm resetToolMain">
                         <div className="t-filter">
@@ -253,10 +258,10 @@ export default function ToolMain() {
                                 </FormGroup>
                             </div>
                         </div>
-                        <span className="row-cm resetToolFilter" onClick={resetToolMain}>
+                        {/* <span className="row-cm resetToolFilter" onClick={resetToolMain}>
                             <RotateCcw size={14} />
                             초기화
-                        </span>
+                        </span> */}
                     </div>
                 </div>
 
@@ -283,16 +288,13 @@ export default function ToolMain() {
                                 }
 
                             </div>
-
-                            <div className="c-btn">
-                                <div className="m-btn">
-                                    <ChevronLeft />
-                                </div>
-                                <div className="m-btn">
-                                    <ChevronRight />
-                                </div>
-                            </div>
+                           
                         </div>
+
+                        {/* ----------------------------------------------- */}
+
+                                <LocationToolMap/>
+
                     </div>
                 </div>
 

@@ -1,4 +1,4 @@
-import { SquarePlus, ChevronDown, MapPinned, Plus,CircleMinus,Minus } from "lucide-react";
+import { SquarePlus, ChevronDown, MapPinned, Plus, CircleMinus, Minus, X } from "lucide-react";
 import "../css/RegistTool.css";
 import { Input, FormGroup, Label, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import { useState, useRef, useEffect } from "react";
@@ -42,7 +42,6 @@ export default function RegistTool() {
         img4: null,
         img5: null,
         quickRental: false,
-        toolChatCnt: 0,
         settleBank: "",
         settleAccount: "",
         settleHost: "",
@@ -83,32 +82,32 @@ export default function RegistTool() {
     const handleThumbRemove = (e) => {
         e.stopPropagation();
         if (thumbPreview) {
-        URL.revokeObjectURL(thumbPreview); // 메모리 해제
-    }
-
-    setThumbPreview(undefined);
-    setThumbnailFile(undefined);
-
-    // input[type=file] 값 초기화
-    if (fileRef.current) {
-        fileRef.current.value = "";
-    }
-};
-
-    const handleDetailRemove = (e,index) => {
-        e.stopPropagation();
-    setDetailImages(prev => {
-        const copy = [...prev];
-
-        // blob 메모리 해제
-        if (copy[index]?.preview) {
-            URL.revokeObjectURL(copy[index].preview);
+            URL.revokeObjectURL(thumbPreview); // 메모리 해제
         }
 
-        copy.splice(index, 1);
-        return copy;
-    });
-};
+        setThumbPreview(undefined);
+        setThumbnailFile(undefined);
+
+        // input[type=file] 값 초기화
+        if (fileRef.current) {
+            fileRef.current.value = "";
+        }
+    };
+
+    const handleDetailRemove = (e, index) => {
+        e.stopPropagation();
+        setDetailImages(prev => {
+            const copy = [...prev];
+
+            // blob 메모리 해제
+            if (copy[index]?.preview) {
+                URL.revokeObjectURL(copy[index].preview);
+            }
+
+            copy.splice(index, 1);
+            return copy;
+        });
+    };
 
     //주소
     const [isAddOpen, setIsAddOpen] = useState(false);
@@ -123,122 +122,89 @@ export default function RegistTool() {
         setIsAddOpen(false);
     };
 
-    // const [isAddOpen2, setIsAddOpen2] = useState(false);
-
-    // const complateHandler2 = (data) => {
-    //     setTool({
-    //         ...tool,
-    //         tradeZonecode: data.zonecode,
-    //         tradeAddr1: data.address,
-    //     });
-    // };
-
-    // const closeHandler2 = () => {
-    //     setIsAddOpen2(false);
-    // };
-
     //지도 주소
 
     const [isMapOpen, setIsMapOpen] = useState(false);
 
-  const mapContainer = useRef(null);
-  const map = useRef(null);
-  const fixedMarker = useRef(null);
-  const clickMarker = useRef(null);
-  const infowindow = useRef(null);
+    const mapContainer = useRef(null);
+    const map = useRef(null);
+    const fixedMarker = useRef(null);
+    const clickMarker = useRef(null);
+    const infowindow = useRef(null);
 
-  const [clickedAddress, setClickedAddress] = useState("");
-  const [selectedMarker, setSelectedMarker] = useState(null);
+    const [clickedAddress, setClickedAddress] = useState("");
+    const [selectedMarker, setSelectedMarker] = useState(null);
 
-  useEffect(() => {
-    if (!isMapOpen || !window.kakao || !user?.addr1) return;
+    useEffect(() => {
+        if (!isMapOpen || !window.kakao || !user?.addr1) return;
 
-    map.current = new window.kakao.maps.Map(mapContainer.current, {
-      center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
-      level: 1,
-    });
-
-    infowindow.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
-
-    const geocoder = new window.kakao.maps.services.Geocoder();
-
-    // 고정 마커
-    geocoder.addressSearch(user.addr1, (result, status) => {
-      if (status === window.kakao.maps.services.Status.OK) {
-        const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
-        map.current.setCenter(coords);
-
-        fixedMarker.current = new window.kakao.maps.Marker({
-          position: coords,
-          map: map.current,
-          title: "내 주소",
+        map.current = new window.kakao.maps.Map(mapContainer.current, {
+            center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
+            level: 1,
         });
 
-        // fixedMarker 클릭 시 선택
-        window.kakao.maps.event.addListener(fixedMarker.current, "click", () => {
-          const address = result[0].address.address_name;
-          infowindow.current.setContent(
-            `<div style="padding:5px;">${address}</div>`
-          );
-          infowindow.current.open(map.current, fixedMarker.current);
+        infowindow.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
 
-          setClickedAddress(address);
-          setSelectedMarker(fixedMarker.current);
+        const geocoder = new window.kakao.maps.services.Geocoder();
+
+        // 고정 마커
+        geocoder.addressSearch(user.addr1, (result, status) => {
+            if (status === window.kakao.maps.services.Status.OK) {
+                const coords = new window.kakao.maps.LatLng(result[0].y, result[0].x);
+                map.current.setCenter(coords);
+
+                fixedMarker.current = new window.kakao.maps.Marker({
+                    position: coords,
+                    map: map.current,
+                    title: "내 주소",
+                });
+
+                // fixedMarker 클릭 시 선택
+                window.kakao.maps.event.addListener(fixedMarker.current, "click", () => {
+                    const address = result[0].address.address_name;
+                    infowindow.current.setContent(
+                        `<div style="padding:5px;">${address}</div>`
+                    );
+                    infowindow.current.open(map.current, fixedMarker.current);
+
+                    setClickedAddress(address);
+                    setSelectedMarker(fixedMarker.current);
+                });
+            }
         });
-      }
-    });
 
-    // 클릭 마커 생성 (처음 안보임)
-    clickMarker.current = new window.kakao.maps.Marker({ map: map.current });
-    clickMarker.current.setMap(null);
+        // 클릭 마커 생성 (처음 안보임)
+        clickMarker.current = new window.kakao.maps.Marker({ map: map.current });
+        clickMarker.current.setMap(null);
 
-    // 지도 클릭 시 클릭 마커 이동/표시
-    map.current.addListener("click", (mouseEvent) => {
-      const latlng = mouseEvent.latLng;
+        // 지도 클릭 시 클릭 마커 이동/표시
+        map.current.addListener("click", (mouseEvent) => {
+            const latlng = mouseEvent.latLng;
 
-      clickMarker.current.setPosition(latlng);
-      clickMarker.current.setMap(map.current);
+            clickMarker.current.setPosition(latlng);
+            clickMarker.current.setMap(map.current);
 
-      geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (res, stat) => {
-        if (stat === window.kakao.maps.services.Status.OK) {
-          const detailAddr = res[0].address.address_name;
-          infowindow.current.setContent(
-            `<div style="padding:5px;">${detailAddr}</div>`
-          );
-          infowindow.current.open(map.current, clickMarker.current);
+            geocoder.coord2Address(latlng.getLng(), latlng.getLat(), (res, stat) => {
+                if (stat === window.kakao.maps.services.Status.OK) {
+                    const detailAddr = res[0].address.address_name;
+                    infowindow.current.setContent(
+                        `<div style="padding:5px;">${detailAddr}</div>`
+                    );
+                    infowindow.current.open(map.current, clickMarker.current);
 
-          setClickedAddress(detailAddr);
-          setSelectedMarker(clickMarker.current);
-        }
-      });
-    });
-  }, [isMapOpen, user]);
+                    setClickedAddress(detailAddr);
+                    setSelectedMarker(clickMarker.current);
+                }
+            });
+        });
+    }, [isMapOpen, user]);
 
 
-   const handleSave = () => {
-    if (!selectedMarker) return alert("마커를 선택하세요!");
-    alert(`DB에 저장할 주소: ${clickedAddress}`);
-
-    const data = {
-    toolIdx: toolIdx,
-    clickedAddress: clickedAddress,
+    const handleSave = () => {
+        if (!selectedMarker) return alert("마커를 선택하세요!");
+        setIsMapOpen(false);
     };
 
-   token&&myAxios(token,setToken).post(`tool/directRental/map`, data)
-   .then(res=>{
-    console.log(res.data);
-   })
-   .catch(err => {
-    console.log(err);
-   })
-    setIsOpen(false);
-  };
-
-
-
-
-    //카테고리
-    const [tCategory, setTCategory] = useState(83);
 
     //무료 대여
     const [freeRental, setFreeRental] = useState(false);
@@ -320,11 +286,10 @@ export default function RegistTool() {
     //대여 가능 상태설정
     const [toolStatus, setToolStatus] = useState("ABLE");
 
-    //대여문의 수
-
     //등록
     const regist = () => {
         console.log("why ");
+        console.log(clickedAddress)
 
         const submitTool = {
             ...tool,
@@ -334,8 +299,8 @@ export default function RegistTool() {
             postRental,
             directRental,
             freePost,
-            postCharge:tool.postCharge,
-            tradeAddr1:clickedAddress
+            postCharge: postRental? tool.postCharge: 0,
+            tradeAddr1: clickedAddress
 
         };
 
@@ -373,9 +338,6 @@ export default function RegistTool() {
                 });
     };
 
-    //취소
-    const cancal = () => { };
-
     //항목확인
     const checkOption = (submitTool) => {
         switch (true) {
@@ -387,11 +349,11 @@ export default function RegistTool() {
                 setMessage("공구 1일 대여 금액을 설정해주세요");
                 break;
 
-            case !submitTool.zonecode && !submitTool.tradeZonecode:
+            case !submitTool.zonecode && !submitTool.tradeAddr1:
                 setMessage("거래방식을 선택해주세요");
                 break;
 
-            case !submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2:
+            case submitTool.postRental && (!submitTool.zonecode || !submitTool.addr1 || !submitTool.addr2):
                 setMessage("택배거래시 공구를 되돌려받을 주소를 입력해주세요");
                 break;
 
@@ -399,8 +361,8 @@ export default function RegistTool() {
                 setMessage("택배거래시 배송비를 설정해주세요");
                 break;
 
-             case submitTool.settleAccount === "" || submitTool.settleAccount == null:
-                setMessage("택배거래시 배송비를 설정해주세요");
+            case !submitTool.settleAccount:
+                setMessage("정산 계좌를 설정해주세요");
                 break;
 
             default:
@@ -432,13 +394,13 @@ export default function RegistTool() {
                         <div className="options">
                             <span className="o-label">공구 썸네일</span>
                             <div className={thumbPreview ? "thumbnail" : "thumbnail add"} onClick={() => fileRef.current?.click()}>
-                                {thumbPreview ? 
-                                <>
-                                <img src={thumbPreview} alt="공구" />
-                                <button className="imgDeleteButton" onClick={(e) => handleThumbRemove(e)}><Minus color="#ffff"/></button>
-                                </>
-                                : 
-                                <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />}
+                                {thumbPreview ?
+                                    <>
+                                        <img src={thumbPreview} alt="공구" />
+                                        <button className="imgDeleteButton" onClick={(e) => handleThumbRemove(e)}><Minus color="#ffff" /></button>
+                                    </>
+                                    :
+                                    <Plus size={50} color="#B6BCC9" strokeWidth={0.5} />}
                             </div>
                             <Input
                                 type="file"
@@ -463,7 +425,7 @@ export default function RegistTool() {
                                 {detailImages.map((img, idx) => (
                                     <div key={idx} className="thumbnail" onClick={() => detailRefs.current[idx]?.click()}>
                                         <img src={img.preview} alt={`detail-${idx}`} />
-                                        <button className="imgDeleteButton" onClick={(e,idx) => handleDetailRemove(e,idx)}><Minus color="#ffff"/></button>
+                                        <button className="imgDeleteButton" onClick={(e, idx) => handleDetailRemove(e, idx)}><Minus color="#ffff" /></button>
 
                                         <Input type="file" hidden accept="image/*" innerRef={(el) => (detailRefs.current[idx] = el)} onChange={(e) => handleDetailChange(e, idx)} />
                                     </div>
@@ -494,32 +456,37 @@ export default function RegistTool() {
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="category" type="radio" value={83} checked={tCategory == 83} onChange={(e) => setTCategory(83)} /> 전동공구
+                                        <Input name="category" type="radio" value={83} checked={tool.category == 83}
+                                            onChange={() => setTool(prev => ({ ...prev, category: 83 }))} /> 전동공구
                                     </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="category" type="radio" value={84} checked={tCategory == 84} onChange={(e) => setTCategory(84)} /> 일반공구
+                                        <Input name="category" type="radio" value={84} checked={tool.category == 84}
+                                            onChange={() => setTool(prev => ({ ...prev, category: 84 }))} /> 일반공구
                                     </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="category" type="radio" value={85} checked={tCategory == 85} onChange={(e) => setTCategory(85)} /> 생활용품
+                                        <Input name="category" type="radio" value={85} checked={tool.category == 85}
+                                            onChange={() => setTool(prev => ({ ...prev, category: 85 }))} /> 생활용품
                                     </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="category" type="radio" value={86} checked={tCategory == 86} onChange={(e) => setTCategory(86)} />
+                                        <Input name="category" type="radio" value={86} checked={tool.category == 86}
+                                            onChange={() => setTool(prev => ({ ...prev, category: 86 }))} />
                                         기타공구
                                     </Label>
                                 </FormGroup>
 
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="category" type="radio" value={87} checked={tCategory == 87} onChange={(e) => setTCategory(87)} />
+                                        <Input name="category" type="radio" value={87} checked={tool.category == 87}
+                                            onChange={() => setTool(prev => ({ ...prev, category: 87 }))} />
                                         찾아요
                                     </Label>
                                 </FormGroup>
@@ -657,90 +624,82 @@ export default function RegistTool() {
                                     <span className="o-label">거래 희망장소</span>
                                     <span className="orange oFont">*</span>
                                 </div>
-                                {/* <div className="post-box">
-                                    <div className="check-col">
-                                        <Input className="zonecodeInput" type="text" name="tradeZonecode" placeholder="우편번호" value={tool.tradeZonecode} readOnly />
-
-                                        <Button className="primary-button" onClick={() => setIsAddOpen2(!isAddOpen2)}>
-                                            주소검색
-                                        </Button>
-                                    </div>
-                                    <Input type="text" name="tradeAddr1" placeholder="지번/도로명주소" value={tool.tradeAddr1} readOnly />
-                                    <Input type="text" name="tradeAddr2" placeholder="상세주소" onChange={ChangeInput} />
-                                </div> */}
+    
                                 <div className="check-col">
-                                    <div className="location-box" style={{width:"400px"}}>
+                                    <div className="location-box" style={{ width: "400px" }}>
                                         <input className="location" type="text" placeholder="지도에서 찾기" value={clickedAddress} readOnly
-                                        
+
                                         ></input>
                                         <div className="">
-                                            <Button className="primary-button mapPinI" onClick={() => {setIsMapOpen(true)}}>
+                                            <Button className="primary-button mapPinI" onClick={() => { setIsMapOpen(true) }}>
                                                 <MapPinned size={20} />
                                             </Button>
                                         </div>
                                     </div>
-                                   
+
                                 </div>
-                                 <Input type="text" name="tradeAddr2" placeholder="추가 설명" maxLength={60} onChange={ChangeInput}/>
+                                <Input type="text" name="tradeAddr2" placeholder="추가 설명" maxLength={60} onChange={ChangeInput} />
                             </div>
                         )}
 
-                        {/* {isAddOpen2 && (
-                            <AddrModal title="만나서 결제주소찾기" open={isAddOpen2} footer={null} onCancel={() => setIsAddOpen2(false)}>
-                                <DaumPostcode onComplete={complateHandler2} onClose={closeHandler2} />
-                            </AddrModal>
-                        )} */}
-
                         {isMapOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              width: "90%",
-              maxWidth: "600px",
-              backgroundColor: "#fff",
-              borderRadius: "8px",
-              padding: "16px",
-              position: "relative",
-            }}
-          >
-            <button
-              onClick={() => setIsMapOpen(false)}
-              style={{ position: "absolute", top: 8, right: 8 }}
-            >
-              X
-            </button>
+                            <div
+                                style={{
+                                    position: "fixed",
+                                    top: 0,
+                                    left: 0,
+                                    width: "100vw",
+                                    height: "100vh",
+                                    backgroundColor: "rgba(0,0,0,0.5)",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    zIndex: 1000,
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        width: "90%",
+                                        maxWidth: "600px",
+                                        backgroundColor: "#fff",
+                                        borderRadius: "8px",
+                                        padding: "16px",
+                                        position: "relative",
+                                    }}
+                                >
+                                    <div className="row-cm">
+                                        <div className="o-label">거래 희망 장소 선택</div>
+                                    <button
+                                        onClick={() => setIsMapOpen(false)}
+                                        style={{ position: "absolute", top: 8, right: 8 , 
+                                            backgroundColor:"transparent",
+                                            border:"none"
+                                        }}
+                                    >
+                                        <X />
+                                    </button>
+                                    </div>
 
-            <div
-              ref={mapContainer}
-              style={{ width: "100%", height: "400px", marginBottom: "10px" }}
-            />
+                                    <div
+                                        ref={mapContainer}
+                                        style={{ width: "100%", height: "400px", marginBottom: "10px", marginTop: "25px" }}
+                                    />
 
-            <input
-              type="text"
-              value={clickedAddress}
-              onChange={(e) => setClickedAddress(e.target.value)}
-              style={{ width: "100%", marginBottom: "10px" }}
-            />
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        readOnly
+                                        value={clickedAddress}
+                                        onChange={(e) => setClickedAddress(e.target.value)}
+                                        style={{ width: "100%", marginBottom: "10px" }}
+                                    />
 
-            <button onClick={handleSave} style={{ width: "100%" }}>
-              주소 저장
-            </button>
-          </div>
-        </div>
-      )}
+                                    <button className="primary-button" onClick={handleSave} style={{ width: "100%" }}>
+                                        주소 저장
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="options">
                             <div className="row-cm">
@@ -793,19 +752,27 @@ export default function RegistTool() {
                             <div className="check-col">
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="satus" type="radio" value={"ABLE"} checked={toolStatus == "ABLE"} onChange={() => setToolStatus("ABLE")} /> 대여가능
+                                        <Input name="satus" type="radio" value={"ABLE"} checked={toolStatus == "ABLE"}
+                                            onChange={() => {
+                                                setToolStatus("ABLE");
+                                                setTool(prev => ({ ...prev, satus: "ABLE" }));
+                                            }} /> 대여가능
                                     </Label>
                                 </FormGroup>
                                 <FormGroup check>
                                     <Label check>
-                                        <Input name="satus" type="radio" value={"INABLE"} checked={toolStatus == "INABLE"} onChange={() => setToolStatus("INABLE")} /> 대여중지
+                                        <Input name="satus" type="radio" value={"INABLE"} checked={toolStatus == "INABLE"}
+                                            onChange={() => {
+                                                setToolStatus("INABLE");
+                                                setTool(prev => ({ ...prev, satus: "INABLE" }));
+                                            }} /> 대여중지
                                     </Label>
                                 </FormGroup>
                             </div>
                         </div>
                     </div>
                     <div className="btn-col">
-                        <Button className="tertiary-button" onClick={()=>navigate(`/zipddak/tool`)}>작성취소</Button>
+                        <Button className="tertiary-button" onClick={() => navigate(`/zipddak/tool`)}>작성취소</Button>
                         <Button className="primary-button" onClick={regist}>
                             작성완료
                         </Button>
