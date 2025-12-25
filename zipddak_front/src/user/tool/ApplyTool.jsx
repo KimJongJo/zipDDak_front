@@ -529,7 +529,9 @@ export default function ApplyTool() {
                                                 <div className="product-order-form-second">
                                                     <span className="font-15">1일 대여비</span>
                                                     <span className="row-cm moneyGap">
-                                                        {tool.rentalPrice.toLocaleString()}
+                                                        {tool.rentalPrice == null &&
+                                                        tool.rentalPrice.toLocaleString()
+                                                        }
                                                         <span className="font-14">원</span>
                                                     </span>
                                                 </div>
