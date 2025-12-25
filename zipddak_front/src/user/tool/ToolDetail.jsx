@@ -73,13 +73,9 @@ export default function ToolDetail() {
         }
     }, [toolIdx, token, user]);
 
-    //유저 주소 자르기
-    const userAddressString = user?.addr1 || "";
-    const userAdress = userAddressString.split(" ").slice(1, 3).join(" ");
 
-    //공구 주소 자르기
-    const toolAddressString = tool?.addr1 || "";
-    const toolAdress = toolAddressString.split(" ").slice(1, 3).join(" ");
+    //유저 프로필
+    const ownerAddress = tool?.ownerAddr ? tool.ownerAddr.split(' ').slice(0, 2).join(' ') : '';
 
     //바로 대여
     const directApply = () => {
@@ -114,7 +110,7 @@ export default function ToolDetail() {
         console.log(activeOrder);
 
         myAxios(tokenParam, setToken)
-            .get(`tool/review?toolIdx=${toolIdx}&page=${page}&orderNo=${activeOrder}`)
+            .get(`/tool/review?toolIdx=${toolIdx}&page=${page}&orderNo=${activeOrder}`)
 
             .then((res) => {
                 console.log(res.data);
@@ -207,7 +203,7 @@ export default function ToolDetail() {
 
     //tool지도
     useEffect(() => {
-        if (!window.kakao || !tool) return;
+        if (!window.kakao || !tool || !tool.tradeAddr1) return;
 
         const geocoder = new window.kakao.maps.services.Geocoder();
 
@@ -269,7 +265,7 @@ export default function ToolDetail() {
                 <div className="d-info">
                     <div className="d-top">
                         <div className="top-icons">
-                            {copied && <div style={{ marginTop: "8px", color: "gray" }}>URL 복사됨!</div>}
+                            {copied && <div style={{ marginTop: "8px", color: "gray", fontFamily:"Pretendard Variable", fontWeight:"500"}}>URL 복사됨!</div>}
                             <Share2 onClick={handleCopy} style={{ cursor: "pointer" }} />
                             
                             <button onClick={() => toggleFavoriteTool(tool.toolIdx)} style={{ cursor: "pointer", backgroundColor: "transparent", border: "none" }}>
@@ -282,7 +278,11 @@ export default function ToolDetail() {
 
                     <div className="d-info-box">
                         <div className="d-tool-image">
-                            <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+                             {tool.thunbnail?
+                <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+                :
+                <img src="/zipddak_no_img.png"/>
+                }
                         </div>
                         <div className="d-infos">
                             <div className="infomation">
@@ -345,7 +345,7 @@ export default function ToolDetail() {
                                     </div>
                                 </div>
                             </div>
-
+                            {user.username != tool.owner &&
                             <div className="rentalBtn">
                                 {tool.quickRental && (
                                     <Button className="tertiary-button long-button" onClick={directApply}>
@@ -358,6 +358,7 @@ export default function ToolDetail() {
                                     <span>대여문의</span>
                                 </Button>
                             </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -375,7 +376,7 @@ export default function ToolDetail() {
 
                         <div className="userInfo">
                             <span className="nick">{tool.nickname}</span>
-                            <span className="loca">{toolAdress}</span>
+                            <span className="loca">{ownerAddress}</span>
                         </div>
                     </div>
                 </div>
@@ -425,7 +426,8 @@ export default function ToolDetail() {
                         <div className="de-two">
                             <div className="de-three">
                                 <div className="de-label">상세설명</div>
-                                <div className="de-content-box">{tool.content}</div>
+                                <div className="de-content-box" style={{ whiteSpace: "pre-wrap" }}>
+                                    {tool.content}</div>
                             </div>
                             {tool.tradeAddr1 &&
                                 <div className="de-favlocation">
@@ -446,11 +448,14 @@ export default function ToolDetail() {
                             }
                         </div>
 
+                        {Array.isArray(ownerTool) && ownerTool.length > 0 &&
+                        <>
                         <div className="line"></div>
                         <div className="moreTool">
-                            {Array.isArray(ownerTool) && <span className="de-label">'{tool.nickname}' 의 다른 공구</span>}
+                            <span className="de-label">'{tool.nickname}' 의 다른 공구</span>
                             <div className="morecards">{Array.isArray(ownerTool) && ownerTool.slice(0, 6).map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} />)}</div>
                         </div>
+                        </>}
                     </div>
                 )}
 

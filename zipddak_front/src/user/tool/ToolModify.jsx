@@ -288,8 +288,7 @@ export default function ModifyTool() {
                         setMessage("공구 등록 실패");
                         setModal(true);
                     }
-                    alert("공구 수정");
-                    // navigate(`/zipddak/tool/${toolIdx}`);
+                    
                 })
                 .catch((err) => {
                     console.log(err);
@@ -333,6 +332,12 @@ export default function ModifyTool() {
         setModal(true);
         return false;
     };
+
+    const successModify = () => {
+        
+        setModal(false);
+        navigate(`/zipddak/tool/${toolIdx}`);
+    }
 
     if (!tool) return <div>로딩중...</div>;
     return (
@@ -784,7 +789,7 @@ export default function ModifyTool() {
                 <Modal isOpen={modal}>
                     <ModalHeader>공구 수정</ModalHeader>
                     <ModalBody>{message}</ModalBody>
-                    <Button color="primary-button" onClick={() => setModal(false)}>
+                    <Button color="primary-button" onClick={successModify}>
                         확인
                     </Button>
                 </Modal>

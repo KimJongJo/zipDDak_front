@@ -33,6 +33,8 @@ export default function ApplyTool() {
 
     const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
+    const ownerAddress = tool?.ownerAddr ? tool.ownerAddr.split(' ').slice(0, 2).join(' ') : '';
+
     const [rental, setRental] = useState({
         // rentalIdx: '',
         rentalCode: "",
@@ -264,7 +266,7 @@ export default function ApplyTool() {
         });
     }, [tool, rentalType]);
 
-    //0원 대여 등록
+    //토스페이 0원 대여 등록
     const doFreeRental = () => {
 
         token &&
@@ -272,7 +274,8 @@ export default function ApplyTool() {
                 .post("/rental/application", rental)
                 .then((res) => {
                     console.log(res.data);
-                    alert("대여요청이 등록되었습니다!");
+                    setMessage("대여요청이 등록되었습니다");
+                    setModal(true);
                     navigate(`/zipddak/mypage/tools/rentals`);
                 })
                 .catch((err) => {
@@ -328,16 +331,8 @@ export default function ApplyTool() {
             orderId: orderId,
             orderName: orderName,
             successUrl: `http://localhost:8080/user/payment/rental/complate?orderName=${encodedOrderName}&username=${user.username}&toolIdx=${toolIdx}`, // 성공시 서버쪽으로 보냄
-            failUrl: "http://localhost:5173/zipddak/productOrder",
+            failUrl: `http://localhost:5173/zipddak/tool/${toolIdx}`,
         })
-            .then(res => {
-                console.log(res.data);
-                // setSuccessPay(true);
-                // setMessage("결제 완료");
-                // setModal(true);
-                navigate(`/zipddak/mypage/tools/rentals`);
-            })
-
 
     };
 
@@ -359,7 +354,7 @@ export default function ApplyTool() {
                             )}
                             <div className="userInfo">
                                 <span className="nick">{tool.nickname}</span>
-                                <span className="loca">{ }지역</span>
+                                <span className="loca">{ownerAddress}</span>
                             </div>
                         </div>
                         <Button className="primary-button">대여문의</Button>
@@ -427,11 +422,13 @@ export default function ApplyTool() {
                                                 <Input name="rentalType" type="radio" value="POST" checked={rentalType === "POST"} onChange={(e) => setRentalType(e.target.value)} /> 택배 배송
                                             </Label>
                                         </FormGroup>
+                                        {tool.tradeAddr1&&
                                         <FormGroup check>
                                             <Label check>
                                                 <Input name="rentalType" type="radio" value="DIRECT" checked={rentalType === "DIRECT"} onChange={(e) => setRentalType(e.target.value)} /> 직접 픽업
                                             </Label>
                                         </FormGroup>
+                                        }
                                     </div>
                                 </div>
 

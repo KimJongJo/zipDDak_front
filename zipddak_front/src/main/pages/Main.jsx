@@ -12,6 +12,7 @@ import { myAxios, baseUrl } from "../../config";
 import { useAtom } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useNavigate } from "react-router";
+import axios from "axios";
 
 export default function Main() {
     const [user, setUser] = useAtom(userAtom);
@@ -41,6 +42,7 @@ export default function Main() {
         }
     };
 
+    // --------------------------------------------------------------------------
     //전문가 리스트
     const [eCategory, setECategory] = useState();
     const [eActiveCategory, setEActiveCategory] = useState(0);
@@ -57,7 +59,7 @@ export default function Main() {
         myAxios(token, setToken)
             .get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
             .then((res) => {
-                console.log(res.data);
+                console.log("main ExpertList:",res.data);
                 setExpert(res.data.cards);
             })
             .catch((err) => {
@@ -69,6 +71,8 @@ export default function Main() {
         expertList();
     }, [user.username, eCategory]);
 
+
+    // --------------------------------------------------------------------------
     //상품 리스트
     const [pCategory, setPCategory] = useState();
     const [pActiveCategory, setPActiveCategory] = useState(0);
@@ -93,7 +97,7 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(url)
             .then((res) => {
-                console.log(res.data);
+                console.log("mainProduct List:",res.data);
                 setProduct(res.data.cards);
                 favoriteProduct(res.data.cards.productIdx);
             })
@@ -105,9 +109,9 @@ export default function Main() {
     //관심상품 토글
     useEffect(() => {
         productList();
-    }, [ user.username,pCategory]);
+    }, [user.username, pCategory]);
 
-       const toggleFavorite = async (productIdx) => {
+    const toggleFavorite = async (productIdx) => {
         if (user.username === "") {
             navigate("/login");
             return;
@@ -126,6 +130,7 @@ export default function Main() {
     };
 
 
+    // --------------------------------------------------------------------------
     //공구 리스트
     const [tCategory, setTcategory] = useState();
     const [tActiveCategory, setTActiveCategory] = useState(0);
@@ -150,46 +155,47 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(url)
             .then((res) => {
-                console.log(res.data);
+                console.log("mainTool List:",res.data);
                 setTool(res.data.cards);
-                
+
             })
             .catch((err) => {
                 console.log(err);
             });
     };
 
-        // 관심 공구 토글
-      const toggleFavoriteTool = async (toolIdx) => {
-  if (!user.username) {
-    navigate("/zipddak/login");
-    return;
-  }
+    // 관심 공구 토글
+    const toggleFavoriteTool = async (toolIdx) => {
+        if (!user.username) {
+            navigate("/zipddak/login");
+            return;
+        }
 
-  await myAxios(token, setToken).post(
-    `${baseUrl}/user/favoriteToggle/tool`,
-    {
-      toolIdx,
-      username: user.username,
-    }
-  );
+        await myAxios(token, setToken).post(
+            `${baseUrl}/user/favoriteToggle/tool`,
+            {
+                toolIdx,
+                username: user.username,
+            }
+        );
 
-  setTool(prev =>
-    prev.map(t =>
-      t.toolIdx === toolIdx
-        ? { ...t, favorite: !t.favorite }
-        : t
-    )
-  );
-};
+        setTool(prev =>
+            prev.map(t =>
+                t.toolIdx === toolIdx
+                    ? { ...t, favorite: !t.favorite }
+                    : t
+            )
+        );
+    };
 
-   
 
     useEffect(() => {
         toolList();
-        
+
     }, [user.username, tCategory]);
 
+
+    // --------------------------------------------------------------------------
     //커뮤니티 리스트
     const [cCategory, setCCategory] = useState(0);
     const [cActiveCategory, setCActiveCategory] = useState(0);
@@ -207,9 +213,9 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(`/main/community?categoryNo=${categoryPharam}`)
             .then((res) => {
-                console.log(res.data);
+                console.log("mainCommunity List:",res.data);
                 setCommunity(res.data.cards);
-                
+
             })
             .catch((err) => {
                 console.log(err);
@@ -218,8 +224,8 @@ export default function Main() {
 
     useEffect(() => {
         communityList();
-        
-    }, [user.username,cCategory]);
+
+    }, [user.username, cCategory]);
 
 
     return (
@@ -319,7 +325,8 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.slice(0, 5).map((toolCard) =>
+                        <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool}/>)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -388,7 +395,8 @@ export default function Main() {
                     </div>
 
                     <div className="product-cards">
-                        {Array.isArray(product) && product.map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
+                        {Array.isArray(product) && product.slice(0,4).map((productCard) => 
+                        <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
                     </div>
                 </div>
 

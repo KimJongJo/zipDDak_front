@@ -18,7 +18,11 @@ export function Community({ community }) {
                 <div className="Com-info">
                     <span className="Com-category">{community?.categoryName}</span>
                     <div className="Com-title">{community?.title}</div>
-                    <span className="Com-content">{community?.content}</span>
+                    <span className="Com-content">
+                        {community?.content?.length > 100
+                             ? community.content.slice(0, 50) + "..."
+                             : community?.content}
+                    </span>
                 </div>
                 <div className="Com-reaction">
                     <span className="Com-writer">{community?.nickname}</span>
@@ -39,8 +43,11 @@ export function Community({ community }) {
                     </div>
                 </div>
             </div>
-
-            <img src={`http://localhost:8080/imageView?type=community&filename=${community?.img1}`} className="Com-image"></img>
+            {community?.img1?
+            <img src={`http://localhost:8080/imageView?type=community&filename=${community?.img1}`} className="Com-image"/>
+            :
+            <img src="/zipddak_no_img.png" className="Com-image"/>
+            }
         </a>
     );
 }

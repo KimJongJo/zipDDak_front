@@ -21,7 +21,11 @@ export function Tool({ tool, toggleFavoriteTool }) {
     return (
         <div className="Tool-card" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image">
+                 {tool.thunbnail?
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+                :
+                <img src="/zipddak_no_img.png"/>
+                }
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -32,15 +36,27 @@ export function Tool({ tool, toggleFavoriteTool }) {
                 >
                     {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
+                 {
+                    tool.satus == "INABLE" &&
+                    (<div className="tool-status-badge">대여중</div>)
+                }
             </div>
 
             <div className="tool-info">
                 <div className="tool-name">{tool.name}</div>
                 <span className="tool-address">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
+                    
+                    {tool.rentalPrice == 0?
+                    <span className="rental-price orange">무료대여</span>                   
+                    :
+                    <>
                     <span className="oneday">1일</span>
                     <span className="rental-price">{tool.rentalPrice.toLocaleString()}</span>
                     <span className="rental-price">원</span>
+                    </>
+                    }
+                    
                 </div>
             </div>
         </div>
@@ -60,7 +76,11 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
     return (
         <div className="Tool-card-m" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-m">
+                {tool.thunbnail?
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+                :
+                <img src="/zipddak_no_img.png"/>
+                }
                 <button
                     onClick={(e) => {
                         e.stopPropagation(); // 화면 이동 클릭 막음
@@ -79,23 +99,26 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
 
             <div className="tool-info-m">
                 <div className="tool-name-m">{tool.name}</div>
-                <span className="tool-address-m">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
+                <span className="tool-address-m">{tool.tradeAddr1? toolDirectAddress : toolAddress }</span>
                 <div>
-                    <span className="oneday-m">1일</span>
-                    <span className="rental-price-m">{tool.rentalPrice.toLocaleString()}</span>
-                    <span className="rental-price-m">원</span>
+                    {tool.rentalPrice == 0?
+                    <span className="rental-price orange">무료대여</span>                   
+                    :
+                    <>
+                    <span className="oneday">1일</span>
+                    <span className="rental-price">{tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price">원</span>
+                    </>
+                    }
                 </div>
             </div>
             <div className="tool-reaction-m">
-               {tool.favoriteCount > 0 &&
-  <div className="favs"><Heart size={14}/>{tool.favoriteCount}</div>
-}
-{tool.favoriteCount > 0 && tool.rentalCount > 0 &&
+               
+  <div className="favs"><Heart size={14}/>{tool.favoriteCount > 0? tool.favoriteCount : 0}</div>
+
   <i className="bi bi-dot dot"></i>
-}
-{tool.rentalCount > 0 &&
-  <div className="chats"><Package2 size={13}/>{tool.rentalCount}</div>
-}
+
+  <div className="chats"><Package2 size={13}/>{tool.rentalCount > 0 ? tool.rentalCount : 0}</div>
             </div>
         </div>
     );
@@ -150,17 +173,28 @@ export function ToolL({ tool, toggleFavoriteTool }) {
 export function MapTool({ tool }) {
 
     const toolAddress = tool.addr1 ? tool.addr1.split(' ').slice(0, 2).join(' ') : '';
-     const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(0,2).join(' ') : '';
+    const toolDirectAddress = tool.tradeAddr1 ? tool.tradeAddr1.split(' ').slice(0,2).join(' ') : '';
+
+     const navigate = useNavigate();
 
 
     return (
-        <div className="tool-h">
+        <div className="tool-h"  onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="tool-image-h">
+               {tool.thunbnail?
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
-                <button
-                    className="favorite-icon iconNoneBack" style={{cursor:"default"}}
+                :
+                <img src="/zipddak_no_img.png"/>
+                }
+                 <button
+                    onClick={(e) => {
+                        e.stopPropagation(); // 화면 이동 클릭 막음
+                        // 로그인이 안되어있으면 막음
+                        user.username && toggleFavoriteTool(tool.toolIdx);
+                    }}
+                    className="favorite-icon iconNoneBack"
                 >
-                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart iconNoneBack"></i>}
+                    {tool.favorite ? <i className="bi bi-heart-fill"></i> : <i className="bi bi-heart "></i>}
                 </button>
             </div>
 
@@ -168,8 +202,15 @@ export function MapTool({ tool }) {
                 <div className="tool-name-h">{tool.name}</div>
                 <span className="tool-address-h">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
-                    <span className="oneday-h">1일</span>
-                    <span className="rental-price-h">{tool.rentalPrice.toLocaleString()}</span>
+                   {tool.rentalPrice == 0?
+                    <span className="rental-price orange">무료대여</span>                   
+                    :
+                    <>
+                    <span className="oneday">1일</span>
+                    <span className="rental-price">{tool.rentalPrice.toLocaleString()}</span>
+                    <span className="rental-price">원</span>
+                    </>
+                    }
                 </div>
             </div>
         </div>
@@ -208,7 +249,11 @@ export function MyToolCard({ tool,onChanged }) {
         <div className="myTool" onClick={() => navigate(`/zipddak/tool/${tool.toolIdx}`)}>
             <div className="row-cm myTool-card">
                 <div className="myTool-image">
+                {tool.thunbnail?
                 <img src={`http://localhost:8080/imageView?type=tool&filename=${tool.thunbnail}`} alt="공구" />
+                :
+                <img src="/zipddak_no_img.png"/>
+                }
                 {
                     Tool.toolStatus &&
                     (<div className="tool-status-badge">대여중</div>)

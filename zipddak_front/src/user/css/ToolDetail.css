@@ -350,3 +350,13 @@
 .de-content-box {
     min-height: 300px;
 }
+
+.myPage-rentalDetail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.toolLocationcards {
+    gap: 10px;
+}
