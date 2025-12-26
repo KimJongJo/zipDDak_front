@@ -212,286 +212,297 @@ export default function Cart() {
 
     return (
         <div className="body-div">
-            <div style={{ padding: "72px 16px" }} className="Cart-main-div">
+            <div style={{ padding: "72px 16px", display: "flex", flexDirection: "column" }} className="Cart-main-div">
+                <div>
+                    <span style={{ fontSize: "22px", fontWeight: "600" }} className="font-22 semibold">
+                        장바구니
+                    </span>
+                </div>
                 {/* 왼쪽 장바구니 목록 */}
-                <div className="cart-product-info-list">
-                    <div>
-                        <span style={{ fontSize: "22px", fontWeight: "600" }} className="font-22 semibold">
-                            장바구니
-                        </span>
-                    </div>
-                    <div className="cart-top-selectAll-div">
-                        <div className="cart-top-selectAll-left-div">
-                            <input
-                                type="checkbox"
-                                id="cartSelectAll"
-                                className="cart-selectAll-input"
-                                onChange={handleSelectAll}
-                                checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)}
-                            />
-                            <label style={{ fontSize: "14px", fontWeight: "500" }} htmlFor="cartSelectAll" className="font-14 medium">
-                                모두선택
-                            </label>
+                <div style={{ display: "flex", marginTop: "20px", justifyContent: "space-between" }}>
+                    <div className="cart-product-info-list">
+                        <div className="cart-top-selectAll-div" style={{ margin: "0" }}>
+                            <div className="cart-top-selectAll-left-div">
+                                <input
+                                    type="checkbox"
+                                    id="cartSelectAll"
+                                    className="cart-selectAll-input"
+                                    onChange={handleSelectAll}
+                                    checked={Object.keys(checkedItems).length > 0 && Object.values(checkedItems).every((v) => v)}
+                                />
+                                <label style={{ fontSize: "14px", fontWeight: "500" }} htmlFor="cartSelectAll" className="font-14 medium">
+                                    모두선택
+                                </label>
+                            </div>
+                            <button className="cart-select-delete-button font-14 medium" onClick={cartDeleteProducts}>
+                                선택삭제
+                            </button>
                         </div>
-                        <button className="cart-select-delete-button font-14 medium" onClick={cartDeleteProducts}>
-                            선택삭제
-                        </button>
-                    </div>
-                    <table className="cart-table">
-                        <thead>
-                            <tr className="cart-table-trtd">
-                                <td colSpan={2}>
-                                    <span>상품정보</span>
-                                </td>
-                                <td style={{ width: "135px" }}>
-                                    <span>수량</span>
-                                </td>
-                                <td style={{ width: "130px" }}>
-                                    <span>상품금액</span>
-                                </td>
-                                <td style={{ width: "130px" }}>
-                                    <span>배송단위</span>
-                                </td>
-                                <td style={{ width: "70px" }}>
-                                    <span>배송비</span>
-                                </td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {groupedCart.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} style={{ textAlign: "center", padding: "40px 0" }}>
-                                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                            <img
-                                                style={{
-                                                    width: "300px",
-                                                    WebkitMaskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
-                                                    maskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
-                                                }}
-                                                src="/cartEmpty.png"
-                                                alt=""
-                                            />
-
-                                            <span>장바구니에 담긴 상품이 없습니다.</span>
-                                        </div>
+                        <table className="cart-table">
+                            <thead>
+                                <tr className="cart-table-trtd">
+                                    <td colSpan={2}>
+                                        <span>상품정보</span>
+                                    </td>
+                                    <td style={{ width: "135px" }}>
+                                        <span>수량</span>
+                                    </td>
+                                    <td style={{ width: "130px" }}>
+                                        <span>상품금액</span>
+                                    </td>
+                                    <td style={{ width: "130px" }}>
+                                        <span>배송단위</span>
+                                    </td>
+                                    <td style={{ width: "70px" }}>
+                                        <span>배송비</span>
                                     </td>
                                 </tr>
-                            )}
-
-                            {groupedCart.map((store) => {
-                                // store.cartList를 배송단위별로 그룹핑
-                                const groupedByUnit = store.productList.reduce((acc, product) => {
-                                    if (!acc[product.postType]) acc[product.postType] = [];
-                                    acc[product.postType].push(product);
-                                    return acc;
-                                }, {});
-
-                                return (
-                                    <React.Fragment key={store.brandId}>
-                                        {/* 업체 헤더 */}
-                                        <tr className="store-row">
-                                            <td colSpan={5}>
-                                                <div
-                                                    className="store-title"
+                            </thead>
+                            <tbody>
+                                {groupedCart.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} style={{ textAlign: "center", padding: "40px 0" }}>
+                                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                                <img
                                                     style={{
-                                                        display: "flex",
-                                                        justifyContent: "flex-start",
+                                                        width: "300px",
+                                                        WebkitMaskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
+                                                        maskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
                                                     }}
-                                                >
-                                                    <span style={{ marginRight: "520px", fontSize: "14px", fontWeight: "600" }} className="font-14 medium">
-                                                        {store.brandName}
-                                                    </span>
-                                                    <span style={{ width: "230px" }}>묶음배송 무료 전환 기준금액 : {store.freeChargeAmount?.toLocaleString()}원</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a href={"/zipddak/storeInfo/" + store.brandId} className="font-14 cart-store-info-a">
-                                                    <span style={{ color: "gray" }}>업체 정보</span> <i className="bi bi-chevron-right" style={{ fontSize: "12px" }}></i>
-                                                </a>
-                                            </td>
-                                        </tr>
+                                                    src="/cartEmpty.png"
+                                                    alt=""
+                                                />
 
-                                        {/* 배송단위별 그룹 */}
-                                        {Object.entries(groupedByUnit).map(([unit, items], groupIdx, arr) => {
-                                            const isLastGroup = groupIdx === arr.length - 1;
-                                            return (
-                                                <React.Fragment key={unit}>
-                                                    {items.map((product, idx) => (
-                                                        <tr
-                                                            key={product.cartIdx}
-                                                            className="cart-product-under-tr"
-                                                            style={{
-                                                                borderBottom: !isLastGroup && idx === items.length - 1 ? "1px solid #e6e6e6" : "none",
-                                                            }}
-                                                        >
-                                                            <td>
-                                                                <input
-                                                                    type="checkbox"
-                                                                    value={product.cartIdx}
-                                                                    className="cart-selectAll-input"
-                                                                    checked={!!checkedItems[product.cartIdx]}
-                                                                    onChange={() => {
-                                                                        handleCheck(product.cartIdx);
+                                                <span>장바구니에 담긴 상품이 없습니다.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
 
-                                                                        const isChecked = !checkedItems[product.cartIdx];
+                                {groupedCart.map((store) => {
+                                    // store.cartList를 배송단위별로 그룹핑
+                                    const groupedByUnit = store.productList.reduce((acc, product) => {
+                                        if (!acc[product.postType]) acc[product.postType] = [];
+                                        acc[product.postType].push(product);
+                                        return acc;
+                                    }, {});
 
-                                                                        if (isChecked) {
-                                                                            // 체크 ON
-                                                                            setOrderList((prev) => [
-                                                                                ...prev,
-                                                                                {
-                                                                                    productId: product.productIdx,
-                                                                                    optionId: product.optionIdx,
-                                                                                    name: product.optionName,
-                                                                                    value: product.optionValue,
-                                                                                    price: product.productSalePrice
-                                                                                        ? product.optionPrice + product.productSalePrice
-                                                                                        : product.optionPrice + product.productPrice,
-                                                                                    count: product.quantity,
-                                                                                },
-                                                                            ]);
-                                                                        } else {
-                                                                            // 체크 OFF → 삭제
-                                                                            setOrderList((prev) =>
-                                                                                prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx))
-                                                                            );
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </td>
+                                    return (
+                                        <React.Fragment key={store.brandId}>
+                                            {/* 업체 헤더 */}
+                                            <tr className="store-row">
+                                                <td colSpan={5}>
+                                                    <div
+                                                        className="store-title"
+                                                        style={{
+                                                            display: "flex",
+                                                            justifyContent: "flex-start",
+                                                        }}
+                                                    >
+                                                        <span style={{ marginRight: "520px", fontSize: "14px", fontWeight: "600" }} className="font-14 medium">
+                                                            {store.brandName}
+                                                        </span>
+                                                        <span style={{ width: "230px" }}>묶음배송 무료 전환 기준금액 : {store.freeChargeAmount?.toLocaleString()}원</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <a href={"/zipddak/storeInfo/" + store.brandId} className="font-14 cart-store-info-a">
+                                                        <span style={{ color: "gray" }}>업체 정보</span> <i className="bi bi-chevron-right" style={{ fontSize: "12px" }}></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
 
-                                                            <td style={{ width: "380px" }}>
-                                                                <div
-                                                                    style={{ cursor: "pointer" }}
-                                                                    onClick={() => {
-                                                                        navigate(`/zipddak/product/${product.productIdx}`);
-                                                                    }}
-                                                                    className="cart-product-img-info-div"
-                                                                >
-                                                                    <img
-                                                                        style={{ border: "none" }}
-                                                                        className="cart-product-img"
-                                                                        src={`${baseUrl}/imageView?type=product&filename=${product.productImg}`}
-                                                                        alt=""
+                                            {/* 배송단위별 그룹 */}
+                                            {Object.entries(groupedByUnit).map(([unit, items], groupIdx, arr) => {
+                                                const isLastGroup = groupIdx === arr.length - 1;
+                                                return (
+                                                    <React.Fragment key={unit}>
+                                                        {items.map((product, idx) => (
+                                                            <tr
+                                                                key={product.cartIdx}
+                                                                className="cart-product-under-tr"
+                                                                style={{
+                                                                    borderBottom: !isLastGroup && idx === items.length - 1 ? "1px solid #e6e6e6" : "none",
+                                                                }}
+                                                            >
+                                                                <td>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value={product.cartIdx}
+                                                                        className="cart-selectAll-input"
+                                                                        checked={!!checkedItems[product.cartIdx]}
+                                                                        onChange={() => {
+                                                                            handleCheck(product.cartIdx);
+
+                                                                            const isChecked = !checkedItems[product.cartIdx];
+
+                                                                            if (isChecked) {
+                                                                                // 체크 ON
+                                                                                setOrderList((prev) => [
+                                                                                    ...prev,
+                                                                                    {
+                                                                                        productId: product.productIdx,
+                                                                                        optionId: product.optionIdx,
+                                                                                        name: product.optionName,
+                                                                                        value: product.optionValue,
+                                                                                        price: product.productSalePrice
+                                                                                            ? product.optionPrice + product.productSalePrice
+                                                                                            : product.optionPrice + product.productPrice,
+                                                                                        count: product.quantity,
+                                                                                    },
+                                                                                ]);
+                                                                            } else {
+                                                                                // 체크 OFF → 삭제
+                                                                                setOrderList((prev) =>
+                                                                                    prev.filter((item) => !(item.productId === product.productIdx && item.optionId === product.optionIdx))
+                                                                                );
+                                                                            }
+                                                                        }}
                                                                     />
-                                                                    <div className="cart-product-info-name">
-                                                                        <span className="font-14 medium" style={{ fontWeight: "500" }}>
-                                                                            {product.productName}
-                                                                        </span>
-                                                                        <span className="font-14" style={{ color: "#6A7685" }}>
-                                                                            {product.optionName} / {product.optionValue}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-
-                                                            <td>
-                                                                <div
-                                                                    style={{
-                                                                        width: "100%",
-                                                                        display: "flex",
-                                                                        justifyContent: "center",
-                                                                    }}
-                                                                >
-                                                                    <div className="detail-append-button">
-                                                                        <button className="count-button-style" onClick={() => decreaseCount(product.cartIdx, product.productIdx, product.optionIdx)}>
-                                                                            <i className="bi bi-dash-lg append-button-son"></i>
-                                                                        </button>
-                                                                        <span className="font-14">{product.quantity}</span>
-                                                                        <button className="count-button-style" onClick={() => increaseCount(product.cartIdx, product.productIdx, product.optionIdx)}>
-                                                                            <i className="bi bi-plus-lg append-button-son"></i>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-
-                                                            <td style={{ textAlign: "center" }}>
-                                                                {product.productSalePrice ? (
-                                                                    <span className="font-14 medium">{((product.productSalePrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
-                                                                ) : (
-                                                                    <span className="font-14 medium">{((product.productPrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
-                                                                )}
-                                                            </td>
-
-                                                            <td style={{ textAlign: "center" }}>
-                                                                <span className="font-15">{product.postType === "bundle" ? "묶음배송" : "개별배송"}</span>
-                                                            </td>
-
-                                                            {idx === 0 && (
-                                                                <td rowSpan={items.length} style={{ textAlign: "center" }}>
-                                                                    <span className="font-15" style={{ fontWeight: "500" }}>
-                                                                        {product.postType === "single"
-                                                                            ? `${(product.postCharge * product.quantity).toLocaleString()}`
-                                                                            : (() => {
-                                                                                  let sum = 0;
-                                                                                  store.productList?.map((p) => {
-                                                                                      if (p.postType === "bundle") {
-                                                                                          let hap =
-                                                                                              (p.productSalePrice ? p.productSalePrice + p.optionPrice : p.productPrice + p.optionPrice) * p.quantity;
-                                                                                          sum += hap;
-                                                                                      }
-                                                                                  });
-                                                                                  const returnPostCharge = sum >= store.freeChargeAmount ? 0 : store.basicPostCharge;
-                                                                                  return returnPostCharge.toLocaleString();
-                                                                              })()}
-                                                                        원
-                                                                    </span>
                                                                 </td>
-                                                            )}
-                                                        </tr>
-                                                    ))}
-                                                </React.Fragment>
-                                            );
-                                        })}
-                                    </React.Fragment>
-                                );
-                            })}
-                        </tbody>
-                    </table>
+
+                                                                <td style={{ width: "380px" }}>
+                                                                    <div
+                                                                        style={{ cursor: "pointer" }}
+                                                                        onClick={() => {
+                                                                            navigate(`/zipddak/product/${product.productIdx}`);
+                                                                        }}
+                                                                        className="cart-product-img-info-div"
+                                                                    >
+                                                                        <img
+                                                                            style={{ border: "none" }}
+                                                                            className="cart-product-img"
+                                                                            src={`${baseUrl}/imageView?type=product&filename=${product.productImg}`}
+                                                                            alt=""
+                                                                        />
+                                                                        <div className="cart-product-info-name">
+                                                                            <span className="font-14 medium" style={{ fontWeight: "500" }}>
+                                                                                {product.productName}
+                                                                            </span>
+                                                                            <span className="font-14" style={{ color: "#6A7685" }}>
+                                                                                {product.optionName} / {product.optionValue}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+
+                                                                <td>
+                                                                    <div
+                                                                        style={{
+                                                                            width: "100%",
+                                                                            display: "flex",
+                                                                            justifyContent: "center",
+                                                                        }}
+                                                                    >
+                                                                        <div className="detail-append-button">
+                                                                            <button
+                                                                                className="count-button-style"
+                                                                                onClick={() => decreaseCount(product.cartIdx, product.productIdx, product.optionIdx)}
+                                                                            >
+                                                                                <i className="bi bi-dash-lg append-button-son"></i>
+                                                                            </button>
+                                                                            <span className="font-14">{product.quantity}</span>
+                                                                            <button
+                                                                                className="count-button-style"
+                                                                                onClick={() => increaseCount(product.cartIdx, product.productIdx, product.optionIdx)}
+                                                                            >
+                                                                                <i className="bi bi-plus-lg append-button-son"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+
+                                                                <td style={{ textAlign: "center" }}>
+                                                                    {product.productSalePrice ? (
+                                                                        <span className="font-14 medium">
+                                                                            {((product.productSalePrice + product.optionPrice) * product.quantity).toLocaleString()}원
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className="font-14 medium">{((product.productPrice + product.optionPrice) * product.quantity).toLocaleString()}원</span>
+                                                                    )}
+                                                                </td>
+
+                                                                <td style={{ textAlign: "center" }}>
+                                                                    <span className="font-15">{product.postType === "bundle" ? "묶음배송" : "개별배송"}</span>
+                                                                </td>
+
+                                                                {idx === 0 && (
+                                                                    <td rowSpan={items.length} style={{ textAlign: "center" }}>
+                                                                        <span className="font-15" style={{ fontWeight: "500" }}>
+                                                                            {product.postType === "single"
+                                                                                ? `${(product.postCharge * product.quantity).toLocaleString()}`
+                                                                                : (() => {
+                                                                                      let sum = 0;
+                                                                                      store.productList?.map((p) => {
+                                                                                          if (p.postType === "bundle") {
+                                                                                              let hap =
+                                                                                                  (p.productSalePrice ? p.productSalePrice + p.optionPrice : p.productPrice + p.optionPrice) *
+                                                                                                  p.quantity;
+                                                                                              sum += hap;
+                                                                                          }
+                                                                                      });
+                                                                                      const returnPostCharge = sum >= store.freeChargeAmount ? 0 : store.basicPostCharge;
+                                                                                      return returnPostCharge.toLocaleString();
+                                                                                  })()}
+                                                                            원
+                                                                        </span>
+                                                                    </td>
+                                                                )}
+                                                            </tr>
+                                                        ))}
+                                                    </React.Fragment>
+                                                );
+                                            })}
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    {/* 결제 box */}
+                    <div className="cart-pay-box" style={{ marginTop: "10px" }}>
+                        <div style={{ height: "22.5px" }} className="cart-pay-box-top-info">
+                            <span style={{ fontSize: "15px" }} className="font-15">
+                                총 상품 금액
+                            </span>
+                            <span className="font-14">{totalPrice.toLocaleString()}원</span>
+                        </div>
+                        <div style={{ height: "22.5px" }} className="cart-pay-box-top-info cart-pay-box-top-second-div">
+                            <span style={{ fontSize: "15px" }} className="font-15">
+                                총 배송비
+                            </span>
+                            <span className="font-14">{totalShippingFee.toLocaleString()}원</span>
+                        </div>
+                        <div style={{ height: "44px" }} className="cart-pay-box-top-info cart-pay-box-top-last-div">
+                            <span style={{ fontSize: "16px", fontWeight: "600" }} className="font-16 semibold">
+                                결제 금액
+                            </span>
+                            <span style={{ fontSize: "22px", fontWeight: "600" }} className="font-22 semibold total-price-info">
+                                {(totalPrice + totalShippingFee).toLocaleString()}
+                                <span style={{ fontSize: "16px" }} className="font-16">
+                                    원
+                                </span>
+                            </span>
+                        </div>
+                        {/* 구매 버튼 */}
+                        {/* 수량 들어가야함 */}
+                        <button
+                            style={{ fontSize: "16px", fontWeight: "600" }}
+                            onClick={() => {
+                                if (orderList.length === 0) {
+                                    setModal(true);
+                                    setTimeout(() => setModal(false), 1500);
+                                    return;
+                                }
+                                navigate("/zipddak/productOrder");
+                            }}
+                            className="cart-pay-box-bottom-button font-16 semibold"
+                        >
+                            {checkedCount}개 상품 구매하기
+                        </button>
+                    </div>
                 </div>
 
-                {/* 결제 box */}
-                <div className="cart-pay-box">
-                    <div style={{ height: "22.5px" }} className="cart-pay-box-top-info">
-                        <span style={{ fontSize: "15px" }} className="font-15">
-                            총 상품 금액
-                        </span>
-                        <span className="font-14">{totalPrice.toLocaleString()}원</span>
-                    </div>
-                    <div style={{ height: "22.5px" }} className="cart-pay-box-top-info cart-pay-box-top-second-div">
-                        <span style={{ fontSize: "15px" }} className="font-15">
-                            총 배송비
-                        </span>
-                        <span className="font-14">{totalShippingFee.toLocaleString()}원</span>
-                    </div>
-                    <div style={{ height: "44px" }} className="cart-pay-box-top-info cart-pay-box-top-last-div">
-                        <span style={{ fontSize: "16px", fontWeight: "600" }} className="font-16 semibold">
-                            결제 금액
-                        </span>
-                        <span style={{ fontSize: "22px", fontWeight: "600" }} className="font-22 semibold total-price-info">
-                            {(totalPrice + totalShippingFee).toLocaleString()}
-                            <span style={{ fontSize: "16px" }} className="font-16">
-                                원
-                            </span>
-                        </span>
-                    </div>
-                    {/* 구매 버튼 */}
-                    {/* 수량 들어가야함 */}
-                    <button
-                        style={{ fontSize: "16px", fontWeight: "600" }}
-                        onClick={() => {
-                            if (orderList.length === 0) {
-                                setModal(true);
-                                setTimeout(() => setModal(false), 1500);
-                                return;
-                            }
-                            navigate("/zipddak/productOrder");
-                        }}
-                        className="cart-pay-box-bottom-button font-16 semibold"
-                    >
-                        {checkedCount}개 상품 구매하기
-                    </button>
-                </div>
                 <Modal
                     className="ask-modal-box"
                     isOpen={modal}

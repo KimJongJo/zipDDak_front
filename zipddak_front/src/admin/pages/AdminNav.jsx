@@ -22,8 +22,8 @@ export default function AdminNav() {
             {/* Top */}
             <div className="admin-sidebar-inner-div">
                 <div className="sidebar-top">
-                    <div className="logo-box">
-                        <img src="/logo/집딱로고.png" />
+                    <div className="logo-box" style={{ display: "flex", alignItems: "center" }}>
+                        <img style={{ width: "110px" }} src="/zipddak_smile.png" />
                         <div
                             style={{
                                 display: "flex",

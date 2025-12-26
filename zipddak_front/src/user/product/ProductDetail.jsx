@@ -375,25 +375,27 @@ export default function ProductDetail() {
                     <div className="detail-top-right">
                         <div className="detail-product-info">
                             {/* 카테고리 */}
-                            <div>
+                            {/* <div>
                                 <span className="product-category">{product.category}</span>
                                 {product.subCategory ? <span className="product-category"> - {product.subCategory}</span> : <></>}
-                            </div>
+                            </div> */}
 
                             {/* 업체명 */}
                             <span
                                 onClick={() => {
                                     navigate(`/zipddak/storeInfo/${product.sellerIdx}`);
                                 }}
-                                style={{ cursor: "pointer" }}
+                                style={{ cursor: "pointer", fontWeight: "600", color: "rgb(130, 140, 148)" }}
                                 className="product-store-name"
                             >
                                 {product.brandName}
                             </span>
 
-                            <div className="detail-product-name-div" style={{ alignItems: "flex-start" }}>
+                            <div className="detail-product-name-div" style={{ alignItems: "flex-start", margin: "5px 0 3px 0" }}>
                                 {/* 상품 이름 */}
-                                <div className="detail-product-name">{product.name}</div>
+                                <div style={{ fontSize: "20px", fontWeight: "500" }} className="detail-product-name">
+                                    {product.name}
+                                </div>
                                 <button onClick={() => favoriteToggle(product.productIdx)} style={{ border: "none", backgroundColor: "transparent" }}>
                                     {favorite ? <i className="bi bi-heart-fill product-like"></i> : <i className="bi bi-heart product-like"></i>}
                                 </button>
@@ -405,26 +407,29 @@ export default function ProductDetail() {
                                             <>
                                                 <div className="detail-sale-div">
                                                     {/* 세일 퍼센트 */}
-                                                    <span className="detail-sale-percent">{product.discount}%</span>
-                                                    {/* 정가 */}
-                                                    <del className="detail-default-price">{product?.price?.toLocaleString()}원</del>
-                                                </div>
-                                                <div style={{ display: "flex", alignItems: "flex-end" }}>
-                                                    {/* 판매 가격 */}
-                                                    <span className="detail-sale-price">{product?.salePrice?.toLocaleString()}</span>
-                                                    <span style={{ marginLeft: "0" }} className="won">
-                                                        원
+                                                    <span style={{ color: "rgb(130, 140, 148)" }} className="detail-sale-percent">
+                                                        {product.discount}%
                                                     </span>
+                                                    {/* 정가 */}
+                                                    <del style={{ color: "rgb(194, 200, 204)" }} className="detail-default-price">
+                                                        {product?.price?.toLocaleString()}원
+                                                    </del>
+                                                </div>
+                                                <div style={{ display: "flex", alignItems: "flex-end", marginBottom: "5px", marginTop: "3px" }}>
+                                                    {/* 판매 가격 */}
+                                                    <span style={{ display: "flex", alignItems: "center" }} className="detail-sale-price">
+                                                        {product?.salePrice?.toLocaleString()}
+                                                        <span style={{ fontSize: "25px", fontWeight: "400" }}>원</span>
+                                                    </span>
+                                                    <span style={{ marginLeft: "0" }} className="won"></span>
                                                 </div>
                                             </>
                                         ) : (
                                             <>
-                                                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                                                <div style={{ display: "flex", alignItems: "flex-end", marginBottom: "5px" }}>
                                                     {/* 판매 가격 */}
-                                                    <span className="detail-sale-price">{product?.price?.toLocaleString()}</span>
-                                                    <span style={{ marginLeft: "0" }} className="won">
-                                                        원
-                                                    </span>
+                                                    <span className="detail-sale-price">{product?.price?.toLocaleString()}원</span>
+                                                    <span style={{ marginLeft: "0" }} className="won"></span>
                                                 </div>
                                             </>
                                         )}
@@ -556,21 +561,19 @@ export default function ProductDetail() {
                                     {/* 여기까지 추가되는 div 박스 */}
                                 </div>
                                 <hr className="hr" />
-                                <div>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
                                     <div className="detail-order-price-div">
                                         <span className="detail-order-hard-span">주문 금액</span>
                                         {/* 주문 금액 */}
                                         <span className="detail-order-hard-price">{totalPrice.toLocaleString()}원</span>
                                     </div>
                                     <div className="font-15">배송정보</div>
-                                    <div className="font-14">
+                                    {/* <div className="font-14">
                                         방법 : {product.postYn ? <span className="font-14">(택배배송)</span> : <></>}
                                         {product.pickupYn ? <span className="font-14">(픽업가능)</span> : <></>}
-                                    </div>
+                                    </div> */}
                                     <div className="font-14">배송 단위 : {product.postType === "single" ? <span className="font-14">개별배송</span> : <span className="font-14">묶음배송</span>}</div>
                                     <div className="font-14">배송비 : {product?.postCharge?.toLocaleString()}원</div>
-                                    <div className="font-14">결제 : 주문 시 결제</div>
-                                    <div className="font-14">안내 : 상품이 발송되면 송장번호를 마이페이지에서 확인하실 수 있습니다.</div>
                                 </div>
                                 <div className="detail-order-button-div">
                                     <button onClick={addCart} className="detail-order-button go-cart">
@@ -924,7 +927,7 @@ export default function ProductDetail() {
                                 <div className="detail-select-div">
                                     <select onChange={(e) => handleOptionChange(e.target.value, "bottom")} className="detail-select2" defaultValue={"none"}>
                                         <option disabled value="none">
-                                            규격
+                                            옵션
                                         </option>
                                         {Object.keys(productOption).map((option) => (
                                             <option key={option} value={option}>
@@ -936,7 +939,7 @@ export default function ProductDetail() {
                                 <div className="detail-select-div">
                                     <select onChange={(e) => handleOption(e.target.value, "bottom")} className="detail-select2" value={selectOptionInfo2.optionId || "none"}>
                                         <option value="none" disabled>
-                                            색상
+                                            선택값
                                         </option>
                                         {productOption[selectOption2]?.map((option) => (
                                             <option key={option.optionId} value={option.optionId}>

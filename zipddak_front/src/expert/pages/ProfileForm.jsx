@@ -145,7 +145,12 @@ export default function ProfileForm() {
             .get("http://localhost:8080" + `/profile/detail?username=${user.username}`)
             .then((res) => {
                 console.log(res.data);
-                setUser({ profile: res.data.profileImage });
+                setUser((prev) => {
+                    if (!prev) return prev;
+                    // 이미 같은 값이면 다시 세팅 안하도록 방지
+                    if (prev.profile === res.data.profileImage) return prev;
+                    return { ...prev, profile: res.data.profileImage };
+                });
                 setExpert(res.data);
 
                 // 지역 세팅
@@ -418,9 +423,9 @@ export default function ProfileForm() {
 
     useEffect(() => {
         if (!user) return;
-
+        console.log("테스트");
         getExpert();
-    }, [user.username]);
+    }, [user?.username]);
 
     // 모달 안 데이터 초기화
     useEffect(() => {
