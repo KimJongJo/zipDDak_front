@@ -203,7 +203,12 @@ export default function ReturnDetail() {
                                                         <thead>
                                                             <tr>
                                                                 <th style={{ width: "5%" }}>
-                                                                    <Input type="checkbox" checked={reqCheckbox.isAllChecked(selectableReqIdxs.length)} onChange={(e) => reqCheckbox.handleAllCheck(selectableReqIdxs, e.target.checked)} disabled={selectableReqIdxs.length === 0} />
+                                                                    <Input
+                                                                        type="checkbox"
+                                                                        checked={reqCheckbox.isAllChecked(selectableReqIdxs.length)}
+                                                                        onChange={(e) => reqCheckbox.handleAllCheck(selectableReqIdxs, e.target.checked)}
+                                                                        disabled={selectableReqIdxs.length === 0}
+                                                                    />
                                                                 </th>
                                                                 <th style={{ width: "5%" }}>#</th>
                                                                 <th style={{ width: "5%" }}>Img</th>
@@ -229,7 +234,10 @@ export default function ReturnDetail() {
                                                                         </td>
                                                                         <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "60px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "60px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -248,7 +256,11 @@ export default function ReturnDetail() {
                                                                         <td>{priceFormat(it.unitPrice * it.quantity)}</td>
                                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                                             <i
-                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
+                                                                                className={`bi bi-three-dots-vertical ${
+                                                                                    it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료"
+                                                                                        ? "disabled_icon"
+                                                                                        : "pointer"
+                                                                                }`}
                                                                                 onClick={(e) => {
                                                                                     if (it.orderStatus === "반품거절" || it.orderStatus === "반품회수" || it.orderStatus === "반품완료") return;
                                                                                     handleDropdownClick(e, it.orderItemIdx);
@@ -430,7 +442,12 @@ export default function ReturnDetail() {
                                                             <thead>
                                                                 <tr>
                                                                     <th style={{ width: "5%" }}>
-                                                                        <Input type="checkbox" checked={pickupCheckbox.isAllChecked(selectablePickupIdxs.length)} onChange={(e) => pickupCheckbox.handleAllCheck(selectablePickupIdxs, e.target.checked)} disabled={selectablePickupIdxs.length === 0} />
+                                                                        <Input
+                                                                            type="checkbox"
+                                                                            checked={pickupCheckbox.isAllChecked(selectablePickupIdxs.length)}
+                                                                            onChange={(e) => pickupCheckbox.handleAllCheck(selectablePickupIdxs, e.target.checked)}
+                                                                            disabled={selectablePickupIdxs.length === 0}
+                                                                        />
                                                                     </th>
                                                                     <th style={{ width: "5%" }}>#</th>
                                                                     <th style={{ width: "5%" }}>Img</th>
@@ -456,7 +473,10 @@ export default function ReturnDetail() {
                                                                         </td>
                                                                         <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "40px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -474,7 +494,9 @@ export default function ReturnDetail() {
                                                                         <td>{reqOrder.pickupPostComp ? `${reqOrder.pickupPostComp}` : "-"}</td>
                                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                                             <i
-                                                                                className={`bi bi-three-dots-vertical ${it.orderStatus === "반품거절" || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}
+                                                                                className={`bi bi-three-dots-vertical ${
+                                                                                    it.orderStatus === "반품거절" || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"
+                                                                                }`}
                                                                                 onClick={(e) => {
                                                                                     handleDropdownClick(e, it.orderItemIdx);
                                                                                 }}
@@ -676,7 +698,10 @@ export default function ReturnDetail() {
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "40px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -763,7 +788,10 @@ export default function ReturnDetail() {
                                                                     <tr key={it.orderItemIdx}>
                                                                         <td>{idx + 1}</td>
                                                                         <td style={{ padding: "0" }}>
-                                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "40px" }} />
+                                                                            <img
+                                                                                src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"}
+                                                                                style={{ width: "40px" }}
+                                                                            />
                                                                         </td>
                                                                         <td className={table.title_cell}>{it.productName}</td>
                                                                         <td>
@@ -814,11 +842,49 @@ export default function ReturnDetail() {
                     {/* <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} registType="REFUND_PICKUP" /> */}
                     {/* <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} info={reqOrder} refresh={getRefundRequestDetail} type="refund" warningType="수거완료" />
                     <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={setIsRefundModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} resetChecked={resetChecked} /> */}
-                    <ModalReject rejectModalOpen={isRejectModalOpen} setRejectModalOpen={closeRejectModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} rejectType="반품 거절" />
-                    <ModalAccept acceptModalOpen={isAcceptModalOpen} setAcceptModalOpen={closeAcceptModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} acceptType="반품 접수" />
-                    <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={closeTrackingModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} orderIdx={reqOrder.orderIdx} refresh={getRefundRequestDetail} registType="REFUND_PICKUP" />
-                    <ModalWarning warningModalOpen={isWarningModalOpen} setWarningModalOpen={setIsWarningModalOpen} info={reqOrder} refresh={getRefundRequestDetail} type="refund" warningType="수거완료" />
-                    <ModalRefund refundModalOpen={isRefundModalOpen} setRefundModalOpen={closeRefundModal} checkbox={activeCheckbox} targetItemIdx={selectedItem} idx={reqOrder.orderIdx} refresh={getRefundRequestDetail} />
+                    <ModalReject
+                        rejectModalOpen={isRejectModalOpen}
+                        setRejectModalOpen={closeRejectModal}
+                        checkbox={activeCheckbox}
+                        targetItemIdx={selectedItem}
+                        idx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        rejectType="반품 거절"
+                    />
+                    <ModalAccept
+                        acceptModalOpen={isAcceptModalOpen}
+                        setAcceptModalOpen={closeAcceptModal}
+                        checkbox={activeCheckbox}
+                        targetItemIdx={selectedItem}
+                        idx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        acceptType="반품 접수"
+                    />
+                    <ModalTrackingRegist
+                        trackingModalOpen={isTrackingModalOpen}
+                        setTrackingModalOpen={closeTrackingModal}
+                        checkbox={activeCheckbox}
+                        targetItemIdx={selectedItem}
+                        orderIdx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                        registType="REFUND_PICKUP"
+                    />
+                    <ModalWarning
+                        warningModalOpen={isWarningModalOpen}
+                        setWarningModalOpen={setIsWarningModalOpen}
+                        info={reqOrder}
+                        refresh={getRefundRequestDetail}
+                        type="refund"
+                        warningType="수거완료"
+                    />
+                    <ModalRefund
+                        refundModalOpen={isRefundModalOpen}
+                        setRefundModalOpen={closeRefundModal}
+                        checkbox={activeCheckbox}
+                        targetItemIdx={selectedItem}
+                        idx={reqOrder.orderIdx}
+                        refresh={getRefundRequestDetail}
+                    />
                 </div>
             </main>
         </>

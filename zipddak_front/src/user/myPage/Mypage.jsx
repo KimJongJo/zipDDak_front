@@ -131,6 +131,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             내 공구
@@ -141,6 +142,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             대여 내역
@@ -155,6 +157,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             시공·수리 내역
@@ -165,6 +168,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             진행중인 견적 요청
@@ -175,6 +179,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             과거 견적 요청
@@ -189,6 +194,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             주문·배송조회
@@ -199,6 +205,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             취소·교환·반품 내역
@@ -213,6 +220,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             관심
@@ -223,6 +231,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             후기
@@ -233,6 +242,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             게시물
@@ -257,6 +267,7 @@ export default function Mypage() {
                             style={({ isActive }) => ({
                                 ...navStyle,
                                 backgroundColor: isActive ? "rgba(179, 235, 255, 0.30)" : "white",
+                                marginLeft: "15px",
                             })}
                         >
                             회원정보수정
