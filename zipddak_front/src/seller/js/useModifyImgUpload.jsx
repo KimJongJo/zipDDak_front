@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 
 export default function useModifyImgUpload(options = {}) {
-    const { maxAddImages = 5, maxDetailImages = 2, maxSizeMB = 5 } = options;
+    const { maxAddImages = 5, maxDetailImages = 2, maxSizeMB = 5, requireThumb = true, requireDetailImage = false } = options;
 
     /* ===== ref ===== */
     const thumbRef = useRef(null);
@@ -107,17 +107,20 @@ export default function useModifyImgUpload(options = {}) {
     /* ================= submit 전 검증 ================= */
     const validateBeforeSubmit = () => {
         // 썸네일
-        if (!oldThumb && !newThumbFile) {
-            alert("썸네일은 반드시 등록해야 합니다.");
-            return false;
+        if (requireThumb) {
+            if (!oldThumb && !newThumbFile) {
+                alert("썸네일은 반드시 등록해야 합니다.");
+                return false;
+            }
         }
 
         // 상세 이미지
-        if (oldDetailImages.length + newDetailFiles.length === 0) {
-            alert("상세 이미지는 최소 1장 이상 필요합니다.");
-            return false;
+        if (requireDetailImage) {
+            if (oldDetailImages.length + newDetailFiles.length === 0) {
+                alert("상세 이미지는 최소 1장 이상 필요합니다.");
+                return false;
+            }
         }
-
         return true;
     };
 

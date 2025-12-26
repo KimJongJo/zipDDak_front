@@ -40,7 +40,7 @@ export default function MyProfile() {
         deleteThumb,
 
         validateBeforeSubmit,
-    } = useModifyImgUpload();
+    } = useModifyImgUpload({ requireDetailImage: false, maxDetailImages: 0 });
 
     //상호명
     const [brandName, setBrandName] = useState("");
@@ -98,6 +98,9 @@ export default function MyProfile() {
                         filename: sellerProfile.logoFileRename,
                         idx: sellerProfile.logoFileIdx,
                     });
+
+                    //상호명
+                    setBrandName(sellerProfile.brandName);
 
                     //홈페이지
                     setHomepage(sellerProfile.compHp);
@@ -176,37 +179,36 @@ export default function MyProfile() {
             //새로운 로고이미지 첨부시
             if (newThumbFile) formData.append("thumbnailFile", newThumbFile);
 
-            // 2) 홈페이지
+            // 2) 상호명
+            formData.append("brandName", brandName);
+
+            // 3) 홈페이지
             formData.append("compHp", homepage);
 
-            // 3) 취급품목
+            // 4) 취급품목
             selectedHandleItemIdx.forEach((idx) => {
                 formData.append("handleItemCateIdx", idx);
             });
 
-            // 4) 출고지주소
+            // 5) 출고지주소
             formData.append("pickupZonecode", shipOutAddr.zipcode);
             formData.append("pickupAddr1", shipOutAddr.address);
             formData.append("pickupAddr2", shipOutAddr.detailAddress);
 
-            // 5) 기본 배송비
+            // 6) 기본 배송비
             formData.append("basicPostCharge", shippingFee.value);
 
-            // 6) 무료배송 기준금액
+            // 7) 무료배송 기준금액
             formData.append("freeChargeAmount", freeShippingLimit.value);
 
-            // 7) 소개글
+            // 8) 소개글
             formData.append("introduction", introduction);
 
             formData.append("sellerId", user.username);
-            formData.append("num", sellerIdx);
 
-            console.log("shippingFee.value", shippingFee.value);
-            console.log("freeShippingLimit.value", freeShippingLimit.value);
-
-            for (let pair of formData.entries()) {
-                console.log(pair[0], pair[1]);
-            }
+            // for (let pair of formData.entries()) {
+            //     console.log(pair[0], pair[1]);
+            // }
 
             // 서버 전송
             const ProfileModifyUrl = `/seller/mypage/myProfileModify`;

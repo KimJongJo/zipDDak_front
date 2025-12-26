@@ -71,7 +71,7 @@ export default function ProductModify() {
         deleteNewDetailImage,
 
         validateBeforeSubmit,
-    } = useModifyImgUpload();
+    } = useModifyImgUpload({ requireDetailImage: true, maxDetailImages: 2 });
 
     //카테고리 선택
     const [categories, setCategories] = useState([]); //대분류 목록 로딩

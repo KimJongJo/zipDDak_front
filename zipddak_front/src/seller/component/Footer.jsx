@@ -3,7 +3,7 @@ export default function Footer() {
         <>
             <footer className="footer">
                 <div className="header_logo">
-                    <img src="/logo.png" />
+                    <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                 </div>
                 <div className="copyRight"> Copyright © 2025 | All Rights Reserved</div>
 
