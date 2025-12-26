@@ -8,7 +8,7 @@ import { Toolmain, Tool } from "../component/Tool";
 import { Community } from "../component/Community";
 import { Products } from "../component/Product";
 import { useEffect, useState } from "react";
-import { myAxios } from "../../config";
+import { myAxios, baseUrl } from "../../config";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useNavigate, useParams } from "react-router";
@@ -112,6 +112,29 @@ export default function MainSearch() {
             });
     };
 
+     //관심상품 토글
+        useEffect(() => {
+            productList();
+        }, [user.username, pCategory]);
+    
+        const toggleFavorite = async (productIdx) => {
+            if (user.username === "") {
+                navigate("/login");
+                return;
+            }
+    
+            try {
+                await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle`, {
+                    productIdx: productIdx,
+                    username: user.username,
+                });
+    
+                setProductList((prev) => prev.map((p) => (p.productIdx === productIdx ? { ...p, favorite: !p.favorite } : p)));
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
     useEffect(() => {
         productList();
     }, [user.username, pCategory, keyword]);
@@ -149,6 +172,31 @@ export default function MainSearch() {
                 console.log(err);
             });
     };
+
+     // 관심 공구 토글
+        const toggleFavoriteTool = async (toolIdx) => {
+            if (!user.username) {
+                navigate("/zipddak/login");
+                return;
+            }
+    
+            await myAxios(token, setToken).post(
+                `${baseUrl}/user/favoriteToggle/tool`,
+                {
+                    toolIdx,
+                    username: user.username,
+                }
+            );
+    
+            setTool(prev =>
+                prev.map(t =>
+                    t.toolIdx === toolIdx
+                        ? { ...t, favorite: !t.favorite }
+                        : t
+                )
+            );
+        };
+    
 
     useEffect(() => {
         toolList();
@@ -302,7 +350,7 @@ export default function MainSearch() {
 
                     {tool.length > 0 ? (
                         <div className="cards">
-                            <div className="morecards">{Array.isArray(tool) && tool.map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavorite={toolCard.isFavorite} />)}</div>
+                            <div className="morecards">{Array.isArray(tool) && tool.map((toolCard) => <Tool key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
                         </div>
                     ) : (
                         <div className="cards">
@@ -385,7 +433,7 @@ export default function MainSearch() {
                     {product.length > 0 ? (
                         <div className="cards">
                             <div className="morecards">
-                                {Array.isArray(product) && product.map((productCard) => <Products key={productCard.productIdx} product={productCard} toggleFavorite={productCard.isFavorite} />)}
+                                {Array.isArray(product) && product.map((productCard) => <Products key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
                             </div>
                         </div>
                     ) : (

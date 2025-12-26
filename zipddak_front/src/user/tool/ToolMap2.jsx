@@ -6,7 +6,7 @@ import { myAxios } from "../../config";
 const KakaoMapModal = () => {
   const [user, setUser] = useAtom(userAtom);
   const [token, setToken]= useAtom(tokenAtom);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const mapContainer = useRef(null);
   const map = useRef(null);
@@ -19,7 +19,7 @@ const KakaoMapModal = () => {
 
   // 지도 초기화
   useEffect(() => {
-    if (!isOpen || !window.kakao || !user?.addr1) return;
+    if (!isMapOpen || !window.kakao || !user?.addr1) return;
 
     map.current = new window.kakao.maps.Map(mapContainer.current, {
       center: new window.kakao.maps.LatLng(37.566826, 126.9786567),
@@ -80,32 +80,32 @@ const KakaoMapModal = () => {
         }
       });
     });
-  }, [isOpen, user]);
+  }, [isMapOpen, user]);
 
-  const handleSave = () => {
-    if (!selectedMarker) return alert("마커를 선택하세요!");
-    alert(`DB에 저장할 주소: ${clickedAddress}`);
+//   const handleSave = () => {
+//     if (!selectedMarker) return alert("마커를 선택하세요!");
+//     alert(`DB에 저장할 주소: ${clickedAddress}`);
 
-    const data = {
-    toolIdx: toolIdx,
-    clickedAddress: clickedAddress,
-    };
+//     const data = {
+//     toolIdx: toolIdx,
+//     clickedAddress: clickedAddress,
+//     };
 
-   token&&myAxios(token,setToken).post(`tool/directRental/map`, data)
-   .then(res=>{
-    console.log(res.data);
-   })
-   .catch(err => {
-    console.log(err);
-   })
-    setIsOpen(false);
-  };
+//    token&&myAxios(token,setToken).post(`tool/directRental/map`, data)
+//    .then(res=>{
+//     console.log(res.data);
+//    })
+//    .catch(err => {
+//     console.log(err);
+//    })
+//     setIsOpen(false);
+//   };
 
   return (
     <div>
-      <button onClick={() => setIsOpen(true)}>지도 열기</button>
+      <button onClick={() => setIsMapOpen(true)}>지도 열기</button>
 
-      {isOpen && (
+      {isMapOpen && (
         <div
           style={{
             position: "fixed",
@@ -131,7 +131,7 @@ const KakaoMapModal = () => {
             }}
           >
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => setIsMapOpen(false)}
               style={{ position: "absolute", top: 8, right: 8 }}
             >
               X

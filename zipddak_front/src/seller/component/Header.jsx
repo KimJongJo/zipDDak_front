@@ -58,7 +58,7 @@ const Header = () => {
         <>
             <header className="header">
                 <div className="header_logo">
-                    <img src="/logo.png" />
+                    <img src="/zipddak_smile.png" style={{ width: "150px" }} />
                 </div>
 
                 <nav className="nav_menu" ref={menuRef}>
@@ -72,7 +72,7 @@ const Header = () => {
                     </ul>
                 </nav>
 
-                <div className="user_info">
+                <div className="user_info" style={{ width: "150px" }}>
                     {/* <div className="alarm_icon">
                         <i className="bi bi-bell pointer"></i>
                     </div> */}

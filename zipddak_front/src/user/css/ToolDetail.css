@@ -292,10 +292,6 @@
     display: flex;
 }
 
-/* .de-two {
-    margin: 20px 0;
-} */
-
 .de-three {
     flex-direction: column;
 }
@@ -348,5 +344,16 @@
 }
 
 .de-content-box {
+    margin-right: 100px;
     min-height: 300px;
+}
+
+.myPage-rentalDetail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.toolLocationcards {
+    gap: 10px;
 }

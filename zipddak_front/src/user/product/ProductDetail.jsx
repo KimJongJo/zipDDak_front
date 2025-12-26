@@ -1005,7 +1005,11 @@ export default function ProductDetail() {
                                                 navigate("/login");
                                             } else {
                                                 if (orderList.length === 0) {
-                                                    alert("한 개 이상의 상품을 담아야 합니다.");
+                                                    setModalMessage("한 개 이상의 상품을 담아주세요");
+                                                    setIsModalOpen(true);
+                                                    setTimeout(() => {
+                                                        setIsModalOpen(false);
+                                                    }, 1500);
                                                 } else {
                                                     navigate("/zipddak/productOrder");
                                                 }

@@ -1,14 +1,23 @@
 import actionBox from "../css/actionDropdown.module.css";
-import { useAtom } from "jotai/react";
-import { initUser, tokenAtom, userAtom } from "../../atoms";
-import { useEffect, useRef } from "react";
+import useModifyImgUpload from "../js/useModifyImgUpload.jsx";
 import ReactDOM from "react-dom";
+import { useAtom } from "jotai/react";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom"; //페이지 이동
+import { initUser, tokenAtom, userAtom } from "../../atoms";
+import { myAxios, baseUrl } from "../../config.jsx";
 
 const UserInfoBox = ({ pos, userId, onClose }) => {
+    const navigate = useNavigate();
     const boxRef = useRef(null);
 
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
+
+    //로고이미지
+    const [oldThumb, setOldThumb] = useState({ filename: "", idx: 0 });
+    //상호명
+    const [brandName, setBrandName] = useState("");
 
     //박스 외부 클릭시 닫기
     useEffect(() => {
@@ -44,6 +53,43 @@ const UserInfoBox = ({ pos, userId, onClose }) => {
         boxRef.current.style.left = `${newLeft}px`;
     }, [pos]);
 
+    // -----------------------------
+    // 기존 정보 불러오기
+    // -----------------------------
+    useEffect(() => {
+        if (!user.username || !user) return;
+
+        const params = new URLSearchParams({
+            sellerId: user.username,
+        });
+
+        const sellerProfileUrl = `/seller/mypage/myProfile?${params}`;
+        user.username &&
+            myAxios(token, setToken)
+                .get(sellerProfileUrl)
+                .then((res) => {
+                    const sellerProfile = res.data;
+
+                    // 기존 로고 이미지
+                    setOldThumb({
+                        filename: sellerProfile.logoFileRename,
+                        idx: sellerProfile.logoFileIdx,
+                    });
+
+                    //상호명
+                    setBrandName(sellerProfile.brandName);
+                })
+                .catch((err) => {
+                    console.log(err.message);
+                    console.log("error data : " + err.response.data.message);
+
+                    if (err.response && err.response.data) {
+                        alert("프로필 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+                        forceReload();
+                    }
+                });
+    }, [user]);
+
     // 로그아웃
     const logout = () => {
         setUser(initUser);
@@ -61,8 +107,8 @@ const UserInfoBox = ({ pos, userId, onClose }) => {
             }}
         >
             <div className={[actionBox.block_column].join(" ")}>
-                <img src="/no_img.svg" style={{ width: "50%" }} />
-                <span className={actionBox.compInfo}>업체명업체명업체명업체명업체명업체명업체명업체명</span>
+                <img src={oldThumb.idx ? `${baseUrl}/imageView?type=seller&filename=${oldThumb.filename}` : "/no_img.svg"} style={{ width: "50%" }} />
+                <span className={actionBox.compInfo}>{brandName}</span>
             </div>
             <hr className="section_divider" />
             <div className={[actionBox.item_column].join(" ")}>{userId}</div>

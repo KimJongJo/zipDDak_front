@@ -35,7 +35,7 @@
 }
 
 .search-box {
-    width: 560px;
+    width: 790px;
     height: 43px;
     padding: 0 16px;
 
@@ -207,6 +207,7 @@
 
     text-decoration-line: none;
     color: unset; /* 부모 색상을 강제로 초기화 */
+    cursor: pointer;
 }
 
 .tool-image-h {

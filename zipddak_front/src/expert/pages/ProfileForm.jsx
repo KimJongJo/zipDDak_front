@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import "../css/expertProfile.css";
 import { useAtom, useAtomValue } from "jotai";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 
 export default function ProfileForm() {
     const [expert, setExpert] = useState({}); // 전문가 상세 정보
@@ -50,6 +50,8 @@ export default function ProfileForm() {
     const [businessFile, setBusinessFile] = useState(null); // 사업자등록증 이미지 파일
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    // 알림 모달
+    const [messageModalOpen, setMessageModalOpen] = useState(false);
     const [modalType, setModalType] = useState(""); // 경력 | 포트폴리오 | 질문 | 주소
     const [durationUnitChip, setDurationUnitChip] = useState(""); // HOUR | DAY | WEEK | MONTH
 
@@ -64,13 +66,11 @@ export default function ProfileForm() {
     const portfolioRef = useRef(null);
     const qaRef = useRef(null);
 
-    const user = useAtomValue(userAtom);
+    const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
     // 전문가 카테고리 목록
     const expertCategoryList = [
-        { categoryIdx: 0, name: "선택" },
-
         { categoryIdx: 25, name: "냉장고 수리" },
         { categoryIdx: 26, name: "식기세척기 수리" },
         { categoryIdx: 27, name: "인덕션 수리" },
@@ -140,10 +140,12 @@ export default function ProfileForm() {
 
     // 전문가 상세 조회
     const getExpert = () => {
+        console.log("실행");
         myAxios(token, setToken)
             .get("http://localhost:8080" + `/profile/detail?username=${user.username}`)
             .then((res) => {
                 console.log(res.data);
+                setUser({ ...user, profile: res.data.profileImage });
                 setExpert(res.data);
 
                 // 지역 세팅
@@ -213,12 +215,12 @@ export default function ProfileForm() {
     const modifyExpert = () => {
         const formData = new FormData();
 
-        if (expert.introduction === "null") {
+        if (expert.introduction === "null" || expert.introduction === null) {
             alert("한 줄 소개를 입력해주세요");
             return;
         }
 
-        if (expert.mainServiceIdx === null) {
+        if (expert.mainServiceIdx === null || expert.mainServiceIdx === 0) {
             alert("대표 서비스를 선택해주세요");
             return;
         }
@@ -228,7 +230,7 @@ export default function ProfileForm() {
             return;
         }
 
-        if (expert.providedServiceDesc === "null") {
+        if (expert.providedServiceDesc === "null" || expert.providedServiceDesc === null) {
             alert("서비스 상세설명을 입력해주세요");
             return;
         }
@@ -276,9 +278,9 @@ export default function ProfileForm() {
                 if (res.data) {
                     getExpert();
                     setModalMessage("수정되었습니다.");
-                    setIsModalOpen(true);
+                    setMessageModalOpen(true);
                     setTimeout(() => {
-                        setIsModalOpen(false);
+                        setMessageModalOpen(false);
                     }, 1500);
                 }
             })
@@ -324,6 +326,14 @@ export default function ProfileForm() {
             })
             .then(() => {})
             .catch((err) => console.error(err));
+    };
+
+    // 질문 답변 수정
+    const modifyExpertQuestion = () => {
+        myAxios(token, setToken).post(`${baseUrl}/expert/modifyQuestion`, {
+            username: user.username,
+            questionAnswers: questionAnswers,
+        });
     };
 
     // 경력 추가
@@ -555,7 +565,7 @@ export default function ProfileForm() {
                         <div className="labelInput-wrapper">
                             <label style={{ width: "160px" }}>한 줄 소개</label>
                             <Input
-                                value={expert.introduction === "null" ? "" : expert.introduction}
+                                value={expert.introduction === "null" || expert.introduction === null ? "" : expert.introduction}
                                 type="textarea"
                                 style={{ height: "72px" }}
                                 onChange={(e) => setExpert({ ...expert, introduction: e.target.value })}
@@ -574,6 +584,7 @@ export default function ProfileForm() {
                                     }))
                                 }
                             >
+                                <option value={0}>서비스 선택</option>
                                 {expertCategoryList.map((c) => (
                                     <option key={c.categoryIdx} value={c.categoryIdx}>
                                         {c.name}
@@ -785,7 +796,7 @@ export default function ProfileForm() {
                         <div className="labelInput-wrapper">
                             <label style={{ width: "160px" }}>서비스 상세설명</label>
                             <Input
-                                value={expert.providedServiceDesc === "null" ? "" : expert.providedServiceDesc}
+                                value={expert.providedServiceDesc === "null" || expert.providedServiceDesc === null ? "" : expert.providedServiceDesc}
                                 type="textarea"
                                 style={{ height: "158px" }}
                                 onChange={(e) => setExpert({ ...expert, providedServiceDesc: e.target.value })}
@@ -1504,7 +1515,14 @@ export default function ProfileForm() {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <button className="primary-button" style={{ width: "100%", height: "40px", fontSize: "14px" }} onClick={() => setIsModalOpen(false)}>
+                        <button
+                            className="primary-button"
+                            style={{ width: "100%", height: "40px", fontSize: "14px" }}
+                            onClick={() => {
+                                setIsModalOpen(false);
+                                modifyExpertQuestion();
+                            }}
+                        >
                             질문답변 등록하기
                         </button>
                     </ModalFooter>
@@ -1512,7 +1530,7 @@ export default function ProfileForm() {
             )}
 
             {/* 알림 모달창 */}
-            <Modal isOpen={isModalOpen} className="mypage-modal" style={{ width: "380px" }}>
+            <Modal isOpen={messageModalOpen} className="mypage-modal" style={{ width: "380px" }}>
                 <ModalBody>
                     <div
                         style={{
