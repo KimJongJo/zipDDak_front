@@ -296,7 +296,7 @@ export default function SignExpert() {
                 .then((res) => {
                     if (res.data == true) {
                         console.log(res);
-                        setMessage("전문가 회원가입 완료! 승인까지 최대 n일이 소요됩니다.");
+                        setMessage("전문가 회원가입 완료! 승인까지 최대 7영업일이 소요됩니다.");
                     } else {
                         setMessage("전문가 회원가입 실패");
                     }
@@ -711,7 +711,7 @@ export default function SignExpert() {
                             color="primary"
                             onClick={() => {
                                 setModal(false);
-                                navigate(`/login`);
+                                navigate(`/zipddak/main`);
                             }}
                         >
                             확인

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useAtom } from "jotai";
-import { tokenAtom } from "../../atoms";
+import { tokenAtom, userAtom } from "../../atoms";
 import { myAxios } from "../../config";
 import { Input } from "reactstrap";
 
@@ -14,6 +14,7 @@ export default function MyWorksDetail() {
     const [costList, setCostList] = useState([]);
 
     const [token, setToken] = useAtom(tokenAtom);
+    const [user, setUser] = useAtom(userAtom);
 
     const navigate = useNavigate();
 
@@ -98,8 +99,10 @@ export default function MyWorksDetail() {
     };
 
     useEffect(() => {
+        if (!user) return;
+
         getEstimates();
-    }, []);
+    }, [user]);
 
     if (!estimate) {
         return <div className="mypage-layout">로딩 중...</div>;

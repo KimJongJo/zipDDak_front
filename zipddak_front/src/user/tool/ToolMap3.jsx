@@ -187,6 +187,7 @@ const LocationToolMap = () => {
   }, [tool]);
 
   return (
+    <>
     <div style={{ display: "flex", width: "1200px", padding: "0 16px" }}>
       <div ref={mapRef} style={{
         width: "700px",
@@ -207,6 +208,7 @@ const LocationToolMap = () => {
       </div>
 
     </div>
+    </>
   );
 };
 

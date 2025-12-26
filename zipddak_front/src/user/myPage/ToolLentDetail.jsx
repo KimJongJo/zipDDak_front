@@ -44,9 +44,9 @@ export default function ToolLentDetail() {
                     <h1 className="mypage-title">빌려준 공구</h1>
                     <button
                         onClick={() => navigate("/zipddak/mypage/tools/rentals")}
-                        style={{ padding: "0", width: "55px", height: "30px", display: "flex", alignItems: "center", border: "none", backgroundColor: "transparent" }}
+                        style={{ padding: "0", width: "80px", height: "30px", display: "flex", alignItems: "center", border: "none", backgroundColor: "transparent" }}
                     >
-                        <i style={{ fontSize: "30px" }} class="bi bi-arrow-left-short"></i>목록
+                        <i style={{ fontSize: "30px"}} class="bi bi-arrow-left-short"></i><span >목록</span>
                     </button>
 
                     <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>

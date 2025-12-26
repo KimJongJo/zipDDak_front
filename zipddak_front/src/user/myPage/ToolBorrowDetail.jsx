@@ -36,7 +36,7 @@ export default function ToolBorrowDetail() {
                     <h1 className="mypage-title">빌린 공구</h1>
                     <button
                         onClick={() => navigate("/zipddak/mypage/tools/rentals")}
-                        style={{ padding: "0", width: "55px", height: "30px", display: "flex", alignItems: "center", border: "none", backgroundColor: "transparent" }}
+                        style={{ padding: "0", width: "80px", height: "30px", display: "flex", alignItems: "center", border: "none", backgroundColor: "transparent" }}
                     >
                         <i style={{ fontSize: "30px" }} class="bi bi-arrow-left-short"></i>목록
                     </button>

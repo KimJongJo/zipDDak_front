@@ -27,7 +27,11 @@ export function Products({ product, toggleFavorite }) {
 
             <div className="product-infos">
                 <span className="store-names">{product.brandName}</span>
-                <div className="product-names">{product.name}</div>
+                <div className="product-names">
+                    {product?.name?.length > 35
+                             ? product.name.slice(0, 35) + "..."
+                             : product?.name}
+                </div>
                 <div>
                     {product.discount ? (
                         <>
