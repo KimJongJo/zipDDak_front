@@ -1,29 +1,31 @@
 //css
 import table from "../css/table.module.css";
 import detail from "../css/detail.module.css";
-import acco from "../css/accordion.module.css";
 //js
 import usePageTitle from "../js/usePageTitle.jsx";
 import useSelectCheckbox from "../js/useSelectCheckbox.jsx";
 import { priceFormat } from "../js/priceFormat.jsx";
+import { koreaAmountFormat } from "../js/koreaAmountFormat.jsx";
+
 //component
 import ActionDropdownPortal from "../component/ActionDropdownPortal.jsx";
 import ModalTrackingRegist from "../component/ModalTrackingRegist.jsx";
 
-import { myAxios } from "../../config.jsx";
+import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import { Input, Label, Spinner } from "reactstrap";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-
-import Tippy from "@tippyjs/react";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function OrderDetail() {
     const pageTitle = usePageTitle("주문관리 > 주문 내역 상세조회");
+    const navigate = useNavigate();
     const { orderIdx } = useParams();
     const [order, setOrder] = useState(null); //주문정보
     const [items, setItems] = useState(null); //주문아이템 정보
+    const [freeChargeAmount, setFreeChargeAmount] = useState(null); //이 셀러의 무료배송 기준금액
+    const [sellerOrderSummary, setSellerOrderSummary] = useState(null); //이 셀러의 주문상품 금액 정보
     const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false); //운송장번호 등록 모달 상태
     const [selectedItem, setSelectedItem] = useState(null);
     const [openDropdown, setOpenDropdown] = useState(null); //처리아이콘 클릭시 드롭다운 오픈
@@ -59,6 +61,8 @@ export default function OrderDetail() {
 
                 setOrder(res.data.orderData);
                 setItems(res.data.myOrderItemList);
+                setFreeChargeAmount(res.data.freeChargeAmount);
+                setSellerOrderSummary(res.data.sellerOrderSummary);
             })
             .catch((err) => {
                 console.log(err);
@@ -114,7 +118,7 @@ export default function OrderDetail() {
     // 배송비 합
     const parsePrice = (val) => Number(String(val).replace(/[^0-9]/g, "")); //숫자만 걸러서 계산
     // const totalPostCharge = (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
-    const isFreeShipping = totalUnitPrice > 50000; // 무료 배송 조건
+    const isFreeShipping = totalUnitPrice > freeChargeAmount; // 무료 배송 조건
     const totalPostCharge = isFreeShipping ? 0 : (bundleItems.length > 0 ? parsePrice(bundleItems[0].postCharge) : 0) + singleItems.reduce((acc, cur) => acc + parsePrice(cur.postCharge), 0);
 
     return (
@@ -159,7 +163,7 @@ export default function OrderDetail() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">최종 결제 금액 </span>
-                                            <Input value={priceFormat(order.totalAmount)} style={{ color: "red", marginRight: "5px" }} readOnly />원
+                                            <Input value={priceFormat(sellerOrderSummary.finalTotal)} style={{ color: "red", marginRight: "5px" }} readOnly />원
                                         </div>
                                         <div className={detail.info_cell}></div>
                                     </div>
@@ -239,12 +243,7 @@ export default function OrderDetail() {
                                         <thead>
                                             <tr>
                                                 <th style={{ width: "auto" }}>
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={isAllChecked(selectableIdxs.length)}
-                                                        onChange={(e) => handleAllCheck(selectableIdxs, e.target.checked)}
-                                                        disabled={selectableIdxs.length === 0}
-                                                    />
+                                                    <Input type="checkbox" checked={isAllChecked(selectableIdxs.length)} onChange={(e) => handleAllCheck(selectableIdxs, e.target.checked)} disabled={selectableIdxs.length === 0} />
                                                 </th>
                                                 <th style={{ width: "auto" }}>#</th>
                                                 <th style={{ width: "auto" }}>Img</th>
@@ -265,18 +264,15 @@ export default function OrderDetail() {
                                                 bundleItems.map((it, idx) => (
                                                     <tr key={it.orderItemIdx} className={`${table.bundle_deli} ${idx === bundleItems.length - 1 ? "last-of-bundle" : ""}`}>
                                                         <td>
-                                                            <Input
-                                                                type="checkbox"
-                                                                checked={checkedItems.has(it.orderItemIdx)}
-                                                                onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)}
-                                                                disabled={!!it.trackingNo || it.orderStatus === "반품완료"}
-                                                            />
+                                                            <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} disabled={!!it.trackingNo || it.orderStatus === "반품완료"} />
                                                         </td>
                                                         <td>{idx + 1}</td>
                                                         <td style={{ padding: "0" }}>
-                                                            <img src="/no_img.svg" style={{ width: "60px" }} />
+                                                            <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "60px" }} />
                                                         </td>
-                                                        <td className={table.title_cell}>{it.productName}</td>
+                                                        <td className={[table.title_cell, table.detail_title_cell, "pointer"].join(" ")} onClick={() => navigate(`/zipddak/product/${it.productIdx}`)}>
+                                                            {it.productName}
+                                                        </td>
                                                         <td className={table.option_cell}>
                                                             {it.productOptionIdx ? (
                                                                 <span>
@@ -298,7 +294,7 @@ export default function OrderDetail() {
                                                                 </span>
                                                                 <br />
                                                                 <span style={{ fontSize: "10px" }}>
-                                                                    <span>5만</span>원 이상 무료
+                                                                    <span>{koreaAmountFormat(freeChargeAmount)}</span>원 이상 무료
                                                                 </span>
                                                             </td>
                                                         )}
@@ -337,17 +333,13 @@ export default function OrderDetail() {
                                             {singleItems.map((it, idx) => (
                                                 <tr key={it.orderItemIdx} className={`${table.single_deli} ${idx === singleItems.length - 1 ? "last-of-single" : ""}`}>
                                                     <td>
-                                                        <Input
-                                                            type="checkbox"
-                                                            checked={checkedItems.has(it.orderItemIdx)}
-                                                            onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)}
-                                                        />
+                                                        <Input type="checkbox" checked={checkedItems.has(it.orderItemIdx)} onChange={(e) => handleItemCheck(it.orderItemIdx, e.target.checked, bundleItems.length + singleItems.length)} />
                                                     </td>
                                                     <td>{bundleItems.length + idx + 1}</td>
                                                     <td>
-                                                        <img src="/no_img.svg" style={{ width: "60px" }} />
+                                                        <img src={it.thumbnailFileRename ? `${baseUrl}/imageView?type=product&filename=${it.thumbnailFileRename}` : "/no_img.svg"} style={{ width: "60px" }} />
                                                     </td>
-                                                    <td>{it.productName}</td>
+                                                    <td className={[table.title_cell, table.detail_title_cell].join(" ")}>{it.productName}</td>
                                                     <td className={table.option_cell}>
                                                         {it.productOptionIdx ? (
                                                             <span>
@@ -426,16 +418,7 @@ export default function OrderDetail() {
                                 )}
                             </div>
                         </div>
-                        <ModalTrackingRegist
-                            trackingModalOpen={isTrackingModalOpen}
-                            setTrackingModalOpen={setIsTrackingModalOpen}
-                            selectedItems={getSelected()}
-                            targetItemIdx={selectedItem}
-                            orderIdx={orderIdx}
-                            refresh={getMyOrderDetail}
-                            resetChecked={resetChecked}
-                            registType="FIRST_SEND"
-                        />
+                        <ModalTrackingRegist trackingModalOpen={isTrackingModalOpen} setTrackingModalOpen={setIsTrackingModalOpen} selectedItems={getSelected()} targetItemIdx={selectedItem} orderIdx={orderIdx} refresh={getMyOrderDetail} resetChecked={resetChecked} registType="FIRST_SEND" />
 
                         {/* 클레임 내역 사항 */}
                         <div className="position-relative mt-4"></div>

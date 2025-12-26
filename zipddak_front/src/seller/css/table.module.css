@@ -121,7 +121,11 @@ table.list_table thead {
     border-bottom: 1px solid rgba(0, 0, 0, 0.8);
 }
 /* 행에 마우스 hover시 색변환 */
-table.list_table tbody tr:hover td:not(:has(img)) {
+/* table.list_table tbody tr:hover td:not(:has(img)) {
+    background-color: #eee;
+    cursor: pointer;
+} */
+table.list_table tbody tr:hover td {
     background-color: #eee;
     cursor: pointer;
 }
@@ -215,6 +219,10 @@ tr.last-of-single td,
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.detail_title_cell {
+    text-align: left !important;
 }
 
 .price_cell {

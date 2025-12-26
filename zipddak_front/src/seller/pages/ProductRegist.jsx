@@ -5,6 +5,7 @@ import useImgUpload from "../js/useImgUpload.jsx";
 import usePageTitle from "../js/usePageTitle.jsx";
 import usePriceCalc from "../js/usePriceCalc.jsx";
 import usePdOptionSetting from "../js/usePdOptionSetting.jsx";
+import { formatNumber, toNumber } from "../js/numberFormat";
 // component
 import DeliveryTab from "../component/ProductDeliveryTab";
 import PickupTab from "../component/ProductPickupTab";
@@ -205,7 +206,7 @@ export default function ProductRegist() {
             }
             //직접픽업 선택시 픽업지 주소 추가
             if (pickupOK == "Y") {
-                formData, append("zonecode", pickupData.zonecode);
+                formData.append("zonecode", pickupData.zonecode);
                 formData.append("pickupAddr1", pickupData.address);
                 formData.append("pickupAddr2", pickupData.detailAddress);
             }
@@ -514,10 +515,11 @@ export default function ProductRegist() {
                                                                     <Label className="sub_title">옵션 가격</Label>
                                                                     <Input
                                                                         placeholder="예: 0"
-                                                                        value={val.price}
+                                                                        value={formatNumber(val.price)}
                                                                         onChange={(e) => {
+                                                                            const raw = toNumber(e.target.value); // , 제거
                                                                             const updated = [...options];
-                                                                            updated[optionIdx].values[valueIdx].price = e.target.value;
+                                                                            updated[optionIdx].values[valueIdx].price = raw; // 숫자만 저장
                                                                             setOptions(updated);
                                                                         }}
                                                                     />
