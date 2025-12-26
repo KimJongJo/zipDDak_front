@@ -1,11 +1,11 @@
 import "../css/Expert.css";
 import { useNavigate } from "react-router";
+import { baseUrl } from "../../config";
 
 export default function Expertmain({ expert }) {
     const navigate = useNavigate();
 
-    const expertAddr = expert.addr1? expert.addr1.split(' ').slice(0,3).join(' ') : ' ';
-      
+    const expertAddr = expert.addr1 ? expert.addr1.split(" ").slice(0, 3).join(" ") : " ";
 
     return (
         <div
@@ -27,8 +27,7 @@ export default function Expertmain({ expert }) {
             {/* 전문가 사진 + 전문가명, 서비스 */}
             <div className="expert-img-div">
                 {/* 프로필 이미지 */}
-                <img className="expert-img" 
-                src={expert.imgFileRename ? `${baseUrl}/imageView?type=expert&filename=${expert.imgFileRename}` : `/default-profile.png`} alt="전문가" />
+                <img className="expert-img" src={expert.imgFileRename ? `${baseUrl}/imageView?type=expert&filename=${expert.imgFileRename}` : `/default-profile.png`} alt="전문가" />
                 <div className="expert-name-div">
                     {/* 전문가명 */}
                     <span className="font-14 semibold">{expert.activityName}</span>

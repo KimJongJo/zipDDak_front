@@ -143,7 +143,14 @@ export default function Experts() {
                     <div style={{ display: "flex", gap: "15px" }}>
                         {/* 검색바 */}
                         <div className="experts-search-bar-div">
-                            <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} ref={inputRef} placeholder="검색어를 입력해주세요" className="experts-search-bar-input font-14" />
+                            <Input
+                                style={{ height: "33px" }}
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                ref={inputRef}
+                                placeholder="검색어를 입력해주세요"
+                                className="experts-search-bar-input font-14"
+                            />
                             <button onClick={keywordSearch} className="experts-search-bar-button">
                                 <i className="bi bi-search "></i>
                             </button>

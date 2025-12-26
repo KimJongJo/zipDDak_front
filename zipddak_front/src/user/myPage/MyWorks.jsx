@@ -1,8 +1,8 @@
 import { useAtom, useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
-import { Pagination, PaginationItem, PaginationLink, Input } from "reactstrap";
+import { useEffect, useState, useRef } from "react";
+import { Pagination, PaginationItem, PaginationLink, Input, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
 import { tokenAtom, userAtom } from "../../atoms";
-import { myAxios } from "../../config";
+import { baseUrl, myAxios } from "../../config";
 import { useNavigate, useSearchParams } from "react-router";
 
 export default function MyWorks() {
@@ -12,6 +12,11 @@ export default function MyWorks() {
         endDate: null,
     });
 
+    const [selectMatchingIdx, setSelectMatchingIdx] = useState(0);
+
+    const [targetReview, setTargetReview] = useState({});
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [pageBtn, setPageBtn] = useState([]);
     const [pageInfo, setPageInfo] = useState({
         allPage: 0,
@@ -19,6 +24,13 @@ export default function MyWorks() {
         endPage: 0,
         startPage: 1,
     });
+
+    const imgRef = useRef(null);
+
+    const [images, setImages] = useState([]); // 이미지 미리보기 URL 배열
+    const [files, setFiles] = useState([]); // 실제 업로드용 이미지 File 배열
+    const [content, setContent] = useState("");
+    const [rating, setRating] = useState(0);
 
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +67,44 @@ export default function MyWorks() {
         IN_PROGRESS: "작업 중",
         COMPLETED: "작업 완료",
         CANCELLED: "취소",
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const localUrl = URL.createObjectURL(file);
+
+        setImages((prev) => [...prev, { url: localUrl, idx: null, isLocal: true }]);
+
+        setFiles((prev) => [...prev, file]);
+    };
+
+    const submitExpertReview = () => {
+        const formData = new FormData();
+
+        formData.append("score", rating);
+        formData.append("content", content);
+        formData.append("writer", user.username);
+        formData.append("matchingIdx", selectMatchingIdx);
+
+        // 파일 업로드
+        files.forEach((file) => {
+            formData.append("reviewImages", file);
+        });
+
+        myAxios(token, setToken)
+            .post(`${baseUrl}/review/write/expert`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            })
+            .then((res) => {
+                if (res.data) {
+                    setRating(0);
+                    setImages([]);
+                    setFiles([]);
+                    setIsModalOpen(false);
+                }
+            });
     };
 
     useEffect(() => {
@@ -166,7 +216,11 @@ export default function MyWorks() {
                                                         width: "68px",
                                                         height: "33px",
                                                     }}
-                                                    onClick={() => {}}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setIsModalOpen(true);
+                                                        setSelectMatchingIdx(work.matchingIdx);
+                                                    }}
                                                 >
                                                     후기작성
                                                 </button>
@@ -181,6 +235,122 @@ export default function MyWorks() {
                     </tbody>
                 </table>
             </div>
+
+            <Modal isOpen={isModalOpen} toggle={() => setIsModalOpen(false)} className="mypage-modal" style={{ width: "460px" }}>
+                <ModalHeader toggle={() => setIsModalOpen(false)}>후기 작성</ModalHeader>
+                <ModalBody>
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                    >
+                        {/* <img src={`http://localhost:8080/imageView?type=product&filename=${targetReview.thumbnail}`} width="80px" height="80px" /> */}
+                        <div
+                            style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+                                fontSize: "14px",
+                            }}
+                        >
+                            {/* <p style={{ fontWeight: "600" }}>{targetReview.brandName}</p>
+                            <p style={{ fontWeight: "500" }}>{targetReview.productName}</p>
+                            {targetReview.optionName && <p style={{ color: "#6A7685" }}>{targetReview.optionName}</p>} */}
+                        </div>
+                    </div>
+                    <div className="label-wrapper">
+                        <label>전문가 매칭은 어떠셨나요?</label>
+                        <div className="review-star">
+                            {[1, 2, 3, 4, 5].map((num) => (
+                                <i
+                                    key={num}
+                                    class={`bi ${rating >= num ? "bi-star-fill" : "bi-star"}`}
+                                    style={{
+                                        fontSize: "20px",
+                                        cursor: "pointer",
+                                        color: "rgba(247, 196, 68, 1)",
+                                    }}
+                                    onClick={() => setRating(num)}
+                                ></i>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="label-wrapper">
+                        <label>매칭 후기를 적어주세요</label>
+                        <Input type="textarea" placeholder="전문가에 대해 만족스러웠던 점이나, 아쉬웠던 점 등을 남겨주세요." onChange={(e) => setContent(e.target.value)}></Input>
+                    </div>
+
+                    <div className="label-wrapper">
+                        <label>사진 첨부</label>
+                        <div
+                            style={{
+                                display: "flex",
+                                gap: "8px",
+                            }}
+                        >
+                            {images.map((img, idx) => (
+                                <div style={{ position: "relative" }}>
+                                    <img key={idx} src={img.url} width="60px" height="60px" />
+                                    <i
+                                        class="bi bi-x-circle-fill"
+                                        style={{
+                                            width: "16px",
+                                            height: "16px",
+                                            position: "absolute",
+                                            top: "-4px",
+                                            right: "-4px",
+                                            cursor: "pointer",
+                                        }}
+                                        onClick={() => {
+                                            setImages((prev) => {
+                                                const newArr = prev.filter((_, i) => i !== idx); // idx 삭제
+                                                return [...newArr]; // 자동으로 앞으로 땡겨짐
+                                            });
+
+                                            setFiles((prev) => {
+                                                const newArr = prev.filter((_, i) => i !== idx); // 같은 idx 삭제
+                                                return [...newArr];
+                                            });
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                            {images.length < 3 && (
+                                <div
+                                    onClick={() => imgRef.current.click()}
+                                    style={{
+                                        width: "60px",
+                                        height: "60px",
+                                        background: "#000",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        cursor: "pointer",
+                                    }}
+                                >
+                                    <i
+                                        class="bi bi-plus-lg"
+                                        style={{
+                                            fontSize: "30px",
+                                            color: "#fff",
+                                        }}
+                                    ></i>
+                                    <input type="file" hidden ref={imgRef} onChange={handleImageUpload} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </ModalBody>
+                <ModalFooter>
+                    <button className="primary-button" style={{ width: "100%", height: "40px", fontSize: "14px" }} onClick={() => submitExpertReview()}>
+                        후기 등록하기
+                    </button>
+                </ModalFooter>
+            </Modal>
+
             <Pagination className="my-pagination">
                 {pageBtn.map((b) => (
                     <PaginationItem key={b} active={b === pageInfo.curPage}>
