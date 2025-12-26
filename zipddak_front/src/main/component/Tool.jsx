@@ -43,7 +43,11 @@ export function Tool({ tool, toggleFavoriteTool }) {
             </div>
 
             <div className="tool-info">
-                <div className="tool-name">{tool.name}</div>
+                <div className="tool-name">
+                    {tool?.name?.length > 15
+                             ? tool.name.slice(0, 15) + "..."
+                             : tool?.name}
+                </div>
                 <span className="tool-address">{tool.tradeAddr? toolDirectAddress : toolAddress }</span>
                 <div>
                     
@@ -98,7 +102,11 @@ export function Toolmain({ tool, toggleFavoriteTool }) {
             </div>
 
             <div className="tool-info-m">
-                <div className="tool-name-m">{tool.name}</div>
+                <div className="tool-name-m">
+                    {tool?.name?.length > 18
+                             ? tool.name.slice(0, 18) + "..."
+                             : tool?.name}
+                </div>
                 <span className="tool-address-m">{tool.tradeAddr1? toolDirectAddress : toolAddress }</span>
                 <div>
                     {tool.rentalPrice == 0?
@@ -262,7 +270,12 @@ export function MyToolCard({ tool,onChanged }) {
                 <div className="col-cm myTool-box">
                     <div className="col-cm titleMyTool">
                     <div className="row-cm myTool-rabel">
-                        <span className="myTool-name">{ tool.name}</span>
+                        <span className="myTool-name">
+                            {tool?.name?.length > 40
+                             ? tool.name.slice(0, 40) + "..."
+                             : tool?.name}
+
+                        </span>
                         <span className="myTool-category">{ tool.categoryName}</span>
                     </div>
                     <div className={tool.rentalPrice==0? "myTool-price orangeColor":"myTool-price"}>{tool.rentalPrice==0? "무료대여" : tool.rentalPrice.toLocaleString()+"원"}</div>
