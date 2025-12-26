@@ -35,11 +35,7 @@ export default function Product({ product, toggleFavorite, label }) {
                 {/* 업체명 */}
                 <span className="store-name">{product.brandName}</span>
                 {/* 자재이름 */}
-                <div className="product-name">
-                    {product?.name?.length > 40
-                             ? product.name.slice(0, 40) + "..."
-                             : product?.name}
-                </div>
+                <div className="product-name">{product?.name?.length > 40 ? product.name.slice(0, 40) + "..." : product?.name}</div>
                 <div>
                     {product.discount ? (
                         <>

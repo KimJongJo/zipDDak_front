@@ -1,9 +1,9 @@
 export default function Footer() {
     return (
         <>
-            <footer className="footer">
+            <footer className="footer" style={{ backgroundColor: "#F2F2F7" }}>
                 <div className="header_logo">
-                    <img src="/logo.png" />
+                    <img style={{ width: "150px" }} src="/zipddak_smile.png" />
                 </div>
                 <div className="copyRight"> Copyright © 2025 | All Rights Reserved</div>
 

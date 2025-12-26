@@ -359,7 +359,7 @@ export default function ProductDetail() {
                     <div>
                         {/* 메인 이미지 */}
                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                            <img style={{ border: "none" }} className="detail-main-img" src={`${baseUrl}/imageView?type=product&filename=${product.thumbnail}`}></img>
+                            <img style={{ border: "none", height: "auto", width: "640px" }} className="detail-main-img" src={`${baseUrl}/imageView?type=product&filename=${product.thumbnail}`}></img>
                         </div>
                         {/* 이미지 리스트 */}
                         <div style={{ marginTop: "30px", display: "flex", justifyContent: "center", gap: "15px" }}>
@@ -391,7 +391,7 @@ export default function ProductDetail() {
                                 {product.brandName}
                             </span>
 
-                            <div className="detail-product-name-div">
+                            <div className="detail-product-name-div" style={{ alignItems: "flex-start" }}>
                                 {/* 상품 이름 */}
                                 <div className="detail-product-name">{product.name}</div>
                                 <button onClick={() => favoriteToggle(product.productIdx)} style={{ border: "none", backgroundColor: "transparent" }}>
@@ -619,7 +619,7 @@ export default function ProductDetail() {
                         <div className="detail-bottom-left">
                             {/* 상품 정보 */}
                             <div ref={infoRef}>
-                                <img className="test-img-test" src={`${baseUrl}/imageView?type=product&filename=${product.detailImg1}`}></img>
+                                <img style={{ border: "none", height: "auto" }} className="test-img-test" src={`${baseUrl}/imageView?type=product&filename=${product.detailImg1}`}></img>
                                 {product.detailImg2 && <img className="test-img-test" src={`${baseUrl}/imageView?type=product&filename=${product.detailImg2}`}></img>}
                             </div>
 
