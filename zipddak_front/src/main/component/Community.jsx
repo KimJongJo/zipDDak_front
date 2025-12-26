@@ -19,8 +19,8 @@ export function Community({ community }) {
                     <span className="Com-category">{community?.categoryName}</span>
                     <div className="Com-title">{community?.title}</div>
                     <span className="Com-content">
-                        {community?.content?.length > 100
-                             ? community.content.slice(0, 50) + "..."
+                        {community?.content?.length > 40
+                             ? community.content.slice(0, 40) + "..."
                              : community?.content}
                     </span>
                 </div>

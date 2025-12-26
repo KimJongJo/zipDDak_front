@@ -244,9 +244,35 @@ export default function Main() {
                 </form>
 
                 <div className="main-banner">
-                    <div className="banner1"></div>
-                    <div className="banner2"></div>
+                    <div className="banner1" style={{position:"relative"}}>
+                        {/* <img src="/mainImg/main1.jpg" /> */}
+                         <img src="/mainImg/main2.jpg"/>
+                          {/* <img src="/mainImg/main3.jpg" /> */}
+                          <span style={{ fontSize: "30px", position:"absolute", fontWeight:"600",
+                            bottom:"40px", left:"40px", color:"#ffff"}}>안녕하세요. 안녕합니다!</span>
+                    </div>
+
+                     <div className="banner">
+  <div className="banner-label">집딱 전문가 멤버십</div>
+  <h2 className="banner-title">전문가 멤버십으로 </h2>
+  <h2 className="banner-title">더 많은 고객을 </h2>
+  <h2 className="banner-title">만나보세요</h2>
+  <p className="banner-text">
+    고객에게 더 잘 보이고,
+    더 빠르게 연결되는 전문가 전용 혜택
+  </p>
+
+ 
+  <button className="banner-btn">멤버십 가입하기</button>
+</div>
+
                 </div>
+
+               
+
+
+              
+
 
                 <div className="card-box">
                     <div className="top">
