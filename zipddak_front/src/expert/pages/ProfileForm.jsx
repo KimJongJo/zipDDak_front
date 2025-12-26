@@ -145,7 +145,7 @@ export default function ProfileForm() {
             .get("http://localhost:8080" + `/profile/detail?username=${user.username}`)
             .then((res) => {
                 console.log(res.data);
-                setUser({ ...user, profile: res.data.profileImage });
+                setUser({ profile: res.data.profileImage });
                 setExpert(res.data);
 
                 // 지역 세팅
@@ -420,7 +420,7 @@ export default function ProfileForm() {
         if (!user) return;
 
         getExpert();
-    }, [user]);
+    }, [user.username]);
 
     // 모달 안 데이터 초기화
     useEffect(() => {

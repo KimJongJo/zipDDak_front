@@ -195,8 +195,10 @@ export default function ProductList() {
                                 if (cate.id === 1 || cate.id === 6) setMiddleCateNo(1); // 주방/욕실만 middleCate 초기화
                             }}
                         >
-                            <img className="p-cate-img" src={`/productCateImg/${cate.img}`} alt={cate.label} />
-                            <span className="p-cate-span">{cate.label}</span>
+                            <img style={pCateNo === cate.id ? { border: "3px solid #ff5833" } : undefined} className="p-cate-img" src={`/productCateImg/${cate.img}`} alt={cate.label} />
+                            <span style={pCateNo === cate.id ? { color: "#ff5833", fontWeight: "700" } : undefined} className="p-cate-span">
+                                {cate.label}
+                            </span>
                         </button>
                     ))}
                 </div>
