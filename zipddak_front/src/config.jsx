@@ -15,7 +15,7 @@ export const myAxios = (token, setToken) => {
         (response) => {
             // console.log(response.headers.authorization);
             if (response.headers.authorization) {
-                //setToken(response.headers.authorization);
+                setToken(response.headers.authorization);
             }
             return response;
         },
