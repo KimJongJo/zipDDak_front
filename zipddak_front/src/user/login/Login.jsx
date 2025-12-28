@@ -88,7 +88,13 @@ export default function Login() {
 
                         <div className="input_parts">
                             <div className="input_label">비밀번호</div>
-                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" onChange={(e) => setPassword(e.target.value)} />
+                            <Input name="password" placeholder="비밀번호를 입력해주세요." type="password" onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        submit();
+                                    }
+                                }}
+                            />
                         </div>
 
                         <div className="col-cm">
@@ -105,7 +111,8 @@ export default function Login() {
                             </div>
 
                             <div className="mainButton loginStep">
-                                <Button className="primary-button long-button" onClick={submit} type="button">
+                                <Button className="primary-button long-button" onClick={submit}
+                                    type="button">
                                     로그인
                                 </Button>
                             </div>

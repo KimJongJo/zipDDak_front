@@ -11,6 +11,7 @@ const LocationToolMap = () => {
     const map = useRef(null);
     const markers = useRef([]);
     const infowindow = useRef(null);
+    const overlayRef = useRef(null);
 
     const userAddress = user?.addr1?.split(" ").slice(0, 2).join(" ");
 
@@ -120,44 +121,72 @@ const LocationToolMap = () => {
                     }
                 }
 
+                // 마커 이미지 설정
+                const imageSrc =
+                    // "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                    "/zipddak_pin.png",
+                    imageSize = new window.kakao.maps.Size(64, 69),
+                    imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+
+                const markerImage = new window.kakao.maps.MarkerImage(
+                    imageSrc,
+                    imageSize,
+                    imageOption
+                );
+
                 const markerPos = new window.kakao.maps.LatLng(finalLat, finalLng);
                 const marker = new window.kakao.maps.Marker({
                     map: map.current,
                     position: markerPos,
                     title: pos.name,
+                    image: markerImage,
                 });
 
                 // 마커 보관 및 범위 확장
                 markers.current.push(marker);
                 bounds.extend(markerPos);
 
-                // 이벤트 등록
-                // window.kakao.maps.event.addListener(marker, "mouseover", () => {
-                //   infowindow.current.setContent(`<div style="padding:5px; font-size:12px;">${pos.name}</div>`);
-                //   infowindow.current.open(map.current, marker);
-                // });
 
                 // 마커에 클릭 이벤트만 남기기
                 window.kakao.maps.event.addListener(marker, "click", () => {
                     const content = `
-    <div style="background:white; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); width:200px; overflow:hidden; font-family: sans-serif;">
-      <img src="${pos.thumbnail}" style="width:100%; height:100px; object-fit:cover;" onerror="this.src='기본이미지경로'">
+                    
+    <div onclick="event.stopPropagation()" style="background:white; border:none; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.3); width:200px; overflow:hidden; font-family: sans-serif;" >
       <div style="padding:10px;">
         <div style="font-weight:bold; font-size:14px; margin-bottom:5px;">${pos.name}</div>
-        <div style="color:#666; font-size:12px;">대여료: ${pos.rentalPrice.toLocaleString()}원</div>
-        <button onclick="window.location.href='/detail/${pos.toolIdx}'" 
-                style="margin-top:10px; width:100%; padding:8px; background:#007bff; color:white; border:none; border-radius:4px; cursor:pointer;">
+        <div style="color:#666; font-size:12px;">1일 ${pos.rentalPrice.toLocaleString()}원</div>
+        <button  onclick="event.stopPropagation(); window.location.href='/zipddak/tool/${pos.toolIdx}'"
+                style="margin-top:10px; width:100%; padding:8px; background:#ff5833; color:white; border:none; border-radius:4px; cursor:pointer;">
           상세보기
         </button>
       </div>
     </div>
+    
   `;
 
-                    infowindow.current.setContent(content);
-                    infowindow.current.open(map.current, marker);
+                    if (overlayRef.current) {
+                        overlayRef.current.setMap(null);
+                    }
+
+                    overlayRef.current = new kakao.maps.CustomOverlay({
+                        content,
+                        position: marker.getPosition(), // ⭐ 필수
+                        yAnchor: 1.8,
+                        clickable: true
+                    });
+                    overlayRef.current.setMap(map.current);
                 });
 
-                // window.kakao.maps.event.addListener(marker, "mouseout", () => infowindow.current.close());
+                kakao.maps.event.addListener(map.current, "click", () => {
+                    if (overlayRef.current) {
+                        overlayRef.current.setMap(null);
+                        overlayRef.current = null;
+                    }
+                });
+
+
+
+
             });
 
             // 5. 마커가 하나라도 있으면 지도 범위 맞춤
@@ -171,7 +200,7 @@ const LocationToolMap = () => {
 
     return (
         <>
-            <div style={{ display: "flex", width: "100%"}}>
+            <div style={{ display: "flex", width: "100%" }}>
                 <div
                     ref={mapRef}
                     style={{
