@@ -123,6 +123,11 @@ export default function useModifyImgUpload(options = {}) {
         }
         return true;
     };
+    /* =========== 수정 종료용 reset =========== */
+    const resetImageState = () => {
+        setNewThumbFile(null);
+        setDeleteThumbIdx(null);
+    };
 
     return {
         /* ref */
@@ -168,5 +173,8 @@ export default function useModifyImgUpload(options = {}) {
 
         /* validation */
         validateBeforeSubmit,
+
+        /* 수정 종료용 reset */
+        resetImageState,
     };
 }

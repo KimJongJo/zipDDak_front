@@ -173,9 +173,9 @@ function App() {
             <Route path="signUp/store1" element={<SignStore1 />} />
             <Route path="signUp/store2" element={<SignStore2 />} />
             <Route path="signUp/store3" element={<SignStore3 />} />
-            <Route path="map" element={<KakaoMapModalForTradeAddr/>}/>
-            <Route path="map1" element={<KakaoMapWithClickMarker/>}/>
-            <Route path="map2" element={<LocationToolMap/>}/>
+            <Route path="map" element={<KakaoMapModalForTradeAddr />} />
+            <Route path="map1" element={<KakaoMapWithClickMarker />} />
+            <Route path="map2" element={<LocationToolMap />} />
 
             <Route path="/zipddak/*" element={<UserLayout />}>
                 <Route path="message" element={<Message />} />
