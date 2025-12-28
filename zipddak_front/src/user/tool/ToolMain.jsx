@@ -77,7 +77,7 @@ export default function ToolMain() {
     //스크롤 탑
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [])
+    }, []);
 
     //공구 리스트
     const toolList = (isMore = false, sizeParam = MORE_SIZE, offsetParam = offset) => {
@@ -108,7 +108,7 @@ export default function ToolMain() {
         myAxios(tokenParam, setToken)
             .get("/tool/main", { params })
             .then((res) => {
-                console.log("toolMain LIst:",res.data);
+                console.log("toolMain LIst:", res.data);
 
                 if (isMore) {
                     setTool((prev) => [...prev, ...res.data.cards]);
@@ -117,7 +117,6 @@ export default function ToolMain() {
                 }
 
                 setOffset(offsetParam + sizeParam);
-
             })
             .catch((err) => {
                 console.log(err);
@@ -126,7 +125,7 @@ export default function ToolMain() {
 
     // 최초 & 필터 변경 시
     useEffect(() => {
-        setTool([])
+        setTool([]);
         toolList(false, INIT_SIZE, 0);
     }, [user?.username, checkedCategory, tWay, tOrder, rentalTool, keyword]);
 
@@ -145,7 +144,7 @@ export default function ToolMain() {
     useEffect(() => {
         console.log(
             "tool ids:",
-            tool?.map?.(t => t.toolIdx)
+            tool?.map?.((t) => t.toolIdx)
         );
     }, [tool]);
 
@@ -156,21 +155,12 @@ export default function ToolMain() {
             return;
         }
 
-        await myAxios(token, setToken).post(
-            `${baseUrl}/user/favoriteToggle/tool`,
-            {
-                toolIdx,
-                username: user.username,
-            }
-        );
+        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle/tool`, {
+            toolIdx,
+            username: user.username,
+        });
 
-        setTool(prev =>
-            prev.map(t =>
-                t.toolIdx === toolIdx
-                    ? { ...t, favorite: !t.favorite }
-                    : t
-            )
-        );
+        setTool((prev) => prev.map((t) => (t.toolIdx === toolIdx ? { ...t, favorite: !t.favorite } : t)));
     };
 
     return (
@@ -188,14 +178,10 @@ export default function ToolMain() {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter')
-                                            searchTool();
+                                        if (e.key === "Enter") searchTool();
                                     }}
                                 ></input>
-                                <Search size={15} style={{ cursor: "pointer" }}
-                                    onClick={searchTool}
-
-                                />
+                                <Search size={15} style={{ cursor: "pointer" }} onClick={searchTool} />
                             </div>
                         </div>
                         {/* <div className="t-filter">
@@ -218,7 +204,7 @@ export default function ToolMain() {
                                 <ChevronDown className="trade-arrow" />
                             </div>
                         </div>
-                         <span className="row-cm resetToolFilter" onClick={resetToolMain}>
+                        <span className="row-cm resetToolFilter" onClick={resetToolMain}>
                             <RotateCcw size={14} />
                             초기화
                         </span>
@@ -277,24 +263,8 @@ export default function ToolMain() {
                     </div>
 
                     <div className={`maplist ${openMap ? "open" : ""}`}>
-                        <div className="map"></div>
-                        <div className="list">
-                            <div className="list-card">
-
-                                {Array.isArray(tool) &&
-                                    tool.map(toolCard => (
-                                        <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />
-                                    ))
-                                }
-
-                            </div>
-                           
-                        </div>
-
-                        {/* ----------------------------------------------- */}
-
-                                <LocationToolMap/>
-
+                        {/* <div className="map"></div> */}
+                        <LocationToolMap />
                     </div>
                 </div>
 
@@ -315,12 +285,16 @@ export default function ToolMain() {
                             </div>
                         </div>
 
-                        <Button className="primary-button nonePd" onClick={() => {
-                            if(user.username){
-                                navigate(`/zipddak/tool/regist`)
-                                return;
-                            }
-                             setModal(true)}}>
+                        <Button
+                            className="primary-button nonePd"
+                            onClick={() => {
+                                if (user.username) {
+                                    navigate(`/zipddak/tool/regist`);
+                                    return;
+                                }
+                                setModal(true);
+                            }}
+                        >
                             <Hammer size={22} />
                             <span className="btn-text">내 공구 등록하기</span>
                         </Button>
@@ -333,13 +307,7 @@ export default function ToolMain() {
                         </FormGroup>
                     </div>
 
-                    <div className="toolMaincards">
-                        {Array.isArray(tool) &&
-                            tool.map(toolCard => (
-                                <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />
-                            ))
-                        }
-                    </div>
+                    <div className="toolMaincards">{Array.isArray(tool) && tool.map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
 
                     <div
                         className="moreBtn"
@@ -353,7 +321,7 @@ export default function ToolMain() {
                 </div>
             </div>
 
-             <Modal isOpen={modal}>
+            <Modal isOpen={modal}>
                 <ModalHeader>공구 등록</ModalHeader>
                 <ModalBody>
                     <div>공구 등록을 위해서는 로그인이 필요합니다</div>
@@ -364,7 +332,7 @@ export default function ToolMain() {
                     <Button className="secondary-button" onClick={() => setModal(false)}>
                         취소
                     </Button>
-                    <Button className="primary-button" onClick={()=> navigate(`/login`)}>
+                    <Button className="primary-button" onClick={() => navigate(`/login`)}>
                         확인
                     </Button>
                 </div>

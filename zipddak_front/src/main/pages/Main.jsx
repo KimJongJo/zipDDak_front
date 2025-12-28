@@ -23,6 +23,13 @@ export default function Main() {
     const [tool, setTool] = useState([]);
     const [community, setCommunity] = useState([]);
 
+    const mainLine = {
+        width: "100%",
+        height: "10px",
+        borderTop: "#eff1f5 1px solid",
+        margin: "10px 0",
+    };
+
     //공구 주소 자르기
     const userAddressString = user?.addr1 || "";
     const userAdress = userAddressString.split(" ").slice(0, 2).join(" ");
@@ -59,7 +66,7 @@ export default function Main() {
         myAxios(token, setToken)
             .get(`/main/expert?keyword=${keywordPharam}&categoryNo=${categoryPharam}`)
             .then((res) => {
-                console.log("main ExpertList:",res.data);
+                console.log("main ExpertList:", res.data);
                 setExpert(res.data.cards);
             })
             .catch((err) => {
@@ -68,9 +75,8 @@ export default function Main() {
     };
 
     useEffect(() => {
-        expertList();
+        // expertList();
     }, [user.username, eCategory]);
-
 
     // --------------------------------------------------------------------------
     //상품 리스트
@@ -97,7 +103,7 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(url)
             .then((res) => {
-                console.log("mainProduct List:",res.data);
+                console.log("mainProduct List:", res.data);
                 setProduct(res.data.cards);
                 favoriteProduct(res.data.cards.productIdx);
             })
@@ -108,7 +114,7 @@ export default function Main() {
 
     //관심상품 토글
     useEffect(() => {
-        productList();
+        //productList();
     }, [user.username, pCategory]);
 
     const toggleFavorite = async (productIdx) => {
@@ -128,7 +134,6 @@ export default function Main() {
             console.error(error);
         }
     };
-
 
     // --------------------------------------------------------------------------
     //공구 리스트
@@ -155,9 +160,8 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(url)
             .then((res) => {
-                console.log("mainTool List:",res.data);
+                console.log("mainTool List:", res.data);
                 setTool(res.data.cards);
-
             })
             .catch((err) => {
                 console.log(err);
@@ -171,29 +175,17 @@ export default function Main() {
             return;
         }
 
-        await myAxios(token, setToken).post(
-            `${baseUrl}/user/favoriteToggle/tool`,
-            {
-                toolIdx,
-                username: user.username,
-            }
-        );
+        await myAxios(token, setToken).post(`${baseUrl}/user/favoriteToggle/tool`, {
+            toolIdx,
+            username: user.username,
+        });
 
-        setTool(prev =>
-            prev.map(t =>
-                t.toolIdx === toolIdx
-                    ? { ...t, favorite: !t.favorite }
-                    : t
-            )
-        );
+        setTool((prev) => prev.map((t) => (t.toolIdx === toolIdx ? { ...t, favorite: !t.favorite } : t)));
     };
 
-
     useEffect(() => {
-        toolList();
-
+        // toolList();
     }, [user.username, tCategory]);
-
 
     // --------------------------------------------------------------------------
     //커뮤니티 리스트
@@ -213,9 +205,8 @@ export default function Main() {
         myAxios(tokenPharam, setToken)
             .get(`/main/community?categoryNo=${categoryPharam}`)
             .then((res) => {
-                console.log("mainCommunity List:",res.data);
+                console.log("mainCommunity List:", res.data);
                 setCommunity(res.data.cards);
-
             })
             .catch((err) => {
                 console.log(err);
@@ -223,10 +214,8 @@ export default function Main() {
     };
 
     useEffect(() => {
-        communityList();
-
+        //communityList();
     }, [user.username, cCategory]);
-
 
     return (
         <>
@@ -244,35 +233,23 @@ export default function Main() {
                 </form>
 
                 <div className="main-banner">
-                    <div className="banner1" style={{position:"relative"}}>
+                    <div className="banner1" style={{ position: "relative" }}>
                         {/* <img src="/mainImg/main1.jpg" /> */}
-                         <img src="/mainImg/main2.jpg"/>
-                          {/* <img src="/mainImg/main3.jpg" /> */}
-                          <span style={{ fontSize: "30px", position:"absolute", fontWeight:"600",
-                            bottom:"40px", left:"40px", color:"#ffff"}}>안녕하세요. 안녕합니다!</span>
+                        <img src="/mainImg/main2.jpg" />
+                        {/* <img src="/mainImg/main3.jpg" /> */}
+                        <span style={{ fontSize: "30px", position: "absolute", fontWeight: "600", bottom: "40px", left: "40px", color: "#ffff" }}>안녕하세요. 안녕합니다!</span>
                     </div>
 
-                     <div className="banner">
-  <div className="banner-label">집딱 전문가 멤버십</div>
-  <h2 className="banner-title">전문가 멤버십으로 </h2>
-  <h2 className="banner-title">더 많은 고객을 </h2>
-  <h2 className="banner-title">만나보세요</h2>
-  <p className="banner-text">
-    고객에게 더 잘 보이고,
-    더 빠르게 연결되는 전문가 전용 혜택
-  </p>
+                    <div className="banner">
+                        <div className="banner-label">집딱 전문가 멤버십</div>
+                        <h2 className="banner-title">전문가 멤버십으로 </h2>
+                        <h2 className="banner-title">더 많은 고객을 </h2>
+                        <h2 className="banner-title">만나보세요</h2>
+                        <p className="banner-text">고객에게 더 잘 보이고, 더 빠르게 연결되는 전문가 전용 혜택</p>
 
- 
-  <button className="banner-btn">멤버십 가입하기</button>
-</div>
-
+                        <button className="banner-btn">멤버십 가입하기</button>
+                    </div>
                 </div>
-
-               
-
-
-              
-
 
                 <div className="card-box">
                     <div className="top">
@@ -307,11 +284,11 @@ export default function Main() {
 
                     <div className="expert-cards">
                         {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
-
                     </div>
                 </div>
 
                 <div className="card-box">
+                    <div style={mainLine}></div>
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
@@ -351,13 +328,15 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">{Array.isArray(tool) && tool.slice(0, 5).map((toolCard) =>
-                        <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool}/>)}</div>
+                    <div className="tool-cards">
+                        {Array.isArray(tool) && tool.slice(0, 5).map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}
+                    </div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
 
                 <div className="card-box">
+                    <div style={mainLine}></div>
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
@@ -421,12 +400,12 @@ export default function Main() {
                     </div>
 
                     <div className="product-cards">
-                        {Array.isArray(product) && product.slice(0,4).map((productCard) => 
-                        <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
+                        {Array.isArray(product) && product.slice(0, 4).map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
                     </div>
                 </div>
 
                 <div className="card-box">
+                    <div style={mainLine}></div>
                     <div className="top">
                         <div className="title-box">
                             <div className="title-main-main">
@@ -473,9 +452,7 @@ export default function Main() {
                     </div>
 
                     <div className="community-cards">
-                        <div className="grid-cm">
-                            {Array.isArray(community) && community.map((communityCard) =>
-                                <Community key={communityCard.communityId} community={communityCard} />)}</div>
+                        <div className="grid-cm">{Array.isArray(community) && community.map((communityCard) => <Community key={communityCard.communityId} community={communityCard} />)}</div>
                     </div>
                 </div>
             </div>

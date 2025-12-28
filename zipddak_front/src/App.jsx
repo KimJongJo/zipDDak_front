@@ -147,6 +147,7 @@ function App() {
     useEffect(() => {
         if (user.username) {
             myAxios(token, setToken)
+                //myAxios()
                 .get(`/notificationList?username=${user.username}`)
                 .then((res) => {
                     setAlarms(res.data);

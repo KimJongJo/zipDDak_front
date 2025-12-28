@@ -199,7 +199,7 @@ export default function Comdetail() {
                         </div>
                     </div>
                     <div className="row-cm UserInfo">
-                        <img src={`http://localhost:8080/imageView?type=user&filename=${communityDetail.imgFile}`} className="profileImg"></img>
+                        <img src={communityDetail.imgFile ? `http://localhost:8080/imageView?type=user&filename=${communityDetail.imgFile}` : "/default-profile.png"} className="profileImg"></img>
                         <span className="nick">{communityDetail.nickname}</span>
                     </div>
 
@@ -243,7 +243,7 @@ export default function Comdetail() {
                                 <></>
                             ) : (
                                 <>
-                                    <img src={`http://localhost:8080/imageView?type=profile&filename=${user.profile}`} className="profileImg small"></img>
+                                    <img src={user.profile ? `http://localhost:8080/imageView?type=profile&filename=${user.profile}` : "/default-profile.png"} className="profileImg small"></img>
                                     <span className="cnick">{user.nickname}</span>
                                 </>
                             )}
@@ -381,7 +381,10 @@ export default function Comdetail() {
                         {replyList.map((reply) => (
                             <div key={reply.replyId} className="col-cm ">
                                 <div className="row-cm writer-user">
-                                    <img src={`http://localhost:8080/imageView?type=profile&filename=${reply.replyUserImg}`} className="profileImg small"></img>
+                                    <img
+                                        src={reply.replyUserImg ? `http://localhost:8080/imageView?type=profile&filename=${reply.replyUserImg}` : "/default-profile.png"}
+                                        className="profileImg small"
+                                    ></img>
                                     <span className="cnick">{reply.replyUserNickname}</span>
                                 </div>
                                 <div className="comms">{reply.replyContent}</div>

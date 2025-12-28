@@ -387,30 +387,7 @@ export default function ProductOrder() {
                                                     />
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td>
-                                                    <span style={{ fontSize: "15px" }} className="font-15">
-                                                        이메일
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div className="product-order-check-input-email-div">
-                                                        <Input style={{ width: "240px", height: "38px" }} className="product-order-check-input font-15" />
-                                                        <i className="bi bi-at email-icon"></i>
-                                                        <select className="product-order-check-email-select font-15" id="emailDomain" defaultValue="none">
-                                                            <option value="none" hidden>
-                                                                선택
-                                                            </option>
-                                                            <option value="gmail.com">gmail.com</option>
-                                                            <option value="naver.com">naver.com</option>
-                                                            <option value="daum.net">daum.net</option>
-                                                            <option value="hotmail.com">hotmail.com</option>
-                                                        </select>
-                                                    </div>
-                                                </td>
-                                                <td></td>
-                                                <td></td>
-                                            </tr>
+
                                             <tr>
                                                 <td>
                                                     <span style={{ fontSize: "15px" }} className="font-15">
@@ -447,16 +424,6 @@ export default function ProductOrder() {
                                 <div>
                                     <table className="product-order-check-address-table">
                                         <tbody>
-                                            <tr>
-                                                <td>
-                                                    <span style={{ fontSize: "15px" }} className="font-15">
-                                                        배송자명
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <Input style={{ width: "240px", height: "38px" }} name="sender" onChange={changeRecvUserInfo} className="product-order-check-input font-15" />
-                                                </td>
-                                            </tr>
                                             <tr>
                                                 <td>
                                                     <span style={{ fontSize: "15px" }} className="font-15">

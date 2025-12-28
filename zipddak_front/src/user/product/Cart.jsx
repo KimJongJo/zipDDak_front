@@ -262,7 +262,16 @@ export default function Cart() {
                                 <tr>
                                     <td colSpan={6} style={{ textAlign: "center", padding: "40px 0" }}>
                                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                                            <img style={{ width: "300px" }} src="/cartEmpty.png" alt="" />
+                                            <img
+                                                style={{
+                                                    width: "300px",
+                                                    WebkitMaskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
+                                                    maskImage: "radial-gradient(circle, #000 60%, transparent 100%)",
+                                                }}
+                                                src="/cartEmpty.png"
+                                                alt=""
+                                            />
+
                                             <span>장바구니에 담긴 상품이 없습니다.</span>
                                         </div>
                                     </td>

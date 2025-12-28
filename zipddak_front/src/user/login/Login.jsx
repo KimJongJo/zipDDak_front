@@ -30,7 +30,7 @@ export default function Login() {
 
                 if (res) {
                     setUser(res.data);
-                    setToken(res.headers.authorization);
+                    //setToken(res.headers.authorization);
 
                     myAxios(res.headers.authorization, setToken)
                         .get(`/notificationList?username=${res.data.username}`)
@@ -63,13 +63,7 @@ export default function Login() {
                     {/* <div className="title">로그인</div> */}
 
                     <div className="sns_login">
-                        <div className="sns_top">
-                            <div className="sns_line"></div>
-                            <div>
-                                <span className="sns_title">sns간편 로그인</span>
-                            </div>
-                            <div className="sns_line"></div>
-                        </div>
+                        <div className="sns_top"></div>
                         <div className="sns_icons">
                             <a href={`${baseUrl}/oauth2/authorization/naver`}>
                                 <img src="/naver_r.png" alt="naver" style={{ width: 56, height: 56 }} />
