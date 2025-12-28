@@ -15,12 +15,13 @@ export default function ToolMain() {
     const [token, setToken] = useAtom(tokenAtom);
 
     const [tool, setTool] = useState([]);
+    const [toolCount, setToolCount]=useState();
     const navigate = useNavigate();
     const [modal, setModal] = useState(false);
 
     const [offset, setOffset] = useState(0);
     const INIT_SIZE = 15;
-    const MORE_SIZE = 5;
+    const MORE_SIZE = 15;
 
     //키워드
     const [input, setInput] = useState("");
@@ -32,7 +33,7 @@ export default function ToolMain() {
     };
 
     //공구 지도로 찾기
-    const [openMap, setOpenMap] = useState(false);
+    const [openMap, setOpenMap] = useState(true);
 
     //유저 주소 자르기
     const userAddressString = user?.addr1 || "";
@@ -114,6 +115,7 @@ export default function ToolMain() {
                     setTool((prev) => [...prev, ...res.data.cards]);
                 } else {
                     setTool(res.data.cards);
+                    setToolCount(res.data.totalCount);
                 }
 
                 setOffset(offsetParam + sizeParam);
@@ -269,6 +271,12 @@ export default function ToolMain() {
                 </div>
 
                 <div className="map-bottom-list">
+                    <div className="row-cm toolMainSearch">
+                    <div className="title-main-main">
+                               <spnan>{keyword? "'"+keyword+"'"+"  "+"검색 결과" : "전체"}</spnan>
+                                <span className="s-count">{toolCount}</span>
+                            </div>
+                            </div>
                     <div className="listBy">
                         <div className="by">
                             <div className={tActiveOrder === 0 ? "bbtn active" : "bbtn"} onClick={() => toolOrder(0)}>

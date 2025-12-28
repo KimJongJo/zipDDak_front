@@ -375,3 +375,15 @@
     cursor: pointer;
     gap: 5px;
 }
+
+.toolMainSearch {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.mainLine{
+        width: "100%";
+        height: "10px";
+        border-top: "#eff1f5 1px solid";
+        margin: "10px 0";
+    }

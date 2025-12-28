@@ -12,19 +12,17 @@ const LocationToolMap = () => {
     const markers = useRef([]);
     const infowindow = useRef(null);
 
-    const toolAddress = user?.addr1?.split(" ").slice(0, 2).join(" ");
-    const toolDirectAddress = user?.tradeAddr1?.split(" ").slice(0, 2).join(" ");
+    const userAddress = user?.addr1?.split(" ").slice(0, 2).join(" ");
 
     const [tool, setTool] = useState([]);
-    const addr = user?.addr1 ? toolAddress : toolDirectAddress;
 
     const mapTools = () => {
-        console.log(addr);
-        if (!addr || !user?.username) return;
+        console.log(userAddress);
+        if (!userAddress) return;
         myAxios(token, setToken)
             .get(`tool/mapList`, {
                 params: {
-                    keyword: addr,
+                    keyword: userAddress,
                     username: user.username,
                 },
             })
@@ -38,10 +36,10 @@ const LocationToolMap = () => {
     };
 
     useEffect(() => {
-        if (addr) {
+        if (userAddress) {
             mapTools();
         }
-    }, [addr]);
+    }, [userAddress]);
 
     // 관심 토글
     const toggleFavoriteTool = async (toolIdx) => {
@@ -173,17 +171,17 @@ const LocationToolMap = () => {
 
     return (
         <>
-            <div style={{ display: "flex", width: "1200px", padding: "0 16px" }}>
+            <div style={{ display: "flex", width: "100%"}}>
                 <div
                     ref={mapRef}
                     style={{
-                        width: "700px",
+                        width: "740px",
                         height: "480px",
                         borderRadius: "8px",
                     }}
                 />
 
-                <div style={{ width: "400px", overflowY: "auto", maxHeight: "480px", marginLeft: "20px" }}>
+                <div style={{ width: "405px", overflowY: "auto", maxHeight: "480px", marginLeft: "20px" }}>
                     <div className="col-cm toolLocationcards">
                         {Array.isArray(tool) && tool.map((toolCard) => <MapTool key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}
                     </div>
