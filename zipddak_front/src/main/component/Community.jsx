@@ -26,11 +26,11 @@ export function Community({ community }) {
                 </div>
                 <div className="Com-reaction">
                     <span className="Com-writer">{community?.nickname}</span>
-                    <i className="bi bi-dot dot"></i>
+                    {/* <i className="bi bi-dot dot"></i>
                     <div className="favs">
                         <Eye size={15} />
                         {community?.viewCount}
-                    </div>
+                    </div> */}
                     <i className="bi bi-dot dot"></i>
                     <div className="chats">
                         <MessageCircle size={15} />
