@@ -204,7 +204,9 @@ export default function Comdetail() {
                     </div>
 
                     <div className="col-cm ComBody">
-                        <div className="ComContext">{communityDetail.content}</div>
+                        <div className="ComContext" style={{ whiteSpace: "pre-wrap" }}>
+                            {communityDetail.content}
+                        </div>
                         <div className="col-cm contextImgs">
                             {[communityDetail.img1, communityDetail.img2, communityDetail.img3, communityDetail.img4, communityDetail.img5]
                                 .filter((img) => img) // img가 null 또는 undefined가 아닌 경우만
