@@ -180,7 +180,7 @@ export default function ReturnList() {
                                                 {myRefundList.length === 0 ? (
                                                     <tr>
                                                         <td colSpan="8" className={table.noData} style={{ textAlign: "center" }}>
-                                                            현재 반품 처리건이 없습니다.
+                                                            게시물이 없습니다.
                                                         </td>
                                                     </tr>
                                                 ) : (

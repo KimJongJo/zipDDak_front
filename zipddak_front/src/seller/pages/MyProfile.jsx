@@ -4,19 +4,20 @@ import useModifyImgUpload from "../js/useModifyImgUpload.jsx";
 import useCommaNumber from "../js/useCommaNumber.jsx";
 
 // library
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; //페이지 이동
+import { useState, useEffect, useCallback } from "react";
 import { FormGroup, Input, Label, FormFeedback } from "reactstrap";
 import Tippy from "@tippyjs/react";
 import { myAxios, baseUrl } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
 import { useAtom } from "jotai";
 import DaumPostcode from "react-daum-postcode";
+import { useParams, useNavigate } from "react-router-dom";
 import { Modal } from "antd";
 
 export default function MyProfile() {
     const pageTitle = usePageTitle("설정 > 프로필 관리");
     const navigate = useNavigate();
+    const { sellerIdx } = useParams();
 
     const [user] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
@@ -40,6 +41,7 @@ export default function MyProfile() {
         deleteThumb,
 
         validateBeforeSubmit,
+        resetImageState,
     } = useModifyImgUpload({ requireDetailImage: false, maxDetailImages: 0 });
 
     //상호명
@@ -70,6 +72,8 @@ export default function MyProfile() {
     //소개글
     const [introduction, setIntroduction] = useState("");
 
+    // const [sellerId, setSellerId] = useState(0);
+
     //화면 새로고침용
     const [reloadKey, setReloadKey] = useState(0);
     const forceReload = () => {
@@ -79,7 +83,7 @@ export default function MyProfile() {
     // -----------------------------
     // 기존 정보 불러오기
     // -----------------------------
-    useEffect(() => {
+    const fetchSellerProfile = useCallback(async () => {
         if (!user.username || !user) return;
 
         const params = new URLSearchParams({
@@ -88,7 +92,7 @@ export default function MyProfile() {
 
         const sellerProfileUrl = `/seller/mypage/myProfile?${params}`;
         user.username &&
-            myAxios(token, setToken)
+            (await myAxios(token, setToken)
                 .get(sellerProfileUrl)
                 .then((res) => {
                     const sellerProfile = res.data;
@@ -124,6 +128,8 @@ export default function MyProfile() {
 
                     //소개글
                     setIntroduction(sellerProfile.introduction);
+
+                    // setSellerId(sellerProfile.sellerIdx);
                 })
                 .catch((err) => {
                     console.log(err.message);
@@ -133,8 +139,12 @@ export default function MyProfile() {
                         alert("프로필 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
                         forceReload();
                     }
-                });
-    }, [user, reloadKey]);
+                }));
+    }, [user?.username, token]);
+
+    useEffect(() => {
+        fetchSellerProfile();
+    }, [fetchSellerProfile]);
 
     // -----------------------------
     // 주소 검색
@@ -215,7 +225,8 @@ export default function MyProfile() {
             const res = await myAxios(token, setToken).post(ProfileModifyUrl, formData);
             if (res.data.success) {
                 alert(res.data.message);
-                navigate(`/seller/myProfile`);
+                resetImageState();
+                await fetchSellerProfile();
             } else {
                 alert(res.data.message);
                 forceReload();
