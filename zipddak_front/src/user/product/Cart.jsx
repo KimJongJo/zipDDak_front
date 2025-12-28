@@ -296,12 +296,12 @@ export default function Cart() {
                                                         className="store-title"
                                                         style={{
                                                             display: "flex",
-                                                            justifyContent: "flex-start",
+                                                            justifyContent: "space-between",
                                                         }}
                                                     >
-                                                        <span style={{ marginRight: "520px", fontSize: "14px", fontWeight: "600" }} className="font-14 medium">
+                                                        <div style={{ fontSize: "14px", fontWeight: "600" }} className="font-14 medium">
                                                             {store.brandName}
-                                                        </span>
+                                                        </div>
                                                         <span style={{ width: "230px" }}>묶음배송 무료 전환 기준금액 : {store.freeChargeAmount?.toLocaleString()}원</span>
                                                     </div>
                                                 </td>

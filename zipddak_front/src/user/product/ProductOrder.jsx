@@ -76,7 +76,6 @@ export default function ProductOrder() {
     const [isDefaultAddress, setIsDefaultAddress] = useState(false);
 
     const [recvUser, setRecvUser] = useState({
-        sender: "",
         recvier: "",
         tel: "",
         zonecode: "",
@@ -246,9 +245,9 @@ export default function ProductOrder() {
 
     // 토스 페이먼츠 결제 요청 시작
     const requestTossPaymentApi = async () => {
-        const { sender, recvier, tel, zonecode, addr1, detailAddress } = recvUser;
+        const { recvier, tel, zonecode, addr1, detailAddress } = recvUser;
 
-        if (!sender || !recvier || !tel || !zonecode || !addr1 || !detailAddress) {
+        if (!recvier || !tel || !zonecode || !addr1 || !detailAddress) {
             setModalMessage("배송지 정보를 모두 입력해주세요.");
             setIsModalOpen(true);
             setTimeout(() => {
@@ -279,7 +278,7 @@ export default function ProductOrder() {
             amount: amount,
             orderId: orderId,
             orderName: orderName,
-            successUrl: `http://localhost:8080/user/payment/complate?productId=${options.productId}&orderName=${encodedOrderName}&username=${user.username}`, // 성공시 서버쪽으로 보냄
+            successUrl: `http://localhost:8080/user/payment/complete?productId=${options.productId}&orderName=${encodedOrderName}&username=${user.username}`, // 성공시 서버쪽으로 보냄
             failUrl: "http://localhost:5173/zipddak/productOrder",
         });
     };

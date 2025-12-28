@@ -17,7 +17,7 @@ export default function ApplyTool() {
     const [user, setUser] = useAtom(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
     const [modal, setModal] = useState(false);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
 
     const [tool, setTool] = useState();
     const { toolIdx } = useParams();
@@ -33,7 +33,7 @@ export default function ApplyTool() {
 
     const tomorrowStr = tomorrow.toISOString().split("T")[0];
 
-    const ownerAddress = tool?.ownerAddr ? tool.ownerAddr.split(' ').slice(0, 2).join(' ') : '';
+    const ownerAddress = tool?.ownerAddr ? tool.ownerAddr.split(" ").slice(0, 2).join(" ") : "";
 
     const [rental, setRental] = useState({
         // rentalIdx: '',
@@ -62,8 +62,7 @@ export default function ApplyTool() {
     //스크롤 탑
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [])
-
+    }, []);
 
     //대상 공구
     const targetTool = () => {
@@ -233,16 +232,11 @@ export default function ApplyTool() {
             });
 
             // 마커 이미지 설정
-            const imageSrc =
-                "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+            const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
                 imageSize = new window.kakao.maps.Size(64, 69),
                 imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 
-            const markerImage = new window.kakao.maps.MarkerImage(
-                imageSrc,
-                imageSize,
-                imageOption
-            );
+            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
             const marker = new window.kakao.maps.Marker({
                 position: coords,
@@ -268,7 +262,6 @@ export default function ApplyTool() {
 
     //토스페이 0원 대여 등록
     const doFreeRental = () => {
-
         token &&
             myAxios(token, setToken)
                 .post("/rental/application", rental)
@@ -281,18 +274,16 @@ export default function ApplyTool() {
                 .catch((err) => {
                     console.log(err);
                 });
-
-    }
+    };
 
     //대여 등록
     const doRental = () => {
         if (!rental.name || !rental.phone) {
-            setMessage("신청자 정보를 입력해주세요")
+            setMessage("신청자 정보를 입력해주세요");
             setModal(true);
             return;
-
         } else if (!rental.startDate || !rental.endDate) {
-            setMessage("대여기간을 선택해주세요")
+            setMessage("대여기간을 선택해주세요");
             setModal(true);
             return;
         }
@@ -305,7 +296,6 @@ export default function ApplyTool() {
 
         //토스페이
         requestTossPaymentApi();
-
     };
 
     // 토스 페이먼츠 결제 요청 시작
@@ -330,10 +320,9 @@ export default function ApplyTool() {
             amount: amount,
             orderId: orderId,
             orderName: orderName,
-            successUrl: `http://localhost:8080/user/payment/rental/complate?orderName=${encodedOrderName}&username=${user.username}&toolIdx=${toolIdx}`, // 성공시 서버쪽으로 보냄
+            successUrl: `http://localhost:8080/user/payment/rental/complete?orderName=${encodedOrderName}&username=${user.username}&toolIdx=${toolIdx}`, // 성공시 서버쪽으로 보냄
             failUrl: `http://localhost:5173/zipddak/tool/${toolIdx}`,
-        })
-
+        });
     };
 
     if (!tool) return <div>로딩중...</div>;
@@ -422,13 +411,13 @@ export default function ApplyTool() {
                                                 <Input name="rentalType" type="radio" value="POST" checked={rentalType === "POST"} onChange={(e) => setRentalType(e.target.value)} /> 택배 배송
                                             </Label>
                                         </FormGroup>
-                                        {tool.tradeAddr1&&
-                                        <FormGroup check>
-                                            <Label check>
-                                                <Input name="rentalType" type="radio" value="DIRECT" checked={rentalType === "DIRECT"} onChange={(e) => setRentalType(e.target.value)} /> 직접 픽업
-                                            </Label>
-                                        </FormGroup>
-                                        }
+                                        {tool.tradeAddr1 && (
+                                            <FormGroup check>
+                                                <Label check>
+                                                    <Input name="rentalType" type="radio" value="DIRECT" checked={rentalType === "DIRECT"} onChange={(e) => setRentalType(e.target.value)} /> 직접 픽업
+                                                </Label>
+                                            </FormGroup>
+                                        )}
                                     </div>
                                 </div>
 
@@ -469,29 +458,23 @@ export default function ApplyTool() {
                                     </div>
                                 )}
 
-                                {rentalType === "DIRECT" &&
+                                {rentalType === "DIRECT" && (
                                     <div className="de-two">
-
-                                        {tool.tradeAddr1 &&
+                                        {tool.tradeAddr1 && (
                                             <div className="de-favlocation">
                                                 <div className="de-map">
-                                                    <div
-                                                        ref={mapContainer}
-                                                        style={{ width: "100%", height: "100%" }}
-                                                    />
+                                                    <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />
                                                 </div>
 
                                                 <div className="mapinfo">
                                                     <span className="map-label">거래 희망장소</span>
                                                     <span>{tool.tradeAddr1}</span>
-                                                     <div>{tool.tradeAddr2}</div>
+                                                    <div>{tool.tradeAddr2}</div>
                                                 </div>
-                                               
                                             </div>
-                                        }
+                                        )}
                                     </div>
-
-                                }
+                                )}
 
                                 {isAddOpen && (
                                     <AddrModal title="주소찾기" open={isAddOpen} footer={null} onCancel={() => setIsAddOpen(false)}>
@@ -529,9 +512,7 @@ export default function ApplyTool() {
                                                 <div className="product-order-form-second">
                                                     <span className="font-15">1일 대여비</span>
                                                     <span className="row-cm moneyGap">
-                                                        {tool.rentalPrice == null &&
-                                                        tool.rentalPrice.toLocaleString()
-                                                        }
+                                                        {tool.rentalPrice == null && tool.rentalPrice.toLocaleString()}
                                                         <span className="font-14">원</span>
                                                     </span>
                                                 </div>
@@ -597,8 +578,9 @@ export default function ApplyTool() {
                             >
                                 작성취소
                             </Button>
-                            {finalCharge == 0 ?
-                                <Button className="primary-button"
+                            {finalCharge == 0 ? (
+                                <Button
+                                    className="primary-button"
                                     onClick={() => {
                                         if (!agree) {
                                             setMessage("필수약관에 동의해주세요");
@@ -607,9 +589,10 @@ export default function ApplyTool() {
                                         }
                                         doFreeRental(); // 동의했으면 실제 결제/등록 함수 호출
                                     }}
-
-                                >대여신청 완료하기</Button>
-                                :
+                                >
+                                    대여신청 완료하기
+                                </Button>
+                            ) : (
                                 <Button
                                     className="primary-button"
                                     onClick={() => {
@@ -623,7 +606,7 @@ export default function ApplyTool() {
                                 >
                                     {paymentType === false ? "대여신청 완료하기" : "결제하기"}
                                 </Button>
-                            }
+                            )}
                         </div>
                     </div>
                 </div>
@@ -632,19 +615,20 @@ export default function ApplyTool() {
             <Modal isOpen={modal}>
                 <ModalHeader>공구대여</ModalHeader>
                 <ModalBody>{message}</ModalBody>
-                {successPay &&
-                    <Button color="primary-button" onClick={() => {
-                        setModal(false);
-                        navigate(`/zipddak/mypage/tools/rentals`);
-                    }}>
+                {successPay && (
+                    <Button
+                        color="primary-button"
+                        onClick={() => {
+                            setModal(false);
+                            navigate(`/zipddak/mypage/tools/rentals`);
+                        }}
+                    >
                         확인
                     </Button>
-                }
+                )}
                 <Button color="primary-button" onClick={() => setModal(false)}>
                     확인
-
                 </Button>
-
             </Modal>
         </>
     );

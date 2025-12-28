@@ -79,16 +79,6 @@ export default function AdminMembership() {
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
                     <span className="font-18 medium">멤버십 가입 내역</span>
-                    <div className="admin-userList-top-div-right">
-                        <div className="admin-rental-count-card">
-                            <span className="font-13 medium">신규 가입 수 / 총 가입자 수</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-13 medium">
-                                <span>10</span>명 / <span>100</span>명
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* 검색 필터 라인 */}

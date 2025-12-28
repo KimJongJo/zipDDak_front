@@ -125,43 +125,6 @@ export default function AdminUserList() {
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
                     <span className="font-18 medium">회원관리</span>
-                    <div className="admin-userList-top-div-right">
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">일반회원</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">전문가</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">판매업체</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 {/* 중 헤더 */}

@@ -333,7 +333,7 @@ export default function PublicRequest() {
                                     >
                                         예산
                                     </span>
-                                    {Number(requestDetail.budget).toLocaleString()}만원
+                                    {Number(requestDetail.budget).toLocaleString()}원
                                 </p>
                                 <p>
                                     <span

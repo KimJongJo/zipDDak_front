@@ -75,7 +75,8 @@ export default function Message() {
         myAxios(token, setToken)
             .get(`${baseUrl}/user/checkMatchingState?estimateIdx=${selectedRoom.estimateIdx}`)
             .then((res) => {
-                setPayState(res.data);
+                console.log(res.data);
+                if (res.data !== null) setPayState(res.data);
             });
     }, [user, token, selectedRoom]);
 

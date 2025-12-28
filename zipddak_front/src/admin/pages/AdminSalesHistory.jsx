@@ -109,16 +109,6 @@ export default function AdminSalesHistory() {
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
                     <span className="font-18 medium">이용 내역</span>
-                    <div className="admin-userList-top-div-right">
-                        <div className="admin-rental-count-card">
-                            <span className="font-13 medium">오늘 판매 수 / 이번달 판매 수</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-13 medium">
-                                <span>15</span>건 / <span>30</span>건
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="admin-middle-header admin-middle-filter">
