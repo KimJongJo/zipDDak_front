@@ -422,6 +422,8 @@ export default function Message() {
         }
     }, [chatList, initialRoomId]);
 
+    const containerRef = useRef(null);
+
     // 새로운 메시지 도착 시 하단으로 스크롤
     useEffect(() => {
         if (isFirstRender.current) {
@@ -429,9 +431,10 @@ export default function Message() {
             return;
         }
 
-        bottomRef.current?.scrollIntoView({
-            behavior: "smooth",
-        });
+        const el = containerRef.current;
+        if (!el) return;
+
+        el.scrollTop = el.scrollHeight; // ← div 내부 최하단으로 이동
     }, [messages]);
 
     // 실시간 목록 업데이트 후 selectedRoom 동기화
@@ -613,7 +616,7 @@ export default function Message() {
                                 ))}
                         </div>
 
-                        <div className="message-detail-content">
+                        <div className="message-detail-content" ref={containerRef}>
                             {messages.map((msg) =>
                                 msg.sendUsername === user.username ? (
                                     msg.sendButton ? (
