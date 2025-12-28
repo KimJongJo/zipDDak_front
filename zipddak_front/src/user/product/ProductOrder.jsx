@@ -76,7 +76,6 @@ export default function ProductOrder() {
     const [isDefaultAddress, setIsDefaultAddress] = useState(false);
 
     const [recvUser, setRecvUser] = useState({
-        sender: "",
         recvier: "",
         tel: "",
         zonecode: "",
@@ -120,7 +119,7 @@ export default function ProductOrder() {
                     };
                 }
                 return brand;
-            })
+            }),
         );
 
         // 2. Atom 업데이트
@@ -153,19 +152,15 @@ export default function ProductOrder() {
                 if (brand.sellerIdx === sellerIdx) {
                     return {
                         ...brand,
-                        orderList: brand.orderList
-                            .map((option) => (option.productId === productId && option.optionId === optionId ? { ...option, count: option.count - 1 } : option))
-                            .filter((option) => option.count > 0),
+                        orderList: brand.orderList.map((option) => (option.productId === productId && option.optionId === optionId ? { ...option, count: option.count - 1 } : option)).filter((option) => option.count > 0),
                     };
                 }
                 return brand;
-            })
+            }),
         );
 
         // 2. Atom 업데이트
-        setOrderList((prevOrders) =>
-            prevOrders.map((order) => (order.productId === productId && order.optionId === optionId ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0)
-        );
+        setOrderList((prevOrders) => prevOrders.map((order) => (order.productId === productId && order.optionId === optionId ? { ...order, count: order.count - 1 } : order)).filter((order) => order.count > 0));
     };
 
     // 구매 목록에서 상품 삭제
@@ -193,7 +188,7 @@ export default function ProductOrder() {
                     };
                 }
                 return brand;
-            })
+            }),
         );
     };
 
@@ -246,9 +241,9 @@ export default function ProductOrder() {
 
     // 토스 페이먼츠 결제 요청 시작
     const requestTossPaymentApi = async () => {
-        const { sender, recvier, tel, zonecode, addr1, detailAddress } = recvUser;
+        const { recvier, tel, zonecode, addr1, detailAddress } = recvUser;
 
-        if (!sender || !recvier || !tel || !zonecode || !addr1 || !detailAddress) {
+        if (!recvier || !tel || !zonecode || !addr1 || !detailAddress) {
             setModalMessage("배송지 정보를 모두 입력해주세요.");
             setIsModalOpen(true);
             setTimeout(() => {
@@ -379,12 +374,7 @@ export default function ProductOrder() {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <Input
-                                                        style={{ width: "240px", height: "38px" }}
-                                                        value={user.name}
-                                                        className="product-order-check-input font-15"
-                                                        onChange={(e) => setUser({ ...user, name: e.target.value })}
-                                                    />
+                                                    <Input style={{ width: "240px", height: "38px" }} value={user.name} className="product-order-check-input font-15" onChange={(e) => setUser({ ...user, name: e.target.value })} />
                                                 </td>
                                             </tr>
 
@@ -397,14 +387,7 @@ export default function ProductOrder() {
                                                 <td>
                                                     <div className="product-order-check-input-tel-div">
                                                         <Input style={{ width: "55px", height: "38px" }} className="product-order-check-input-tel-first font-15" value={"010"} readOnly />
-                                                        <Input
-                                                            style={{ width: "175px", height: "38px" }}
-                                                            value={user.tel || ""}
-                                                            onChange={(e) => setUser({ ...user, tel: e.target.value })}
-                                                            maxLength={8}
-                                                            className="product-order-check-input-tel-second font-15"
-                                                            type="tel"
-                                                        />
+                                                        <Input style={{ width: "175px", height: "38px" }} value={user.tel || ""} onChange={(e) => setUser({ ...user, tel: e.target.value })} maxLength={8} className="product-order-check-input-tel-second font-15" type="tel" />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -431,13 +414,7 @@ export default function ProductOrder() {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <Input
-                                                        style={{ width: "240px", height: "38px" }}
-                                                        name="recvier"
-                                                        onChange={changeRecvUserInfo}
-                                                        value={recvUser.recvier}
-                                                        className="product-order-check-input font-15"
-                                                    />
+                                                    <Input style={{ width: "240px", height: "38px" }} name="recvier" onChange={changeRecvUserInfo} value={recvUser.recvier} className="product-order-check-input font-15" />
                                                 </td>
                                             </tr>
                                             <tr>
@@ -449,15 +426,7 @@ export default function ProductOrder() {
                                                 <td>
                                                     <div className="product-order-check-input-tel-div">
                                                         <Input style={{ width: "55px", height: "38px" }} className="product-order-check-input-tel-first font-15" value={"010"} readOnly />
-                                                        <Input
-                                                            style={{ width: "175px", height: "38px" }}
-                                                            name="tel"
-                                                            onChange={changeRecvUserInfo}
-                                                            value={recvUser.tel || ""}
-                                                            maxLength={8}
-                                                            className="product-order-check-input-tel-second font-15"
-                                                            type="tel"
-                                                        />
+                                                        <Input style={{ width: "175px", height: "38px" }} name="tel" onChange={changeRecvUserInfo} value={recvUser.tel || ""} maxLength={8} className="product-order-check-input-tel-second font-15" type="tel" />
                                                     </div>
                                                 </td>
                                             </tr>
@@ -472,52 +441,27 @@ export default function ProductOrder() {
                                                         <button style={{ width: "55px", height: "38px" }} className="product-order-check-input-address-button" onClick={() => setIsAddOpen(!isAddOpen)}>
                                                             찾기
                                                         </button>
-                                                        <Input
-                                                            style={{ width: "175px", height: "38px" }}
-                                                            readOnly
-                                                            value={recvUser.zonecode || ""}
-                                                            name="postCode"
-                                                            className="product-order-check-input-address-input font-15"
-                                                        />
+                                                        <Input style={{ width: "175px", height: "38px" }} readOnly value={recvUser.zonecode || ""} name="postCode" className="product-order-check-input-address-input font-15" />
                                                     </div>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    <Input
-                                                        style={{ width: "510px", height: "38px" }}
-                                                        readOnly
-                                                        value={recvUser.addr1 || ""}
-                                                        name="address"
-                                                        className="product-order-check-input-address font-15"
-                                                    />
+                                                    <Input style={{ width: "510px", height: "38px" }} readOnly value={recvUser.addr1 || ""} name="address" className="product-order-check-input-address font-15" />
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
-                                                    <Input
-                                                        style={{ width: "510px", height: "38px" }}
-                                                        name="detailAddress"
-                                                        value={recvUser.detailAddress || ""}
-                                                        onChange={changeRecvUserInfo}
-                                                        placeholder="상세주소를 입력해주세요"
-                                                        className="font-15 height-38"
-                                                    />
+                                                    <Input style={{ width: "510px", height: "38px" }} name="detailAddress" value={recvUser.detailAddress || ""} onChange={changeRecvUserInfo} placeholder="상세주소를 입력해주세요" className="font-15 height-38" />
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td>
                                                     <div style={{ width: "510px", height: "24px" }} className="product-order-check-input-save-address">
-                                                        <input
-                                                            className="test"
-                                                            type="checkbox"
-                                                            id="beforeFormAddress"
-                                                            checked={isDefaultAddress}
-                                                            onChange={(e) => setIsDefaultAddress(e.target.checked)}
-                                                        />
+                                                        <input className="test" type="checkbox" id="beforeFormAddress" checked={isDefaultAddress} onChange={(e) => setIsDefaultAddress(e.target.checked)} />
                                                         <label htmlFor="beforeFormAddress">
                                                             <span className="font-15">기본 배송지로 저장</span>
                                                         </label>
@@ -531,12 +475,7 @@ export default function ProductOrder() {
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <Input
-                                                        style={{ width: "510px", height: "38px" }}
-                                                        name="requestContent"
-                                                        onChange={changeRecvUserInfo}
-                                                        className="product-order-check-input-address-detail font-15"
-                                                    />
+                                                    <Input style={{ width: "510px", height: "38px" }} name="requestContent" onChange={changeRecvUserInfo} className="product-order-check-input-address-detail font-15" />
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -586,8 +525,8 @@ export default function ProductOrder() {
                                         본인은 만 14세 이상이며, 주문 내용을 확인하였습니다.
                                     </span>
                                     <div className="font-11 product-order-from-bottom-content-indiv">
-                                        본 사이트는 통신판매중개자로서 상품의 거래 당사자가 아닙니다. 따라서 판매자가 등록한 상품정보 및 거래 과정에서 발생하는 문제에 대해 책임을 지지 않습니다. 단,
-                                        이용자는 업체 신고 및 문의하기 기능을 통해 판매자와의 소통이 가능하며, 문제가 발생한 경우 이를 통해 조치를 요청하실 수 있습니다.
+                                        본 사이트는 통신판매중개자로서 상품의 거래 당사자가 아닙니다. 따라서 판매자가 등록한 상품정보 및 거래 과정에서 발생하는 문제에 대해 책임을 지지 않습니다. 단, 이용자는 업체 신고 및 문의하기 기능을 통해 판매자와의 소통이 가능하며, 문제가 발생한 경우 이를 통해
+                                        조치를 요청하실 수 있습니다.
                                     </div>
                                 </div>
                             </div>
