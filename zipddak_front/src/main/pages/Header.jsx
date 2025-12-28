@@ -243,7 +243,7 @@ export default function Header({ direction, ...args }) {
                                             </div>
                                         </a>
                                     ) : (
-                                        <a href="/zipddak/mypage">
+                                        <a href="/zipddak/mypage/account">
                                             <div className="profile-img">
                                                 {user.profile != null && user.profile != "" ? (
                                                     <img

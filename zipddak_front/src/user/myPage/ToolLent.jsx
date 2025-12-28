@@ -29,7 +29,7 @@ export default function ToolLent() {
     const [images, setImages] = useState([]);
     const [files, setFiles] = useState([]);
     const [rating, setRating] = useState(0);
-    
+
     // 후기 이미지 업로드
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -137,10 +137,11 @@ export default function ToolLent() {
     };
 
     // 반납완료 상태로 전환
-    const returnState = (returnStateIdx) => {
+    const returnState = (returnStateIdx, toolIdx) => {
         myAxios(token, setToken)
             .post(`${baseUrl}/user/rental/stateReturn`, {
                 rentalIdx: returnStateIdx,
+                toolIdx: toolIdx,
             })
             .then((res) => {
                 if (res.data) {
@@ -445,7 +446,7 @@ export default function ToolLent() {
                                                                 rentalState(rental.rentalIdx);
                                                             }}
                                                         >
-                                                            대여전환
+                                                            배송완료
                                                         </button>
                                                     </div>
                                                 ) : rentalCate === 2 && rental.state === "RENTAL" ? (
@@ -470,7 +471,7 @@ export default function ToolLent() {
                                                         }}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            returnState(rental.rentalIdx);
+                                                            returnState(rental.rentalIdx, rental.toolIdx);
                                                         }}
                                                     >
                                                         반납완료

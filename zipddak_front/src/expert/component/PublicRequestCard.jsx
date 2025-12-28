@@ -109,7 +109,7 @@ export default function PublicRequestCard({ request, onClick, isSelect }) {
                         {request.location}
                     </p>
                     <p>
-                        {Number(request.budget).toLocaleString()}만원 · {request.preferredDate}
+                        {Number(request.budget).toLocaleString()}원 · {request.preferredDate}
                     </p>
                 </div>
             </div>

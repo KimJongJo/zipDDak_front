@@ -86,6 +86,7 @@ export default function MarketOrders() {
         myAxios(token, setToken)
             .get(`http://localhost:8080/market/orderStatusSummary?username=${user.username}`)
             .then((res) => {
+                console.log(res.data.orderStatusSummary);
                 setOrderStatusSummary(res.data.orderStatusSummary);
             })
             .catch((err) => {

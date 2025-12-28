@@ -246,43 +246,6 @@ export default function AdminSwitchAccountRequests() {
             <div className="admin-userList-div">
                 <div className="admin-userList-top-div">
                     <span className="font-18 medium">전환신청 / 입점신청</span>
-                    <div className="admin-userList-top-div-right">
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">일반회원</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">전문가</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-
-                        <div className="admin-user-count-card">
-                            <span className="font-14 medium">판매업체</span>
-
-                            {/* 총 회원수 + 이번달 가입자 수 */}
-                            <span className="font-14 medium">
-                                90
-                                <span className="font-14 medium">
-                                    (5<i className="bi bi-arrow-up"></i>)
-                                </span>
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
                 <div className="admin-middle-header admin-middle-filter">
@@ -556,7 +519,7 @@ export default function AdminSwitchAccountRequests() {
                                                 <div className="admin-userList-switchId-modal-imgs-div">
                                                     {expertInfo.businessPdfFile && expertInfo.fileStoragePath && (
                                                         <iframe
-                                                            src={`${expertInfo.fileStoragePath}/${encodeURIComponent(expertInfo.businessPdfFile)}`}
+                                                            src={`${baseUrl}/pdf/expert/${encodeURIComponent(expertInfo.businessPdfFile)}`}
                                                             width="100%"
                                                             height="600px"
                                                             title="사업자등록증 PDF"
@@ -701,9 +664,16 @@ export default function AdminSwitchAccountRequests() {
                                                     <span className="font-18 semibold">사업자 등록증</span>
                                                 </div>
                                                 <div className="admin-userList-switchId-modal-imgs-div">
-                                                    <img src="/images/이미지테스트.png" className="admin-userList-switchId-modal-imgs" />
+                                                    {sellerInfo.businessLicense && (
+                                                        <iframe
+                                                            src={`${baseUrl}/pdf/seller/${encodeURIComponent(sellerInfo.businessLicense)}`}
+                                                            width="100%"
+                                                            height="600px"
+                                                            title="사업자등록증 PDF"
+                                                            frameBorder="0"
+                                                        />
+                                                    )}
                                                 </div>
-                                                <button className="admin-userList-switchId-modal-business-down font-14 semibold">다운로드</button>
                                             </div>
 
                                             <div>

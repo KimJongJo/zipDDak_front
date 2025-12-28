@@ -1,3 +1,4 @@
+import { RotateCcw } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import "../css/Experts.css";
 import { Input } from "reactstrap";
@@ -155,7 +156,8 @@ export default function Experts() {
                                 <i className="bi bi-search "></i>
                             </button>
                         </div>
-                        <button onClick={filterReset} style={{ height: "45px", border: "none", borderRadius: "5px", backgroundColor: "lightgray", color: "#ffffff" }}>
+                        <button onClick={filterReset} style={{ height: "45px", border: "none", backgroundColor: "transparent", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                            <RotateCcw size={14} />
                             초기화
                         </button>
                     </div>
