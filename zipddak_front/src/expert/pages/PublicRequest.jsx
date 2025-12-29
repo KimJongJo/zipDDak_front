@@ -162,7 +162,7 @@ export default function PublicRequest() {
                     paddingRight: "8px",
                 }}
             >
-                <h1 className="mypage-title">받은 요청서</h1>
+                <h1 className="mypage-title">공개 요청서</h1>
                 <div
                     style={{
                         display: "flex",

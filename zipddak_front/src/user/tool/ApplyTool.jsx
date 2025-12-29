@@ -232,7 +232,7 @@ export default function ApplyTool() {
             });
 
             // 마커 이미지 설정
-            const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+            const imageSrc =  "/zipddak_pin.png",
                 imageSize = new window.kakao.maps.Size(64, 69),
                 imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 

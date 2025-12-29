@@ -26,10 +26,12 @@ const KakaoMapModalForTradeAddr = () => {
       });
 
       // 마커 이미지 설정
-      const imageSrc =
-          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
-        imageSize = new window.kakao.maps.Size(64, 69),
-        imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+            const imageSrc =
+                // "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                "/zipddak_pin.png",
+                imageSize = new window.kakao.maps.Size(64, 69),
+                imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+
 
       const markerImage = new window.kakao.maps.MarkerImage(
         imageSrc,

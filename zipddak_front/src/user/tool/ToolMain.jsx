@@ -273,7 +273,7 @@ export default function ToolMain() {
                 <div className="map-bottom-list">
                     <div className="row-cm toolMainSearch">
                     <div className="title-main-main">
-                               <spnan>{keyword? "'"+keyword+"'"+"  "+"검색 결과" : "전체"}</spnan>
+                               <span>{keyword? "'"+keyword+"'"+"  "+"검색 결과" : "전체"}</span>
                                 <span className="s-count">{toolCount}</span>
                             </div>
                             </div>

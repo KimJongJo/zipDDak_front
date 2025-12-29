@@ -220,7 +220,8 @@ export default function ToolDetail() {
 
             // 마커 이미지 설정
             const imageSrc =
-                "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                // "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+                "/zipddak_pin.png",
                 imageSize = new window.kakao.maps.Size(64, 69),
                 imageOption = { offset: new window.kakao.maps.Point(27, 69) };
 
@@ -301,7 +302,7 @@ export default function ToolDetail() {
 
 
                                     <div className="d-price">
-                                        {tool.freeRental ? (
+                                        {tool.freeRental? (
                                             <span className="dt orange">무료대여</span>
                                         ) : (
                                             <>
@@ -312,7 +313,7 @@ export default function ToolDetail() {
                                         )}
                                     </div>
                                     <div className="d-price">
-                                        {tool.postCharge == null ? (
+                                        {tool.postCharge == null || tool.postCharge == 0 ? (
                                             <>
                                                 <Package />
                                                 <span className="dt orange">무료배송</span>

@@ -1,7 +1,7 @@
 import "../../css/common.css";
 import "../css/Main.css";
 import { Button } from "reactstrap";
-import { Search, CirclePlus, MapPin, ArrowRight, UserStar, Store, MessageSquareHeart } from "lucide-react";
+import { Search, CirclePlus, MapPin, ArrowRight, UserStar, Store, MessageSquareHeart, Rocket } from "lucide-react";
 import Expertmain from "../component/Expert";
 import Expert from "../../user/expert/Expert";
 import { Toolmain } from "../component/Tool";
@@ -75,7 +75,7 @@ export default function Main() {
     };
 
     useEffect(() => {
-        // expertList();
+        expertList();
     }, [user.username, eCategory]);
 
     // --------------------------------------------------------------------------
@@ -114,7 +114,7 @@ export default function Main() {
 
     //관심상품 토글
     useEffect(() => {
-        //productList();
+        productList();
     }, [user.username, pCategory]);
 
     const toggleFavorite = async (productIdx) => {
@@ -184,7 +184,7 @@ export default function Main() {
     };
 
     useEffect(() => {
-        // toolList();
+        toolList();
     }, [user.username, tCategory]);
 
     // --------------------------------------------------------------------------
@@ -214,7 +214,7 @@ export default function Main() {
     };
 
     useEffect(() => {
-        //communityList();
+        communityList();
     }, [user.username, cCategory]);
 
     return (
@@ -241,13 +241,21 @@ export default function Main() {
                     </div>
 
                     <div className="banner">
-                        <div className="banner-label">집딱 전문가 멤버십</div>
+                        <h2 className="banner-title"><Rocket/></h2>
+                        <div className="banner-label">Experts only</div>
+                        
                         <h2 className="banner-title">전문가 멤버십으로 </h2>
                         <h2 className="banner-title">더 많은 고객을 </h2>
-                        <h2 className="banner-title">만나보세요</h2>
-                        <p className="banner-text">고객에게 더 잘 보이고, 더 빠르게 연결되는 전문가 전용 혜택</p>
+                        <h2 className="banner-title">만나보세요!</h2>
+                        <div className="col-cm bannerSpace">
+                        <p className="banner-text">고객에게 더 잘 보이고,</p>
+                            <p className="banner-text">더 빠르게 연결되는</p>
+                            <p className="banner-text">전문가 전용 혜택</p>
+                            </div>
 
-                        <button className="banner-btn">멤버십 가입하기</button>
+                        <button className="banner-btn row-cm"
+                        onClick={()=>navigate(`/expert/mypage/membership`)}
+                        >멤버십 가입하기<ArrowRight/></button>
                     </div>
                 </div>
 

@@ -143,6 +143,13 @@ export default function RegistTool() {
             level: 1,
         });
 
+        // 마커 이미지 설정
+            const imageSrc =  "/zipddak_pin.png",
+                imageSize = new window.kakao.maps.Size(64, 69),
+                imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+
+            const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
         infowindow.current = new window.kakao.maps.InfoWindow({ zIndex: 1 });
 
         const geocoder = new window.kakao.maps.services.Geocoder();
@@ -157,6 +164,7 @@ export default function RegistTool() {
                     position: coords,
                     map: map.current,
                     title: "내 주소",
+                    image: markerImage,
                 });
 
                 // fixedMarker 클릭 시 선택
@@ -174,7 +182,7 @@ export default function RegistTool() {
         });
 
         // 클릭 마커 생성 (처음 안보임)
-        clickMarker.current = new window.kakao.maps.Marker({ map: map.current });
+        clickMarker.current = new window.kakao.maps.Marker({ map: map.current,image: markerImage, });
         clickMarker.current.setMap(null);
 
         // 지도 클릭 시 클릭 마커 이동/표시
