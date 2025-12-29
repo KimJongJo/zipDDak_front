@@ -293,9 +293,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="expert-cards">
-                        {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
-                    </div>
+                    <div className="expert-cards">{Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}</div>
                 </div>
 
                 <div className="card-box">
@@ -339,9 +337,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">
-                        {Array.isArray(tool) && tool.slice(0, 5).map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}
-                    </div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.slice(0, 5).map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -410,9 +406,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="product-cards">
-                        {Array.isArray(product) && product.slice(0, 4).map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
-                    </div>
+                    <div className="product-cards">{Array.isArray(product) && product.slice(0, 4).map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}</div>
                 </div>
 
                 <div className="card-box">

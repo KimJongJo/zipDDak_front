@@ -24,6 +24,7 @@ export default function ModalWarning({ warningModalOpen, setWarningModalOpen, in
                     .then((res) => {
                         if (res.data.success === true) {
                             alert("수거완료 처리되었습니다.");
+                            setWarningModalOpen(false); //모달 닫기
                             refresh?.();
                         } else {
                             alert("수거완료 처리 실패.");
