@@ -6,9 +6,9 @@ import usePageTitle from "../js/usePageTitle.jsx";
 import { FormGroup, Input, Label, Pagination, PaginationItem, PaginationLink } from "reactstrap";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { myAxios, baseUrl } from "../../config.jsx";
+import { myAxios } from "../../config.jsx";
 import { tokenAtom, userAtom } from "../../atoms";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 
 export default function ReturnList() {
     const pageTitle = usePageTitle("주문관리 > 반품 내역 리스트");
@@ -29,6 +29,24 @@ export default function ReturnList() {
 
     // 처리 상태 체크박스 value 고정
     const REFUND_STATUS = ["반품요청", "반품회수", "반품완료", "반품거절"];
+
+    //택배사
+    const getPostCompName = (code) => {
+        switch (code) {
+            case "4":
+                return "CJ대한통운";
+            case "8":
+                return "롯데택배";
+            case "5":
+                return "한진택배";
+            case "6":
+                return "로젠택배";
+            case "1":
+                return "우체국택배";
+            default:
+                return "-";
+        }
+    };
 
     // 처리 상태 체크박스 변경
     const onChangeStatus = (e) => {
@@ -192,7 +210,7 @@ export default function ReturnList() {
                                                                 <span className={table.title_cell}>{myRefund.refundProductName}</span> 포함 총 {myRefund.refundItemCount} 건
                                                             </td>
                                                             <td>{myRefund.username}</td>
-                                                            <td>{myRefund.pickupPostComp ? myRefund.pickupPostComp : "-"}</td>
+                                                            <td>{getPostCompName(myRefund.pickupPostComp)}</td>
                                                             <td>{myRefund.pickupTrackingNo ? myRefund.pickupTrackingNo : "-"}</td>
                                                             <td>{myRefund.orderStatus}</td>
                                                             <td>{myRefund.createdAt}</td>

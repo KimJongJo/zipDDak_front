@@ -282,9 +282,9 @@ export default function ProductList() {
                                                             </td>
                                                             <td className={table.title_cell}> {myProduct.name}</td>
                                                             <td>{categoryMap[myProduct.categoryIdx] || "-"}</td>
-                                                            <td>{priceFormat(myProduct.price)}</td>
-                                                            <td>리뷰수</td>
-                                                            <td>리뷰평점</td>
+                                                            <td>{myProduct.salePrice ? priceFormat(myProduct.salePrice) : priceFormat(myProduct.price)}</td>
+                                                            <td>{myProduct.reviewCount}</td>
+                                                            <td>{myProduct.reviewAvgScore}</td>
                                                             <td>{myProduct.visibleYn ? "판매중" : "비공개"}</td>
                                                             <td>{myProduct.createdAt}</td>
                                                         </tr>

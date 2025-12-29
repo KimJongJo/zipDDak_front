@@ -87,10 +87,11 @@ export default function ModalTrackingRegist({ trackingModalOpen, setTrackingModa
                             <div className={modal.trackingInput}>
                                 <Input type="select" style={{ width: "30%" }} onChange={(e) => setPostComp(e.target.value)}>
                                     <option>택배사</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
+                                    <option value="04">CJ대한통운</option>
+                                    <option value="08">롯데택배</option>
+                                    <option value="05">한진택배</option>
+                                    <option value="06">로젠택배</option>
+                                    <option value="01">우체국택배</option>
                                 </Input>
                                 <Input type="text" style={{ width: "70%" }} onChange={(e) => setTrackingNumber(e.target.value)} />
                             </div>
