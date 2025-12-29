@@ -237,25 +237,28 @@ export default function Main() {
                         {/* <img src="/mainImg/main1.jpg" /> */}
                         <img src="/mainImg/main2.jpg" />
                         {/* <img src="/mainImg/main3.jpg" /> */}
-                        <span style={{ fontSize: "30px", position: "absolute", fontWeight: "600", bottom: "40px", left: "40px", color: "#ffff" }}>안녕하세요. 안녕합니다!</span>
+                        <span style={{ fontSize: "30px", position: "absolute", fontWeight: "600", bottom: "40px", left: "40px", color: "#ffff" }}>집수리의 모든 것, 여기서 끝!</span>
                     </div>
 
                     <div className="banner">
-                        <h2 className="banner-title"><Rocket/></h2>
+                        <h2 className="banner-title">
+                            <Rocket />
+                        </h2>
                         <div className="banner-label">Experts only</div>
-                        
+
                         <h2 className="banner-title">전문가 멤버십으로 </h2>
                         <h2 className="banner-title">더 많은 고객을 </h2>
                         <h2 className="banner-title">만나보세요!</h2>
                         <div className="col-cm bannerSpace">
-                        <p className="banner-text">고객에게 더 잘 보이고,</p>
+                            <p className="banner-text">고객에게 더 잘 보이고,</p>
                             <p className="banner-text">더 빠르게 연결되는</p>
                             <p className="banner-text">전문가 전용 혜택</p>
-                            </div>
+                        </div>
 
-                        <button className="banner-btn row-cm"
-                        onClick={()=>navigate(`/expert/mypage/membership`)}
-                        >멤버십 가입하기<ArrowRight/></button>
+                        <button className="banner-btn row-cm" onClick={() => navigate(`/expert/mypage/membership`)}>
+                            멤버십 가입하기
+                            <ArrowRight />
+                        </button>
                     </div>
                 </div>
 
