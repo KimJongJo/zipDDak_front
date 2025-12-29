@@ -24,7 +24,7 @@ export default function FindExpert() {
     const toggle = () => {
         setModal(!modal);
 
-        navigate("/zipddak/mypage/expert/requests/active");
+        navigate("/zipddak/main");
     };
 
     const [requestForm, setRequestForm] = useState({});
