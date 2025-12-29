@@ -241,21 +241,24 @@ export default function Main() {
                     </div>
 
                     <div className="banner">
-                        <h2 className="banner-title"><Rocket/></h2>
+                        <h2 className="banner-title">
+                            <Rocket />
+                        </h2>
                         <div className="banner-label">Experts only</div>
-                        
+
                         <h2 className="banner-title">전문가 멤버십으로 </h2>
                         <h2 className="banner-title">더 많은 고객을 </h2>
                         <h2 className="banner-title">만나보세요!</h2>
                         <div className="col-cm bannerSpace">
-                        <p className="banner-text">고객에게 더 잘 보이고,</p>
+                            <p className="banner-text">고객에게 더 잘 보이고,</p>
                             <p className="banner-text">더 빠르게 연결되는</p>
                             <p className="banner-text">전문가 전용 혜택</p>
-                            </div>
+                        </div>
 
-                        <button className="banner-btn row-cm"
-                        onClick={()=>navigate(`/expert/mypage/membership`)}
-                        >멤버십 가입하기<ArrowRight/></button>
+                        <button className="banner-btn row-cm" onClick={() => navigate(`/expert/mypage/membership`)}>
+                            멤버십 가입하기
+                            <ArrowRight />
+                        </button>
                     </div>
                 </div>
 
@@ -290,9 +293,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="expert-cards">
-                        {Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}
-                    </div>
+                    <div className="expert-cards">{Array.isArray(expert) && expert.map((expertCard) => <Expertmain key={expertCard.expertIdx} expert={expertCard} toggleFavorite={expertCard.isFavorite} />)}</div>
                 </div>
 
                 <div className="card-box">
@@ -336,9 +337,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="tool-cards">
-                        {Array.isArray(tool) && tool.slice(0, 5).map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}
-                    </div>
+                    <div className="tool-cards">{Array.isArray(tool) && tool.slice(0, 5).map((toolCard) => <Toolmain key={toolCard.toolIdx} tool={toolCard} toggleFavoriteTool={toggleFavoriteTool} />)}</div>
                 </div>
 
                 {/* <div className="advertise"></div> */}
@@ -407,9 +406,7 @@ export default function Main() {
                         </div>
                     </div>
 
-                    <div className="product-cards">
-                        {Array.isArray(product) && product.slice(0, 4).map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}
-                    </div>
+                    <div className="product-cards">{Array.isArray(product) && product.slice(0, 4).map((productCard) => <Product key={productCard.productIdx} product={productCard} toggleFavorite={toggleFavorite} />)}</div>
                 </div>
 
                 <div className="card-box">

@@ -84,6 +84,24 @@ export default function OrderDetail() {
         );
     }
 
+    //택배사
+    const getPostCompName = (code) => {
+        switch (code) {
+            case "4":
+                return "CJ대한통운";
+            case "8":
+                return "롯데택배";
+            case "5":
+                return "한진택배";
+            case "6":
+                return "로젠택배";
+            case "1":
+                return "우체국택배";
+            default:
+                return "-";
+        }
+    };
+
     // 퀵처리 드롭박스 토글 로직 (중복 클릭 -> 닫힘)
     const toggleDropdown = (itemIdx) => {
         setOpenDropdown((prev) => (prev === itemIdx ? null : itemIdx));
@@ -299,7 +317,7 @@ export default function OrderDetail() {
                                                             </td>
                                                         )}
 
-                                                        <td>{it.trackingNo ? `${it.postComp} ${it.trackingNo}` : "-"}</td>
+                                                        <td>{it.trackingNo ? `${getPostCompName(it.pickupPostComp)} ${it.trackingNo}` : "-"}</td>
                                                         <td className="dropdown-wrapper" style={{ position: "relative" }}>
                                                             <i
                                                                 className={`bi bi-three-dots-vertical ${it.trackingNo || it.orderStatus === "반품완료" ? "disabled_icon" : "pointer"}`}

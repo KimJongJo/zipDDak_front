@@ -186,10 +186,10 @@ export default function ReturnList() {
                                                 <tr>
                                                     <th style={{ width: "10%" }}>주문일자</th>
                                                     <th style={{ width: "15%" }}>주문번호</th>
-                                                    <th style={{ width: "20%" }}>상품명</th>
-                                                    <th style={{ width: "15%" }}>구매자</th>
+                                                    <th style={{ width: "15%" }}>상품명</th>
+                                                    <th style={{ width: "10%" }}>구매자</th>
                                                     <th style={{ width: "10%" }}>택배사</th>
-                                                    <th style={{ width: "15%" }}>수거송장</th>
+                                                    <th style={{ width: "10%" }}>수거송장</th>
                                                     <th style={{ width: "10%" }}>처리상태</th>
                                                     <th style={{ width: "15%" }}>반품요청일</th>
                                                 </tr>
