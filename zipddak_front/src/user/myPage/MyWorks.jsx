@@ -39,6 +39,8 @@ export default function MyWorks() {
     const user = useAtomValue(userAtom);
     const [token, setToken] = useAtom(tokenAtom);
 
+    const [flag, setFlag] = useState(false);
+
     // 작업 목록 조회
     const getWorks = (page, startDate, endDate) => {
         myAxios(token, setToken)
@@ -80,13 +82,17 @@ export default function MyWorks() {
         setFiles((prev) => [...prev, file]);
     };
 
+    const [selectExpertIdx, setSelectExpertIdx] = useState(0);
+    const [selectExpertProfile, setSelectExpertProfile] = useState("");
+
     const submitExpertReview = () => {
         const formData = new FormData();
 
         formData.append("score", rating);
-        formData.append("content", content);
+        formData.append("content", targetReview.content);
         formData.append("writer", user.username);
         formData.append("matchingIdx", selectMatchingIdx);
+        formData.append("expertIdx", selectExpertIdx);
 
         // 파일 업로드
         files.forEach((file) => {
@@ -103,6 +109,7 @@ export default function MyWorks() {
                     setImages([]);
                     setFiles([]);
                     setIsModalOpen(false);
+                    setFlag(!flag);
                 }
             });
     };
@@ -111,7 +118,7 @@ export default function MyWorks() {
         if (!user) return;
 
         getWorks(pageFromUrl, selectDate.startDate, selectDate.endDate);
-    }, [pageFromUrl, user]);
+    }, [pageFromUrl, user, flag]);
 
     return (
         <div className="mypage-layout">
@@ -209,7 +216,7 @@ export default function MyWorks() {
                                             }}
                                         >
                                             <span style={{ fontSize: "16px", fontWeight: "700" }}>{WORK_STATUS_LABEL[work.status]}</span>
-                                            {work.status === "COMPLETED" && (
+                                            {work.status === "COMPLETED" && work.writeReview === false && (
                                                 <button
                                                     className="primary-button"
                                                     style={{
@@ -220,6 +227,8 @@ export default function MyWorks() {
                                                         e.stopPropagation();
                                                         setIsModalOpen(true);
                                                         setSelectMatchingIdx(work.matchingIdx);
+                                                        setSelectExpertIdx(work.expertIdx);
+                                                        setSelectExpertProfile(work.expertThumbnail);
                                                     }}
                                                 >
                                                     후기작성
@@ -246,7 +255,7 @@ export default function MyWorks() {
                             gap: "10px",
                         }}
                     >
-                        {/* <img src={`http://localhost:8080/imageView?type=product&filename=${targetReview.thumbnail}`} width="80px" height="80px" /> */}
+                        <img src={`http://localhost:8080/imageView?type=expert&filename=${selectExpertProfile}`} width="80px" height="80px" />
                         <div
                             style={{
                                 display: "flex",
@@ -255,13 +264,12 @@ export default function MyWorks() {
                                 fontSize: "14px",
                             }}
                         >
-                            {/* <p style={{ fontWeight: "600" }}>{targetReview.brandName}</p>
-                            <p style={{ fontWeight: "500" }}>{targetReview.productName}</p>
-                            {targetReview.optionName && <p style={{ color: "#6A7685" }}>{targetReview.optionName}</p>} */}
+                            <p style={{ fontWeight: "600" }}>{targetReview.title}</p>
+                            <p style={{ fontWeight: "500" }}>{targetReview.subTitle}</p>
                         </div>
                     </div>
                     <div className="label-wrapper">
-                        <label>전문가 매칭은 어떠셨나요?</label>
+                        <label>작업은 어떠셨나요?</label>
                         <div className="review-star">
                             {[1, 2, 3, 4, 5].map((num) => (
                                 <i
@@ -279,8 +287,13 @@ export default function MyWorks() {
                     </div>
 
                     <div className="label-wrapper">
-                        <label>매칭 후기를 적어주세요</label>
-                        <Input type="textarea" placeholder="전문가에 대해 만족스러웠던 점이나, 아쉬웠던 점 등을 남겨주세요." onChange={(e) => setContent(e.target.value)}></Input>
+                        <label>작업 후기를 적어주세요</label>
+                        <Input
+                            type="textarea"
+                            placeholder="작업에 대해 만족스러웠던 점이나, 팁 등을 남겨주세요"
+                            value={targetReview.content}
+                            onChange={(e) => setTargetReview({ ...targetReview, content: e.target.value })}
+                        ></Input>
                     </div>
 
                     <div className="label-wrapper">
@@ -293,7 +306,16 @@ export default function MyWorks() {
                         >
                             {images.map((img, idx) => (
                                 <div style={{ position: "relative" }}>
-                                    <img key={idx} src={img.url} width="60px" height="60px" />
+                                    <img
+                                        key={idx}
+                                        src={
+                                            img.isLocal
+                                                ? img.url // 로컬 blob URL
+                                                : `http://localhost:8080/imageView?type=review&filename=${img.url}` // 서버 이미지
+                                        }
+                                        width="60px"
+                                        height="60px"
+                                    />
                                     <i
                                         class="bi bi-x-circle-fill"
                                         style={{
