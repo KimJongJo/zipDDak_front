@@ -245,7 +245,7 @@ export default function RequestHistory() {
                                         backgroundColor: "#fff",
                                     }}
                                     onClick={() => {
-                                        navigate(`/zipddak/mypage/expert/works/detail/${request.requestIdx}`);
+                                        navigate(`/zipddak/mypage/expert/works/detail/${request.requestIdx}?page=1`);
                                     }}
                                 >
                                     작업 상세 보기
