@@ -322,7 +322,7 @@ export default function PublicRequestDetail() {
                             }}
                         >
                             <p>
-                                <span>예산</span> {Number(requestDetail.budget).toLocaleString()}만원
+                                <span>예산</span> {Number(requestDetail.budget).toLocaleString()}원
                             </p>
                             <p>
                                 <span>지역</span> {requestDetail.location}
