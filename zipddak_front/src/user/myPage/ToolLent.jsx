@@ -707,26 +707,26 @@ export default function ToolLent() {
                         </ModalFooter>
                     </Modal>
 
-                    <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
+                    {/* <div style={{ display: "flex", justifyContent: "center", margin: "20px 0" }}>
                         <Pagination className="my-pagination">
-                            {/* 이전 */}
+
                             <PaginationItem disabled={curPage === 1}>
                                 <PaginationLink previous onClick={() => handlePageClick(curPage - 1)} />
                             </PaginationItem>
 
-                            {/* 페이지 번호 */}
+
                             {pages.map((page) => (
                                 <PaginationItem key={page} active={curPage === page}>
                                     <PaginationLink onClick={() => handlePageClick(page)}>{page}</PaginationLink>
                                 </PaginationItem>
                             ))}
 
-                            {/* 다음 */}
+
                             <PaginationItem disabled={curPage === allPage}>
                                 <PaginationLink next onClick={() => handlePageClick(curPage + 1)} />
                             </PaginationItem>
                         </Pagination>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </>
