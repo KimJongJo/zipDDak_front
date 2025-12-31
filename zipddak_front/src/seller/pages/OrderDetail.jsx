@@ -171,11 +171,12 @@ export default function OrderDetail() {
                                     <div className={detail.info_column}>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 상태 </span>
-                                            <span>주문 상태 </span>
+                                            <span>상품준비중 </span>
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">결제 수단 </span>
-                                            <Input value="결제수단" readOnly />
+                                            {/* <Input value="결제수단" readOnly /> */}
+                                            <Input value="간편결제 (카카오페이)" readOnly />
                                         </div>
                                     </div>
                                     <div className={detail.info_column}>
@@ -209,7 +210,8 @@ export default function OrderDetail() {
                                         </div>
                                         <div className={detail.info_cell}>
                                             <span className="sub_title">주문 횟수</span>
-                                            <Input value={order.orderCode} readOnly />
+                                            {/* <Input value={order.orderCode} readOnly /> */}
+                                            <Input value="12" readOnly />
                                         </div>
                                     </div>
                                 </div>
